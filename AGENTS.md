@@ -18,7 +18,6 @@
 
 - 默认主 Web 栈为 Next.js App Router、React 19、TypeScript、Tailwind CSS 4、Zustand 和 Motion。
 - Next.js 是主 Web 应用框架；Tauri 桌面端作为独立 `Tauri + Vite` 壳层复用共享包，不要把 Next server runtime 强行塞进桌面端。
-- 只有当动效或空间交互确实能提升 Web OS 体验时，才引入 Motion、GSAP 或 Three.js；当前默认动效方案是 Motion。
 - Shell 外壳、应用模块、状态管理和视觉组件要保持清晰边界，让业务 App 可以独立演进。
 - 新增生产依赖前，先确认现有技术栈是否已经能覆盖需求。
 - 使用 `pnpm` 管理 workspace 依赖。
@@ -35,7 +34,7 @@
 - 除非用户要求英文文案，文档中保留中文产品术语。
 - 代码改动的首选验证命令是 `pnpm check`。
 - 修改 App/Widget 动态加载、桌面布局或共享包边界时，要同步检查 Web 与 Desktop 两个装配面。
-- 每次任务执行完成后，将当前暂存区内的全部内容提交到 Git，无论这些内容是否与本次任务直接相关，并推送到远端仓库。
+- 每次任务执行完成后，将当前工作树内的全部未提交内容暂存并提交到 Git，无论这些内容是否与本次任务直接相关，并推送到远端仓库。
 - 编辑 Markdown 后，结束前运行一次差异空白检查：
 
   ```powershell
