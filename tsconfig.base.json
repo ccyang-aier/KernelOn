@@ -16,6 +16,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@kernelon/catalog": ["./packages/catalog/src/index.ts"],
       "@kernelon/core": ["./packages/core/src/index.ts"],
       "@kernelon/shell": ["./packages/shell/src/index.ts"],
       "@kernelon/ui": ["./packages/ui/src/index.ts"]

@@ -10,6 +10,11 @@ const onboardingApp: KernelAppManifest = {
   category: 'operations',
   icon: 'UserRoundCheck',
   dockedByDefault: true,
+  runtime: {
+    window: {
+      loaderKey: 'app:onboarding-window',
+    },
+  },
   defaultWindow: {
     bounds: { x: 96, y: 72, width: 960, height: 640 },
   },

@@ -12,6 +12,7 @@ import type {
   CommandDefinition,
   DesktopScreen,
   KernelAppManifest,
+  WidgetManifest,
   WindowDescriptor,
 } from '@kernelon/core';
 import { createStore } from 'zustand/vanilla';
@@ -23,6 +24,7 @@ export interface ShellInitialState {
   spotlightOpen?: boolean;
   dockAppIds?: string[];
   apps: KernelAppManifest[];
+  widgets?: WidgetManifest[];
   commands?: CommandDefinition[];
   screens?: DesktopScreen[];
 }
@@ -34,6 +36,7 @@ export interface ShellState {
   spotlightOpen: boolean;
   dockAppIds: string[];
   apps: KernelAppManifest[];
+  widgets: WidgetManifest[];
   commands: CommandDefinition[];
   screens: DesktopScreen[];
   openApp(appId: string): void;
@@ -58,9 +61,10 @@ export function createShellStore(initialState: ShellInitialState) {
       initialState.dockAppIds ??
       initialState.apps.filter((app) => app.dockedByDefault).map((app) => app.id),
     apps: appRegistry.all(),
+    widgets: initialState.widgets ?? [],
     commands: initialState.commands ?? createAppOpenCommands(appRegistry.all()),
     screens: initialState.screens ?? [
-      createDefaultDesktopScreen(appRegistry.all(), {
+      createDefaultDesktopScreen([], {
         screenId: currentScreenId,
         screenName: '新员工工作台',
       }),

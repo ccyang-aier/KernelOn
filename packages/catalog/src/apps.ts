@@ -9,6 +9,11 @@ export const kernelApps: KernelAppManifest[] = [
     category: 'operations',
     icon: 'UserRoundCheck',
     dockedByDefault: true,
+    runtime: {
+      window: {
+        loaderKey: 'app:onboarding-window',
+      },
+    },
     defaultWindow: {
       title: '新员工运作',
       bounds: { x: 96, y: 72, width: 960, height: 640 },
@@ -22,6 +27,11 @@ export const kernelApps: KernelAppManifest[] = [
     category: 'operations',
     icon: 'Handshake',
     dockedByDefault: true,
+    runtime: {
+      window: {
+        loaderKey: 'app:mentor-window',
+      },
+    },
     defaultWindow: {
       title: '导师管理',
       bounds: { x: 136, y: 96, width: 920, height: 620 },
@@ -35,6 +45,11 @@ export const kernelApps: KernelAppManifest[] = [
     category: 'growth',
     icon: 'Milestone',
     dockedByDefault: true,
+    runtime: {
+      window: {
+        loaderKey: 'app:growth-archive-window',
+      },
+    },
     defaultWindow: {
       title: '成长档案',
       bounds: { x: 176, y: 120, width: 880, height: 600 },
@@ -47,6 +62,11 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P1',
     category: 'growth',
     icon: 'BookOpenCheck',
+    runtime: {
+      window: {
+        loaderKey: 'app:training-window',
+      },
+    },
     defaultWindow: {
       title: '培训中心',
       bounds: { x: 196, y: 132, width: 860, height: 580 },
@@ -59,6 +79,11 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P1',
     category: 'growth',
     icon: 'ClipboardCheck',
+    runtime: {
+      window: {
+        loaderKey: 'app:assessment-window',
+      },
+    },
     defaultWindow: {
       title: '考核评估',
       bounds: { x: 216, y: 148, width: 860, height: 580 },
@@ -71,6 +96,11 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P2',
     category: 'insight',
     icon: 'ChartSpline',
+    runtime: {
+      window: {
+        loaderKey: 'app:dashboard-window',
+      },
+    },
     defaultWindow: {
       title: '数据看板',
       bounds: { x: 236, y: 164, width: 960, height: 620 },
@@ -83,6 +113,11 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P2',
     category: 'resource',
     icon: 'FolderKanban',
+    runtime: {
+      window: {
+        loaderKey: 'app:resources-window',
+      },
+    },
     defaultWindow: {
       title: '资源库',
       bounds: { x: 256, y: 180, width: 820, height: 560 },

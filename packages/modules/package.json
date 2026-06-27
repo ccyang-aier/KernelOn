@@ -1,0 +1,61 @@
+{
+  "name": "@kernelon/modules",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./onboarding-window": {
+      "types": "./src/apps/onboarding/OnboardingWindow.tsx",
+      "import": "./src/apps/onboarding/OnboardingWindow.tsx"
+    },
+    "./mentor-window": {
+      "types": "./src/apps/mentor/MentorWindow.tsx",
+      "import": "./src/apps/mentor/MentorWindow.tsx"
+    },
+    "./growth-archive-window": {
+      "types": "./src/apps/growth-archive/GrowthArchiveWindow.tsx",
+      "import": "./src/apps/growth-archive/GrowthArchiveWindow.tsx"
+    },
+    "./training-window": {
+      "types": "./src/apps/training/TrainingWindow.tsx",
+      "import": "./src/apps/training/TrainingWindow.tsx"
+    },
+    "./assessment-window": {
+      "types": "./src/apps/assessment/AssessmentWindow.tsx",
+      "import": "./src/apps/assessment/AssessmentWindow.tsx"
+    },
+    "./dashboard-window": {
+      "types": "./src/apps/dashboard/DashboardWindow.tsx",
+      "import": "./src/apps/dashboard/DashboardWindow.tsx"
+    },
+    "./resources-window": {
+      "types": "./src/apps/resources/ResourcesWindow.tsx",
+      "import": "./src/apps/resources/ResourcesWindow.tsx"
+    },
+    "./onboarding-progress-widget": {
+      "types": "./src/widgets/OnboardingProgressWidget.tsx",
+      "import": "./src/widgets/OnboardingProgressWidget.tsx"
+    },
+    "./mentor-load-widget": {
+      "types": "./src/widgets/MentorLoadWidget.tsx",
+      "import": "./src/widgets/MentorLoadWidget.tsx"
+    },
+    "./runtime": {
+      "types": "./src/runtime.tsx",
+      "import": "./src/runtime.tsx"
+    }
+  },
+  "dependencies": {
+    "@kernelon/shell": "workspace:*",
+    "@kernelon/ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  }
+}

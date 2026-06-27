@@ -74,6 +74,7 @@
 - **桌面与窗口**：App 以窗口形式打开，支持多窗口、拖拽、层级管理。
 - **Dock / 启动台**：常用 App 常驻，全部 App 可在启动台总览与检索。
 - **小组件（Widget）**：在桌面直接展示关键信息与快捷操作（待办、进度、快速录入等）。
+- **按需加载**：桌面只渲染用户已添加到当前桌面屏的小组件与 App 入口；业务窗口只在用户主动打开 App 时加载，避免把全部 App 和组件一次性塞进首屏。
 - **个性化**：支持更换壁纸、自由布局小组件与图标、自定义多屏桌面。
 - **AI Spotlight**：按下 `Cmd + Space` 快速唤起。不仅是全局检索，还集成了 AI 问答、AI 指令（输入“匹配导师张三和新人李四”直接调起匹配界面）以及强大的AI Agent能力。
 - **通知中心**：统一汇聚待办、提醒、流程通知。支持与钉钉/企业微信/飞书的 Webhook 联动。
@@ -95,7 +96,7 @@
 ## 五、平台支持范围与技术选型
 
 - **Web 端**：首要交付目标，也是产品体验、业务流程、权限模型、数据模型与 AI 能力的主验证面。
-- **桌面端**：后续基于 `Tauri + Vite` 独立建设桌面壳，复用 `packages/core`、`packages/ui` 与 `packages/shell`，不强行把 Next.js server runtime 塞进桌面端。
+- **桌面端**：基于 `Tauri + Vite` 独立建设桌面壳，复用 `packages/core`、`packages/catalog`、`packages/modules`、`packages/ui` 与 `packages/shell`，不强行把 Next.js server runtime 塞进桌面端。
 - **移动端**：不在本期范围内。后续如需移动适配，应优先判断是响应式查看、轻量审批，还是完整移动产品。
 
 ### 5.1 最终主技术栈
@@ -119,9 +120,12 @@
 ### 5.2 状态与边界原则
 
 - `packages/core` 是纯 TypeScript 内核，不依赖 React，承载 App manifest、窗口模型、桌面布局、命令模型等可测试的纯能力。
+- `packages/catalog` 是 App/Widget 注册目录与默认桌面配置层。它只保存 manifest、分类、默认布局、`loaderKey` 等可序列化描述，不直接导入业务 React 组件。
+- `packages/modules` 是可动态加载的业务模块层。App 窗口和 Widget 通过运行时注册表按 `loaderKey` 懒加载，支持未来按组织、角色、用户个性化配置裁剪加载范围。
 - `packages/ui` 是设计系统原语层，沉淀 Button、IconButton、Surface、WindowFrame 等可复用组件，并逐步接入 shadcn/Radix 风格的可访问性基础组件。
-- `packages/shell` 是客户端 Web OS 壳层，承载桌面、Dock、启动台、窗口层、Spotlight 与本地 UI store。
+- `packages/shell` 是客户端 Web OS 壳层，承载桌面、Dock、启动台、窗口层、Spotlight 与本地 UI store。Shell 不直接绑定具体业务 App，而是消费 manifest、桌面布局和运行时注册表。
 - `apps/web` 是 Next.js 应用装配层，负责路由、布局、服务端数据入口、权限边界和业务 App 组合。
+- `apps/desktop` 是 Tauri + Vite 桌面壳层，负责窗口容器、桌面构建、原生能力桥接和共享模块装配；除原生集成外，不重复实现 Web 已有业务组件。
 - Zustand 不管理远端列表缓存、复杂表单工作流、审批流状态机或跨用户协同状态；这些能力后续分别由服务端模型、数据库事务、工作流建模或专用协同方案承载。
 
 ### 5.3 桌面端策略
@@ -131,7 +135,7 @@ Tauri 是桌面端的正确方向，但不是首期 Web 主应用的约束。原
 因此最终策略是：
 
 - 主 Web：`apps/web` 使用 Next.js App Router。
-- 后续桌面：新增 `apps/desktop`，使用 `Tauri + Vite`，并复用共享包。
-- 共享能力：核心模型、UI 原语、Shell 交互尽量沉淀在 `packages`，避免 Web 与桌面各写一套。
+- 桌面壳：`apps/desktop` 使用 `Tauri + Vite`，并复用共享包。
+- 共享能力：核心模型、App/Widget 注册目录、可动态加载模块、UI 原语、Shell 交互尽量沉淀在 `packages`，避免 Web 与桌面各写一套。
 
 这套策略既保留 Next.js 对平台型 Web 应用的长期优势，也为桌面端留下轻量、高性能、可控的实现路径。

@@ -13,6 +13,7 @@
 
 - `src/app` 是装配层，只承担路由入口、Metadata、布局、Server Component 数据协调、Route Handlers 和组合入口。
 - 业务逻辑、领域状态与交互实现沉淀在 `src/features` 或共享包中。不要把业务流程堆进 `page.tsx` / `layout.tsx`。
+- Web 端业务 App/Widget 优先沉淀到 `packages/modules`，manifest 与默认桌面配置优先进入 `packages/catalog`。`apps/web` 只保留 Next 装配、服务端边界和 Web 特有 runtime bridge。
 - 物理就近，抽象按需偿付。组件、类型、hooks、测试和局部常量优先靠近使用处；只有真实复用、稳定契约或职责分裂明确时才抽象。
 - 文件拆分信号不是行数，而是一个文件是否承担了多于一个变化原因。
 
@@ -20,6 +21,7 @@
 
 - 默认按 Server Component 思考。只有需要浏览器 API、客户端状态、事件处理或动画时才声明 `"use client"`，且边界尽量下沉到交互叶子。
 - 穿越 server 到 client 边界的 props 必须可序列化。函数、类实例、服务端闭包不跨边界传递。
+- Server Component 传给 Shell 的只能是可序列化的 manifest、layout 和初始状态；App/Widget 组件实现通过客户端 runtime registry 按需加载。
 - 读操作优先放在服务端路径；写操作后续优先用 Server Actions 或 Route Handlers 形成提交、校验、变更与 UI 更新闭环。
 - 权限、鉴权、敏感数据访问和关键业务规则优先归属服务端。客户端状态只能改善体验，不能成为安全事实来源。
 

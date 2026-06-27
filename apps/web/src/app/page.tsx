@@ -1,12 +1,14 @@
-import { KernelOnShell } from '@kernelon/shell';
+import { defaultDesktopScreens, kernelApps, kernelWidgets } from '@kernelon/catalog';
 
-import { kernelApps } from '../features/kernel-apps';
+import { KernelOnWebRuntime } from '../runtime/KernelOnWebRuntime';
 
 export default function Page() {
   return (
-    <KernelOnShell
+    <KernelOnWebRuntime
       initialState={{
         apps: kernelApps,
+        widgets: kernelWidgets,
+        screens: defaultDesktopScreens,
         dockAppIds: kernelApps.filter((app) => app.dockedByDefault).map((app) => app.id),
       }}
     />

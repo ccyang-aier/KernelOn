@@ -1,13 +1,31 @@
 'use client';
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import {
+  Suspense,
+  createContext,
+  createElement,
+  lazy,
+  useContext,
+  useMemo,
+  useState,
+  type ComponentType,
+  type LazyExoticComponent,
+  type ReactNode,
+} from 'react';
 import { motion } from 'motion/react';
 import { AppWindow, Command, Grid3X3, Search, Wifi } from 'lucide-react';
 import { useStore } from 'zustand';
 
 import { Button, IconButton, Surface, WindowFrame } from '@kernelon/ui';
+import type {
+  DesktopItem,
+  KernelAppManifest,
+  WidgetManifest,
+  WindowDescriptor,
+} from '@kernelon/core';
 
-import { resolveAppIcon } from './app-icons';
+import { AppIcon } from './app-icons';
+import type { AppWindowSurfaceProps, ShellRuntimeRegistry, WidgetSurfaceProps } from './runtime';
 import {
   createShellStore,
   type ShellInitialState,
@@ -17,6 +35,7 @@ import {
 
 export interface KernelOnShellProps {
   initialState: ShellInitialState;
+  runtime: ShellRuntimeRegistry;
 }
 
 const ShellStoreContext = createContext<ShellStore | null>(null);
@@ -40,16 +59,18 @@ function useShellSelector<T>(selector: (state: ShellState) => T): T {
   return useStore(store, selector);
 }
 
-export function KernelOnShell({ initialState }: KernelOnShellProps) {
+export function KernelOnShell({ initialState, runtime }: KernelOnShellProps) {
   return (
     <ShellStoreProvider initialState={initialState}>
-      <KernelOnShellView />
+      <KernelOnShellView runtime={runtime} />
     </ShellStoreProvider>
   );
 }
 
-function KernelOnShellView() {
+function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry }>) {
   const apps = useShellSelector((state) => state.apps);
+  const widgets = useShellSelector((state) => state.widgets);
+  const currentScreenId = useShellSelector((state) => state.currentScreenId);
   const dockAppIds = useShellSelector((state) => state.dockAppIds);
   const windows = useShellSelector((state) => state.windows);
   const launcherOpen = useShellSelector((state) => state.launcherOpen);
@@ -62,6 +83,8 @@ function KernelOnShellView() {
   const toggleLauncher = useShellSelector((state) => state.toggleLauncher);
   const toggleSpotlight = useShellSelector((state) => state.toggleSpotlight);
   const dockApps = apps.filter((app) => dockAppIds.includes(app.id));
+  const currentScreen = screens.find((screen) => screen.id === currentScreenId) ?? screens[0];
+  const desktopItems = currentScreen?.items ?? [];
 
   return (
     <main className="min-h-screen overflow-hidden bg-[var(--ko-bg)] text-[var(--ko-ink)]">
@@ -107,28 +130,17 @@ function KernelOnShellView() {
                   </Button>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  {apps.map((app) => {
-                    const Icon = resolveAppIcon(app.icon);
-
-                    return (
-                      <motion.button
-                        className="group flex min-h-28 flex-col items-start rounded-lg border border-[var(--ko-border)] bg-white/78 p-4 text-left shadow-[0_12px_32px_rgba(17,24,39,0.06)] transition hover:border-[var(--ko-accent)] hover:bg-white"
-                        key={app.id}
-                        type="button"
-                        whileHover={{ y: -2 }}
-                        onClick={() => openApp(app.id)}
-                      >
-                        <div className="mb-4 flex size-10 items-center justify-center rounded-md bg-[var(--ko-accent-soft)] text-[var(--ko-accent)]">
-                          <Icon className="size-5" />
-                        </div>
-                        <div className="text-sm font-semibold text-[var(--ko-ink)]">{app.name}</div>
-                        <p className="mt-1 text-xs leading-5 text-[var(--ko-muted)]">
-                          {app.description}
-                        </p>
-                      </motion.button>
-                    );
-                  })}
+                <div className="grid auto-rows-[112px] grid-cols-4 gap-3 xl:grid-cols-6">
+                  {desktopItems.map((item) => (
+                    <DesktopItemSurface
+                      apps={apps}
+                      item={item}
+                      key={item.id}
+                      runtime={runtime}
+                      widgets={widgets}
+                      onOpenApp={openApp}
+                    />
+                  ))}
                 </div>
               </Surface>
 
@@ -148,7 +160,10 @@ function KernelOnShellView() {
                 <div className="mt-5 space-y-3">
                   {[
                     ['窗口状态', `${windows.length} active model item(s)`],
-                    ['桌面屏幕', `${screens.length} screen(s) ready`],
+                    [
+                      '桌面屏幕',
+                      `${screens.length} screen(s), ${desktopItems.length} rendered item(s)`,
+                    ],
                     ['命令中心', `${commands.length} command(s) indexed`],
                   ].map(([label, value]) => (
                     <div
@@ -167,19 +182,15 @@ function KernelOnShellView() {
               <IconButton aria-label="打开启动台" selected={launcherOpen} onClick={toggleLauncher}>
                 <Grid3X3 className="size-5" />
               </IconButton>
-              {dockApps.map((app) => {
-                const Icon = resolveAppIcon(app.icon);
-
-                return (
-                  <IconButton
-                    aria-label={`打开${app.name}`}
-                    key={app.id}
-                    onClick={() => openApp(app.id)}
-                  >
-                    <Icon className="size-5" />
-                  </IconButton>
-                );
-              })}
+              {dockApps.map((app) => (
+                <IconButton
+                  aria-label={`打开${app.name}`}
+                  key={app.id}
+                  onClick={() => openApp(app.id)}
+                >
+                  <AppIcon className="size-5" name={app.icon} />
+                </IconButton>
+              ))}
             </nav>
           </div>
 
@@ -214,43 +225,188 @@ function KernelOnShellView() {
             const app = apps.find((item) => item.id === window.appId);
 
             return (
-              <div
-                className="absolute z-20 w-[min(520px,calc(100vw-40px))]"
+              <FloatingAppWindow
+                app={app}
+                closeWindow={closeWindow}
+                focusWindow={focusWindow}
                 key={window.id}
-                style={{
-                  left: Math.min(window.bounds.x, 280),
-                  top: Math.min(window.bounds.y, 160),
-                  zIndex: window.zIndex + 20,
-                }}
-                onMouseDown={() => focusWindow(window.id)}
-              >
-                <WindowFrame
-                  actions={
-                    <Button size="sm" variant="ghost" onClick={() => closeWindow(window.id)}>
-                      关闭
-                    </Button>
-                  }
-                  title={window.title}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-md bg-[var(--ko-accent-soft)] text-[var(--ko-accent)]">
-                      <AppWindow className="size-5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-[var(--ko-ink)]">
-                        {app?.description ?? 'KernelOn app shell'}
-                      </div>
-                      <p className="mt-2 text-xs leading-5 text-[var(--ko-muted)]">
-                        这里保留业务 App 的窗口边界，后续可在不改动 Shell 的前提下逐步接入真实功能。
-                      </p>
-                    </div>
-                  </div>
-                </WindowFrame>
-              </div>
+                runtime={runtime}
+                window={window}
+              />
             );
           })}
         </section>
       </div>
     </main>
+  );
+}
+
+function useAppWindowComponent(
+  runtime: ShellRuntimeRegistry,
+  loaderKey: string,
+): LazyExoticComponent<ComponentType<AppWindowSurfaceProps>> {
+  return useMemo(() => lazy(() => runtime.loadAppWindow(loaderKey)), [loaderKey, runtime]);
+}
+
+function useWidgetComponent(
+  runtime: ShellRuntimeRegistry,
+  loaderKey: string,
+): LazyExoticComponent<ComponentType<WidgetSurfaceProps>> {
+  return useMemo(() => lazy(() => runtime.loadWidget(loaderKey)), [loaderKey, runtime]);
+}
+
+interface DesktopItemSurfaceProps {
+  apps: KernelAppManifest[];
+  item: DesktopItem;
+  runtime: ShellRuntimeRegistry;
+  widgets: WidgetManifest[];
+  onOpenApp(appId: string): void;
+}
+
+function DesktopItemSurface({ apps, item, runtime, widgets, onOpenApp }: DesktopItemSurfaceProps) {
+  const style = {
+    gridColumn: `span ${item.grid.width}`,
+    gridRow: `span ${item.grid.height}`,
+  };
+
+  if (item.kind === 'app') {
+    const app = apps.find((candidate) => candidate.id === item.targetId);
+
+    if (!app) {
+      return <MissingDesktopItem label="应用不存在" style={style} />;
+    }
+
+    return <DesktopAppItemSurface app={app} onOpenApp={onOpenApp} style={style} />;
+  }
+
+  const widget = widgets.find((candidate) => candidate.id === item.targetId);
+
+  if (!widget) {
+    return <MissingDesktopItem label="小组件不存在" style={style} />;
+  }
+
+  return <DesktopWidgetItemSurface item={item} runtime={runtime} style={style} widget={widget} />;
+}
+
+function DesktopAppItemSurface({
+  app,
+  onOpenApp,
+  style,
+}: Readonly<{
+  app: KernelAppManifest;
+  onOpenApp(appId: string): void;
+  style: { gridColumn: string; gridRow: string };
+}>) {
+  return (
+    <motion.button
+      className="group flex h-full flex-col items-start rounded-lg border border-[var(--ko-border)] bg-white/78 p-4 text-left shadow-[0_12px_32px_rgba(17,24,39,0.06)] transition hover:border-[var(--ko-accent)] hover:bg-white"
+      style={style}
+      type="button"
+      whileHover={{ y: -2 }}
+      onClick={() => onOpenApp(app.id)}
+    >
+      <div className="mb-4 flex size-10 items-center justify-center rounded-md bg-[var(--ko-accent-soft)] text-[var(--ko-accent)]">
+        <AppIcon className="size-5" name={app.icon} />
+      </div>
+      <div className="text-sm font-semibold text-[var(--ko-ink)]">{app.name}</div>
+      <p className="mt-1 text-xs leading-5 text-[var(--ko-muted)]">{app.description}</p>
+    </motion.button>
+  );
+}
+
+function DesktopWidgetItemSurface({
+  item,
+  runtime,
+  style,
+  widget,
+}: Readonly<{
+  item: DesktopItem;
+  runtime: ShellRuntimeRegistry;
+  style: { gridColumn: string; gridRow: string };
+  widget: WidgetManifest;
+}>) {
+  const WidgetComponent = useWidgetComponent(runtime, widget.runtime.widget.loaderKey);
+
+  return (
+    <Surface className="h-full overflow-hidden rounded-lg p-4" style={style} tone="glass">
+      <Suspense fallback={<RuntimeFallback label="正在加载小组件" />}>
+        {createElement(WidgetComponent, { item, widget })}
+      </Suspense>
+    </Surface>
+  );
+}
+
+function FloatingAppWindow({
+  app,
+  closeWindow,
+  focusWindow,
+  runtime,
+  window,
+}: Readonly<{
+  app: KernelAppManifest | undefined;
+  closeWindow(windowId: string): void;
+  focusWindow(windowId: string): void;
+  runtime: ShellRuntimeRegistry;
+  window: WindowDescriptor;
+}>) {
+  const loaderKey = app?.runtime.window.loaderKey ?? '__missing_app_window__';
+  const AppWindowComponent = useAppWindowComponent(runtime, loaderKey);
+
+  return (
+    <div
+      className="absolute z-20 w-[min(520px,calc(100vw-40px))]"
+      style={{
+        left: Math.min(window.bounds.x, 280),
+        top: Math.min(window.bounds.y, 160),
+        zIndex: window.zIndex + 20,
+      }}
+      onMouseDown={() => focusWindow(window.id)}
+    >
+      <WindowFrame
+        actions={
+          <Button size="sm" variant="ghost" onClick={() => closeWindow(window.id)}>
+            关闭
+          </Button>
+        }
+        title={window.title}
+      >
+        {app ? (
+          <Suspense fallback={<RuntimeFallback label="正在加载应用" />}>
+            {createElement(AppWindowComponent, { app, window })}
+          </Suspense>
+        ) : (
+          <MissingRuntimeSurface label="应用未注册" />
+        )}
+      </WindowFrame>
+    </div>
+  );
+}
+
+function RuntimeFallback({ label }: Readonly<{ label: string }>) {
+  return <div className="text-xs text-[var(--ko-muted)]">{label}</div>;
+}
+
+function MissingRuntimeSurface({ label }: Readonly<{ label: string }>) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="grid size-10 shrink-0 place-items-center rounded-md bg-[var(--ko-accent-soft)] text-[var(--ko-accent)]">
+        <AppWindow className="size-5" />
+      </div>
+      <p className="text-xs leading-5 text-[var(--ko-muted)]">{label}</p>
+    </div>
+  );
+}
+
+function MissingDesktopItem({
+  label,
+  style,
+}: Readonly<{ label: string; style: { gridColumn: string; gridRow: string } }>) {
+  return (
+    <div
+      className="grid h-full place-items-center rounded-lg border border-dashed border-[var(--ko-border)] bg-white/45 text-xs text-[var(--ko-muted)]"
+      style={style}
+    >
+      {label}
+    </div>
   );
 }

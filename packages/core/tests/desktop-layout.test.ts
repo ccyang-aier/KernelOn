@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  createDesktopAppItem,
+  createDesktopScreen,
+  createDesktopWidgetItem,
   createDefaultDesktopScreen,
   doGridAreasOverlap,
   findOverlappingDesktopItems,
   moveDesktopItem,
   type KernelAppManifest,
+  type WidgetManifest,
 } from '../src';
 
 const apps: KernelAppManifest[] = [
@@ -16,6 +20,11 @@ const apps: KernelAppManifest[] = [
     priority: 'P0',
     category: 'operations',
     icon: 'UserRoundCheck',
+    runtime: {
+      window: {
+        loaderKey: 'app:onboarding-window',
+      },
+    },
     defaultWindow: {
       bounds: { x: 96, y: 72, width: 960, height: 640 },
     },
@@ -27,6 +36,11 @@ const apps: KernelAppManifest[] = [
     priority: 'P0',
     category: 'operations',
     icon: 'Handshake',
+    runtime: {
+      window: {
+        loaderKey: 'app:mentor-window',
+      },
+    },
     defaultWindow: {
       bounds: { x: 136, y: 96, width: 920, height: 620 },
     },
@@ -34,6 +48,34 @@ const apps: KernelAppManifest[] = [
 ];
 
 describe('desktop layout helpers', () => {
+  it('creates desktop screens from explicit user-selected items', () => {
+    const widget: WidgetManifest = {
+      id: 'onboarding-progress',
+      name: '入职进度',
+      description: '展示新员工入职阶段推进情况',
+      defaultGrid: { x: 2, y: 0, width: 2, height: 2 },
+      runtime: {
+        widget: {
+          loaderKey: 'widget:onboarding-progress',
+        },
+      },
+    };
+
+    const screen = createDesktopScreen({
+      id: 'screen-home',
+      name: '我的工作台',
+      items: [
+        createDesktopAppItem(apps[0], 'screen-home', { x: 0, y: 0, width: 1, height: 1 }),
+        createDesktopWidgetItem(widget, 'screen-home', widget.defaultGrid),
+      ],
+    });
+
+    expect(screen.items).toEqual([
+      expect.objectContaining({ kind: 'app', targetId: 'onboarding' }),
+      expect.objectContaining({ kind: 'widget', targetId: 'onboarding-progress' }),
+    ]);
+  });
+
   it('creates a deterministic default desktop screen', () => {
     const screen = createDefaultDesktopScreen(apps, { columns: 1 });
 

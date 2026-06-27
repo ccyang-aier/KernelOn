@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "pnpm dev:web",
+    "dev:desktop": "pnpm --filter @kernelon/desktop dev",
     "dev:web": "pnpm --filter @kernelon/web dev",
     "build": "pnpm -r build",
     "lint": "eslint .",

@@ -9,6 +9,10 @@ export interface WindowBounds {
   height: number;
 }
 
+export interface RuntimeLoaderReference {
+  loaderKey: string;
+}
+
 export interface KernelAppManifest {
   id: string;
   name: string;
@@ -17,6 +21,9 @@ export interface KernelAppManifest {
   category: KernelAppCategory;
   icon: string;
   dockedByDefault?: boolean;
+  runtime: {
+    window: RuntimeLoaderReference;
+  };
   defaultWindow: {
     title?: string;
     bounds: WindowBounds;
@@ -62,6 +69,9 @@ export interface WidgetManifest {
   name: string;
   description: string;
   defaultGrid: DesktopGridArea;
+  runtime: {
+    widget: RuntimeLoaderReference;
+  };
 }
 
 export interface CommandDefinition {

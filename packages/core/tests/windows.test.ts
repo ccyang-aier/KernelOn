@@ -9,6 +9,11 @@ const mentorApp: KernelAppManifest = {
   priority: 'P0',
   category: 'operations',
   icon: 'Handshake',
+  runtime: {
+    window: {
+      loaderKey: 'app:mentor-window',
+    },
+  },
   defaultWindow: {
     title: '导师管理',
     bounds: { x: 128, y: 88, width: 900, height: 620 },
@@ -22,6 +27,11 @@ const archiveApp: KernelAppManifest = {
   priority: 'P1',
   category: 'growth',
   icon: 'Milestone',
+  runtime: {
+    window: {
+      loaderKey: 'app:growth-archive-window',
+    },
+  },
   defaultWindow: {
     title: '成长档案',
     bounds: { x: 168, y: 104, width: 860, height: 600 },

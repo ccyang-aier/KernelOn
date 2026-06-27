@@ -9,6 +9,11 @@ const onboardingApp: KernelAppManifest = {
   priority: 'P0',
   category: 'operations',
   icon: 'UserRoundCheck',
+  runtime: {
+    window: {
+      loaderKey: 'app:onboarding-window',
+    },
+  },
   defaultWindow: {
     bounds: { x: 96, y: 72, width: 960, height: 640 },
   },

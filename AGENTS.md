@@ -17,12 +17,15 @@
 ## 技术方向
 
 - 默认主 Web 栈为 Next.js App Router、React 19、TypeScript、Tailwind CSS 4、Zustand 和 Motion。
-- Next.js 是主 Web 应用框架；未来 Tauri 桌面端应作为独立 `Tauri + Vite` 壳层复用共享包，不要把 Next server runtime 强行塞进桌面端。
+- Next.js 是主 Web 应用框架；Tauri 桌面端作为独立 `Tauri + Vite` 壳层复用共享包，不要把 Next server runtime 强行塞进桌面端。
 - 只有当动效或空间交互确实能提升 Web OS 体验时，才引入 Motion、GSAP 或 Three.js；当前默认动效方案是 Motion。
 - Shell 外壳、应用模块、状态管理和视觉组件要保持清晰边界，让业务 App 可以独立演进。
 - 新增生产依赖前，先确认现有技术栈是否已经能覆盖需求。
 - 使用 `pnpm` 管理 workspace 依赖。
 - `packages/core` 必须保持纯 TypeScript，不依赖 React。可复用 React 组件放在 `packages/ui`，Web OS 客户端壳层放在 `packages/shell`。
+- App/Widget 的 manifest 与默认桌面配置放在 `packages/catalog`；可动态加载的业务窗口与小组件实现放在 `packages/modules`。
+- Shell 不能静态渲染全部 App/Widget。只能根据用户桌面布局、Dock、启动台、Spotlight 或窗口状态按需渲染和加载对应模块。
+- 新增 App/Widget 时必须提供稳定 `loaderKey`，并在运行时注册表中建立映射，避免 Shell 与具体业务组件直接耦合。
 - Zustand 只用于本地客户端 UI 状态，例如窗口、Dock、启动台、桌面屏幕和 Spotlight。不要把 Zustand 当作远端数据缓存，服务端数据优先走 Server Components、Server Actions 和 Route Handlers。
 
 ## 仓库工作流
@@ -31,6 +34,7 @@
 - 改动要聚焦在当前请求或文档更新上。产品骨架阶段不要顺手做无关重构。
 - 除非用户要求英文文案，文档中保留中文产品术语。
 - 代码改动的首选验证命令是 `pnpm check`。
+- 修改 App/Widget 动态加载、桌面布局或共享包边界时，要同步检查 Web 与 Desktop 两个装配面。
 - 每次任务执行完成后，将当前暂存区内的全部内容提交到 Git，无论这些内容是否与本次任务直接相关，并推送到远端仓库。
 - 编辑 Markdown 后，结束前运行一次差异空白检查：
 

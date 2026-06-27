@@ -1,0 +1,30 @@
+{
+  "name": "@kernelon/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@kernelon/catalog": "workspace:*",
+    "@kernelon/core": "workspace:*",
+    "@kernelon/modules": "workspace:*",
+    "@kernelon/shell": "workspace:*",
+    "@tauri-apps/api": "2.11.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.1",
+    "@tauri-apps/cli": "2.11.3",
+    "@vitejs/plugin-react": "6.0.3",
+    "vite": "8.1.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 3002",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 3002",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  }
+}
