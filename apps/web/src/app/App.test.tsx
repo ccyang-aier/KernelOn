@@ -4,11 +4,11 @@ import { describe, expect, it } from 'vitest';
 import Page from './page';
 
 describe('Page', () => {
-  it('renders the KernelOn shell skeleton', () => {
+  it('renders an empty KernelOn shell mount', () => {
     render(<Page />);
 
-    expect(screen.getByRole('heading', { name: 'KernelOn' })).toBeInTheDocument();
-    expect(screen.getByText('Desktop Shell')).toBeInTheDocument();
-    expect(screen.getByText('新员工运作')).toBeInTheDocument();
+    expect(screen.getByTestId('kernelon-shell')).toBeInTheDocument();
+    expect(screen.queryByText('新员工运作工作台')).not.toBeInTheDocument();
+    expect(screen.queryByText('Core Services')).not.toBeInTheDocument();
   });
 });

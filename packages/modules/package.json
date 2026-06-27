@@ -46,8 +46,7 @@
     }
   },
   "dependencies": {
-    "@kernelon/shell": "workspace:*",
-    "@kernelon/ui": "workspace:*"
+    "@kernelon/shell": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19.0.0",

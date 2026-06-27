@@ -5,7 +5,7 @@ import { defaultDesktopScreens, kernelApps, kernelWidgets } from '../src';
 describe('KernelOn built-in catalog', () => {
   it('keeps catalog metadata separate from desktop placement', () => {
     expect(kernelApps).toHaveLength(7);
-    expect(defaultDesktopScreens[0]?.items).toHaveLength(4);
+    expect(defaultDesktopScreens[0]?.items).toHaveLength(0);
   });
 
   it('declares runtime loader keys for apps and widgets', () => {

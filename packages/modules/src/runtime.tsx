@@ -31,9 +31,9 @@ export const kernelModuleRuntime: ShellRuntimeRegistry = {
 };
 
 function MissingAppWindow() {
-  return <div className="text-xs text-[var(--ko-muted)]">应用模块未注册。</div>;
+  return null;
 }
 
 function MissingWidget() {
-  return <div className="text-xs text-[var(--ko-muted)]">小组件模块未注册。</div>;
+  return null;
 }
