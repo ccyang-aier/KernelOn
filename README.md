@@ -29,7 +29,6 @@ KernelOn/
     shell/            # 可复用 Web OS 客户端壳层
     ui/               # React UI primitives 与设计系统组件
   docs/
-    architecture/     # 架构与技术决策记录
     product_planning_overview.md
   .agents/            # 仓库本地 agent skills
   .codex/             # 项目级 Codex 配置

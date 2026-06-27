@@ -93,6 +93,23 @@
 | **数据看板**   | 整体进度、导师负载、关键指标可视化     | P2     |
 | **资源库**     | 制度、文档、常用链接的统一入口         | P2     |
 
+### 4.3 URL 与窗口化策略
+
+KernelOn Web 采用 **窗口化 Shell + 可寻址业务视图** 的混合策略：App 可以在类 macOS 的 Shell 中窗口化运行，也必须具备可刷新、可分享、可直接进入的 URL。
+
+推荐路由模型：
+
+- `/workspace`：OS Shell 桌面入口，承载窗口、多屏、Dock、小组件与用户个性化布局。
+- `/apps/[appId]`：App 独立聚焦/全屏容器，用于直接进入某个 App、刷新恢复和权限边界承载。
+- `/apps/[appId]/[...segments]`：App 内具体业务视图，例如详情页、匹配页、任务页或报表页。
+- `/workspace?open={appId}&view={view}`：可选的 Shell 深链入口，用于从桌面态打开某个 App 或业务视图。
+
+设计原则：
+
+- URL 化不要求 App 必须全屏；全屏/聚焦模式只是 App 的一种容器，窗口化模式仍是 KernelOn 的核心体验。
+- 可分享、可刷新、可回放的业务状态进入 URL；窗口坐标、层级、临时展开状态等 Shell UI 状态进入本地 store 或用户配置。
+- App 业务模块应尽量容器无关，同一 App 能被 Shell window container 和 Route page container 复用。
+
 ## 五、平台支持范围与技术选型
 
 - **Web 端**：首要交付目标，也是产品体验、业务流程、权限模型、数据模型与 AI 能力的主验证面。
