@@ -50,6 +50,13 @@ export interface DesktopItem {
   grid: DesktopGridArea;
 }
 
+export interface DesktopScreen {
+  id: string;
+  name: string;
+  order: number;
+  items: DesktopItem[];
+}
+
 export interface WidgetManifest {
   id: string;
   name: string;
@@ -63,4 +70,5 @@ export interface CommandDefinition {
   description: string;
   runMode: 'open-app' | 'system' | 'ai-assist';
   appId?: string;
+  keywords?: string[];
 }

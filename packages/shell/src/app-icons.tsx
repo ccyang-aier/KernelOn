@@ -1,4 +1,5 @@
 import {
+  AppWindow,
   BookOpenCheck,
   ChartSpline,
   ClipboardCheck,
@@ -9,7 +10,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-const iconMap: Record<string, LucideIcon> = {
+const icons: Record<string, LucideIcon> = {
+  AppWindow,
   BookOpenCheck,
   ChartSpline,
   ClipboardCheck,
@@ -19,6 +21,6 @@ const iconMap: Record<string, LucideIcon> = {
   UserRoundCheck,
 };
 
-export function resolveAppIcon(icon: string): LucideIcon {
-  return iconMap[icon] ?? FolderKanban;
+export function resolveAppIcon(name: string): LucideIcon {
+  return icons[name] ?? AppWindow;
 }

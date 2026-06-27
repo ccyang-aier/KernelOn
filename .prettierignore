@@ -1,5 +1,8 @@
 node_modules/
+.next/
 dist/
+build/
 coverage/
+*.tsbuildinfo
+apps/web/next-env.d.ts
 pnpm-lock.yaml
-docs/product_planning_overview.md

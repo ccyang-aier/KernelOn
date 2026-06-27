@@ -16,13 +16,14 @@
 
 ## 技术方向
 
-- 默认前端栈为 React、TypeScript、Tailwind CSS 和 Zustand。
-- 只有当动效或空间交互确实能提升 Web OS 体验时，才引入 Framer Motion、GSAP 或 Three.js。
+- 默认主 Web 栈为 Next.js App Router、React 19、TypeScript、Tailwind CSS 4、Zustand 和 Motion。
+- Next.js 是主 Web 应用框架；未来 Tauri 桌面端应作为独立 `Tauri + Vite` 壳层复用共享包，不要把 Next server runtime 强行塞进桌面端。
+- 只有当动效或空间交互确实能提升 Web OS 体验时，才引入 Motion、GSAP 或 Three.js；当前默认动效方案是 Motion。
 - Shell 外壳、应用模块、状态管理和视觉组件要保持清晰边界，让业务 App 可以独立演进。
 - 新增生产依赖前，先确认现有技术栈是否已经能覆盖需求。
 - 使用 `pnpm` 管理 workspace 依赖。
-- `packages/core` 必须保持纯 TypeScript，不依赖 React。可复用 React 组件放在 `packages/ui`。
-- Zustand 只用于本地客户端 UI 状态，例如窗口、Dock、启动台、桌面屏幕和 Spotlight。不要把 Zustand 当作远端数据缓存。
+- `packages/core` 必须保持纯 TypeScript，不依赖 React。可复用 React 组件放在 `packages/ui`，Web OS 客户端壳层放在 `packages/shell`。
+- Zustand 只用于本地客户端 UI 状态，例如窗口、Dock、启动台、桌面屏幕和 Spotlight。不要把 Zustand 当作远端数据缓存，服务端数据优先走 Server Components、Server Actions 和 Route Handlers。
 
 ## 仓库工作流
 

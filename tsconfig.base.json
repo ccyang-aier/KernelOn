@@ -17,6 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@kernelon/core": ["./packages/core/src/index.ts"],
+      "@kernelon/shell": ["./packages/shell/src/index.ts"],
       "@kernelon/ui": ["./packages/ui/src/index.ts"]
     }
   }

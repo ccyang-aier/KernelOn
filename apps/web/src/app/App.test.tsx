@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { App } from './App';
+import Page from './page';
 
-describe('App', () => {
+describe('Page', () => {
   it('renders the KernelOn shell skeleton', () => {
-    render(<App />);
+    render(<Page />);
 
     expect(screen.getByRole('heading', { name: 'KernelOn' })).toBeInTheDocument();
     expect(screen.getByText('Desktop Shell')).toBeInTheDocument();

@@ -1,5 +1,5 @@
 {
-  "name": "@kernelon/ui",
+  "name": "@kernelon/shell",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,18 +10,19 @@
     }
   },
   "dependencies": {
-    "@radix-ui/react-slot": "1.3.0",
-    "class-variance-authority": "0.7.1",
-    "clsx": "2.1.1",
-    "tailwind-merge": "3.6.0"
+    "@kernelon/core": "workspace:*",
+    "@kernelon/ui": "workspace:*",
+    "lucide-react": "^1.21.0",
+    "motion": "12.42.0",
+    "zustand": "^5.0.14"
   },
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   }
 }

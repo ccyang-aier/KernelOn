@@ -1,21 +1,66 @@
+'use client';
+
+import { createContext, useContext, useState, type ReactNode } from 'react';
+import { motion } from 'motion/react';
 import { AppWindow, Command, Grid3X3, Search, Wifi } from 'lucide-react';
+import { useStore } from 'zustand';
 
 import { Button, IconButton, Surface, WindowFrame } from '@kernelon/ui';
 
-import { useShellStore } from '../state/shell-store';
 import { resolveAppIcon } from './app-icons';
+import {
+  createShellStore,
+  type ShellInitialState,
+  type ShellState,
+  type ShellStore,
+} from './shell-store';
 
-export function KernelOnShell() {
-  const apps = useShellStore((state) => state.apps);
-  const dockAppIds = useShellStore((state) => state.dockAppIds);
-  const windows = useShellStore((state) => state.windows);
-  const launcherOpen = useShellStore((state) => state.launcherOpen);
-  const spotlightOpen = useShellStore((state) => state.spotlightOpen);
-  const openApp = useShellStore((state) => state.openApp);
-  const focusWindow = useShellStore((state) => state.focusWindow);
-  const closeWindow = useShellStore((state) => state.closeWindow);
-  const toggleLauncher = useShellStore((state) => state.toggleLauncher);
-  const toggleSpotlight = useShellStore((state) => state.toggleSpotlight);
+export interface KernelOnShellProps {
+  initialState: ShellInitialState;
+}
+
+const ShellStoreContext = createContext<ShellStore | null>(null);
+
+function ShellStoreProvider({
+  children,
+  initialState,
+}: Readonly<{ children: ReactNode; initialState: ShellInitialState }>) {
+  const [store] = useState(() => createShellStore(initialState));
+
+  return <ShellStoreContext.Provider value={store}>{children}</ShellStoreContext.Provider>;
+}
+
+function useShellSelector<T>(selector: (state: ShellState) => T): T {
+  const store = useContext(ShellStoreContext);
+
+  if (!store) {
+    throw new Error('useShellSelector must be used inside KernelOnShell.');
+  }
+
+  return useStore(store, selector);
+}
+
+export function KernelOnShell({ initialState }: KernelOnShellProps) {
+  return (
+    <ShellStoreProvider initialState={initialState}>
+      <KernelOnShellView />
+    </ShellStoreProvider>
+  );
+}
+
+function KernelOnShellView() {
+  const apps = useShellSelector((state) => state.apps);
+  const dockAppIds = useShellSelector((state) => state.dockAppIds);
+  const windows = useShellSelector((state) => state.windows);
+  const launcherOpen = useShellSelector((state) => state.launcherOpen);
+  const spotlightOpen = useShellSelector((state) => state.spotlightOpen);
+  const commands = useShellSelector((state) => state.commands);
+  const screens = useShellSelector((state) => state.screens);
+  const openApp = useShellSelector((state) => state.openApp);
+  const focusWindow = useShellSelector((state) => state.focusWindow);
+  const closeWindow = useShellSelector((state) => state.closeWindow);
+  const toggleLauncher = useShellSelector((state) => state.toggleLauncher);
+  const toggleSpotlight = useShellSelector((state) => state.toggleSpotlight);
   const dockApps = apps.filter((app) => dockAppIds.includes(app.id));
 
   return (
@@ -39,7 +84,7 @@ export function KernelOnShell() {
             </Button>
             <div className="flex items-center gap-2 rounded-md border border-[var(--ko-border)] bg-white/70 px-3 py-1.5 text-xs text-[var(--ko-muted)]">
               <Wifi className="size-3.5 text-[var(--ko-accent)]" />
-              Web first
+              Next-first
             </div>
           </div>
         </header>
@@ -54,9 +99,7 @@ export function KernelOnShell() {
                     <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--ko-muted)]">
                       Workspace
                     </p>
-                    <h2 className="mt-2 text-2xl font-semibold tracking-[-0.01em]">
-                      新员工运作工作台
-                    </h2>
+                    <h2 className="mt-2 text-2xl font-semibold">新员工运作工作台</h2>
                   </div>
                   <Button variant="primary" onClick={toggleLauncher}>
                     <Grid3X3 className="mr-2 size-4" />
@@ -69,10 +112,11 @@ export function KernelOnShell() {
                     const Icon = resolveAppIcon(app.icon);
 
                     return (
-                      <button
-                        className="group flex min-h-28 flex-col items-start rounded-lg border border-[var(--ko-border)] bg-white/78 p-4 text-left shadow-[0_12px_32px_rgba(17,24,39,0.06)] transition hover:-translate-y-0.5 hover:border-[var(--ko-accent)] hover:bg-white"
+                      <motion.button
+                        className="group flex min-h-28 flex-col items-start rounded-lg border border-[var(--ko-border)] bg-white/78 p-4 text-left shadow-[0_12px_32px_rgba(17,24,39,0.06)] transition hover:border-[var(--ko-accent)] hover:bg-white"
                         key={app.id}
                         type="button"
+                        whileHover={{ y: -2 }}
                         onClick={() => openApp(app.id)}
                       >
                         <div className="mb-4 flex size-10 items-center justify-center rounded-md bg-[var(--ko-accent-soft)] text-[var(--ko-accent)]">
@@ -82,7 +126,7 @@ export function KernelOnShell() {
                         <p className="mt-1 text-xs leading-5 text-[var(--ko-muted)]">
                           {app.description}
                         </p>
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
@@ -96,7 +140,7 @@ export function KernelOnShell() {
                   <div>
                     <h2 className="text-sm font-semibold">Core Services</h2>
                     <p className="mt-1 text-xs text-[var(--ko-muted)]">
-                      Window Manager / State DB / AI Engine
+                      Window Manager / Desktop Layout / Command Model
                     </p>
                   </div>
                 </div>
@@ -104,8 +148,8 @@ export function KernelOnShell() {
                 <div className="mt-5 space-y-3">
                   {[
                     ['窗口状态', `${windows.length} active model item(s)`],
-                    ['桌面栅格', 'Magnetic Grid placeholder'],
-                    ['命令中心', spotlightOpen ? 'Spotlight open' : 'Spotlight idle'],
+                    ['桌面屏幕', `${screens.length} screen(s) ready`],
+                    ['命令中心', `${commands.length} command(s) indexed`],
                   ].map(([label, value]) => (
                     <div
                       className="rounded-md border border-[var(--ko-border)] bg-white/70 px-4 py-3"
