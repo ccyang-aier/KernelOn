@@ -26,7 +26,11 @@ import {
   type ShellState,
   type ShellStore,
 } from './shell-store';
-import { kernelOnDesktopWallpaper, resolveDockIconAsset } from './visual-assets';
+import {
+  kernelOnDesktopWallpaper,
+  kernelOnStatusAvatar,
+  resolveDockIconAsset,
+} from './visual-assets';
 
 export interface KernelOnShellProps {
   initialState: ShellInitialState;
@@ -142,25 +146,25 @@ function KernelOnStatusBar({
       style={statusBarShellStyle}
     >
       <div
-        className="pointer-events-auto absolute top-0 right-0 flex h-[27px] w-[227px] origin-top-right items-center justify-end gap-[13px] pr-[6px]"
+        className="pointer-events-auto absolute top-0 right-0 flex h-[38px] w-[320px] origin-top-right items-center justify-end gap-[18px] pr-[8px]"
         style={statusBarFrameStyle}
       >
         <StatusBarIconButton
           Icon={LayoutGrid}
-          iconClassName="h-[15px] w-[15px]"
+          iconClassName="h-[21px] w-[21px]"
           label="Launchpad"
           onClick={onToggleLauncher}
           pressed={launcherOpen}
         />
         <StatusBarIconButton
           Icon={StatusSyncIcon}
-          iconClassName="h-[17px] w-[18px]"
+          iconClassName="h-[24px] w-[25px]"
           iconVariant="material-symbols-light:cloud-done-outline-rounded"
           label="Sync status"
         />
         <StatusBarIconButton
           Icon={Search}
-          iconClassName="h-[17px] w-[17px]"
+          iconClassName="h-[24px] w-[24px]"
           label="AI Spotlight"
           onClick={onToggleSpotlight}
           pressed={spotlightOpen}
@@ -169,22 +173,22 @@ function KernelOnStatusBar({
           Icon={Bell}
           badge={
             <span
-              className="absolute top-[1px] right-[-4px] size-[5px] rounded-full bg-white shadow-[0_0_3px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
+              className="absolute top-[2px] right-[-2px] size-[7px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
               data-testid="kernelon-notification-dot"
             />
           }
-          iconClassName="h-[16px] w-[16px]"
+          iconClassName="h-[23px] w-[23px]"
           label="Notifications"
         />
         <StatusBarIconButton
           Icon={SlidersHorizontal}
-          iconClassName="h-[17px] w-[17px]"
+          iconClassName="h-[24px] w-[24px]"
           label="Control Center"
         />
         <StatusBarProfileButton />
         <time
           aria-label="System time 09:41"
-          className="block w-[28px] shrink-0 text-left text-[11px] leading-none font-[340] tracking-normal text-white/95 tabular-nums"
+          className="block w-[40px] shrink-0 text-left text-[16px] leading-none font-[340] tracking-normal text-white/95 tabular-nums"
           dateTime="09:41"
           style={statusTimeStyle}
         >
@@ -211,7 +215,7 @@ interface StatusBarIconButtonProps {
 function StatusBarIconButton({
   Icon,
   label,
-  iconClassName = 'h-[16px] w-[16px]',
+  iconClassName = 'h-[23px] w-[23px]',
   iconVariant,
   badge,
   pressed,
@@ -221,7 +225,7 @@ function StatusBarIconButton({
     <button
       aria-label={label}
       aria-pressed={typeof pressed === 'boolean' ? pressed : undefined}
-      className="relative flex h-[21px] w-[19px] shrink-0 items-center justify-center rounded-full text-white/95 outline-none transition duration-150 ease-out hover:scale-[1.025] focus-visible:ring-2 focus-visible:ring-white/80"
+      className="relative flex h-[30px] w-[27px] shrink-0 items-center justify-center rounded-full text-white/95 outline-none transition duration-150 ease-out hover:scale-[1.025] focus-visible:ring-2 focus-visible:ring-white/80"
       data-icon-variant={iconVariant}
       onClick={onClick}
       title={label}
@@ -259,26 +263,26 @@ function StatusBarProfileButton() {
   return (
     <button
       aria-label="KernelOn profile"
-      className="relative flex size-[23px] shrink-0 items-center justify-center rounded-full outline-none transition duration-150 ease-out hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-white/80"
+      className="relative flex size-[32px] shrink-0 items-center justify-center rounded-full outline-none transition duration-150 ease-out hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-white/80"
       title="KernelOn profile"
       type="button"
     >
-      <span className="absolute inset-px rounded-full bg-white/80 shadow-[0_0_4px_rgba(255,255,255,0.85),0_1px_2px_rgba(39,84,103,0.22)]" />
-      <span className="relative block size-[20px] overflow-hidden rounded-full bg-[linear-gradient(180deg,#f4ebe5_0%,#e5cfc5_55%,#7b554a_100%)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.70)]">
-        <span className="absolute top-[2px] left-1/2 h-[16px] w-[13px] -translate-x-1/2 rounded-[48%_48%_42%_42%] bg-[linear-gradient(90deg,#3b211d_0%,#5a342c_22%,#6f463b_50%,#4d2b25_78%,#2e1a17_100%)]" />
-        <span className="absolute top-[5px] left-1/2 h-[11px] w-[9px] -translate-x-1/2 rounded-[48%_48%_45%_45%] bg-[linear-gradient(180deg,#f5d7c9_0%,#e9bba9_100%)] shadow-[0_0_0_1px_rgba(142,83,69,0.10)]" />
-        <span className="absolute top-[9px] left-[7px] size-px rounded-full bg-[#503028]" />
-        <span className="absolute top-[9px] right-[7px] size-px rounded-full bg-[#503028]" />
-        <span className="absolute top-[12px] left-1/2 h-px w-[3px] -translate-x-1/2 rounded-full bg-[#a7685b]/70" />
-        <span className="absolute right-[5px] bottom-[-2px] left-[5px] h-[7px] rounded-t-[5px] bg-[linear-gradient(180deg,#fbfbfb_0%,#d8e2e6_100%)]" />
+      <span className="absolute inset-0 rounded-full bg-white/82 shadow-[0_0_5px_rgba(255,255,255,0.88),0_1px_3px_rgba(39,84,103,0.24)]" />
+      <span className="relative block size-[28px] overflow-hidden rounded-full bg-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.74)]">
+        <img
+          alt=""
+          className="h-full w-full object-cover"
+          draggable={false}
+          src={kernelOnStatusAvatar}
+        />
       </span>
     </button>
   );
 }
 
 const statusBarShellStyle = {
-  '--status-bar-scale': 'min(1, calc(100vw / 227px))',
-  height: 'calc(27px * var(--status-bar-scale))',
+  '--status-bar-scale': 'min(1, calc(100vw / 320px))',
+  height: 'calc(38px * var(--status-bar-scale))',
 } as CSSProperties;
 
 const statusBarFrameStyle = {

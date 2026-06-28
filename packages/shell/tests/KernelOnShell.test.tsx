@@ -87,8 +87,8 @@ describe('KernelOnShell', () => {
     const statusFrame = statusBar.firstElementChild;
 
     expect(statusBar).toHaveClass('fixed', 'top-0', 'right-0');
-    expect(statusBar.getAttribute('style')).toContain('27px');
-    expect(statusFrame).toHaveClass('h-[27px]', 'w-[227px]');
+    expect(statusBar.getAttribute('style')).toContain('38px');
+    expect(statusFrame).toHaveClass('h-[38px]', 'w-[320px]');
     expect(screen.getByText('09:41')).toBeInTheDocument();
     expect(
       within(statusBar)
@@ -106,6 +106,7 @@ describe('KernelOnShell', () => {
     const launchpadButton = within(statusBar).getByRole('button', { name: 'Launchpad' });
     const syncButton = within(statusBar).getByRole('button', { name: 'Sync status' });
     const spotlightButton = within(statusBar).getByRole('button', { name: 'AI Spotlight' });
+    const profileButton = within(statusBar).getByRole('button', { name: 'KernelOn profile' });
     const notificationDot = screen.getByTestId('kernelon-notification-dot');
 
     expect(launchpadButton).toHaveAttribute('aria-pressed', 'false');
@@ -114,7 +115,11 @@ describe('KernelOnShell', () => {
       'material-symbols-light:cloud-done-outline-rounded',
     );
     expect(spotlightButton).toHaveAttribute('aria-pressed', 'false');
-    expect(notificationDot).toHaveClass('top-[1px]', 'right-[-4px]', 'size-[5px]');
+    expect(notificationDot).toHaveClass('top-[2px]', 'right-[-2px]', 'size-[7px]');
+    expect(profileButton.querySelector('img')).toHaveAttribute(
+      'src',
+      '/kernelon-assets/status/avatar-manager.png',
+    );
 
     await user.click(launchpadButton);
     await user.click(spotlightButton);
