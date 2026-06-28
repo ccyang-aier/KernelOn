@@ -141,7 +141,7 @@ function KernelOnStatusBar({
   return (
     <header
       aria-label="KernelOn status bar"
-      className="pointer-events-none fixed top-0 right-0 z-30 w-full"
+      className="pointer-events-none fixed top-[2px] right-0 z-30 w-full"
       data-testid="kernelon-status-bar"
       style={statusBarShellStyle}
     >
@@ -186,14 +186,6 @@ function KernelOnStatusBar({
           label="Control Center"
         />
         <StatusBarProfileButton />
-        <time
-          aria-label="System time 09:41"
-          className="block w-[40px] shrink-0 text-left text-[16px] leading-none font-[340] tracking-normal text-white/95 tabular-nums"
-          dateTime="09:41"
-          style={statusTimeStyle}
-        >
-          09:41
-        </time>
       </div>
     </header>
   );
@@ -291,11 +283,6 @@ const statusBarFrameStyle = {
 
 const statusGlyphStyle = {
   filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.74)) drop-shadow(0 2px 2px rgba(45,92,111,0.24))',
-} as CSSProperties;
-
-const statusTimeStyle = {
-  letterSpacing: '0',
-  textShadow: '0 0 5px rgba(255,255,255,0.68), 0 2px 3px rgba(45,92,111,0.25)',
 } as CSSProperties;
 
 interface DesktopDockProps {

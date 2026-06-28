@@ -86,10 +86,11 @@ describe('KernelOnShell', () => {
     const statusBar = screen.getByTestId('kernelon-status-bar');
     const statusFrame = statusBar.firstElementChild;
 
-    expect(statusBar).toHaveClass('fixed', 'top-0', 'right-0');
+    expect(statusBar).toHaveClass('fixed', 'top-[2px]', 'right-0');
     expect(statusBar.getAttribute('style')).toContain('38px');
     expect(statusFrame).toHaveClass('h-[38px]', 'w-[320px]');
-    expect(screen.getByText('09:41')).toBeInTheDocument();
+    expect(screen.queryByText('09:41')).not.toBeInTheDocument();
+    expect(within(statusBar).queryByLabelText('System time 09:41')).not.toBeInTheDocument();
     expect(
       within(statusBar)
         .getAllByRole('button')
