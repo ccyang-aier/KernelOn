@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn rounded orbital core mark">
+  <g fill="#fff">
+    <circle cx="512" cy="512" r="118" />
+    <rect x="308" y="218" width="430" height="146" rx="73" transform="rotate(-34 523 291)" />
+    <rect x="286" y="660" width="452" height="146" rx="73" transform="rotate(-34 512 733)" />
+  </g>
+</svg>

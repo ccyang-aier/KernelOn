@@ -1,6 +1,14 @@
 'use client';
 
 import {
+  Bell,
+  CloudCheck,
+  LayoutGrid,
+  Search,
+  SlidersHorizontal,
+  type LucideIcon,
+} from 'lucide-react';
+import {
   Suspense,
   createContext,
   createElement,
@@ -67,6 +75,8 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const screens = useShellSelector((state) => state.screens);
   const windows = useShellSelector((state) => state.windows);
   const dockAppIds = useShellSelector((state) => state.dockAppIds);
+  const launcherOpen = useShellSelector((state) => state.launcherOpen);
+  const spotlightOpen = useShellSelector((state) => state.spotlightOpen);
   const openApp = useShellSelector((state) => state.openApp);
   const toggleLauncher = useShellSelector((state) => state.toggleLauncher);
   const toggleSpotlight = useShellSelector((state) => state.toggleSpotlight);
@@ -87,6 +97,12 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_92%,rgba(255,255,255,0.20),transparent_34%),linear-gradient(180deg,rgba(4,19,12,0.02),rgba(4,19,12,0.08))]"
+      />
+      <KernelOnStatusBar
+        launcherOpen={launcherOpen}
+        onToggleLauncher={toggleLauncher}
+        onToggleSpotlight={toggleSpotlight}
+        spotlightOpen={spotlightOpen}
       />
       <div className="relative z-10 min-h-screen">
         {desktopItems.map((item) => (
@@ -110,6 +126,154 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     </main>
   );
 }
+
+interface KernelOnStatusBarProps {
+  launcherOpen: boolean;
+  spotlightOpen: boolean;
+  onToggleLauncher(): void;
+  onToggleSpotlight(): void;
+}
+
+function KernelOnStatusBar({
+  launcherOpen,
+  spotlightOpen,
+  onToggleLauncher,
+  onToggleSpotlight,
+}: KernelOnStatusBarProps) {
+  return (
+    <header
+      aria-label="KernelOn status bar"
+      className="pointer-events-none fixed top-0 right-0 z-30 w-full"
+      data-testid="kernelon-status-bar"
+      style={statusBarShellStyle}
+    >
+      <div
+        className="pointer-events-auto absolute top-0 right-0 flex h-[106px] w-[907px] origin-top-right items-center justify-end gap-[51px] pr-[22px]"
+        style={statusBarFrameStyle}
+      >
+        <StatusBarIconButton
+          Icon={LayoutGrid}
+          iconClassName="h-[58px] w-[58px]"
+          label="Launchpad"
+          onClick={onToggleLauncher}
+          pressed={launcherOpen}
+        />
+        <StatusBarIconButton
+          Icon={CloudCheck}
+          iconClassName="h-[66px] w-[72px]"
+          label="Sync status"
+        />
+        <StatusBarIconButton
+          Icon={Search}
+          iconClassName="h-[66px] w-[66px]"
+          label="AI Spotlight"
+          onClick={onToggleSpotlight}
+          pressed={spotlightOpen}
+        />
+        <StatusBarIconButton
+          Icon={Bell}
+          badge={
+            <span className="absolute top-[17px] right-[2px] size-[17px] rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.95),0_2px_3px_rgba(64,112,131,0.22)]" />
+          }
+          iconClassName="h-[63px] w-[63px]"
+          label="Notifications"
+        />
+        <StatusBarIconButton
+          Icon={SlidersHorizontal}
+          iconClassName="h-[65px] w-[65px]"
+          label="Control Center"
+        />
+        <StatusBarProfileButton />
+        <time
+          aria-label="System time 09:41"
+          className="block w-[112px] shrink-0 text-left text-[43px] leading-none font-[340] tracking-normal text-white/95 tabular-nums"
+          dateTime="09:41"
+          style={statusTimeStyle}
+        >
+          09:41
+        </time>
+      </div>
+    </header>
+  );
+}
+
+interface StatusBarIconButtonProps {
+  Icon: LucideIcon;
+  label: string;
+  iconClassName?: string;
+  badge?: ReactNode;
+  pressed?: boolean;
+  onClick?: () => void;
+}
+
+function StatusBarIconButton({
+  Icon,
+  label,
+  iconClassName = 'h-[62px] w-[62px]',
+  badge,
+  pressed,
+  onClick,
+}: StatusBarIconButtonProps) {
+  return (
+    <button
+      aria-label={label}
+      aria-pressed={typeof pressed === 'boolean' ? pressed : undefined}
+      className="relative flex h-[82px] w-[74px] shrink-0 items-center justify-center rounded-full text-white/95 outline-none transition duration-150 ease-out hover:scale-[1.025] focus-visible:ring-2 focus-visible:ring-white/80"
+      onClick={onClick}
+      title={label}
+      type="button"
+    >
+      <Icon
+        aria-hidden="true"
+        className={iconClassName}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.38}
+        style={statusGlyphStyle}
+      />
+      {badge}
+    </button>
+  );
+}
+
+function StatusBarProfileButton() {
+  return (
+    <button
+      aria-label="KernelOn profile"
+      className="relative flex size-[90px] shrink-0 items-center justify-center rounded-full outline-none transition duration-150 ease-out hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-white/80"
+      title="KernelOn profile"
+      type="button"
+    >
+      <span className="absolute inset-[1px] rounded-full bg-white/80 shadow-[0_0_7px_rgba(255,255,255,0.85),0_3px_7px_rgba(39,84,103,0.24)]" />
+      <span className="relative block size-[80px] overflow-hidden rounded-full bg-[linear-gradient(180deg,#f4ebe5_0%,#e5cfc5_55%,#7b554a_100%)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.70)]">
+        <span className="absolute top-[7px] left-1/2 h-[62px] w-[52px] -translate-x-1/2 rounded-[48%_48%_42%_42%] bg-[linear-gradient(90deg,#3b211d_0%,#5a342c_22%,#6f463b_50%,#4d2b25_78%,#2e1a17_100%)]" />
+        <span className="absolute top-[17px] left-1/2 h-[42px] w-[34px] -translate-x-1/2 rounded-[48%_48%_45%_45%] bg-[linear-gradient(180deg,#f5d7c9_0%,#e9bba9_100%)] shadow-[0_0_0_1px_rgba(142,83,69,0.10)]" />
+        <span className="absolute top-[35px] left-[30px] size-[3px] rounded-full bg-[#503028]" />
+        <span className="absolute top-[35px] right-[30px] size-[3px] rounded-full bg-[#503028]" />
+        <span className="absolute top-[45px] left-1/2 h-[2px] w-[10px] -translate-x-1/2 rounded-full bg-[#a7685b]/70" />
+        <span className="absolute right-[18px] bottom-[-8px] left-[18px] h-[28px] rounded-t-[18px] bg-[linear-gradient(180deg,#fbfbfb_0%,#d8e2e6_100%)]" />
+      </span>
+    </button>
+  );
+}
+
+const statusBarShellStyle = {
+  '--status-bar-scale': 'min(1, calc(100vw / 907px))',
+  height: 'calc(106px * var(--status-bar-scale))',
+} as CSSProperties;
+
+const statusBarFrameStyle = {
+  transform: 'scale(var(--status-bar-scale))',
+} as CSSProperties;
+
+const statusGlyphStyle = {
+  filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.74)) drop-shadow(0 2px 2px rgba(45,92,111,0.24))',
+} as CSSProperties;
+
+const statusTimeStyle = {
+  letterSpacing: '0',
+  textShadow: '0 0 5px rgba(255,255,255,0.68), 0 2px 3px rgba(45,92,111,0.25)',
+} as CSSProperties;
 
 interface DesktopDockProps {
   apps: KernelAppManifest[];
@@ -147,7 +311,10 @@ function DesktopDock({
         />
       ))}
       <DockIconButton assetKey="ai-spotlight" label="AI Spotlight" onClick={onToggleSpotlight} />
-      <div aria-hidden="true" className="mx-[1px] h-[calc(var(--dock-icon-size)*0.78)] w-px bg-white/55 shadow-[1px_0_0_rgba(18,35,18,0.20)]" />
+      <div
+        aria-hidden="true"
+        className="mx-[1px] h-[calc(var(--dock-icon-size)*0.78)] w-px bg-white/55 shadow-[1px_0_0_rgba(18,35,18,0.20)]"
+      />
       <DockIconButton assetKey="folder-stack" label="资源文件夹" />
       <DockIconButton assetKey="document" label="最近文档" />
       <DockIconButton assetKey="trash" label="废纸篓" />

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -75,6 +75,42 @@ describe('KernelOnShell', () => {
     expect(screen.queryByText('入职进度')).not.toBeInTheDocument();
     expect(runtime.loadAppWindow).not.toHaveBeenCalled();
     expect(runtime.loadWidget).not.toHaveBeenCalled();
+  });
+
+  it('renders the desktop status bar controls in the reference order', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+
+    render(<KernelOnShell initialState={initialState} runtime={runtime} />);
+
+    const statusBar = screen.getByTestId('kernelon-status-bar');
+
+    expect(statusBar).toHaveClass('fixed', 'top-0', 'right-0');
+    expect(screen.getByText('09:41')).toBeInTheDocument();
+    expect(
+      within(statusBar)
+        .getAllByRole('button')
+        .map((button) => button.getAttribute('aria-label')),
+    ).toEqual([
+      'Launchpad',
+      'Sync status',
+      'AI Spotlight',
+      'Notifications',
+      'Control Center',
+      'KernelOn profile',
+    ]);
+
+    const launchpadButton = within(statusBar).getByRole('button', { name: 'Launchpad' });
+    const spotlightButton = within(statusBar).getByRole('button', { name: 'AI Spotlight' });
+
+    expect(launchpadButton).toHaveAttribute('aria-pressed', 'false');
+    expect(spotlightButton).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(launchpadButton);
+    await user.click(spotlightButton);
+
+    expect(launchpadButton).toHaveAttribute('aria-pressed', 'true');
+    expect(spotlightButton).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('lazy-loads a widget only when it is present in the desktop layout', async () => {

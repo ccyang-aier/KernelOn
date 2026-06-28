@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn soft rounded K mark">
+  <g fill="#fff">
+    <rect x="248" y="156" width="184" height="712" rx="92" />
+    <rect x="502" y="206" width="176" height="404" rx="88" transform="rotate(44 590 408)" />
+    <rect x="502" y="414" width="176" height="404" rx="88" transform="rotate(-44 590 616)" />
+  </g>
+</svg>

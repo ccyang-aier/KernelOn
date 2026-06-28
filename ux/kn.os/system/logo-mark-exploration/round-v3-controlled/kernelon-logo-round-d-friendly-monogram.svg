@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn friendly rounded monogram mark">
+  <g fill="#fff">
+    <rect x="270" y="182" width="168" height="660" rx="84" />
+    <rect x="486" y="230" width="160" height="346" rx="80" transform="rotate(42 566 403)" />
+    <rect x="486" y="448" width="160" height="346" rx="80" transform="rotate(-42 566 621)" />
+    <circle cx="356" cy="512" r="56" />
+  </g>
+</svg>

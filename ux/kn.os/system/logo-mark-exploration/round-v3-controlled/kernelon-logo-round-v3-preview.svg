@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1680 760" role="img" aria-label="KernelOn rounded logo mark exploration preview">
+  <defs>
+    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#102d34" />
+      <stop offset="1" stop-color="#071416" />
+    </linearGradient>
+    <style>
+      .label { fill: #d8eef1; font: 500 28px Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing: 0; }
+      .hint { fill: #8db5b8; font: 400 19px Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing: 0; }
+      .card { fill: url(#panel); stroke: rgba(255,255,255,.16); stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1680" height="760" fill="#e7f4f5" />
+
+  <g transform="translate(48 48)">
+    <rect class="card" width="480" height="300" rx="28" />
+    <svg x="148" y="48" width="184" height="184" viewBox="0 0 1024 1024">
+      <g fill="#fff">
+        <rect x="248" y="156" width="184" height="712" rx="92" />
+        <rect x="502" y="206" width="176" height="404" rx="88" transform="rotate(44 590 408)" />
+        <rect x="502" y="414" width="176" height="404" rx="88" transform="rotate(-44 590 616)" />
+      </g>
+    </svg>
+    <text class="label" x="32" y="252">A Soft K</text>
+    <text class="hint" x="32" y="280">圆润 K，最易识别</text>
+  </g>
+
+  <g transform="translate(600 48)">
+    <rect class="card" width="480" height="300" rx="28" />
+    <svg x="148" y="48" width="184" height="184" viewBox="0 0 1024 1024">
+      <g fill="#fff">
+        <rect x="388" y="152" width="248" height="340" rx="124" />
+        <rect x="252" y="514" width="248" height="340" rx="124" transform="rotate(43 376 684)" />
+        <rect x="524" y="514" width="248" height="340" rx="124" transform="rotate(-43 648 684)" />
+        <circle cx="512" cy="512" r="76" />
+      </g>
+    </svg>
+    <text class="label" x="32" y="252">B Core Bloom</text>
+    <text class="hint" x="32" y="280">内核聚合，最亲和</text>
+  </g>
+
+  <g transform="translate(1152 48)">
+    <rect class="card" width="480" height="300" rx="28" />
+    <svg x="148" y="48" width="184" height="184" viewBox="0 0 1024 1024">
+      <path d="M704 286a274 274 0 1 0 12 442" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="148" />
+      <circle cx="704" cy="286" r="74" fill="#fff" />
+    </svg>
+    <text class="label" x="32" y="252">C Calm Loop</text>
+    <text class="hint" x="32" y="280">启动环，最轻盈</text>
+  </g>
+
+  <g transform="translate(48 412)">
+    <rect class="card" width="480" height="300" rx="28" />
+    <svg x="148" y="48" width="184" height="184" viewBox="0 0 1024 1024">
+      <g fill="#fff">
+        <rect x="270" y="182" width="168" height="660" rx="84" />
+        <rect x="486" y="230" width="160" height="346" rx="80" transform="rotate(42 566 403)" />
+        <rect x="486" y="448" width="160" height="346" rx="80" transform="rotate(-42 566 621)" />
+        <circle cx="356" cy="512" r="56" />
+      </g>
+    </svg>
+    <text class="label" x="32" y="252">D Friendly Monogram</text>
+    <text class="hint" x="32" y="280">品牌字母感，较稳</text>
+  </g>
+
+  <g transform="translate(600 412)">
+    <rect class="card" width="480" height="300" rx="28" />
+    <svg x="148" y="48" width="184" height="184" viewBox="0 0 1024 1024">
+      <g fill="#fff">
+        <circle cx="378" cy="512" r="128" />
+        <rect x="524" y="218" width="166" height="370" rx="83" transform="rotate(40 607 403)" />
+        <rect x="524" y="436" width="166" height="370" rx="83" transform="rotate(-40 607 621)" />
+      </g>
+    </svg>
+    <text class="label" x="32" y="252">E Core Branch</text>
+    <text class="hint" x="32" y="280">核心分支，最柔和</text>
+  </g>
+
+  <g transform="translate(1152 412)">
+    <rect class="card" width="480" height="300" rx="28" />
+    <svg x="148" y="48" width="184" height="184" viewBox="0 0 1024 1024">
+      <g fill="#fff">
+        <circle cx="512" cy="512" r="118" />
+        <rect x="308" y="218" width="430" height="146" rx="73" transform="rotate(-34 523 291)" />
+        <rect x="286" y="660" width="452" height="146" rx="73" transform="rotate(-34 512 733)" />
+      </g>
+    </svg>
+    <text class="label" x="32" y="252">F Orb Core</text>
+    <text class="hint" x="32" y="280">系统内核，最抽象</text>
+  </g>
+</svg>

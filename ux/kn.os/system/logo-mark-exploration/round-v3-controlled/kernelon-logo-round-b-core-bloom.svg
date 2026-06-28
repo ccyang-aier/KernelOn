@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn rounded core bloom mark">
+  <g fill="#fff">
+    <rect x="388" y="152" width="248" height="340" rx="124" />
+    <rect x="252" y="514" width="248" height="340" rx="124" transform="rotate(43 376 684)" />
+    <rect x="524" y="514" width="248" height="340" rx="124" transform="rotate(-43 648 684)" />
+    <circle cx="512" cy="512" r="76" />
+  </g>
+</svg>
