@@ -133,7 +133,7 @@ function DesktopDock({
   return (
     <nav
       aria-label="KernelOn Dock"
-      className="fixed bottom-[clamp(16px,3vh,32px)] left-1/2 z-20 flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-[var(--dock-gap)] overflow-x-auto rounded-[clamp(24px,3vw,40px)] border border-white/45 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-20 flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-[var(--dock-gap)] overflow-x-auto rounded-[clamp(20px,2.2vw,32px)] border border-white/50 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       data-testid="kernelon-dock"
       style={dockStyle}
     >
@@ -156,15 +156,15 @@ function DesktopDock({
 }
 
 const dockStyle = {
-  '--dock-gap': 'clamp(8px, 0.8vw, 14px)',
-  '--dock-icon-size': 'clamp(34px, 4.7vw, 78px)',
-  '--dock-pad-x': 'clamp(16px, 1.2vw, 24px)',
-  '--dock-pad-y': 'clamp(10px, 1vw, 14px)',
+  '--dock-gap': 'clamp(7px, 0.6vw, 11px)',
+  '--dock-icon-size': 'clamp(32px, 3.7vw, 66px)',
+  '--dock-pad-x': 'clamp(13px, 1vw, 18px)',
+  '--dock-pad-y': 'clamp(7px, 0.75vw, 10px)',
   background:
     'linear-gradient(180deg, rgba(255,255,255,0.36) 0%, rgba(221,232,214,0.22) 48%, rgba(141,162,121,0.22) 100%)',
   backdropFilter: 'blur(22px) saturate(150%)',
   boxShadow:
-    'inset 0 1px 0 rgba(255,255,255,0.70), inset 0 -1px 0 rgba(49,68,38,0.28), 0 22px 60px rgba(5,24,9,0.34), 0 4px 12px rgba(255,255,255,0.22)',
+    'inset 0 0 0 1px rgba(255,255,255,0.18), 0 18px 48px rgba(5,24,9,0.30), 0 3px 10px rgba(255,255,255,0.18)',
 } as CSSProperties;
 
 interface DockIconButtonProps {
@@ -177,14 +177,14 @@ function DockIconButton({ assetKey, label, onClick }: DockIconButtonProps) {
   return (
     <button
       aria-label={label}
-      className="group relative flex size-[var(--dock-icon-size)] shrink-0 items-center justify-center rounded-[18px] outline-none transition duration-200 ease-out hover:-translate-y-2 hover:scale-[1.06] focus-visible:ring-2 focus-visible:ring-white/80"
+      className="group relative flex size-[var(--dock-icon-size)] shrink-0 items-center justify-center rounded-[clamp(12px,1.1vw,16px)] outline-none transition duration-200 ease-out hover:-translate-y-1.5 hover:scale-[1.05] focus-visible:ring-2 focus-visible:ring-white/80"
       onClick={onClick}
       title={label}
       type="button"
     >
       <img
         alt=""
-        className="pointer-events-none h-full w-full select-none object-contain drop-shadow-[0_14px_16px_rgba(0,0,0,0.26)] transition duration-200 ease-out group-hover:drop-shadow-[0_20px_22px_rgba(0,0,0,0.30)]"
+        className="pointer-events-none h-full w-full select-none object-contain drop-shadow-[0_10px_12px_rgba(0,0,0,0.24)] transition duration-200 ease-out group-hover:drop-shadow-[0_14px_16px_rgba(0,0,0,0.28)]"
         draggable={false}
         src={resolveDockIconAsset(assetKey)}
       />

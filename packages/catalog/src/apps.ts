@@ -26,7 +26,7 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P0',
     category: 'operations',
     icon: 'Handshake',
-    dockedByDefault: true,
+    dockedByDefault: false,
     runtime: {
       window: {
         loaderKey: 'app:mentor-window',
@@ -44,7 +44,7 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P1',
     category: 'growth',
     icon: 'Milestone',
-    dockedByDefault: true,
+    dockedByDefault: false,
     runtime: {
       window: {
         loaderKey: 'app:growth-archive-window',
