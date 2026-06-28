@@ -62,6 +62,7 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P1',
     category: 'growth',
     icon: 'BookOpenCheck',
+    dockedByDefault: true,
     runtime: {
       window: {
         loaderKey: 'app:training-window',
@@ -79,6 +80,7 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P1',
     category: 'growth',
     icon: 'ClipboardCheck',
+    dockedByDefault: true,
     runtime: {
       window: {
         loaderKey: 'app:assessment-window',
@@ -96,6 +98,7 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P2',
     category: 'insight',
     icon: 'ChartSpline',
+    dockedByDefault: true,
     runtime: {
       window: {
         loaderKey: 'app:dashboard-window',
@@ -113,6 +116,7 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P2',
     category: 'resource',
     icon: 'FolderKanban',
+    dockedByDefault: true,
     runtime: {
       window: {
         loaderKey: 'app:resources-window',

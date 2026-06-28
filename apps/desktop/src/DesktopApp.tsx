@@ -1,12 +1,13 @@
+import { defaultDesktopScreens, kernelApps, kernelWidgets } from '@kernelon/catalog';
+
 import { KernelOnDesktopRuntime } from './runtime/KernelOnDesktopRuntime';
 
-const emptyShellState = {
-  apps: [],
-  widgets: [],
-  screens: [{ id: 'screen-home', name: '', order: 0, items: [] }],
-  dockAppIds: [],
+const defaultShellState = {
+  apps: kernelApps,
+  widgets: kernelWidgets,
+  screens: defaultDesktopScreens,
 };
 
 export function DesktopApp() {
-  return <KernelOnDesktopRuntime initialState={emptyShellState} />;
+  return <KernelOnDesktopRuntime initialState={defaultShellState} />;
 }

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import { KernelOnShell, type ShellInitialState, type ShellRuntimeRegistry } from '../src';
@@ -135,5 +136,27 @@ describe('KernelOnShell', () => {
     expect(await screen.findByText('Lazy onboarding window')).toBeInTheDocument();
     expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:onboarding-window');
     expect(runtime.loadWidget).not.toHaveBeenCalled();
+  });
+
+  it('opens a docked app from the Dock before lazy-loading its window', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          dockAppIds: ['onboarding'],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    expect(runtime.loadAppWindow).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: '新员工运作' }));
+
+    expect(await screen.findByText('Lazy onboarding window')).toBeInTheDocument();
+    expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:onboarding-window');
   });
 });

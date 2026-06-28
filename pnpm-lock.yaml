@@ -68,6 +68,9 @@ importers:
 
   apps/desktop:
     dependencies:
+      '@kernelon/catalog':
+        specifier: workspace:*
+        version: link:../../packages/catalog
       '@kernelon/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -102,6 +105,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@kernelon/catalog':
+        specifier: workspace:*
+        version: link:../../packages/catalog
       '@kernelon/core':
         specifier: workspace:*
         version: link:../../packages/core

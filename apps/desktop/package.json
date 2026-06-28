@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@kernelon/catalog": "workspace:*",
     "@kernelon/core": "workspace:*",
     "@kernelon/modules": "workspace:*",
     "@kernelon/shell": "workspace:*",
