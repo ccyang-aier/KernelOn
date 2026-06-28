@@ -146,7 +146,7 @@ function KernelOnStatusBar({
       style={statusBarShellStyle}
     >
       <div
-        className="pointer-events-auto absolute top-0 right-0 flex h-[38px] w-[320px] origin-top-right items-center justify-end gap-[18px] pr-[8px]"
+        className="pointer-events-auto absolute top-0 right-0 flex h-[38px] w-[320px] origin-top-right items-center justify-end gap-[18px] pr-[10px]"
         style={statusBarFrameStyle}
       >
         <StatusBarIconButton

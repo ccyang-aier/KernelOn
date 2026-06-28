@@ -88,7 +88,7 @@ describe('KernelOnShell', () => {
 
     expect(statusBar).toHaveClass('fixed', 'top-[2px]', 'right-0');
     expect(statusBar.getAttribute('style')).toContain('38px');
-    expect(statusFrame).toHaveClass('h-[38px]', 'w-[320px]');
+    expect(statusFrame).toHaveClass('h-[38px]', 'w-[320px]', 'pr-[10px]');
     expect(screen.queryByText('09:41')).not.toBeInTheDocument();
     expect(within(statusBar).queryByLabelText('System time 09:41')).not.toBeInTheDocument();
     expect(
