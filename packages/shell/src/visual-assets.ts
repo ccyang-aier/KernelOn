@@ -1,6 +1,6 @@
 const ASSET_ROOT = '/kernelon-assets';
 
-export const kernelOnDesktopWallpaper = `${ASSET_ROOT}/wallpapers/macos-snow-leopard-dew-drop.jpg`;
+export const kernelOnDesktopWallpaper = `${ASSET_ROOT}/wallpapers/kernelon-flower-wallpaper.png`;
 
 export const dockIconAssets = {
   'ai-spotlight': `${ASSET_ROOT}/dock-icons/ai-spotlight.png`,
