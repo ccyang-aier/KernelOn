@@ -20,6 +20,14 @@ export const dockIconAssets = {
 
 export type DockIconAssetKey = keyof typeof dockIconAssets;
 
+const dockIconAssetScales: Partial<Record<DockIconAssetKey, string>> = {
+  onboarding: '1.07',
+};
+
 export function resolveDockIconAsset(assetKey: string): string {
   return dockIconAssets[assetKey as DockIconAssetKey] ?? dockIconAssets.launchpad;
+}
+
+export function resolveDockIconAssetScale(assetKey: string): string {
+  return dockIconAssetScales[assetKey as DockIconAssetKey] ?? '1';
 }

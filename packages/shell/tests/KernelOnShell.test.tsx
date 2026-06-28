@@ -206,7 +206,11 @@ describe('KernelOnShell', () => {
 
     expect(runtime.loadAppWindow).not.toHaveBeenCalled();
 
-    await user.click(screen.getByRole('button', { name: '新员工运作' }));
+    const onboardingDockButton = screen.getByRole('button', { name: '新员工运作' });
+
+    expect(onboardingDockButton).toHaveStyle('--dock-icon-asset-scale: 1.07');
+
+    await user.click(onboardingDockButton);
 
     expect(await screen.findByText('Lazy onboarding window')).toBeInTheDocument();
     expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:onboarding-window');

@@ -30,6 +30,7 @@ import {
   kernelOnDesktopWallpaper,
   kernelOnStatusAvatar,
   resolveDockIconAsset,
+  resolveDockIconAssetScale,
 } from './visual-assets';
 
 export interface KernelOnShellProps {
@@ -356,12 +357,17 @@ function DockIconButton({ assetKey, label, onClick }: DockIconButtonProps) {
       aria-label={label}
       className="group relative flex size-[var(--dock-icon-size)] shrink-0 items-center justify-center rounded-[clamp(12px,1.1vw,16px)] outline-none transition duration-200 ease-out hover:-translate-y-1.5 hover:scale-[1.05] focus-visible:ring-2 focus-visible:ring-white/80"
       onClick={onClick}
+      style={
+        {
+          '--dock-icon-asset-scale': resolveDockIconAssetScale(assetKey),
+        } as CSSProperties
+      }
       title={label}
       type="button"
     >
       <img
         alt=""
-        className="pointer-events-none h-full w-full select-none object-contain drop-shadow-[0_10px_12px_rgba(0,0,0,0.24)] transition duration-200 ease-out group-hover:drop-shadow-[0_14px_16px_rgba(0,0,0,0.28)]"
+        className="pointer-events-none h-full w-full scale-[var(--dock-icon-asset-scale)] select-none object-contain drop-shadow-[0_10px_12px_rgba(0,0,0,0.24)] transition duration-200 ease-out group-hover:drop-shadow-[0_14px_16px_rgba(0,0,0,0.28)]"
         draggable={false}
         src={resolveDockIconAsset(assetKey)}
       />
