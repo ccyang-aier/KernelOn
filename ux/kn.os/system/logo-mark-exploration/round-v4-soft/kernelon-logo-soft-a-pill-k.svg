@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn soft pill K mark">
+  <g fill="#fff">
+    <rect x="260" y="170" width="178" height="684" rx="89" />
+    <rect x="476" y="252" width="168" height="324" rx="84" transform="rotate(43 560 414)" />
+    <rect x="476" y="448" width="168" height="324" rx="84" transform="rotate(-43 560 610)" />
+  </g>
+</svg>

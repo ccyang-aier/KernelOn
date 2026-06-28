@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn signal core symbol">
+  <circle cx="512" cy="512" r="112" fill="#fff" />
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-width="128">
+    <path d="M322 322a268 268 0 0 0 0 380" />
+    <path d="M702 322a268 268 0 0 1 0 380" />
+  </g>
+</svg>

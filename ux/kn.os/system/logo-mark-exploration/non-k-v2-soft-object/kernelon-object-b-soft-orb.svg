@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn soft orb mark">
+  <defs>
+    <mask id="soft-orb-cut">
+      <rect width="1024" height="1024" fill="#fff" />
+      <circle cx="610" cy="414" r="138" fill="#000" />
+    </mask>
+  </defs>
+  <circle cx="486" cy="548" r="314" fill="#fff" mask="url(#soft-orb-cut)" />
+  <circle cx="642" cy="394" r="74" fill="#fff" />
+</svg>

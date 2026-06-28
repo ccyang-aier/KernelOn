@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn core drop mark">
+  <path
+    d="M512 132c152 0 276 124 276 276 0 194-142 360-276 484-134-124-276-290-276-484 0-152 124-276 276-276Z"
+    fill="#fff"
+  />
+  <circle cx="512" cy="428" r="94" fill="#06181a" />
+</svg>

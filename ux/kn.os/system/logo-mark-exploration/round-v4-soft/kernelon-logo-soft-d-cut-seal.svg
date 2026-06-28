@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn rounded cut seal mark">
+  <defs>
+    <mask id="kernelon-cut-seal-mask">
+      <rect width="1024" height="1024" fill="#fff" />
+      <rect x="336" y="262" width="130" height="500" rx="65" fill="#000" />
+      <rect x="522" y="282" width="116" height="288" rx="58" fill="#000" transform="rotate(42 580 426)" />
+      <rect x="522" y="454" width="116" height="288" rx="58" fill="#000" transform="rotate(-42 580 598)" />
+    </mask>
+  </defs>
+  <circle cx="512" cy="512" r="330" fill="#fff" mask="url(#kernelon-cut-seal-mask)" />
+</svg>

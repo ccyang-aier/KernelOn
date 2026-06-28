@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn kernel seed symbol">
+  <g fill="#fff">
+    <circle cx="512" cy="512" r="132" />
+    <rect x="392" y="142" width="240" height="274" rx="120" />
+    <rect x="392" y="608" width="240" height="274" rx="120" />
+  </g>
+</svg>

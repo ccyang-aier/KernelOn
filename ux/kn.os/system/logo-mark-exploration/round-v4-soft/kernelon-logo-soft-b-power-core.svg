@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn soft power core mark">
+  <path
+    d="M512 188v248"
+    fill="none"
+    stroke="#fff"
+    stroke-linecap="round"
+    stroke-width="142"
+  />
+  <path
+    d="M692 308a292 292 0 1 1-360 0"
+    fill="none"
+    stroke="#fff"
+    stroke-linecap="round"
+    stroke-width="142"
+  />
+</svg>

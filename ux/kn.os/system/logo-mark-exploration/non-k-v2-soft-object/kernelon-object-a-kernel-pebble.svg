@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn kernel pebble mark">
+  <path
+    d="M512 142c174 0 318 144 318 318 0 220-166 422-318 422S194 680 194 460c0-174 144-318 318-318Z"
+    fill="#fff"
+  />
+  <circle cx="512" cy="500" r="108" fill="#06181a" />
+</svg>

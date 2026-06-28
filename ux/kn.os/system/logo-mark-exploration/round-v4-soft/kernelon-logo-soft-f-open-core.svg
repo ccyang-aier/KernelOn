@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn open rounded core mark">
+  <path
+    d="M706 294a286 286 0 1 0 0 436"
+    fill="none"
+    stroke="#fff"
+    stroke-linecap="round"
+    stroke-width="142"
+  />
+  <circle cx="706" cy="294" r="70" fill="#fff" />
+  <circle cx="706" cy="730" r="70" fill="#fff" />
+</svg>

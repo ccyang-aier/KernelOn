@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn soft core leaf mark">
+  <g fill="#fff">
+    <circle cx="392" cy="512" r="128" />
+    <rect x="532" y="246" width="172" height="306" rx="86" transform="rotate(38 618 399)" />
+    <rect x="532" y="472" width="172" height="306" rx="86" transform="rotate(-38 618 625)" />
+  </g>
+</svg>

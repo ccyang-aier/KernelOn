@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn system pearl symbol">
+  <defs>
+    <mask id="kernelon-pearl-cut">
+      <rect width="1024" height="1024" fill="#fff" />
+      <circle cx="512" cy="512" r="168" fill="#000" />
+    </mask>
+  </defs>
+  <circle cx="512" cy="512" r="328" fill="#fff" mask="url(#kernelon-pearl-cut)" />
+  <circle cx="512" cy="512" r="92" fill="#fff" />
+</svg>

@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Bell,
-  CloudCheck,
-  LayoutGrid,
-  Search,
-  SlidersHorizontal,
-  type LucideIcon,
-} from 'lucide-react';
+import { Bell, LayoutGrid, Search, SlidersHorizontal } from 'lucide-react';
 import {
   Suspense,
   createContext,
@@ -20,6 +13,7 @@ import {
   type ComponentType,
   type LazyExoticComponent,
   type ReactNode,
+  type SVGProps,
 } from 'react';
 import { useStore } from 'zustand';
 
@@ -148,24 +142,25 @@ function KernelOnStatusBar({
       style={statusBarShellStyle}
     >
       <div
-        className="pointer-events-auto absolute top-0 right-0 flex h-[106px] w-[907px] origin-top-right items-center justify-end gap-[51px] pr-[22px]"
+        className="pointer-events-auto absolute top-0 right-0 flex h-[53px] w-[454px] origin-top-right items-center justify-end gap-[26px] pr-[11px]"
         style={statusBarFrameStyle}
       >
         <StatusBarIconButton
           Icon={LayoutGrid}
-          iconClassName="h-[58px] w-[58px]"
+          iconClassName="h-[29px] w-[29px]"
           label="Launchpad"
           onClick={onToggleLauncher}
           pressed={launcherOpen}
         />
         <StatusBarIconButton
-          Icon={CloudCheck}
-          iconClassName="h-[66px] w-[72px]"
+          Icon={StatusSyncIcon}
+          iconClassName="h-[33px] w-[36px]"
+          iconVariant="cloud-check-outline"
           label="Sync status"
         />
         <StatusBarIconButton
           Icon={Search}
-          iconClassName="h-[66px] w-[66px]"
+          iconClassName="h-[33px] w-[33px]"
           label="AI Spotlight"
           onClick={onToggleSpotlight}
           pressed={spotlightOpen}
@@ -173,20 +168,23 @@ function KernelOnStatusBar({
         <StatusBarIconButton
           Icon={Bell}
           badge={
-            <span className="absolute top-[17px] right-[2px] size-[17px] rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.95),0_2px_3px_rgba(64,112,131,0.22)]" />
+            <span
+              className="absolute top-[2px] right-[-7px] size-[9px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
+              data-testid="kernelon-notification-dot"
+            />
           }
-          iconClassName="h-[63px] w-[63px]"
+          iconClassName="h-[31px] w-[31px]"
           label="Notifications"
         />
         <StatusBarIconButton
           Icon={SlidersHorizontal}
-          iconClassName="h-[65px] w-[65px]"
+          iconClassName="h-[33px] w-[33px]"
           label="Control Center"
         />
         <StatusBarProfileButton />
         <time
           aria-label="System time 09:41"
-          className="block w-[112px] shrink-0 text-left text-[43px] leading-none font-[340] tracking-normal text-white/95 tabular-nums"
+          className="block w-[56px] shrink-0 text-left text-[22px] leading-none font-[340] tracking-normal text-white/95 tabular-nums"
           dateTime="09:41"
           style={statusTimeStyle}
         >
@@ -197,10 +195,14 @@ function KernelOnStatusBar({
   );
 }
 
+type StatusIconProps = SVGProps<SVGSVGElement>;
+type StatusBarIconComponent = ComponentType<StatusIconProps>;
+
 interface StatusBarIconButtonProps {
-  Icon: LucideIcon;
+  Icon: StatusBarIconComponent;
   label: string;
   iconClassName?: string;
+  iconVariant?: string;
   badge?: ReactNode;
   pressed?: boolean;
   onClick?: () => void;
@@ -209,7 +211,8 @@ interface StatusBarIconButtonProps {
 function StatusBarIconButton({
   Icon,
   label,
-  iconClassName = 'h-[62px] w-[62px]',
+  iconClassName = 'h-[31px] w-[31px]',
+  iconVariant,
   badge,
   pressed,
   onClick,
@@ -218,7 +221,8 @@ function StatusBarIconButton({
     <button
       aria-label={label}
       aria-pressed={typeof pressed === 'boolean' ? pressed : undefined}
-      className="relative flex h-[82px] w-[74px] shrink-0 items-center justify-center rounded-full text-white/95 outline-none transition duration-150 ease-out hover:scale-[1.025] focus-visible:ring-2 focus-visible:ring-white/80"
+      className="relative flex h-[41px] w-[37px] shrink-0 items-center justify-center rounded-full text-white/95 outline-none transition duration-150 ease-out hover:scale-[1.025] focus-visible:ring-2 focus-visible:ring-white/80"
+      data-icon-variant={iconVariant}
       onClick={onClick}
       title={label}
       type="button"
@@ -236,30 +240,64 @@ function StatusBarIconButton({
   );
 }
 
+function StatusSyncIcon({
+  className,
+  style,
+  strokeLinecap = 'round',
+  strokeLinejoin = 'round',
+  strokeWidth = 1.35,
+}: StatusIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      style={style}
+      viewBox="0 0 44 34"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M15.2 28.1H10.5C5.8 28.1 2.5 24.9 2.5 20.6c0-4.1 3.1-7.4 7.3-7.8C11.6 6.3 17 2.4 23.2 2.4c7.8 0 13.4 5.5 14 12.9 2.8.9 4.8 3.3 4.8 6.2 0 3.8-3.1 6.6-7 6.6h-3"
+        stroke="currentColor"
+        strokeLinecap={strokeLinecap}
+        strokeLinejoin={strokeLinejoin}
+        strokeWidth={strokeWidth}
+      />
+      <path
+        d="M17.8 21.9 23 27l11.4-12.2"
+        stroke="currentColor"
+        strokeLinecap={strokeLinecap}
+        strokeLinejoin={strokeLinejoin}
+        strokeWidth={strokeWidth}
+      />
+    </svg>
+  );
+}
+
 function StatusBarProfileButton() {
   return (
     <button
       aria-label="KernelOn profile"
-      className="relative flex size-[90px] shrink-0 items-center justify-center rounded-full outline-none transition duration-150 ease-out hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-white/80"
+      className="relative flex size-[45px] shrink-0 items-center justify-center rounded-full outline-none transition duration-150 ease-out hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-white/80"
       title="KernelOn profile"
       type="button"
     >
-      <span className="absolute inset-[1px] rounded-full bg-white/80 shadow-[0_0_7px_rgba(255,255,255,0.85),0_3px_7px_rgba(39,84,103,0.24)]" />
-      <span className="relative block size-[80px] overflow-hidden rounded-full bg-[linear-gradient(180deg,#f4ebe5_0%,#e5cfc5_55%,#7b554a_100%)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.70)]">
-        <span className="absolute top-[7px] left-1/2 h-[62px] w-[52px] -translate-x-1/2 rounded-[48%_48%_42%_42%] bg-[linear-gradient(90deg,#3b211d_0%,#5a342c_22%,#6f463b_50%,#4d2b25_78%,#2e1a17_100%)]" />
-        <span className="absolute top-[17px] left-1/2 h-[42px] w-[34px] -translate-x-1/2 rounded-[48%_48%_45%_45%] bg-[linear-gradient(180deg,#f5d7c9_0%,#e9bba9_100%)] shadow-[0_0_0_1px_rgba(142,83,69,0.10)]" />
-        <span className="absolute top-[35px] left-[30px] size-[3px] rounded-full bg-[#503028]" />
-        <span className="absolute top-[35px] right-[30px] size-[3px] rounded-full bg-[#503028]" />
-        <span className="absolute top-[45px] left-1/2 h-[2px] w-[10px] -translate-x-1/2 rounded-full bg-[#a7685b]/70" />
-        <span className="absolute right-[18px] bottom-[-8px] left-[18px] h-[28px] rounded-t-[18px] bg-[linear-gradient(180deg,#fbfbfb_0%,#d8e2e6_100%)]" />
+      <span className="absolute inset-[1px] rounded-full bg-white/80 shadow-[0_0_5px_rgba(255,255,255,0.85),0_2px_4px_rgba(39,84,103,0.22)]" />
+      <span className="relative block size-[40px] overflow-hidden rounded-full bg-[linear-gradient(180deg,#f4ebe5_0%,#e5cfc5_55%,#7b554a_100%)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.70)]">
+        <span className="absolute top-[4px] left-1/2 h-[31px] w-[26px] -translate-x-1/2 rounded-[48%_48%_42%_42%] bg-[linear-gradient(90deg,#3b211d_0%,#5a342c_22%,#6f463b_50%,#4d2b25_78%,#2e1a17_100%)]" />
+        <span className="absolute top-[9px] left-1/2 h-[21px] w-[17px] -translate-x-1/2 rounded-[48%_48%_45%_45%] bg-[linear-gradient(180deg,#f5d7c9_0%,#e9bba9_100%)] shadow-[0_0_0_1px_rgba(142,83,69,0.10)]" />
+        <span className="absolute top-[17px] left-[15px] size-[2px] rounded-full bg-[#503028]" />
+        <span className="absolute top-[17px] right-[15px] size-[2px] rounded-full bg-[#503028]" />
+        <span className="absolute top-[23px] left-1/2 h-px w-[5px] -translate-x-1/2 rounded-full bg-[#a7685b]/70" />
+        <span className="absolute right-[9px] bottom-[-4px] left-[9px] h-[14px] rounded-t-[9px] bg-[linear-gradient(180deg,#fbfbfb_0%,#d8e2e6_100%)]" />
       </span>
     </button>
   );
 }
 
 const statusBarShellStyle = {
-  '--status-bar-scale': 'min(1, calc(100vw / 907px))',
-  height: 'calc(106px * var(--status-bar-scale))',
+  '--status-bar-scale': 'min(1, calc(100vw / 454px))',
+  height: 'calc(53px * var(--status-bar-scale))',
 } as CSSProperties;
 
 const statusBarFrameStyle = {
