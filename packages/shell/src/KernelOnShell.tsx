@@ -133,7 +133,7 @@ function DesktopDock({
   return (
     <nav
       aria-label="KernelOn Dock"
-      className="fixed bottom-[clamp(24px,5vh,56px)] left-1/2 z-20 flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-[var(--dock-gap)] overflow-x-auto rounded-[clamp(34px,4.2vw,58px)] border border-white/45 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="fixed bottom-[clamp(16px,3vh,32px)] left-1/2 z-20 flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-[var(--dock-gap)] overflow-x-auto rounded-[clamp(24px,3vw,40px)] border border-white/45 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       data-testid="kernelon-dock"
       style={dockStyle}
     >
@@ -147,7 +147,7 @@ function DesktopDock({
         />
       ))}
       <DockIconButton assetKey="ai-spotlight" label="AI Spotlight" onClick={onToggleSpotlight} />
-      <div aria-hidden="true" className="mx-[2px] h-[calc(var(--dock-icon-size)*0.86)] w-px bg-white/55 shadow-[1px_0_0_rgba(18,35,18,0.20)]" />
+      <div aria-hidden="true" className="mx-[1px] h-[calc(var(--dock-icon-size)*0.78)] w-px bg-white/55 shadow-[1px_0_0_rgba(18,35,18,0.20)]" />
       <DockIconButton assetKey="folder-stack" label="资源文件夹" />
       <DockIconButton assetKey="document" label="最近文档" />
       <DockIconButton assetKey="trash" label="废纸篓" />
@@ -156,10 +156,10 @@ function DesktopDock({
 }
 
 const dockStyle = {
-  '--dock-gap': 'clamp(8px, 1.2vw, 20px)',
-  '--dock-icon-size': 'clamp(40px, 6.55vw, 110px)',
-  '--dock-pad-x': 'clamp(18px, 2.15vw, 36px)',
-  '--dock-pad-y': 'clamp(16px, 1.65vw, 28px)',
+  '--dock-gap': 'clamp(8px, 0.8vw, 14px)',
+  '--dock-icon-size': 'clamp(34px, 4.7vw, 78px)',
+  '--dock-pad-x': 'clamp(16px, 1.2vw, 24px)',
+  '--dock-pad-y': 'clamp(10px, 1vw, 14px)',
   background:
     'linear-gradient(180deg, rgba(255,255,255,0.36) 0%, rgba(221,232,214,0.22) 48%, rgba(141,162,121,0.22) 100%)',
   backdropFilter: 'blur(22px) saturate(150%)',
@@ -177,7 +177,7 @@ function DockIconButton({ assetKey, label, onClick }: DockIconButtonProps) {
   return (
     <button
       aria-label={label}
-      className="group relative flex size-[var(--dock-icon-size)] shrink-0 items-center justify-center rounded-[24px] outline-none transition duration-200 ease-out hover:-translate-y-3 hover:scale-[1.08] focus-visible:ring-2 focus-visible:ring-white/80"
+      className="group relative flex size-[var(--dock-icon-size)] shrink-0 items-center justify-center rounded-[18px] outline-none transition duration-200 ease-out hover:-translate-y-2 hover:scale-[1.06] focus-visible:ring-2 focus-visible:ring-white/80"
       onClick={onClick}
       title={label}
       type="button"
