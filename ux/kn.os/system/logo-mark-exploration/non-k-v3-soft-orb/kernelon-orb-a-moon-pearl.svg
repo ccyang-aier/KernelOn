@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="KernelOn moon pearl symbol">
+  <defs>
+    <mask id="moon-pearl-cut">
+      <rect width="1024" height="1024" fill="#fff" />
+      <circle cx="608" cy="408" r="138" fill="#000" />
+    </mask>
+  </defs>
+  <circle cx="492" cy="548" r="314" fill="#fff" mask="url(#moon-pearl-cut)" />
+  <circle cx="656" cy="382" r="72" fill="#fff" />
+</svg>

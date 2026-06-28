@@ -87,8 +87,8 @@ describe('KernelOnShell', () => {
     const statusFrame = statusBar.firstElementChild;
 
     expect(statusBar).toHaveClass('fixed', 'top-0', 'right-0');
-    expect(statusBar.getAttribute('style')).toContain('53px');
-    expect(statusFrame).toHaveClass('h-[53px]', 'w-[454px]');
+    expect(statusBar.getAttribute('style')).toContain('27px');
+    expect(statusFrame).toHaveClass('h-[27px]', 'w-[227px]');
     expect(screen.getByText('09:41')).toBeInTheDocument();
     expect(
       within(statusBar)
@@ -109,9 +109,12 @@ describe('KernelOnShell', () => {
     const notificationDot = screen.getByTestId('kernelon-notification-dot');
 
     expect(launchpadButton).toHaveAttribute('aria-pressed', 'false');
-    expect(syncButton).toHaveAttribute('data-icon-variant', 'cloud-check-outline');
+    expect(syncButton).toHaveAttribute(
+      'data-icon-variant',
+      'material-symbols-light:cloud-done-outline-rounded',
+    );
     expect(spotlightButton).toHaveAttribute('aria-pressed', 'false');
-    expect(notificationDot).toHaveClass('top-[2px]', 'right-[-7px]', 'size-[9px]');
+    expect(notificationDot).toHaveClass('top-[1px]', 'right-[-4px]', 'size-[5px]');
 
     await user.click(launchpadButton);
     await user.click(spotlightButton);
