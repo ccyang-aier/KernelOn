@@ -1,17 +1,21 @@
 'use client';
 
-import { Bell, LayoutGrid, Search, SlidersHorizontal } from 'lucide-react';
+import { Bell, ChevronRight, LayoutGrid, Search, SlidersHorizontal } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   Suspense,
+  useCallback,
   createContext,
   createElement,
   lazy,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type CSSProperties,
   type ComponentType,
   type LazyExoticComponent,
+  type MouseEvent as ReactMouseEvent,
   type ReactNode,
   type SVGProps,
 } from 'react';
@@ -81,6 +85,19 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const toggleSpotlight = useShellSelector((state) => state.toggleSpotlight);
   const currentScreen = screens.find((screen) => screen.id === currentScreenId) ?? screens[0];
   const desktopItems = currentScreen?.items ?? [];
+  const [desktopContextMenu, setDesktopContextMenu] =
+    useState<DesktopContextMenuPosition | null>(null);
+  const closeDesktopContextMenu = useCallback(() => {
+    setDesktopContextMenu(null);
+  }, []);
+  const handleDesktopContextMenu = useCallback((event: ReactMouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    setDesktopContextMenu(resolveDesktopContextMenuPosition(event.clientX, event.clientY));
+  }, []);
+  const handleContextMenuSpotlight = useCallback(() => {
+    toggleSpotlight();
+    closeDesktopContextMenu();
+  }, [closeDesktopContextMenu, toggleSpotlight]);
 
   return (
     <main
@@ -103,7 +120,12 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         onToggleSpotlight={toggleSpotlight}
         spotlightOpen={spotlightOpen}
       />
-      <div className="relative z-10 min-h-screen">
+      <section
+        aria-label="KernelOn desktop"
+        className="relative z-10 min-h-screen"
+        data-testid="kernelon-desktop-surface"
+        onContextMenu={handleDesktopContextMenu}
+      >
         {desktopItems.map((item) => (
           <DesktopItemMount item={item} key={item.id} runtime={runtime} widgets={widgets} />
         ))}
@@ -114,7 +136,17 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
             <AppWindowMount app={app} key={window.id} runtime={runtime} window={window} />
           ) : null;
         })}
-      </div>
+      </section>
+      <AnimatePresence>
+        {desktopContextMenu ? (
+          <KernelOnDesktopContextMenu
+            key={`${desktopContextMenu.x}-${desktopContextMenu.y}`}
+            onClose={closeDesktopContextMenu}
+            onOpenSpotlight={handleContextMenuSpotlight}
+            position={desktopContextMenu}
+          />
+        ) : null}
+      </AnimatePresence>
       <DesktopDock
         apps={apps}
         dockAppIds={dockAppIds}
@@ -125,6 +157,483 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     </main>
   );
 }
+
+interface DesktopContextMenuPosition {
+  x: number;
+  y: number;
+}
+
+const desktopContextMenuMetrics = {
+  mainWidth: 286,
+  mainHeight: 236,
+  submenuWidth: 236,
+  submenuHeight: 180,
+  submenuGap: 12,
+  submenuTopOffset: 90,
+  viewportGutter: 10,
+};
+
+function resolveDesktopContextMenuPosition(x: number, y: number): DesktopContextMenuPosition {
+  if (typeof window === 'undefined') {
+    return { x, y };
+  }
+
+  const totalWidth =
+    desktopContextMenuMetrics.mainWidth +
+    desktopContextMenuMetrics.submenuGap +
+    desktopContextMenuMetrics.submenuWidth;
+  const totalHeight = Math.max(
+    desktopContextMenuMetrics.mainHeight,
+    desktopContextMenuMetrics.submenuTopOffset + desktopContextMenuMetrics.submenuHeight,
+  );
+
+  return {
+    x: clampToViewport(x, desktopContextMenuMetrics.viewportGutter, window.innerWidth - totalWidth),
+    y: clampToViewport(
+      y,
+      desktopContextMenuMetrics.viewportGutter,
+      window.innerHeight - totalHeight,
+    ),
+  };
+}
+
+function clampToViewport(value: number, minimum: number, maximum: number) {
+  return Math.min(Math.max(value, minimum), Math.max(minimum, maximum));
+}
+
+interface KernelOnDesktopContextMenuProps {
+  position: DesktopContextMenuPosition;
+  onClose(): void;
+  onOpenSpotlight(): void;
+}
+
+type KernelOnDesktopSubmenu = 'new' | 'personalization' | null;
+
+const desktopContextSubmenus = {
+  new: {
+    label: '新建',
+    topOffset: 10,
+    items: [
+      { key: 'new-employee-profile', label: '新人档案' },
+      { key: 'new-mentor-match', label: '导师匹配' },
+      { key: 'new-training-task', label: '培训任务' },
+      { key: 'new-resource-doc', label: '资源文档' },
+    ],
+  },
+  personalization: {
+    label: '个性化',
+    topOffset: 90,
+    items: [
+      { key: 'wallpaper', label: '壁纸' },
+      { key: 'widgets', label: '小组件' },
+      { key: 'dock-menu-bar', label: 'Dock 与菜单栏' },
+      { key: 'desktop-arrangement', label: '桌面排列' },
+    ],
+  },
+} satisfies Record<
+  Exclude<KernelOnDesktopSubmenu, null>,
+  {
+    label: string;
+    topOffset: number;
+    items: Array<{ key: string; label: string }>;
+  }
+>;
+
+function KernelOnDesktopContextMenu({
+  position,
+  onClose,
+  onOpenSpotlight,
+}: KernelOnDesktopContextMenuProps) {
+  const [activeSubmenu, setActiveSubmenu] =
+    useState<KernelOnDesktopSubmenu>('personalization');
+  const [hoveredItem, setHoveredItem] = useState('personalization');
+  const [pressedItem, setPressedItem] = useState<string | null>(null);
+  const submenuConfig = activeSubmenu ? desktopContextSubmenus[activeSubmenu] : null;
+  const submenuPosition = {
+    x:
+      position.x +
+      desktopContextMenuMetrics.mainWidth +
+      desktopContextMenuMetrics.submenuGap,
+    y: position.y + (submenuConfig?.topOffset ?? desktopContextMenuMetrics.submenuTopOffset),
+  };
+
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target;
+
+      if (target instanceof Element && target.closest('[data-kernelon-context-menu-root="true"]')) {
+        return;
+      }
+
+      onClose();
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    }
+
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', onClose);
+    window.addEventListener('scroll', onClose, true);
+    window.addEventListener('pointerup', handlePointerRelease);
+    window.addEventListener('pointercancel', handlePointerRelease);
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', onClose);
+      window.removeEventListener('scroll', onClose, true);
+      window.removeEventListener('pointerup', handlePointerRelease);
+      window.removeEventListener('pointercancel', handlePointerRelease);
+    };
+
+    function handlePointerRelease() {
+      setPressedItem(null);
+    }
+  }, [onClose]);
+
+  function getItemState(itemKey: string, expanded?: boolean) {
+    if (pressedItem === itemKey) {
+      return 'pressed';
+    }
+
+    if (hoveredItem === itemKey || expanded) {
+      return 'hovered';
+    }
+
+    return 'idle';
+  }
+
+  function activateItem(itemKey: string, submenu: KernelOnDesktopSubmenu) {
+    setHoveredItem(itemKey);
+    setActiveSubmenu(submenu);
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-40 pointer-events-none"
+      data-kernelon-context-menu-root="true"
+    >
+      <motion.div
+        aria-label="KernelOn desktop context menu"
+        className="pointer-events-auto fixed overflow-hidden rounded-[22px] border border-white/30 text-white outline-none"
+        data-menu-surface="liquid-glass"
+        exit={{
+          opacity: 0,
+          scale: 0.985,
+          y: 4,
+          transition: { duration: 0.1, ease: [0.22, 1, 0.36, 1] },
+        }}
+        initial={{ opacity: 0, scale: 0.965, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        role="menu"
+        style={{
+          ...desktopContextMenuSurfaceStyle,
+          height: desktopContextMenuMetrics.mainHeight,
+          left: position.x,
+          top: position.y,
+          transformOrigin: '28px 28px',
+          width: desktopContextMenuMetrics.mainWidth,
+        }}
+        tabIndex={-1}
+        transition={{ type: 'spring', stiffness: 460, damping: 34, mass: 0.62 }}
+      >
+        <LiquidGlassEdgeOverlay radius="22px" />
+        <div className="relative z-10 flex h-full flex-col px-[12px] py-[10px]">
+          <KernelOnDesktopMenuItem
+            expanded={activeSubmenu === 'new'}
+            hasSubmenu
+            itemKey="new"
+            label="新建"
+            onFocus={() => activateItem('new', 'new')}
+            onPointerDown={() => setPressedItem('new')}
+            onPointerEnter={() => activateItem('new', 'new')}
+            state={getItemState('new', activeSubmenu === 'new')}
+          />
+          <div className="h-[7px]" />
+          <KernelOnDesktopMenuItem
+            itemKey="notifications"
+            label="通知与待办"
+            onFocus={() => activateItem('notifications', null)}
+            onPointerDown={() => setPressedItem('notifications')}
+            onPointerEnter={() => activateItem('notifications', null)}
+            state={getItemState('notifications')}
+          />
+          <KernelOnDesktopMenuSeparator />
+          <KernelOnDesktopMenuItem
+            expanded={activeSubmenu === 'personalization'}
+            hasSubmenu
+            itemKey="personalization"
+            label="个性化"
+            onFocus={() => activateItem('personalization', 'personalization')}
+            onPointerDown={() => setPressedItem('personalization')}
+            onPointerEnter={() => activateItem('personalization', 'personalization')}
+            state={getItemState('personalization', activeSubmenu === 'personalization')}
+          />
+          <KernelOnDesktopMenuSeparator />
+          <KernelOnDesktopMenuItem
+            itemKey="app-store"
+            label="APP Store"
+            onFocus={() => activateItem('app-store', null)}
+            onPointerDown={() => setPressedItem('app-store')}
+            onPointerEnter={() => activateItem('app-store', null)}
+            state={getItemState('app-store')}
+          />
+          <KernelOnDesktopMenuSeparator />
+          <KernelOnDesktopMenuItem
+            itemKey="spotlight"
+            label="AI Spotlight"
+            onClick={onOpenSpotlight}
+            onFocus={() => activateItem('spotlight', null)}
+            onPointerDown={() => setPressedItem('spotlight')}
+            onPointerEnter={() => activateItem('spotlight', null)}
+            state={getItemState('spotlight')}
+          />
+        </div>
+      </motion.div>
+
+      <AnimatePresence>
+        {submenuConfig ? (
+          <motion.div
+            aria-label={submenuConfig.label}
+            className="pointer-events-auto fixed overflow-hidden rounded-[20px] border border-white/30 text-white outline-none"
+            data-menu-surface="liquid-glass"
+            key={activeSubmenu}
+            exit={{
+              opacity: 0,
+              scale: 0.985,
+              x: -8,
+              transition: { duration: 0.1, ease: [0.22, 1, 0.36, 1] },
+            }}
+            initial={{ opacity: 0, scale: 0.965, x: -12 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            role="menu"
+            style={{
+              ...desktopContextMenuSurfaceStyle,
+              height: desktopContextMenuMetrics.submenuHeight,
+              left: submenuPosition.x,
+              top: submenuPosition.y,
+              transformOrigin: '24px 24px',
+              width: desktopContextMenuMetrics.submenuWidth,
+            }}
+            transition={{ type: 'spring', stiffness: 430, damping: 32, mass: 0.58 }}
+          >
+            <LiquidGlassEdgeOverlay radius="20px" />
+            <div className="relative z-10 flex h-full flex-col px-[11px] py-[10px]">
+              {submenuConfig.items.map((item, index) => (
+                <FragmentWithSeparator
+                  key={item.key}
+                  showSeparator={index < submenuConfig.items.length - 1}
+                >
+                  <KernelOnDesktopMenuItem
+                    compact
+                    itemKey={item.key}
+                    label={item.label}
+                    onClick={onClose}
+                    onFocus={() => setHoveredItem(item.key)}
+                    onPointerDown={() => setPressedItem(item.key)}
+                    onPointerEnter={() => setHoveredItem(item.key)}
+                    state={getItemState(item.key)}
+                  />
+                </FragmentWithSeparator>
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function FragmentWithSeparator({
+  children,
+  showSeparator,
+}: Readonly<{ children: ReactNode; showSeparator: boolean }>) {
+  return (
+    <>
+      {children}
+      {showSeparator ? <KernelOnDesktopSubmenuSeparator /> : null}
+    </>
+  );
+}
+
+interface KernelOnDesktopMenuItemProps {
+  itemKey: string;
+  label: string;
+  compact?: boolean;
+  expanded?: boolean;
+  hasSubmenu?: boolean;
+  state: 'idle' | 'hovered' | 'pressed';
+  onClick?: () => void;
+  onFocus?: () => void;
+  onPointerDown?: () => void;
+  onPointerEnter?: () => void;
+}
+
+function KernelOnDesktopMenuItem({
+  itemKey,
+  label,
+  compact,
+  expanded,
+  hasSubmenu,
+  state,
+  onClick,
+  onFocus,
+  onPointerDown,
+  onPointerEnter,
+}: KernelOnDesktopMenuItemProps) {
+  return (
+    <button
+      aria-expanded={hasSubmenu ? Boolean(expanded) : undefined}
+      aria-haspopup={hasSubmenu ? 'menu' : undefined}
+      className={[
+        'group flex shrink-0 items-center justify-between text-left outline-none transition duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white/70',
+        compact ? 'h-[34px] rounded-[10px] px-[10px]' : 'h-[36px] rounded-[11px] px-[10px]',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      data-interaction-state={state}
+      data-highlight-tone={state === 'idle' ? undefined : 'clear-liquid-glass'}
+      data-menu-item={itemKey}
+      onClick={onClick}
+      onFocus={onFocus}
+      onPointerDown={onPointerDown}
+      onPointerEnter={onPointerEnter}
+      role="menuitem"
+      style={{
+        ...getDesktopContextMenuItemStyle(state),
+        fontSize: compact ? 15.5 : 16,
+        fontWeight: 520,
+        lineHeight: 1.1,
+      }}
+      type="button"
+    >
+      <span style={desktopContextMenuTextStyle}>{label}</span>
+      {hasSubmenu ? (
+        <ChevronRight
+          aria-hidden="true"
+          className={compact ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          style={desktopContextMenuChevronStyle}
+        />
+      ) : null}
+    </button>
+  );
+}
+
+function KernelOnDesktopMenuSeparator() {
+  return (
+    <div aria-hidden="true" className="flex h-[8px] shrink-0 items-center" role="separator">
+      <span className="block h-px w-full" style={desktopContextMenuSeparatorStyle} />
+    </div>
+  );
+}
+
+function KernelOnDesktopSubmenuSeparator() {
+  return (
+    <div aria-hidden="true" className="flex h-[8px] shrink-0 items-center" role="separator">
+      <span className="block h-px w-full" style={desktopContextMenuSeparatorStyle} />
+    </div>
+  );
+}
+
+function LiquidGlassEdgeOverlay({ radius }: Readonly<{ radius: string }>) {
+  return (
+    <>
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[1px]"
+        style={{
+          ...liquidGlassInnerLightStyle,
+          borderRadius: radius,
+        }}
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          ...liquidGlassRimStyle,
+          borderRadius: radius,
+        }}
+      />
+    </>
+  );
+}
+
+const desktopContextMenuSurfaceStyle = {
+  background:
+    'radial-gradient(circle at 24% 12%, rgba(255,255,255,0.36), transparent 25%), radial-gradient(circle at 78% 74%, rgba(142,222,238,0.16), transparent 34%), linear-gradient(135deg, rgba(28,39,49,0.30) 0%, rgba(22,34,42,0.18) 46%, rgba(18,29,36,0.28) 100%)',
+  backdropFilter: 'blur(38px) saturate(185%) brightness(1.08)',
+  WebkitBackdropFilter: 'blur(38px) saturate(185%) brightness(1.08)',
+  boxShadow:
+    'inset 0 0 0 0.5px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.44), inset 0 -1px 0 rgba(255,255,255,0.12), 0 18px 42px rgba(0,0,0,0.16), 0 4px 14px rgba(0,0,0,0.10)',
+} as CSSProperties;
+
+const liquidGlassInnerLightStyle = {
+  background:
+    'linear-gradient(155deg, rgba(255,255,255,0.18), rgba(255,255,255,0.03) 38%, rgba(255,255,255,0.10) 100%)',
+  mixBlendMode: 'screen',
+} as CSSProperties;
+
+const liquidGlassRimStyle = {
+  boxShadow:
+    'inset 0 0 0 0.5px rgba(255,255,255,0.40), inset 0 0 10px rgba(255,255,255,0.05)',
+} as CSSProperties;
+
+const desktopContextMenuIdleItemStyle = {
+  color: 'rgba(255,255,255,0.94)',
+  textShadow: '0 1px 5px rgba(0,0,0,0.34), 0 0 7px rgba(255,255,255,0.22)',
+} as CSSProperties;
+
+const desktopContextMenuHoveredItemStyle = {
+  ...desktopContextMenuIdleItemStyle,
+  background:
+    'radial-gradient(circle at 18% 12%, rgba(255,255,255,0.52), transparent 42%), linear-gradient(180deg, rgba(224,250,255,0.34) 0%, rgba(145,221,242,0.20) 100%)',
+  backdropFilter: 'blur(20px) saturate(185%) brightness(1.14)',
+  WebkitBackdropFilter: 'blur(20px) saturate(185%) brightness(1.14)',
+  boxShadow:
+    'inset 0 0 0 0.5px rgba(255,255,255,0.30), inset 0 1px 0 rgba(255,255,255,0.42), inset 0 -1px 0 rgba(51,151,181,0.10), 0 6px 14px rgba(10,50,66,0.08)',
+} as CSSProperties;
+
+const desktopContextMenuPressedItemStyle = {
+  ...desktopContextMenuHoveredItemStyle,
+  background:
+    'radial-gradient(circle at 18% 12%, rgba(255,255,255,0.62), transparent 44%), linear-gradient(180deg, rgba(238,253,255,0.42) 0%, rgba(128,220,244,0.28) 100%)',
+  boxShadow:
+    'inset 0 0 0 0.5px rgba(255,255,255,0.38), inset 0 1px 0 rgba(255,255,255,0.48), 0 3px 8px rgba(10,50,66,0.08)',
+  transform: 'scale(0.985)',
+} as CSSProperties;
+
+function getDesktopContextMenuItemStyle(state: KernelOnDesktopMenuItemProps['state']) {
+  if (state === 'pressed') {
+    return desktopContextMenuPressedItemStyle;
+  }
+
+  if (state === 'hovered') {
+    return desktopContextMenuHoveredItemStyle;
+  }
+
+  return desktopContextMenuIdleItemStyle;
+}
+
+const desktopContextMenuTextStyle = {
+  letterSpacing: 0,
+} as CSSProperties;
+
+const desktopContextMenuChevronStyle = {
+  filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.30)) drop-shadow(0 0 5px rgba(255,255,255,0.28))',
+} as CSSProperties;
+
+const desktopContextMenuSeparatorStyle = {
+  background:
+    'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.26) 7%, rgba(255,255,255,0.34) 50%, rgba(255,255,255,0.20) 93%, transparent 100%)',
+  boxShadow: '0 1px 0 rgba(0,0,0,0.18)',
+} as CSSProperties;
 
 interface KernelOnStatusBarProps {
   launcherOpen: boolean;

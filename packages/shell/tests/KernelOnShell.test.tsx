@@ -1,4 +1,10 @@
-import { render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitForElementToBeRemoved,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -214,5 +220,89 @@ describe('KernelOnShell', () => {
 
     expect(await screen.findByText('Lazy onboarding window')).toBeInTheDocument();
     expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:onboarding-window');
+  });
+
+  it('replaces the native desktop context menu with the KernelOn system menu', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1620 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 971 });
+
+    render(<KernelOnShell initialState={initialState} runtime={runtime} />);
+
+    const desktopSurface = screen.getByTestId('kernelon-desktop-surface');
+    const contextMenuEvent = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 338,
+      clientY: 168,
+    });
+
+    expect(fireEvent(desktopSurface, contextMenuEvent)).toBe(false);
+    expect(contextMenuEvent.defaultPrevented).toBe(true);
+
+    const menu = screen.getByRole('menu', { name: 'KernelOn desktop context menu' });
+    const submenu = screen.getByRole('menu', { name: '个性化' });
+
+    expect(menu).toHaveAttribute('data-menu-surface', 'liquid-glass');
+    expect(menu).toHaveStyle({ left: '338px', top: '168px', width: '286px' });
+    expect(menu.getAttribute('style')).toContain('backdrop-filter: blur(38px) saturate(185%)');
+    expect(
+      within(menu)
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent),
+    ).toEqual(['新建', '通知与待办', '个性化', 'APP Store', 'AI Spotlight']);
+    expect(within(menu).getByRole('menuitem', { name: '个性化' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    expect(
+      within(submenu)
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent),
+    ).toEqual(['壁纸', '小组件', 'Dock 与菜单栏', '桌面排列']);
+    expect(submenu).toHaveStyle({ left: '636px', top: '258px', width: '236px' });
+
+    const newItem = within(menu).getByRole('menuitem', { name: '新建' });
+    const appStoreItem = within(menu).getByRole('menuitem', { name: 'APP Store' });
+    const personalizationItem = within(menu).getByRole('menuitem', { name: '个性化' });
+
+    expect(personalizationItem).toHaveStyle({ fontWeight: '520' });
+    expect(personalizationItem).toHaveAttribute('data-highlight-tone', 'clear-liquid-glass');
+    expect(menu).toHaveClass('border-white/30');
+
+    await user.hover(newItem);
+    expect(newItem).toHaveAttribute('data-interaction-state', 'hovered');
+    expect(newItem).toHaveAttribute('data-highlight-tone', 'clear-liquid-glass');
+    expect(personalizationItem).toHaveAttribute('data-interaction-state', 'idle');
+
+    const newSubmenu = screen.getByRole('menu', { name: '新建' });
+
+    expect(newSubmenu).toHaveStyle({ left: '636px', top: '178px', width: '236px' });
+    expect(
+      within(newSubmenu)
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent),
+    ).toEqual(['新人档案', '导师匹配', '培训任务', '资源文档']);
+
+    await user.hover(appStoreItem);
+    fireEvent.pointerDown(appStoreItem);
+    expect(appStoreItem).toHaveAttribute('data-interaction-state', 'pressed');
+    fireEvent.pointerUp(appStoreItem);
+    expect(appStoreItem).toHaveAttribute('data-interaction-state', 'hovered');
+
+    await user.hover(personalizationItem);
+    const reopenedSubmenu = screen.getByRole('menu', { name: '个性化' });
+    const wallpaperItem = within(reopenedSubmenu).getByRole('menuitem', { name: '壁纸' });
+
+    await user.hover(wallpaperItem);
+    expect(wallpaperItem).toHaveAttribute('data-interaction-state', 'hovered');
+
+    await user.keyboard('{Escape}');
+
+    await waitForElementToBeRemoved(() =>
+      screen.queryByRole('menu', { name: 'KernelOn desktop context menu' }),
+    );
   });
 });
