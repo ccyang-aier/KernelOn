@@ -165,9 +165,9 @@ interface DesktopContextMenuPosition {
 
 const desktopContextMenuMetrics = {
   mainWidth: 286,
-  mainHeight: 236,
+  mainHeight: 208,
   submenuWidth: 236,
-  submenuHeight: 180,
+  submenuHeight: 156,
   submenuGap: 12,
   submenuTopOffset: 90,
   viewportGutter: 10,
@@ -362,7 +362,6 @@ function KernelOnDesktopContextMenu({
             onPointerEnter={() => activateItem('notifications', null)}
             state={getItemState('notifications')}
           />
-          <KernelOnDesktopMenuSeparator />
           <KernelOnDesktopMenuItem
             expanded={activeSubmenu === 'personalization'}
             hasSubmenu
@@ -373,7 +372,6 @@ function KernelOnDesktopContextMenu({
             onPointerEnter={() => activateItem('personalization', 'personalization')}
             state={getItemState('personalization', activeSubmenu === 'personalization')}
           />
-          <KernelOnDesktopMenuSeparator />
           <KernelOnDesktopMenuItem
             itemKey="app-store"
             label="APP Store"
@@ -382,7 +380,6 @@ function KernelOnDesktopContextMenu({
             onPointerEnter={() => activateItem('app-store', null)}
             state={getItemState('app-store')}
           />
-          <KernelOnDesktopMenuSeparator />
           <KernelOnDesktopMenuItem
             itemKey="spotlight"
             label="AI Spotlight"
@@ -423,40 +420,24 @@ function KernelOnDesktopContextMenu({
           >
             <LiquidGlassEdgeOverlay radius="20px" />
             <div className="relative z-10 flex h-full flex-col px-[11px] py-[10px]">
-              {submenuConfig.items.map((item, index) => (
-                <FragmentWithSeparator
+              {submenuConfig.items.map((item) => (
+                <KernelOnDesktopMenuItem
+                  compact
+                  itemKey={item.key}
                   key={item.key}
-                  showSeparator={index < submenuConfig.items.length - 1}
-                >
-                  <KernelOnDesktopMenuItem
-                    compact
-                    itemKey={item.key}
-                    label={item.label}
-                    onClick={onClose}
-                    onFocus={() => setHoveredItem(item.key)}
-                    onPointerDown={() => setPressedItem(item.key)}
-                    onPointerEnter={() => setHoveredItem(item.key)}
-                    state={getItemState(item.key)}
-                  />
-                </FragmentWithSeparator>
+                  label={item.label}
+                  onClick={onClose}
+                  onFocus={() => setHoveredItem(item.key)}
+                  onPointerDown={() => setPressedItem(item.key)}
+                  onPointerEnter={() => setHoveredItem(item.key)}
+                  state={getItemState(item.key)}
+                />
               ))}
             </div>
           </motion.div>
         ) : null}
       </AnimatePresence>
     </div>
-  );
-}
-
-function FragmentWithSeparator({
-  children,
-  showSeparator,
-}: Readonly<{ children: ReactNode; showSeparator: boolean }>) {
-  return (
-    <>
-      {children}
-      {showSeparator ? <KernelOnDesktopSubmenuSeparator /> : null}
-    </>
   );
 }
 
@@ -526,22 +507,6 @@ function KernelOnDesktopMenuItem({
   );
 }
 
-function KernelOnDesktopMenuSeparator() {
-  return (
-    <div aria-hidden="true" className="flex h-[8px] shrink-0 items-center" role="separator">
-      <span className="block h-px w-full" style={desktopContextMenuSeparatorStyle} />
-    </div>
-  );
-}
-
-function KernelOnDesktopSubmenuSeparator() {
-  return (
-    <div aria-hidden="true" className="flex h-[8px] shrink-0 items-center" role="separator">
-      <span className="block h-px w-full" style={desktopContextMenuSeparatorStyle} />
-    </div>
-  );
-}
-
 function LiquidGlassEdgeOverlay({ radius }: Readonly<{ radius: string }>) {
   return (
     <>
@@ -567,7 +532,7 @@ function LiquidGlassEdgeOverlay({ radius }: Readonly<{ radius: string }>) {
 
 const desktopContextMenuSurfaceStyle = {
   background:
-    'radial-gradient(circle at 24% 12%, rgba(255,255,255,0.36), transparent 25%), radial-gradient(circle at 78% 74%, rgba(142,222,238,0.16), transparent 34%), linear-gradient(135deg, rgba(28,39,49,0.30) 0%, rgba(22,34,42,0.18) 46%, rgba(18,29,36,0.28) 100%)',
+    'linear-gradient(145deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.075) 48%, rgba(255,255,255,0.11) 100%)',
   backdropFilter: 'blur(38px) saturate(185%) brightness(1.08)',
   WebkitBackdropFilter: 'blur(38px) saturate(185%) brightness(1.08)',
   boxShadow:
@@ -593,19 +558,19 @@ const desktopContextMenuIdleItemStyle = {
 const desktopContextMenuHoveredItemStyle = {
   ...desktopContextMenuIdleItemStyle,
   background:
-    'radial-gradient(circle at 18% 8%, rgba(255,255,255,0.42), transparent 46%), radial-gradient(circle at 86% 86%, rgba(190,248,255,0.08), transparent 54%), linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.12) 100%)',
-  backdropFilter: 'blur(24px) saturate(220%) brightness(1.22)',
-  WebkitBackdropFilter: 'blur(24px) saturate(220%) brightness(1.22)',
+    'radial-gradient(circle at 18% 8%, rgba(255,255,255,0.22), transparent 50%), radial-gradient(circle at 84% 92%, rgba(255,255,255,0.07), transparent 58%), linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.035) 100%)',
+  backdropFilter: 'blur(18px) saturate(260%) brightness(1.36) contrast(1.02)',
+  WebkitBackdropFilter: 'blur(18px) saturate(260%) brightness(1.36) contrast(1.02)',
   boxShadow:
-    'inset 0 0 0 0.5px rgba(255,255,255,0.36), inset 0 1px 0 rgba(255,255,255,0.52), inset 0 -1px 0 rgba(255,255,255,0.12), 0 4px 10px rgba(255,255,255,0.05)',
+    'inset 0 0 0 0.5px rgba(255,255,255,0.58), inset 0 1px 0 rgba(255,255,255,0.68), inset 0 -1px 0 rgba(255,255,255,0.16), 0 0 0 0.5px rgba(255,255,255,0.16), 0 5px 14px rgba(255,255,255,0.035)',
 } as CSSProperties;
 
 const desktopContextMenuPressedItemStyle = {
   ...desktopContextMenuHoveredItemStyle,
   background:
-    'radial-gradient(circle at 18% 8%, rgba(255,255,255,0.50), transparent 46%), radial-gradient(circle at 86% 86%, rgba(196,250,255,0.10), transparent 54%), linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.16) 100%)',
+    'radial-gradient(circle at 18% 8%, rgba(255,255,255,0.26), transparent 50%), radial-gradient(circle at 84% 92%, rgba(255,255,255,0.08), transparent 58%), linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
   boxShadow:
-    'inset 0 0 0 0.5px rgba(255,255,255,0.42), inset 0 1px 0 rgba(255,255,255,0.58), 0 3px 8px rgba(255,255,255,0.06)',
+    'inset 0 0 0 0.5px rgba(255,255,255,0.66), inset 0 1px 0 rgba(255,255,255,0.74), inset 0 -1px 0 rgba(255,255,255,0.18), 0 3px 9px rgba(255,255,255,0.04)',
   transform: 'scale(0.985)',
 } as CSSProperties;
 
@@ -627,12 +592,6 @@ const desktopContextMenuTextStyle = {
 
 const desktopContextMenuChevronStyle = {
   filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.30)) drop-shadow(0 0 5px rgba(255,255,255,0.28))',
-} as CSSProperties;
-
-const desktopContextMenuSeparatorStyle = {
-  background:
-    'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.26) 7%, rgba(255,255,255,0.34) 50%, rgba(255,255,255,0.20) 93%, transparent 100%)',
-  boxShadow: '0 1px 0 rgba(0,0,0,0.18)',
 } as CSSProperties;
 
 interface KernelOnStatusBarProps {
