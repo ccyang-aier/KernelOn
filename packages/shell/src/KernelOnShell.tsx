@@ -1,6 +1,25 @@
 'use client';
 
-import { Bell, ChevronRight, LayoutGrid, Search, SlidersHorizontal } from 'lucide-react';
+import {
+  Bell,
+  Blocks,
+  ChevronRight,
+  CirclePlus,
+  FileText,
+  GraduationCap,
+  Handshake,
+  Image,
+  LayoutGrid,
+  ListTodo,
+  Palette,
+  PanelBottom,
+  Search,
+  ShoppingBag,
+  SlidersHorizontal,
+  Sparkles,
+  UserRoundPlus,
+  type LucideIcon,
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   Suspense,
@@ -31,6 +50,7 @@ import {
   type ShellStore,
 } from './shell-store';
 import {
+  kernelOnBrandLogo,
   kernelOnDesktopWallpaper,
   kernelOnStatusAvatar,
   resolveDockIconAsset,
@@ -164,11 +184,11 @@ interface DesktopContextMenuPosition {
 }
 
 const desktopContextMenuMetrics = {
-  mainWidth: 286,
-  mainHeight: 208,
+  mainWidth: 274,
+  mainHeight: 200,
   submenuWidth: 236,
   submenuHeight: 156,
-  submenuGap: 12,
+  submenuGap: 8,
   submenuTopOffset: 90,
   viewportGutter: 10,
 };
@@ -214,20 +234,20 @@ const desktopContextSubmenus = {
     label: '新建',
     topOffset: 10,
     items: [
-      { key: 'new-employee-profile', label: '新人档案' },
-      { key: 'new-mentor-match', label: '导师匹配' },
-      { key: 'new-training-task', label: '培训任务' },
-      { key: 'new-resource-doc', label: '资源文档' },
+      { Icon: UserRoundPlus, key: 'new-employee-profile', label: '新人档案' },
+      { Icon: Handshake, key: 'new-mentor-match', label: '导师匹配' },
+      { Icon: GraduationCap, key: 'new-training-task', label: '培训任务' },
+      { Icon: FileText, key: 'new-resource-doc', label: '资源文档' },
     ],
   },
   personalization: {
     label: '个性化',
     topOffset: 90,
     items: [
-      { key: 'wallpaper', label: '壁纸' },
-      { key: 'widgets', label: '小组件' },
-      { key: 'dock-menu-bar', label: 'Dock 与菜单栏' },
-      { key: 'desktop-arrangement', label: '桌面排列' },
+      { Icon: Image, key: 'wallpaper', label: '壁纸' },
+      { Icon: Blocks, key: 'widgets', label: '小组件' },
+      { Icon: PanelBottom, key: 'dock-menu-bar', label: 'Dock 与菜单栏' },
+      { Icon: LayoutGrid, key: 'desktop-arrangement', label: '桌面排列' },
     ],
   },
 } satisfies Record<
@@ -235,7 +255,7 @@ const desktopContextSubmenus = {
   {
     label: string;
     topOffset: number;
-    items: Array<{ key: string; label: string }>;
+    items: Array<{ Icon: LucideIcon; key: string; label: string }>;
   }
 >;
 
@@ -319,7 +339,7 @@ function KernelOnDesktopContextMenu({
     >
       <motion.div
         aria-label="KernelOn desktop context menu"
-        className="pointer-events-auto fixed overflow-hidden rounded-[22px] border border-white/50 text-white outline-none"
+        className="pointer-events-auto fixed overflow-hidden rounded-[22px] border border-white/40 text-white outline-none"
         data-menu-surface="liquid-glass"
         exit={{
           opacity: 0,
@@ -343,8 +363,10 @@ function KernelOnDesktopContextMenu({
       >
         <div className="relative z-10 flex h-full flex-col px-[12px] py-[10px]">
           <KernelOnDesktopMenuItem
+            Icon={CirclePlus}
             expanded={activeSubmenu === 'new'}
             hasSubmenu
+            highlightGroup="main"
             itemKey="new"
             label="新建"
             onFocus={() => activateItem('new', 'new')}
@@ -352,8 +374,9 @@ function KernelOnDesktopContextMenu({
             onPointerEnter={() => activateItem('new', 'new')}
             state={getItemState('new', activeSubmenu === 'new')}
           />
-          <div className="h-[7px]" />
           <KernelOnDesktopMenuItem
+            Icon={ListTodo}
+            highlightGroup="main"
             itemKey="notifications"
             label="通知与待办"
             onFocus={() => activateItem('notifications', null)}
@@ -362,8 +385,10 @@ function KernelOnDesktopContextMenu({
             state={getItemState('notifications')}
           />
           <KernelOnDesktopMenuItem
+            Icon={Palette}
             expanded={activeSubmenu === 'personalization'}
             hasSubmenu
+            highlightGroup="main"
             itemKey="personalization"
             label="个性化"
             onFocus={() => activateItem('personalization', 'personalization')}
@@ -372,6 +397,8 @@ function KernelOnDesktopContextMenu({
             state={getItemState('personalization', activeSubmenu === 'personalization')}
           />
           <KernelOnDesktopMenuItem
+            Icon={ShoppingBag}
+            highlightGroup="main"
             itemKey="app-store"
             label="APP Store"
             onFocus={() => activateItem('app-store', null)}
@@ -380,6 +407,8 @@ function KernelOnDesktopContextMenu({
             state={getItemState('app-store')}
           />
           <KernelOnDesktopMenuItem
+            Icon={Sparkles}
+            highlightGroup="main"
             itemKey="spotlight"
             label="AI Spotlight"
             onClick={onOpenSpotlight}
@@ -395,7 +424,7 @@ function KernelOnDesktopContextMenu({
         {submenuConfig ? (
           <motion.div
             aria-label={submenuConfig.label}
-            className="pointer-events-auto fixed overflow-hidden rounded-[20px] border border-white/50 text-white outline-none"
+            className="pointer-events-auto fixed overflow-hidden rounded-[20px] border border-white/40 text-white outline-none"
             data-menu-surface="liquid-glass"
             key={activeSubmenu}
             exit={{
@@ -420,7 +449,9 @@ function KernelOnDesktopContextMenu({
             <div className="relative z-10 flex h-full flex-col px-[11px] py-[10px]">
               {submenuConfig.items.map((item) => (
                 <KernelOnDesktopMenuItem
+                  Icon={item.Icon}
                   compact
+                  highlightGroup={`submenu-${activeSubmenu}`}
                   itemKey={item.key}
                   key={item.key}
                   label={item.label}
@@ -440,6 +471,8 @@ function KernelOnDesktopContextMenu({
 }
 
 interface KernelOnDesktopMenuItemProps {
+  Icon: LucideIcon;
+  highlightGroup: string;
   itemKey: string;
   label: string;
   compact?: boolean;
@@ -453,6 +486,8 @@ interface KernelOnDesktopMenuItemProps {
 }
 
 function KernelOnDesktopMenuItem({
+  Icon,
+  highlightGroup,
   itemKey,
   label,
   compact,
@@ -469,7 +504,7 @@ function KernelOnDesktopMenuItem({
       aria-expanded={hasSubmenu ? Boolean(expanded) : undefined}
       aria-haspopup={hasSubmenu ? 'menu' : undefined}
       className={[
-        'group flex shrink-0 items-center justify-between text-left outline-none transition duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white/70',
+        'group relative flex shrink-0 items-center justify-between overflow-hidden text-left outline-none transition duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white/70',
         compact ? 'h-[34px] rounded-[10px] px-[10px]' : 'h-[36px] rounded-[11px] px-[10px]',
       ]
         .filter(Boolean)
@@ -490,11 +525,40 @@ function KernelOnDesktopMenuItem({
       }}
       type="button"
     >
-      <span style={desktopContextMenuTextStyle}>{label}</span>
+      {state !== 'idle' ? (
+        <motion.span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 rounded-[inherit]"
+          data-highlight-capsule="true"
+          layoutId={`kernelon-context-menu-highlight-${highlightGroup}`}
+          style={getDesktopContextMenuHighlightStyle(state)}
+          transition={desktopContextMenuHighlightTransition}
+        />
+      ) : null}
+      <span className="relative z-10 flex min-w-0 items-center gap-[9px]">
+        <span
+          aria-hidden="true"
+          className={compact ? 'grid size-[17px] shrink-0 place-items-center' : 'grid size-[18px] shrink-0 place-items-center'}
+          data-menu-item-icon="true"
+          data-testid="context-menu-item-icon"
+          style={desktopContextMenuIconStyle}
+        >
+          <Icon
+            aria-hidden="true"
+            className={compact ? 'size-[14px]' : 'size-[15px]'}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2.25}
+          />
+        </span>
+        <span className="truncate" style={desktopContextMenuTextStyle}>
+          {label}
+        </span>
+      </span>
       {hasSubmenu ? (
         <ChevronRight
           aria-hidden="true"
-          className={compact ? 'h-[16px] w-[16px]' : 'h-[18px] w-[18px]'}
+          className={compact ? 'relative z-10 h-[16px] w-[16px]' : 'relative z-10 h-[18px] w-[18px]'}
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
@@ -507,11 +571,12 @@ function KernelOnDesktopMenuItem({
 
 const dockGlassSurfaceStyle = {
   background:
-    'linear-gradient(180deg, rgba(255,255,255,0.36) 0%, rgba(221,232,214,0.22) 48%, rgba(141,162,121,0.22) 100%)',
-  backdropFilter: 'blur(22px) saturate(150%)',
-  WebkitBackdropFilter: 'blur(22px) saturate(150%)',
+    'linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(238,246,231,0.14) 42%, rgba(104,147,118,0.16) 100%), radial-gradient(120% 150% at 18% -18%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0) 66%), radial-gradient(95% 120% at 82% 118%, rgba(58,111,91,0.16) 0%, rgba(58,111,91,0) 60%)',
+  backgroundClip: 'padding-box',
+  backdropFilter: 'blur(14px) saturate(174%) contrast(106%)',
+  WebkitBackdropFilter: 'blur(14px) saturate(174%) contrast(106%)',
   boxShadow:
-    'inset 0 0 0 1px rgba(255,255,255,0.18), 0 18px 48px rgba(5,24,9,0.30), 0 3px 10px rgba(255,255,255,0.18)',
+    'inset 0 0 0 1px rgba(255,255,255,0.28), inset 0 1px 0 rgba(255,255,255,0.58), inset 0 -1px 0 rgba(255,255,255,0.34), inset 0 14px 24px rgba(255,255,255,0.08), inset 0 -18px 26px rgba(36,73,48,0.10), 0 15px 36px rgba(5,24,9,0.22), 0 2px 8px rgba(255,255,255,0.16)',
 } as CSSProperties;
 
 const desktopContextMenuSurfaceStyle = {
@@ -525,22 +590,45 @@ const desktopContextMenuIdleItemStyle = {
 
 const desktopContextMenuHoveredItemStyle = {
   ...desktopContextMenuIdleItemStyle,
-  background:
-    'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(221,232,214,0.13) 48%, rgba(141,162,121,0.18) 100%)',
-  backdropFilter: 'blur(22px) saturate(150%)',
-  WebkitBackdropFilter: 'blur(22px) saturate(150%)',
-  boxShadow:
-    'inset 0 0 0 1px rgba(255,255,255,0.18), 0 8px 18px rgba(5,24,9,0.16), 0 2px 8px rgba(255,255,255,0.10)',
 } as CSSProperties;
 
 const desktopContextMenuPressedItemStyle = {
-  ...desktopContextMenuHoveredItemStyle,
-  background:
-    'linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(221,232,214,0.12) 48%, rgba(141,162,121,0.22) 100%)',
-  boxShadow:
-    'inset 0 0 0 1px rgba(255,255,255,0.20), 0 5px 14px rgba(5,24,9,0.18), 0 1px 5px rgba(255,255,255,0.08)',
-  transform: 'scale(0.985)',
+  ...desktopContextMenuIdleItemStyle,
+  transform: 'scale(0.992)',
 } as CSSProperties;
+
+const desktopContextMenuHighlightStyle = {
+  background:
+    'linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(238,246,231,0.11) 44%, rgba(104,147,118,0.16) 100%)',
+  backdropFilter: 'blur(14px) saturate(174%) contrast(106%)',
+  WebkitBackdropFilter: 'blur(14px) saturate(174%) contrast(106%)',
+  boxShadow:
+    'inset 0 0 0 1px rgba(255,255,255,0.20), inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(255,255,255,0.18), 0 4px 10px rgba(5,24,9,0.08)',
+  willChange: 'transform',
+} as CSSProperties;
+
+const desktopContextMenuPressedHighlightStyle = {
+  ...desktopContextMenuHighlightStyle,
+  background:
+    'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(238,246,231,0.10) 44%, rgba(104,147,118,0.20) 100%)',
+  boxShadow:
+    'inset 0 0 0 1px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.26), inset 0 -1px 0 rgba(255,255,255,0.14), 0 2px 7px rgba(5,24,9,0.10)',
+} as CSSProperties;
+
+const desktopContextMenuHighlightTransition = {
+  type: 'spring',
+  stiffness: 520,
+  damping: 28,
+  mass: 0.72,
+} as const;
+
+function getDesktopContextMenuHighlightStyle(state: KernelOnDesktopMenuItemProps['state']) {
+  if (state === 'pressed') {
+    return desktopContextMenuPressedHighlightStyle;
+  }
+
+  return desktopContextMenuHighlightStyle;
+}
 
 function getDesktopContextMenuItemStyle(state: KernelOnDesktopMenuItemProps['state']) {
   if (state === 'pressed') {
@@ -556,6 +644,12 @@ function getDesktopContextMenuItemStyle(state: KernelOnDesktopMenuItemProps['sta
 
 const desktopContextMenuTextStyle = {
   letterSpacing: 0,
+} as CSSProperties;
+
+const desktopContextMenuIconStyle = {
+  color: 'rgba(255,255,255,0.88)',
+  filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.22)) drop-shadow(0 0 5px rgba(255,255,255,0.22))',
+  opacity: 0.86,
 } as CSSProperties;
 
 const desktopContextMenuChevronStyle = {
@@ -578,51 +672,75 @@ function KernelOnStatusBar({
   return (
     <header
       aria-label="KernelOn status bar"
-      className="pointer-events-none fixed top-[2px] right-0 z-30 w-full"
+      className="pointer-events-none fixed inset-x-0 top-[2px] z-30 w-full"
       data-testid="kernelon-status-bar"
       style={statusBarShellStyle}
     >
       <div
-        className="pointer-events-auto absolute top-0 right-0 flex h-[38px] w-[320px] origin-top-right items-center justify-end gap-[18px] pr-[10px]"
-        style={statusBarFrameStyle}
+        className="pointer-events-auto flex h-[38px] w-full items-center justify-between pl-[14px]"
       >
-        <StatusBarIconButton
-          Icon={LayoutGrid}
-          iconClassName="h-[21px] w-[21px]"
-          label="Launchpad"
-          onClick={onToggleLauncher}
-          pressed={launcherOpen}
-        />
-        <StatusBarIconButton
-          Icon={StatusSyncIcon}
-          iconClassName="h-[24px] w-[25px]"
-          iconVariant="material-symbols-light:cloud-done-outline-rounded"
-          label="Sync status"
-        />
-        <StatusBarIconButton
-          Icon={Search}
-          iconClassName="h-[24px] w-[24px]"
-          label="AI Spotlight"
-          onClick={onToggleSpotlight}
-          pressed={spotlightOpen}
-        />
-        <StatusBarIconButton
-          Icon={Bell}
-          badge={
-            <span
-              className="absolute top-[2px] right-[-2px] size-[7px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
-              data-testid="kernelon-notification-dot"
-            />
-          }
-          iconClassName="h-[23px] w-[23px]"
-          label="Notifications"
-        />
-        <StatusBarIconButton
-          Icon={SlidersHorizontal}
-          iconClassName="h-[24px] w-[24px]"
-          label="Control Center"
-        />
-        <StatusBarProfileButton />
+        <div
+          aria-label="KernelOn product identity"
+          className="flex h-full min-w-0 items-center gap-[8px]"
+          data-testid="kernelon-status-brand"
+        >
+          <img
+            alt=""
+            className="h-[20px] w-[30px] shrink-0 object-contain"
+            data-testid="kernelon-status-brand-logo"
+            draggable={false}
+            src={kernelOnBrandLogo}
+            style={statusBrandLogoStyle}
+          />
+          <span
+            className="truncate text-[14px] font-semibold leading-none text-white/96"
+            style={statusBrandTextStyle}
+          >
+            KernelOn
+          </span>
+        </div>
+        <div
+          className="flex h-[38px] w-[320px] shrink-0 items-center justify-end gap-[18px] pr-[10px]"
+          data-testid="kernelon-status-controls"
+        >
+          <StatusBarIconButton
+            Icon={LayoutGrid}
+            iconClassName="h-[21px] w-[21px]"
+            label="Launchpad"
+            onClick={onToggleLauncher}
+            pressed={launcherOpen}
+          />
+          <StatusBarIconButton
+            Icon={StatusSyncIcon}
+            iconClassName="h-[24px] w-[25px]"
+            iconVariant="material-symbols-light:cloud-done-outline-rounded"
+            label="Sync status"
+          />
+          <StatusBarIconButton
+            Icon={Search}
+            iconClassName="h-[24px] w-[24px]"
+            label="AI Spotlight"
+            onClick={onToggleSpotlight}
+            pressed={spotlightOpen}
+          />
+          <StatusBarIconButton
+            Icon={Bell}
+            badge={
+              <span
+                className="absolute top-[2px] right-[-2px] size-[7px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
+                data-testid="kernelon-notification-dot"
+              />
+            }
+            iconClassName="h-[23px] w-[23px]"
+            label="Notifications"
+          />
+          <StatusBarIconButton
+            Icon={SlidersHorizontal}
+            iconClassName="h-[24px] w-[24px]"
+            label="Control Center"
+          />
+          <StatusBarProfileButton />
+        </div>
       </div>
     </header>
   );
@@ -710,12 +828,16 @@ function StatusBarProfileButton() {
 }
 
 const statusBarShellStyle = {
-  '--status-bar-scale': 'min(1, calc(100vw / 320px))',
-  height: 'calc(38px * var(--status-bar-scale))',
+  height: '38px',
 } as CSSProperties;
 
-const statusBarFrameStyle = {
-  transform: 'scale(var(--status-bar-scale))',
+const statusBrandLogoStyle = {
+  filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.68)) drop-shadow(0 2px 3px rgba(45,92,111,0.24))',
+} as CSSProperties;
+
+const statusBrandTextStyle = {
+  letterSpacing: 0,
+  textShadow: '0 0 5px rgba(255,255,255,0.52), 0 1px 3px rgba(45,92,111,0.26)',
 } as CSSProperties;
 
 const statusGlyphStyle = {
@@ -744,7 +866,7 @@ function DesktopDock({
   return (
     <nav
       aria-label="KernelOn Dock"
-      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-20 flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-[var(--dock-gap)] overflow-x-auto rounded-[clamp(20px,2.2vw,32px)] border border-white/50 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-20 flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-[var(--dock-gap)] overflow-x-auto rounded-[clamp(20px,2.2vw,32px)] border border-white/40 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       data-testid="kernelon-dock"
       style={dockStyle}
     >

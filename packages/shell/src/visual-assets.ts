@@ -1,5 +1,6 @@
 const ASSET_ROOT = '/kernelon-assets';
 
+export const kernelOnBrandLogo = `${ASSET_ROOT}/brand/kernelon-logo.png`;
 export const kernelOnDesktopWallpaper = `${ASSET_ROOT}/wallpapers/kernelon-flower-wallpaper.png`;
 export const kernelOnStatusAvatar = `${ASSET_ROOT}/status/avatar-manager.png`;
 
