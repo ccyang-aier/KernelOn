@@ -496,7 +496,7 @@ function KernelOnDesktopMenuItem({
         .filter(Boolean)
         .join(' ')}
       data-interaction-state={state}
-      data-highlight-tone={state === 'idle' ? undefined : 'clear-liquid-glass'}
+      data-highlight-tone={state === 'idle' ? undefined : 'ultra-clear-liquid-glass'}
       data-menu-item={itemKey}
       onClick={onClick}
       onFocus={onFocus}
@@ -593,19 +593,19 @@ const desktopContextMenuIdleItemStyle = {
 const desktopContextMenuHoveredItemStyle = {
   ...desktopContextMenuIdleItemStyle,
   background:
-    'radial-gradient(circle at 18% 12%, rgba(255,255,255,0.52), transparent 42%), linear-gradient(180deg, rgba(224,250,255,0.34) 0%, rgba(145,221,242,0.20) 100%)',
-  backdropFilter: 'blur(20px) saturate(185%) brightness(1.14)',
-  WebkitBackdropFilter: 'blur(20px) saturate(185%) brightness(1.14)',
+    'radial-gradient(circle at 18% 8%, rgba(255,255,255,0.42), transparent 46%), radial-gradient(circle at 86% 86%, rgba(190,248,255,0.08), transparent 54%), linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.12) 100%)',
+  backdropFilter: 'blur(24px) saturate(220%) brightness(1.22)',
+  WebkitBackdropFilter: 'blur(24px) saturate(220%) brightness(1.22)',
   boxShadow:
-    'inset 0 0 0 0.5px rgba(255,255,255,0.30), inset 0 1px 0 rgba(255,255,255,0.42), inset 0 -1px 0 rgba(51,151,181,0.10), 0 6px 14px rgba(10,50,66,0.08)',
+    'inset 0 0 0 0.5px rgba(255,255,255,0.36), inset 0 1px 0 rgba(255,255,255,0.52), inset 0 -1px 0 rgba(255,255,255,0.12), 0 4px 10px rgba(255,255,255,0.05)',
 } as CSSProperties;
 
 const desktopContextMenuPressedItemStyle = {
   ...desktopContextMenuHoveredItemStyle,
   background:
-    'radial-gradient(circle at 18% 12%, rgba(255,255,255,0.62), transparent 44%), linear-gradient(180deg, rgba(238,253,255,0.42) 0%, rgba(128,220,244,0.28) 100%)',
+    'radial-gradient(circle at 18% 8%, rgba(255,255,255,0.50), transparent 46%), radial-gradient(circle at 86% 86%, rgba(196,250,255,0.10), transparent 54%), linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.16) 100%)',
   boxShadow:
-    'inset 0 0 0 0.5px rgba(255,255,255,0.38), inset 0 1px 0 rgba(255,255,255,0.48), 0 3px 8px rgba(10,50,66,0.08)',
+    'inset 0 0 0 0.5px rgba(255,255,255,0.42), inset 0 1px 0 rgba(255,255,255,0.58), 0 3px 8px rgba(255,255,255,0.06)',
   transform: 'scale(0.985)',
 } as CSSProperties;
 

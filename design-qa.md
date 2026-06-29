@@ -1,48 +1,36 @@
 **Findings**
-- [P2] Latest visual capture could not be refreshed after the final polish pass.
-  Location: KernelOn desktop context menu.
-  Evidence: the implementation was updated after the last successful screenshot to lighten active states, reduce font weight, soften borders, and add the 新建 submenu. The in-app browser control layer then repeatedly timed out during basic tab operations, so the latest rendered visual could not be captured.
-  Impact: code behavior and builds are verified, but final visual QA cannot honestly be marked as passed from an up-to-date screenshot.
-  Fix: recapture the local app once the browser automation surface is stable, or review manually at `http://127.0.0.1:3000`.
+- No blocking issues found in the latest visual QA pass.
 
 **Source Visual Truth**
-- Source image: `C:\Users\17335\AppData\Local\Temp\codex-clipboard-a2641aa2-5e23-4a82-8570-e0fb02d16f75.png`
-- Interpretation: the source remains the material, hierarchy, labels, two-panel layout, rounded glass shell, selected-row/submenu relationship, and Liquid Glass direction. Per user feedback, the oversized source scale and gray active state should not be copied literally.
+- Original UX reference: `C:\Users\17335\AppData\Local\Temp\codex-clipboard-a2641aa2-5e23-4a82-8570-e0fb02d16f75.png`
+- Latest user feedback reference: `C:\Users\17335\AppData\Local\Temp\codex-clipboard-7038d2bd-ad2a-4aae-b2b1-f08487945054.png`
+- Interpretation: preserve the two-panel system menu relationship, compact macOS-like desktop menu scale, rounded Liquid Glass shell, submenu affordances, and live item feedback. Per user feedback, the active item must avoid a gray, dark, or heavy selected block.
 
 **Implementation Evidence**
-- Earlier implementation screenshot before the final polish pass: `C:\AIWorks\26Coding\KernelOn\.tmp\design-qa\kernelon-context-menu-implementation.png`
-- Earlier hover/click feedback screenshot before the final polish pass: `C:\AIWorks\26Coding\KernelOn\.tmp\design-qa\kernelon-context-menu-click-app-store.png`
-- Earlier full-view comparison before the final polish pass: `C:\AIWorks\26Coding\KernelOn\.tmp\design-qa\kernelon-context-menu-comparison.png`
-- Latest visual capture: blocked by browser-control timeout after final UI changes.
+- Latest active-state capture: `C:\AIWorks\26Coding\KernelOn\.tmp\design-qa\kernelon-context-menu-ultra-clear-active.png`
 - Viewport target: 1620 x 971
-- State target: desktop right-click at x=338, y=168; personalization submenu open by default; new submenu opens on 新建 hover.
+- State target: desktop right-click at x=338, y=168; `新建` submenu open; `新建` parent item active with the updated ultra-clear highlight.
 
 **Required Fidelity Surfaces**
-- Fonts and typography: latest code uses stable inline system-menu sizing, 16px main items and 15.5px submenu items, with lighter 520 weight and no negative letter spacing.
-- Spacing and layout rhythm: latest code uses compact 286 x 236 main menu and 236 x 180 submenu geometry, with 34-36px rows.
-- Colors and visual tokens: latest code replaces gray-blue active states with clearer ice-blue/cyan Liquid Glass highlights, increases backdrop clarity to blur(38px) and saturate(185%), and reduces visible border opacity to `border-white/30`.
+- Fonts and typography: system-menu sizing remains compact, with 16px main items, 15.5px submenu items, 520 font weight, and no negative letter spacing.
+- Spacing and layout rhythm: compact 286 x 236 main menu and 236 x 180 submenu geometry remain intact, with 34-36px rows.
+- Colors and visual tokens: active rows now use an ultra-clear white Liquid Glass highlight, high backdrop brightness, a restrained white inner rim, and no dark gray/blue selected fill.
 - Image quality and asset fidelity: no fake image assets were introduced. The menu is native UI chrome over the existing KernelOn wallpaper and Dock assets.
-- Copy and content: menu labels match the provided UX, plus a requested 新建 submenu demo: 新人档案, 导师匹配, 培训任务, 资源文档.
+- Copy and content: menu labels match the requested UX, with the requested `新建` submenu demo: `新人档案`, `导师匹配`, `培训任务`, `资源文档`.
 
-**Patches Made Since Previous QA Pass**
-- Replaced the gray active-state fill with a clearer ice-blue Liquid Glass highlight.
-- Reduced text weight from 590 to 520.
-- Reduced menu border opacity from `border-white/55` to `border-white/30` and softened inner rim shadows.
-- Added a 新建 submenu demo with four KernelOn-native creation actions.
-- Preserved per-item `idle`, `hovered`, and `pressed` states.
+**Patches Made In This Pass**
+- Replaced the previous active-state tone token with `ultra-clear-liquid-glass`.
+- Reworked hovered and pressed backgrounds toward white translucent glass instead of gray-blue fill.
+- Added test coverage that prevents the active style from regressing to the earlier darker cyan/gray value.
 
 **Verification**
+- Browser visual capture: passed; latest screenshot saved at `C:\AIWorks\26Coding\KernelOn\.tmp\design-qa\kernelon-context-menu-ultra-clear-active.png`.
 - `pnpm --filter @kernelon/shell test`: passed, 6 tests.
 - `pnpm --filter @kernelon/shell typecheck`: passed.
 - `pnpm --filter @kernelon/web build`: passed.
 - `pnpm --filter @kernelon/desktop build`: passed.
-- `pnpm lint`: passed.
-- `git diff --check`: passed with line-ending warnings only.
-
-**Open Questions**
-- None about behavior. Visual QA should be repeated with a fresh screenshot when browser automation is stable.
 
 **Follow-up Polish**
 - P3: wire actual command handlers for each menu item when the corresponding KernelOn settings and creation surfaces exist.
 
-final result: blocked
+final result: passed

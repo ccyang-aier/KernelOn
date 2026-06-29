@@ -269,12 +269,14 @@ describe('KernelOnShell', () => {
     const personalizationItem = within(menu).getByRole('menuitem', { name: '个性化' });
 
     expect(personalizationItem).toHaveStyle({ fontWeight: '520' });
-    expect(personalizationItem).toHaveAttribute('data-highlight-tone', 'clear-liquid-glass');
+    expect(personalizationItem).toHaveAttribute('data-highlight-tone', 'ultra-clear-liquid-glass');
+    expect(personalizationItem.getAttribute('style')).toContain('rgba(255, 255, 255, 0.28)');
+    expect(personalizationItem.getAttribute('style')).not.toContain('rgba(145, 221, 242, 0.2)');
     expect(menu).toHaveClass('border-white/30');
 
     await user.hover(newItem);
     expect(newItem).toHaveAttribute('data-interaction-state', 'hovered');
-    expect(newItem).toHaveAttribute('data-highlight-tone', 'clear-liquid-glass');
+    expect(newItem).toHaveAttribute('data-highlight-tone', 'ultra-clear-liquid-glass');
     expect(personalizationItem).toHaveAttribute('data-interaction-state', 'idle');
 
     const newSubmenu = screen.getByRole('menu', { name: '新建' });
