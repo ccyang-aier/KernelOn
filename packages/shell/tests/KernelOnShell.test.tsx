@@ -91,12 +91,15 @@ describe('KernelOnShell', () => {
 
     const statusBar = screen.getByTestId('kernelon-status-bar');
     const statusFrame = statusBar.firstElementChild;
+    const statusBrand = screen.getByTestId('kernelon-status-brand');
     const statusControls = screen.getByTestId('kernelon-status-controls');
     const statusBrandLogo = screen.getByTestId('kernelon-status-brand-logo');
 
     expect(statusBar).toHaveClass('fixed', 'inset-x-0', 'top-[2px]');
     expect(statusBar.getAttribute('style')).toContain('38px');
-    expect(statusFrame).toHaveClass('h-[38px]', 'w-full', 'pl-[14px]');
+    expect(statusFrame).toHaveClass('h-[38px]', 'w-full', 'justify-between', 'pl-[14px]');
+    expect(statusBrand).toHaveClass('h-full', 'gap-[8px]');
+    expect(statusBrand).toHaveTextContent('KernelOn');
     expect(statusControls).toHaveClass('h-[38px]', 'w-[320px]', 'pr-[10px]');
     expect(statusBrandLogo).toHaveAttribute('src', '/kernelon-assets/brand/kernelon-logo.png');
     expect(screen.queryByText('09:41')).not.toBeInTheDocument();
