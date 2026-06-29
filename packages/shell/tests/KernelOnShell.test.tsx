@@ -247,9 +247,9 @@ describe('KernelOnShell', () => {
 
     expect(menu).toHaveAttribute('data-menu-surface', 'liquid-glass');
     expect(menu).toHaveStyle({ height: '208px', left: '338px', top: '168px', width: '286px' });
-    expect(menu.getAttribute('style')).toContain('backdrop-filter: blur(38px) saturate(185%)');
+    expect(menu.getAttribute('style')).toContain('backdrop-filter: blur(22px) saturate(150%)');
+    expect(menu.getAttribute('style')).toContain('rgba(141, 162, 121, 0.22)');
     expect(menu.getAttribute('style')).not.toContain('circle at 24% 12%');
-    expect(menu.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.36)');
     expect(
       within(menu)
         .getAllByRole('menuitem')
@@ -265,25 +265,27 @@ describe('KernelOnShell', () => {
         .map((item) => item.textContent),
     ).toEqual(['壁纸', '小组件', 'Dock 与菜单栏', '桌面排列']);
     expect(submenu).toHaveStyle({ height: '156px', left: '636px', top: '258px', width: '236px' });
+    expect(submenu.getAttribute('style')).toContain('backdrop-filter: blur(22px) saturate(150%)');
+    expect(submenu.getAttribute('style')).toContain('rgba(141, 162, 121, 0.22)');
     expect(submenu.getAttribute('style')).not.toContain('circle at 24% 12%');
-    expect(submenu.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.36)');
 
     const newItem = within(menu).getByRole('menuitem', { name: '新建' });
     const appStoreItem = within(menu).getByRole('menuitem', { name: 'APP Store' });
     const personalizationItem = within(menu).getByRole('menuitem', { name: '个性化' });
 
     expect(personalizationItem).toHaveStyle({ fontWeight: '520' });
-    expect(personalizationItem).toHaveAttribute('data-highlight-tone', 'ultra-clear-liquid-glass');
-    expect(personalizationItem.getAttribute('style')).toContain('rgba(255, 255, 255, 0.12)');
+    expect(personalizationItem).toHaveAttribute('data-highlight-tone', 'dock-glass');
+    expect(personalizationItem.getAttribute('style')).toContain('rgba(141, 162, 121, 0.18)');
+    expect(personalizationItem.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.22)');
     expect(personalizationItem.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.28)');
     expect(personalizationItem.getAttribute('style')).not.toContain('rgba(145, 221, 242, 0.2)');
     expect(menu.querySelectorAll('[role="separator"]')).toHaveLength(0);
     expect(submenu.querySelectorAll('[role="separator"]')).toHaveLength(0);
-    expect(menu).toHaveClass('border-white/30');
+    expect(menu).toHaveClass('border-white/50');
 
     await user.hover(newItem);
     expect(newItem).toHaveAttribute('data-interaction-state', 'hovered');
-    expect(newItem).toHaveAttribute('data-highlight-tone', 'ultra-clear-liquid-glass');
+    expect(newItem).toHaveAttribute('data-highlight-tone', 'dock-glass');
     expect(personalizationItem).toHaveAttribute('data-interaction-state', 'idle');
 
     const newSubmenu = screen.getByRole('menu', { name: '新建' });

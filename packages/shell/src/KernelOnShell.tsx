@@ -319,7 +319,7 @@ function KernelOnDesktopContextMenu({
     >
       <motion.div
         aria-label="KernelOn desktop context menu"
-        className="pointer-events-auto fixed overflow-hidden rounded-[22px] border border-white/30 text-white outline-none"
+        className="pointer-events-auto fixed overflow-hidden rounded-[22px] border border-white/50 text-white outline-none"
         data-menu-surface="liquid-glass"
         exit={{
           opacity: 0,
@@ -341,7 +341,6 @@ function KernelOnDesktopContextMenu({
         tabIndex={-1}
         transition={{ type: 'spring', stiffness: 460, damping: 34, mass: 0.62 }}
       >
-        <LiquidGlassEdgeOverlay radius="22px" />
         <div className="relative z-10 flex h-full flex-col px-[12px] py-[10px]">
           <KernelOnDesktopMenuItem
             expanded={activeSubmenu === 'new'}
@@ -396,7 +395,7 @@ function KernelOnDesktopContextMenu({
         {submenuConfig ? (
           <motion.div
             aria-label={submenuConfig.label}
-            className="pointer-events-auto fixed overflow-hidden rounded-[20px] border border-white/30 text-white outline-none"
+            className="pointer-events-auto fixed overflow-hidden rounded-[20px] border border-white/50 text-white outline-none"
             data-menu-surface="liquid-glass"
             key={activeSubmenu}
             exit={{
@@ -418,7 +417,6 @@ function KernelOnDesktopContextMenu({
             }}
             transition={{ type: 'spring', stiffness: 430, damping: 32, mass: 0.58 }}
           >
-            <LiquidGlassEdgeOverlay radius="20px" />
             <div className="relative z-10 flex h-full flex-col px-[11px] py-[10px]">
               {submenuConfig.items.map((item) => (
                 <KernelOnDesktopMenuItem
@@ -477,7 +475,7 @@ function KernelOnDesktopMenuItem({
         .filter(Boolean)
         .join(' ')}
       data-interaction-state={state}
-      data-highlight-tone={state === 'idle' ? undefined : 'ultra-clear-liquid-glass'}
+      data-highlight-tone={state === 'idle' ? undefined : 'dock-glass'}
       data-menu-item={itemKey}
       onClick={onClick}
       onFocus={onFocus}
@@ -507,47 +505,17 @@ function KernelOnDesktopMenuItem({
   );
 }
 
-function LiquidGlassEdgeOverlay({ radius }: Readonly<{ radius: string }>) {
-  return (
-    <>
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-[1px]"
-        style={{
-          ...liquidGlassInnerLightStyle,
-          borderRadius: radius,
-        }}
-      />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          ...liquidGlassRimStyle,
-          borderRadius: radius,
-        }}
-      />
-    </>
-  );
-}
+const dockGlassSurfaceStyle = {
+  background:
+    'linear-gradient(180deg, rgba(255,255,255,0.36) 0%, rgba(221,232,214,0.22) 48%, rgba(141,162,121,0.22) 100%)',
+  backdropFilter: 'blur(22px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(22px) saturate(150%)',
+  boxShadow:
+    'inset 0 0 0 1px rgba(255,255,255,0.18), 0 18px 48px rgba(5,24,9,0.30), 0 3px 10px rgba(255,255,255,0.18)',
+} as CSSProperties;
 
 const desktopContextMenuSurfaceStyle = {
-  background:
-    'linear-gradient(145deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.075) 48%, rgba(255,255,255,0.11) 100%)',
-  backdropFilter: 'blur(38px) saturate(185%) brightness(1.08)',
-  WebkitBackdropFilter: 'blur(38px) saturate(185%) brightness(1.08)',
-  boxShadow:
-    'inset 0 0 0 0.5px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.44), inset 0 -1px 0 rgba(255,255,255,0.12), 0 18px 42px rgba(0,0,0,0.16), 0 4px 14px rgba(0,0,0,0.10)',
-} as CSSProperties;
-
-const liquidGlassInnerLightStyle = {
-  background:
-    'linear-gradient(155deg, rgba(255,255,255,0.18), rgba(255,255,255,0.03) 38%, rgba(255,255,255,0.10) 100%)',
-  mixBlendMode: 'screen',
-} as CSSProperties;
-
-const liquidGlassRimStyle = {
-  boxShadow:
-    'inset 0 0 0 0.5px rgba(255,255,255,0.40), inset 0 0 10px rgba(255,255,255,0.05)',
+  ...dockGlassSurfaceStyle,
 } as CSSProperties;
 
 const desktopContextMenuIdleItemStyle = {
@@ -558,19 +526,19 @@ const desktopContextMenuIdleItemStyle = {
 const desktopContextMenuHoveredItemStyle = {
   ...desktopContextMenuIdleItemStyle,
   background:
-    'radial-gradient(circle at 18% 8%, rgba(255,255,255,0.22), transparent 50%), radial-gradient(circle at 84% 92%, rgba(255,255,255,0.07), transparent 58%), linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.035) 100%)',
-  backdropFilter: 'blur(18px) saturate(260%) brightness(1.36) contrast(1.02)',
-  WebkitBackdropFilter: 'blur(18px) saturate(260%) brightness(1.36) contrast(1.02)',
+    'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(221,232,214,0.13) 48%, rgba(141,162,121,0.18) 100%)',
+  backdropFilter: 'blur(22px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(22px) saturate(150%)',
   boxShadow:
-    'inset 0 0 0 0.5px rgba(255,255,255,0.58), inset 0 1px 0 rgba(255,255,255,0.68), inset 0 -1px 0 rgba(255,255,255,0.16), 0 0 0 0.5px rgba(255,255,255,0.16), 0 5px 14px rgba(255,255,255,0.035)',
+    'inset 0 0 0 1px rgba(255,255,255,0.18), 0 8px 18px rgba(5,24,9,0.16), 0 2px 8px rgba(255,255,255,0.10)',
 } as CSSProperties;
 
 const desktopContextMenuPressedItemStyle = {
   ...desktopContextMenuHoveredItemStyle,
   background:
-    'radial-gradient(circle at 18% 8%, rgba(255,255,255,0.26), transparent 50%), radial-gradient(circle at 84% 92%, rgba(255,255,255,0.08), transparent 58%), linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
+    'linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(221,232,214,0.12) 48%, rgba(141,162,121,0.22) 100%)',
   boxShadow:
-    'inset 0 0 0 0.5px rgba(255,255,255,0.66), inset 0 1px 0 rgba(255,255,255,0.74), inset 0 -1px 0 rgba(255,255,255,0.18), 0 3px 9px rgba(255,255,255,0.04)',
+    'inset 0 0 0 1px rgba(255,255,255,0.20), 0 5px 14px rgba(5,24,9,0.18), 0 1px 5px rgba(255,255,255,0.08)',
   transform: 'scale(0.985)',
 } as CSSProperties;
 
@@ -806,11 +774,7 @@ const dockStyle = {
   '--dock-icon-size': 'clamp(32px, 3.7vw, 66px)',
   '--dock-pad-x': 'clamp(13px, 1vw, 18px)',
   '--dock-pad-y': 'clamp(7px, 0.75vw, 10px)',
-  background:
-    'linear-gradient(180deg, rgba(255,255,255,0.36) 0%, rgba(221,232,214,0.22) 48%, rgba(141,162,121,0.22) 100%)',
-  backdropFilter: 'blur(22px) saturate(150%)',
-  boxShadow:
-    'inset 0 0 0 1px rgba(255,255,255,0.18), 0 18px 48px rgba(5,24,9,0.30), 0 3px 10px rgba(255,255,255,0.18)',
+  ...dockGlassSurfaceStyle,
 } as CSSProperties;
 
 interface DockIconButtonProps {
