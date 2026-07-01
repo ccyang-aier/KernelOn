@@ -41,7 +41,11 @@ import {
 import { useStore } from 'zustand';
 
 import type { DesktopItem, KernelAppManifest, WidgetManifest } from '@kernelon/core';
-import { LiquidGlass, liquidGlassAppleCardDefaults } from '@kernelon/ui';
+import {
+  LiquidGlass,
+  liquidGlassAppleButtonDefaults,
+  liquidGlassAppleCardDefaults,
+} from '@kernelon/ui';
 
 import type { AppWindowSurfaceProps, ShellRuntimeRegistry, WidgetSurfaceProps } from './runtime';
 import {
@@ -202,11 +206,12 @@ const desktopContextMenuMetrics = {
 
 const desktopContextMenuLiquidGlassProps = {
   aberrationIntensity: liquidGlassAppleCardDefaults.aberrationIntensity,
-  blurAmount: liquidGlassAppleCardDefaults.blurAmount,
+  blurAmount: liquidGlassAppleButtonDefaults.blurAmount,
   cornerRadius: liquidGlassAppleCardDefaults.cornerRadius,
   displacementScale: liquidGlassAppleCardDefaults.displacementScale,
   elasticity: liquidGlassAppleCardDefaults.elasticity,
-  mode: liquidGlassAppleCardDefaults.mode,
+  glassShadow: 'none',
+  mode: 'prominent',
   overLight: liquidGlassAppleCardDefaults.overLight,
   padding: '0',
   saturation: liquidGlassAppleCardDefaults.saturation,

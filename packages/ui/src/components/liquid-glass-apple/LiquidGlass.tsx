@@ -239,6 +239,7 @@ const GlassContainer = forwardRef<
     cornerRadius?: number;
     padding?: string;
     glassSize?: { width: number; height: number };
+    glassShadow?: CSSProperties['boxShadow'];
     onClick?: () => void;
     mode?: 'standard' | 'polar' | 'prominent' | 'shader';
   }>
@@ -261,6 +262,7 @@ const GlassContainer = forwardRef<
       cornerRadius = 999,
       padding = '24px 32px',
       glassSize = { width: 270, height: 69 },
+      glassShadow,
       onClick,
       mode = 'standard',
     },
@@ -312,9 +314,11 @@ const GlassContainer = forwardRef<
             padding,
             overflow: 'hidden',
             transition: 'all 0.2s ease-in-out',
-            boxShadow: overLight
-              ? '0px 16px 70px rgba(0, 0, 0, 0.75)'
-              : '0px 12px 40px rgba(0, 0, 0, 0.25)',
+            boxShadow:
+              glassShadow ??
+              (overLight
+                ? '0px 16px 70px rgba(0, 0, 0, 0.75)'
+                : '0px 12px 40px rgba(0, 0, 0, 0.25)'),
           }}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
@@ -371,6 +375,8 @@ export interface LiquidGlassProps {
   style?: React.CSSProperties;
   overLight?: boolean;
   mode?: 'standard' | 'polar' | 'prominent' | 'shader';
+  glassShadow?: CSSProperties['boxShadow'];
+  renderBorder?: boolean;
   onClick?: () => void;
 }
 
@@ -390,6 +396,8 @@ export function LiquidGlass({
   overLight = liquidGlassAppleDefaults.overLight,
   style = {},
   mode = liquidGlassAppleDefaults.mode,
+  glassShadow,
+  renderBorder = true,
   onClick,
 }: LiquidGlassProps) {
   const glassRef = useRef<HTMLDivElement>(null);
@@ -606,6 +614,7 @@ export function LiquidGlass({
         saturation={saturation}
         aberrationIntensity={aberrationIntensity}
         glassSize={glassSize}
+        glassShadow={glassShadow}
         padding={padding}
         mouseOffset={mouseOffset}
         onMouseEnter={() => setIsHovered(true)}
@@ -620,60 +629,64 @@ export function LiquidGlass({
         {children}
       </GlassContainer>
 
-      {/* Border layer 1 - extracted from glass container */}
-      <span
-        style={{
-          ...positionStyles,
-          height: glassSize.height,
-          width: glassSize.width,
-          borderRadius: `${cornerRadius}px`,
-          transform: baseStyle.transform,
-          transition: baseStyle.transition,
-          pointerEvents: 'none',
-          mixBlendMode: 'screen',
-          opacity: 0.2,
-          padding: '1.5px',
-          WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-          WebkitMaskComposite: 'xor',
-          maskComposite: 'exclude',
-          boxShadow:
-            '0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)',
-          background: `linear-gradient(
+      {renderBorder ? (
+        <>
+          {/* Border layer 1 - extracted from glass container */}
+          <span
+            style={{
+              ...positionStyles,
+              height: glassSize.height,
+              width: glassSize.width,
+              borderRadius: `${cornerRadius}px`,
+              transform: baseStyle.transform,
+              transition: baseStyle.transition,
+              pointerEvents: 'none',
+              mixBlendMode: 'screen',
+              opacity: 0.2,
+              padding: '1.5px',
+              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+              boxShadow:
+                '0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)',
+              background: `linear-gradient(
           ${135 + mouseOffset.x * 1.2}deg,
           rgba(255, 255, 255, 0.0) 0%,
           rgba(255, 255, 255, ${0.12 + Math.abs(mouseOffset.x) * 0.008}) ${Math.max(10, 33 + mouseOffset.y * 0.3)}%,
           rgba(255, 255, 255, ${0.4 + Math.abs(mouseOffset.x) * 0.012}) ${Math.min(90, 66 + mouseOffset.y * 0.4)}%,
           rgba(255, 255, 255, 0.0) 100%
         )`,
-        }}
-      />
+            }}
+          />
 
-      {/* Border layer 2 - duplicate with mix-blend-overlay */}
-      <span
-        style={{
-          ...positionStyles,
-          height: glassSize.height,
-          width: glassSize.width,
-          borderRadius: `${cornerRadius}px`,
-          transform: baseStyle.transform,
-          transition: baseStyle.transition,
-          pointerEvents: 'none',
-          mixBlendMode: 'overlay',
-          padding: '1.5px',
-          WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-          WebkitMaskComposite: 'xor',
-          maskComposite: 'exclude',
-          boxShadow:
-            '0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)',
-          background: `linear-gradient(
+          {/* Border layer 2 - duplicate with mix-blend-overlay */}
+          <span
+            style={{
+              ...positionStyles,
+              height: glassSize.height,
+              width: glassSize.width,
+              borderRadius: `${cornerRadius}px`,
+              transform: baseStyle.transform,
+              transition: baseStyle.transition,
+              pointerEvents: 'none',
+              mixBlendMode: 'overlay',
+              padding: '1.5px',
+              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+              boxShadow:
+                '0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)',
+              background: `linear-gradient(
           ${135 + mouseOffset.x * 1.2}deg,
           rgba(255, 255, 255, 0.0) 0%,
           rgba(255, 255, 255, ${0.32 + Math.abs(mouseOffset.x) * 0.008}) ${Math.max(10, 33 + mouseOffset.y * 0.3)}%,
           rgba(255, 255, 255, ${0.6 + Math.abs(mouseOffset.x) * 0.012}) ${Math.min(90, 66 + mouseOffset.y * 0.4)}%,
           rgba(255, 255, 255, 0.0) 100%
         )`,
-        }}
-      />
+            }}
+          />
+        </>
+      ) : null}
 
       {/* Hover effects */}
       {Boolean(onClick) && (

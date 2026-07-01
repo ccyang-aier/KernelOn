@@ -5,6 +5,9 @@ import type { ComponentType, PropsWithChildren } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 type LiquidGlassTestProps = PropsWithChildren<{
+  glassShadow?: string;
+  renderBorder?: boolean;
+  mode?: 'standard' | 'polar' | 'prominent' | 'shader';
   onClick?: () => void;
 }>;
 
@@ -34,6 +37,10 @@ function getWarp(container: HTMLElement) {
 
 function getFirstDisplacementScale(container: HTMLElement) {
   return container.querySelector('feDisplacementMap')?.getAttribute('scale');
+}
+
+function getDisplacementMapHref(container: HTMLElement) {
+  return container.querySelector('feImage')?.getAttribute('href');
 }
 
 describe('liquid-glass-apple components', () => {
@@ -125,5 +132,23 @@ describe('liquid-glass-apple components', () => {
     });
     expect(warp.style.backdropFilter).toBe('blur(20px) saturate(140%)');
     expect(getFirstDisplacementScale(container)).toBe('-100');
+  });
+
+  it('allows menu surfaces to suppress only the upstream visual frame layers', async () => {
+    const ui = await loadLiquidGlassModule();
+    const LiquidGlass = ui.LiquidGlass as ComponentType<LiquidGlassTestProps>;
+    const { container } = render(
+      <LiquidGlass glassShadow="none" mode="prominent" renderBorder={false}>
+        Menu glass
+      </LiquidGlass>,
+    );
+    const glass = getGlass(container);
+    const directBorderSpans = Array.from(container.children).filter(
+      (child) => child.tagName === 'SPAN',
+    );
+
+    expect(glass).toHaveStyle({ boxShadow: 'none' });
+    expect(directBorderSpans).toHaveLength(0);
+    expect(getDisplacementMapHref(container)).toContain('data:image/png');
   });
 });
