@@ -266,9 +266,12 @@ describe('KernelOnShell', () => {
       top: '168px',
       width: '274px',
     });
-    expect(menuGlass).toHaveStyle({ borderRadius: '32px', boxShadow: 'none' });
+    expect(menuGlass).toHaveStyle({
+      borderRadius: '32px',
+      boxShadow: '0px 12px 40px rgba(0, 0, 0, 0.25)',
+    });
     expect(menuGlass?.getAttribute('style')).toContain('padding: 0');
-    expect(menuWarp?.style.backdropFilter).toBe('blur(7.2px) saturate(140%)');
+    expect(menuWarp?.style.backdropFilter).toBe('blur(20px) saturate(140%)');
     expect(menuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe('-100');
     expect(
       within(menu)
@@ -291,14 +294,17 @@ describe('KernelOnShell', () => {
       top: '258px',
       width: '236px',
     });
-    expect(submenuGlass).toHaveStyle({ borderRadius: '32px', boxShadow: 'none' });
+    expect(submenuGlass).toHaveStyle({
+      borderRadius: '32px',
+      boxShadow: '0px 12px 40px rgba(0, 0, 0, 0.25)',
+    });
     expect(submenuGlass?.getAttribute('style')).toContain('padding: 0');
-    expect(submenuWarp?.style.backdropFilter).toBe('blur(7.2px) saturate(140%)');
+    expect(submenuWarp?.style.backdropFilter).toBe('blur(20px) saturate(140%)');
     expect(submenuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe(
       '-100',
     );
     expect(menuGlassShell?.querySelector('feImage')?.getAttribute('href')).toContain(
-      'data:image/png',
+      'data:image/jpeg',
     );
     expect(
       Array.from(menuGlassShell?.children ?? []).filter(
