@@ -41,6 +41,7 @@ import {
 import { useStore } from 'zustand';
 
 import type { DesktopItem, KernelAppManifest, WidgetManifest } from '@kernelon/core';
+import { LiquidGlass } from '@kernelon/ui';
 
 import type { AppWindowSurfaceProps, ShellRuntimeRegistry, WidgetSurfaceProps } from './runtime';
 import {
@@ -105,8 +106,9 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const toggleSpotlight = useShellSelector((state) => state.toggleSpotlight);
   const currentScreen = screens.find((screen) => screen.id === currentScreenId) ?? screens[0];
   const desktopItems = currentScreen?.items ?? [];
-  const [desktopContextMenu, setDesktopContextMenu] =
-    useState<DesktopContextMenuPosition | null>(null);
+  const [desktopContextMenu, setDesktopContextMenu] = useState<DesktopContextMenuPosition | null>(
+    null,
+  );
   const closeDesktopContextMenu = useCallback(() => {
     setDesktopContextMenu(null);
   }, []);
@@ -264,16 +266,12 @@ function KernelOnDesktopContextMenu({
   onClose,
   onOpenSpotlight,
 }: KernelOnDesktopContextMenuProps) {
-  const [activeSubmenu, setActiveSubmenu] =
-    useState<KernelOnDesktopSubmenu>('personalization');
+  const [activeSubmenu, setActiveSubmenu] = useState<KernelOnDesktopSubmenu>('personalization');
   const [hoveredItem, setHoveredItem] = useState('personalization');
   const [pressedItem, setPressedItem] = useState<string | null>(null);
   const submenuConfig = activeSubmenu ? desktopContextSubmenus[activeSubmenu] : null;
   const submenuPosition = {
-    x:
-      position.x +
-      desktopContextMenuMetrics.mainWidth +
-      desktopContextMenuMetrics.submenuGap,
+    x: position.x + desktopContextMenuMetrics.mainWidth + desktopContextMenuMetrics.submenuGap,
     y: position.y + (submenuConfig?.topOffset ?? desktopContextMenuMetrics.submenuTopOffset),
   };
 
@@ -333,14 +331,12 @@ function KernelOnDesktopContextMenu({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-40 pointer-events-none"
-      data-kernelon-context-menu-root="true"
-    >
+    <div className="fixed inset-0 z-40 pointer-events-none" data-kernelon-context-menu-root="true">
       <motion.div
         aria-label="KernelOn desktop context menu"
-        className="pointer-events-auto fixed overflow-hidden rounded-[22px] border border-white/40 text-white outline-none"
-        data-menu-surface="liquid-glass"
+        className="pointer-events-auto fixed text-white outline-none"
+        data-liquid-glass-menu-shell="main"
+        data-menu-surface="liquid-glass-apple"
         exit={{
           opacity: 0,
           scale: 0.985,
@@ -351,7 +347,6 @@ function KernelOnDesktopContextMenu({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         role="menu"
         style={{
-          ...desktopContextMenuSurfaceStyle,
           height: desktopContextMenuMetrics.mainHeight,
           left: position.x,
           top: position.y,
@@ -361,71 +356,84 @@ function KernelOnDesktopContextMenu({
         tabIndex={-1}
         transition={{ type: 'spring', stiffness: 460, damping: 34, mass: 0.62 }}
       >
-        <div className="relative z-10 flex h-full flex-col px-[12px] py-[10px]">
-          <KernelOnDesktopMenuItem
-            Icon={CirclePlus}
-            expanded={activeSubmenu === 'new'}
-            hasSubmenu
-            highlightGroup="main"
-            itemKey="new"
-            label="新建"
-            onFocus={() => activateItem('new', 'new')}
-            onPointerDown={() => setPressedItem('new')}
-            onPointerEnter={() => activateItem('new', 'new')}
-            state={getItemState('new', activeSubmenu === 'new')}
-          />
-          <KernelOnDesktopMenuItem
-            Icon={ListTodo}
-            highlightGroup="main"
-            itemKey="notifications"
-            label="通知与待办"
-            onFocus={() => activateItem('notifications', null)}
-            onPointerDown={() => setPressedItem('notifications')}
-            onPointerEnter={() => activateItem('notifications', null)}
-            state={getItemState('notifications')}
-          />
-          <KernelOnDesktopMenuItem
-            Icon={Palette}
-            expanded={activeSubmenu === 'personalization'}
-            hasSubmenu
-            highlightGroup="main"
-            itemKey="personalization"
-            label="个性化"
-            onFocus={() => activateItem('personalization', 'personalization')}
-            onPointerDown={() => setPressedItem('personalization')}
-            onPointerEnter={() => activateItem('personalization', 'personalization')}
-            state={getItemState('personalization', activeSubmenu === 'personalization')}
-          />
-          <KernelOnDesktopMenuItem
-            Icon={ShoppingBag}
-            highlightGroup="main"
-            itemKey="app-store"
-            label="APP Store"
-            onFocus={() => activateItem('app-store', null)}
-            onPointerDown={() => setPressedItem('app-store')}
-            onPointerEnter={() => activateItem('app-store', null)}
-            state={getItemState('app-store')}
-          />
-          <KernelOnDesktopMenuItem
-            Icon={Sparkles}
-            highlightGroup="main"
-            itemKey="spotlight"
-            label="AI Spotlight"
-            onClick={onOpenSpotlight}
-            onFocus={() => activateItem('spotlight', null)}
-            onPointerDown={() => setPressedItem('spotlight')}
-            onPointerEnter={() => activateItem('spotlight', null)}
-            state={getItemState('spotlight')}
-          />
-        </div>
+        <LiquidGlass
+          cornerRadius={22}
+          padding="0"
+          style={{ left: '50%', position: 'absolute', top: '50%' }}
+        >
+          <div
+            className="relative z-10 flex h-full flex-col px-[12px] py-[10px]"
+            style={{
+              height: desktopContextMenuMetrics.mainHeight,
+              width: desktopContextMenuMetrics.mainWidth,
+            }}
+          >
+            <KernelOnDesktopMenuItem
+              Icon={CirclePlus}
+              expanded={activeSubmenu === 'new'}
+              hasSubmenu
+              highlightGroup="main"
+              itemKey="new"
+              label="新建"
+              onFocus={() => activateItem('new', 'new')}
+              onPointerDown={() => setPressedItem('new')}
+              onPointerEnter={() => activateItem('new', 'new')}
+              state={getItemState('new', activeSubmenu === 'new')}
+            />
+            <KernelOnDesktopMenuItem
+              Icon={ListTodo}
+              highlightGroup="main"
+              itemKey="notifications"
+              label="通知与待办"
+              onFocus={() => activateItem('notifications', null)}
+              onPointerDown={() => setPressedItem('notifications')}
+              onPointerEnter={() => activateItem('notifications', null)}
+              state={getItemState('notifications')}
+            />
+            <KernelOnDesktopMenuItem
+              Icon={Palette}
+              expanded={activeSubmenu === 'personalization'}
+              hasSubmenu
+              highlightGroup="main"
+              itemKey="personalization"
+              label="个性化"
+              onFocus={() => activateItem('personalization', 'personalization')}
+              onPointerDown={() => setPressedItem('personalization')}
+              onPointerEnter={() => activateItem('personalization', 'personalization')}
+              state={getItemState('personalization', activeSubmenu === 'personalization')}
+            />
+            <KernelOnDesktopMenuItem
+              Icon={ShoppingBag}
+              highlightGroup="main"
+              itemKey="app-store"
+              label="APP Store"
+              onFocus={() => activateItem('app-store', null)}
+              onPointerDown={() => setPressedItem('app-store')}
+              onPointerEnter={() => activateItem('app-store', null)}
+              state={getItemState('app-store')}
+            />
+            <KernelOnDesktopMenuItem
+              Icon={Sparkles}
+              highlightGroup="main"
+              itemKey="spotlight"
+              label="AI Spotlight"
+              onClick={onOpenSpotlight}
+              onFocus={() => activateItem('spotlight', null)}
+              onPointerDown={() => setPressedItem('spotlight')}
+              onPointerEnter={() => activateItem('spotlight', null)}
+              state={getItemState('spotlight')}
+            />
+          </div>
+        </LiquidGlass>
       </motion.div>
 
       <AnimatePresence>
         {submenuConfig ? (
           <motion.div
             aria-label={submenuConfig.label}
-            className="pointer-events-auto fixed overflow-hidden rounded-[20px] border border-white/40 text-white outline-none"
-            data-menu-surface="liquid-glass"
+            className="pointer-events-auto fixed text-white outline-none"
+            data-liquid-glass-menu-shell="submenu"
+            data-menu-surface="liquid-glass-apple"
             key={activeSubmenu}
             exit={{
               opacity: 0,
@@ -437,7 +445,6 @@ function KernelOnDesktopContextMenu({
             animate={{ opacity: 1, scale: 1, x: 0 }}
             role="menu"
             style={{
-              ...desktopContextMenuSurfaceStyle,
               height: desktopContextMenuMetrics.submenuHeight,
               left: submenuPosition.x,
               top: submenuPosition.y,
@@ -446,23 +453,35 @@ function KernelOnDesktopContextMenu({
             }}
             transition={{ type: 'spring', stiffness: 430, damping: 32, mass: 0.58 }}
           >
-            <div className="relative z-10 flex h-full flex-col px-[11px] py-[10px]">
-              {submenuConfig.items.map((item) => (
-                <KernelOnDesktopMenuItem
-                  Icon={item.Icon}
-                  compact
-                  highlightGroup={`submenu-${activeSubmenu}`}
-                  itemKey={item.key}
-                  key={item.key}
-                  label={item.label}
-                  onClick={onClose}
-                  onFocus={() => setHoveredItem(item.key)}
-                  onPointerDown={() => setPressedItem(item.key)}
-                  onPointerEnter={() => setHoveredItem(item.key)}
-                  state={getItemState(item.key)}
-                />
-              ))}
-            </div>
+            <LiquidGlass
+              cornerRadius={20}
+              padding="0"
+              style={{ left: '50%', position: 'absolute', top: '50%' }}
+            >
+              <div
+                className="relative z-10 flex h-full flex-col px-[11px] py-[10px]"
+                style={{
+                  height: desktopContextMenuMetrics.submenuHeight,
+                  width: desktopContextMenuMetrics.submenuWidth,
+                }}
+              >
+                {submenuConfig.items.map((item) => (
+                  <KernelOnDesktopMenuItem
+                    Icon={item.Icon}
+                    compact
+                    highlightGroup={`submenu-${activeSubmenu}`}
+                    itemKey={item.key}
+                    key={item.key}
+                    label={item.label}
+                    onClick={onClose}
+                    onFocus={() => setHoveredItem(item.key)}
+                    onPointerDown={() => setPressedItem(item.key)}
+                    onPointerEnter={() => setHoveredItem(item.key)}
+                    state={getItemState(item.key)}
+                  />
+                ))}
+              </div>
+            </LiquidGlass>
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -538,7 +557,11 @@ function KernelOnDesktopMenuItem({
       <span className="relative z-10 flex min-w-0 items-center gap-[9px]">
         <span
           aria-hidden="true"
-          className={compact ? 'grid size-[17px] shrink-0 place-items-center' : 'grid size-[18px] shrink-0 place-items-center'}
+          className={
+            compact
+              ? 'grid size-[17px] shrink-0 place-items-center'
+              : 'grid size-[18px] shrink-0 place-items-center'
+          }
           data-menu-item-icon="true"
           data-testid="context-menu-item-icon"
           style={desktopContextMenuIconStyle}
@@ -558,7 +581,9 @@ function KernelOnDesktopMenuItem({
       {hasSubmenu ? (
         <ChevronRight
           aria-hidden="true"
-          className={compact ? 'relative z-10 h-[16px] w-[16px]' : 'relative z-10 h-[18px] w-[18px]'}
+          className={
+            compact ? 'relative z-10 h-[16px] w-[16px]' : 'relative z-10 h-[18px] w-[18px]'
+          }
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
@@ -577,10 +602,6 @@ const dockGlassSurfaceStyle = {
   WebkitBackdropFilter: 'blur(14px) saturate(174%) contrast(106%)',
   boxShadow:
     'inset 0 0 0 1px rgba(255,255,255,0.28), inset 0 1px 0 rgba(255,255,255,0.58), inset 0 -1px 0 rgba(255,255,255,0.34), inset 0 14px 24px rgba(255,255,255,0.08), inset 0 -18px 26px rgba(36,73,48,0.10), 0 15px 36px rgba(5,24,9,0.22), 0 2px 8px rgba(255,255,255,0.16)',
-} as CSSProperties;
-
-const desktopContextMenuSurfaceStyle = {
-  ...dockGlassSurfaceStyle,
 } as CSSProperties;
 
 const desktopContextMenuIdleItemStyle = {
@@ -676,9 +697,7 @@ function KernelOnStatusBar({
       data-testid="kernelon-status-bar"
       style={statusBarShellStyle}
     >
-      <div
-        className="pointer-events-auto flex h-[38px] w-full items-center justify-between pl-[14px]"
-      >
+      <div className="pointer-events-auto flex h-[38px] w-full items-center justify-between pl-[14px]">
         <div
           aria-label="KernelOn product identity"
           className="flex h-full min-w-0 items-center gap-[8px]"
