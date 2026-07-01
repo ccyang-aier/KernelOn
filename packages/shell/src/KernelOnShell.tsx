@@ -133,10 +133,6 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${kernelOnDesktopWallpaper})` }}
       />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(circle_at_50%_92%,rgba(255,255,255,0.20),transparent_34%),linear-gradient(180deg,rgba(4,19,12,0.02),rgba(4,19,12,0.08))]"
-      />
       <KernelOnStatusBar
         launcherOpen={launcherOpen}
         onToggleLauncher={toggleLauncher}
@@ -189,12 +185,16 @@ interface DesktopContextMenuPoint {
 type DesktopContextMenuPosition = DesktopContextMenuPoint;
 
 const desktopContextMenuMetrics = {
-  mainWidth: 274,
-  mainHeight: 200,
-  submenuWidth: 236,
-  submenuHeight: 156,
+  mainWidth: 338,
+  mainHeight: 248,
+  mainContentWidth: 274,
+  mainContentHeight: 200,
+  submenuWidth: 300,
+  submenuHeight: 204,
+  submenuContentWidth: 236,
+  submenuContentHeight: 156,
   submenuGap: 8,
-  submenuTopOffset: 90,
+  submenuTopOffset: 114,
   viewportGutter: 10,
 };
 
@@ -205,8 +205,7 @@ const desktopContextMenuLiquidGlassProps = {
   displacementScale: 100,
   elasticity: 0,
   mode: 'standard',
-  overLight: false,
-  padding: '0',
+  overLight: true,
   saturation: 140,
 } as const;
 
@@ -255,7 +254,7 @@ type KernelOnDesktopSubmenu = 'new' | 'personalization' | null;
 const desktopContextSubmenus = {
   new: {
     label: '新建',
-    topOffset: 10,
+    topOffset: 34,
     items: [
       { Icon: UserRoundPlus, key: 'new-employee-profile', label: '新人档案' },
       { Icon: Handshake, key: 'new-mentor-match', label: '导师匹配' },
@@ -265,7 +264,7 @@ const desktopContextSubmenus = {
   },
   personalization: {
     label: '个性化',
-    topOffset: 90,
+    topOffset: 114,
     items: [
       { Icon: Image, key: 'wallpaper', label: '壁纸' },
       { Icon: Blocks, key: 'widgets', label: '小组件' },
@@ -389,8 +388,8 @@ function KernelOnDesktopContextMenu({
           <div
             className="relative z-10 flex h-full flex-col px-[12px] py-[10px]"
             style={{
-              height: desktopContextMenuMetrics.mainHeight,
-              width: desktopContextMenuMetrics.mainWidth,
+              height: desktopContextMenuMetrics.mainContentHeight,
+              width: desktopContextMenuMetrics.mainContentWidth,
             }}
           >
             <KernelOnDesktopMenuItem
@@ -480,8 +479,8 @@ function KernelOnDesktopContextMenu({
               <div
                 className="relative z-10 flex h-full flex-col px-[11px] py-[10px]"
                 style={{
-                  height: desktopContextMenuMetrics.submenuHeight,
-                  width: desktopContextMenuMetrics.submenuWidth,
+                  height: desktopContextMenuMetrics.submenuContentHeight,
+                  width: desktopContextMenuMetrics.submenuContentWidth,
                 }}
               >
                 {submenuConfig.items.map((item) => (

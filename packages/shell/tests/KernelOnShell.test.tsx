@@ -266,19 +266,19 @@ describe('KernelOnShell', () => {
 
     expect(menu).toHaveAttribute('data-menu-surface', 'liquid-glass-apple');
     expect(menuGlassShell).toHaveStyle({
-      height: '200px',
+      height: '248px',
       left: '338px',
       top: '168px',
-      width: '274px',
+      width: '338px',
     });
     expect(menuGlassShell?.getAttribute('style')).not.toContain('scale');
     expect(menuGlass).toHaveStyle({
       borderRadius: '32px',
-      boxShadow: '0px 12px 40px rgba(0, 0, 0, 0.25)',
+      boxShadow: '0px 16px 70px rgba(0, 0, 0, 0.75)',
     });
-    expect(menuGlass?.getAttribute('style')).toContain('padding: 0');
-    expect(menuWarp?.style.backdropFilter).toBe('blur(20px) saturate(140%)');
-    expect(menuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe('-100');
+    expect(menuGlass?.getAttribute('style')).toContain('padding: 24px 32px');
+    expect(menuWarp?.style.backdropFilter).toBe('blur(28px) saturate(140%)');
+    expect(menuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe('-50');
     expect(
       within(menu)
         .getAllByRole('menuitem')
@@ -295,20 +295,20 @@ describe('KernelOnShell', () => {
     ).toEqual(['壁纸', '小组件', 'Dock 与菜单栏', '桌面排列']);
     expect(submenu).toHaveAttribute('data-menu-surface', 'liquid-glass-apple');
     expect(submenuGlassShell).toHaveStyle({
-      height: '156px',
-      left: '620px',
-      top: '258px',
-      width: '236px',
+      height: '204px',
+      left: '684px',
+      top: '282px',
+      width: '300px',
     });
     expect(submenuGlassShell?.getAttribute('style')).not.toContain('scale');
     expect(submenuGlass).toHaveStyle({
       borderRadius: '32px',
-      boxShadow: '0px 12px 40px rgba(0, 0, 0, 0.25)',
+      boxShadow: '0px 16px 70px rgba(0, 0, 0, 0.75)',
     });
-    expect(submenuGlass?.getAttribute('style')).toContain('padding: 0');
-    expect(submenuWarp?.style.backdropFilter).toBe('blur(20px) saturate(140%)');
+    expect(submenuGlass?.getAttribute('style')).toContain('padding: 24px 32px');
+    expect(submenuWarp?.style.backdropFilter).toBe('blur(28px) saturate(140%)');
     expect(submenuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe(
-      '-100',
+      '-50',
     );
     expect(menuGlassShell?.querySelector('feImage')?.getAttribute('href')).toContain(
       'data:image/jpeg',
@@ -318,6 +318,8 @@ describe('KernelOnShell', () => {
         (layer) => layer instanceof HTMLElement && layer.tagName === 'SPAN',
       ),
     ).toHaveLength(2);
+    expect(menuGlassShell?.children[0]).toHaveClass('opacity-20');
+    expect(menuGlassShell?.children[1]).toHaveClass('opacity-100');
 
     const newItem = within(menu).getByRole('menuitem', { name: '新建' });
     const appStoreItem = within(menu).getByRole('menuitem', { name: 'APP Store' });
@@ -348,10 +350,10 @@ describe('KernelOnShell', () => {
     const newSubmenu = screen.getByRole('menu', { name: '新建' });
 
     expect(newSubmenu).toHaveStyle({
-      height: '156px',
-      left: '620px',
-      top: '178px',
-      width: '236px',
+      height: '204px',
+      left: '684px',
+      top: '202px',
+      width: '300px',
     });
     expect(
       within(newSubmenu)

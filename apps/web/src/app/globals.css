@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @source '../../../../packages/ui/src/**/*.{ts,tsx}';
+@source not '../../../../packages/ui/src/components/liquid-glass-apple/**/*.{ts,tsx}';
 @source '../../../../packages/shell/src/**/*.{ts,tsx}';
 @source '../../../../packages/modules/src/**/*.{ts,tsx}';
 
