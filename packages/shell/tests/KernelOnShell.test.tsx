@@ -266,10 +266,10 @@ describe('KernelOnShell', () => {
       top: '168px',
       width: '274px',
     });
-    expect(menuGlass).toHaveStyle({ borderRadius: '22px' });
+    expect(menuGlass).toHaveStyle({ borderRadius: '32px' });
     expect(menuGlass?.getAttribute('style')).toContain('padding: 0');
-    expect(menuWarp?.style.backdropFilter).toBe('blur(6px) saturate(140%)');
-    expect(menuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe('-70');
+    expect(menuWarp?.style.backdropFilter).toBe('blur(20px) saturate(140%)');
+    expect(menuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe('-100');
     expect(
       within(menu)
         .getAllByRole('menuitem')
@@ -291,41 +291,45 @@ describe('KernelOnShell', () => {
       top: '258px',
       width: '236px',
     });
-    expect(submenuGlass).toHaveStyle({ borderRadius: '20px' });
+    expect(submenuGlass).toHaveStyle({ borderRadius: '32px' });
     expect(submenuGlass?.getAttribute('style')).toContain('padding: 0');
-    expect(submenuWarp?.style.backdropFilter).toBe('blur(6px) saturate(140%)');
+    expect(submenuWarp?.style.backdropFilter).toBe('blur(20px) saturate(140%)');
     expect(submenuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe(
-      '-70',
+      '-100',
     );
+    expect(
+      Array.from(menuGlassShell?.children ?? []).some(
+        (layer) =>
+          layer instanceof HTMLElement &&
+          layer.tagName === 'SPAN' &&
+          layer.style.background.includes('75deg'),
+      ),
+    ).toBe(true);
 
     const newItem = within(menu).getByRole('menuitem', { name: '新建' });
     const appStoreItem = within(menu).getByRole('menuitem', { name: 'APP Store' });
     const personalizationItem = within(menu).getByRole('menuitem', { name: '个性化' });
 
     expect(personalizationItem).toHaveStyle({ fontWeight: '520' });
-    expect(personalizationItem).toHaveAttribute('data-highlight-tone', 'dock-glass');
+    expect(personalizationItem).not.toHaveAttribute('data-highlight-tone');
     expect(personalizationItem.getAttribute('style')).not.toContain('linear-gradient');
     expect(personalizationItem.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.22)');
     expect(personalizationItem.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.28)');
     expect(personalizationItem.getAttribute('style')).not.toContain('rgba(145, 221, 242, 0.2)');
-    expect(personalizationItem.querySelector('[data-highlight-capsule="true"]')).toHaveStyle({
-      background:
-        'linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(238,246,231,0.11) 44%, rgba(104,147,118,0.16) 100%)',
-      boxShadow:
-        'inset 0 0 0 1px rgba(255,255,255,0.20), inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(255,255,255,0.18), 0 4px 10px rgba(5,24,9,0.08)',
-    });
-    expect(personalizationItem.querySelector('[data-highlight-capsule="true"]')).not.toHaveStyle({
-      boxShadow: '0 8px 18px rgba(5,24,9,0.16)',
-    });
+    expect(personalizationItem.querySelector('[data-highlight-capsule="true"]')).not.toBeInTheDocument();
     expect(within(menu).getAllByTestId('context-menu-item-icon')).toHaveLength(5);
     expect(within(submenu).getAllByTestId('context-menu-item-icon')).toHaveLength(4);
+    expect(within(menu).getAllByTestId('context-menu-item-icon')[0].getAttribute('style')).not.toContain(
+      'drop-shadow',
+    );
     expect(menu.querySelectorAll('[role="separator"]')).toHaveLength(0);
     expect(submenu.querySelectorAll('[role="separator"]')).toHaveLength(0);
     expect(menuGlassShell?.querySelector('.glass__warp')).toBeInTheDocument();
 
     await user.hover(newItem);
     expect(newItem).toHaveAttribute('data-interaction-state', 'hovered');
-    expect(newItem).toHaveAttribute('data-highlight-tone', 'dock-glass');
+    expect(newItem).not.toHaveAttribute('data-highlight-tone');
+    expect(newItem.querySelector('[data-highlight-capsule="true"]')).not.toBeInTheDocument();
     expect(personalizationItem).toHaveAttribute('data-interaction-state', 'idle');
 
     const newSubmenu = screen.getByRole('menu', { name: '新建' });
