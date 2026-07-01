@@ -365,12 +365,11 @@ function KernelOnDesktopContextMenu({
         data-menu-surface="liquid-glass-apple"
         exit={{
           opacity: 0,
-          scale: 0.985,
           y: 4,
           transition: { duration: 0.1, ease: [0.22, 1, 0.36, 1] },
         }}
-        initial={{ opacity: 0, scale: 0.965, y: 8 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
         role="menu"
         style={{
           height: desktopContextMenuMetrics.mainHeight,
@@ -458,12 +457,11 @@ function KernelOnDesktopContextMenu({
             key={activeSubmenu}
             exit={{
               opacity: 0,
-              scale: 0.985,
               x: -8,
               transition: { duration: 0.1, ease: [0.22, 1, 0.36, 1] },
             }}
-            initial={{ opacity: 0, scale: 0.965, x: -12 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
             role="menu"
             style={{
               height: desktopContextMenuMetrics.submenuHeight,

@@ -75,7 +75,12 @@ describe('KernelOnShell', () => {
 
     render(<KernelOnShell initialState={initialState} runtime={runtime} />);
 
-    expect(screen.getByTestId('kernelon-shell')).toBeInTheDocument();
+    const shell = screen.getByTestId('kernelon-shell');
+
+    expect(shell).toBeInTheDocument();
+    expect(shell.firstElementChild).toHaveStyle({
+      backgroundImage: 'url(/kernelon-assets/wallpapers/liquid-glass-demo-wallpaper.jpg)',
+    });
     expect(screen.queryByText('新员工运作工作台')).not.toBeInTheDocument();
     expect(screen.queryByText('Core Services')).not.toBeInTheDocument();
     expect(screen.queryByText('入职进度')).not.toBeInTheDocument();
@@ -266,6 +271,7 @@ describe('KernelOnShell', () => {
       top: '168px',
       width: '274px',
     });
+    expect(menuGlassShell?.getAttribute('style')).not.toContain('scale');
     expect(menuGlass).toHaveStyle({
       borderRadius: '32px',
       boxShadow: '0px 12px 40px rgba(0, 0, 0, 0.25)',
@@ -294,6 +300,7 @@ describe('KernelOnShell', () => {
       top: '258px',
       width: '236px',
     });
+    expect(submenuGlassShell?.getAttribute('style')).not.toContain('scale');
     expect(submenuGlass).toHaveStyle({
       borderRadius: '32px',
       boxShadow: '0px 12px 40px rgba(0, 0, 0, 0.25)',
