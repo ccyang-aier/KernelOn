@@ -75,12 +75,7 @@ describe('KernelOnShell', () => {
 
     render(<KernelOnShell initialState={initialState} runtime={runtime} />);
 
-    const shell = screen.getByTestId('kernelon-shell');
-
-    expect(shell).toBeInTheDocument();
-    expect(shell.firstElementChild).toHaveStyle({
-      backgroundImage: 'url(/kernelon-assets/wallpapers/liquid-glass-demo-wallpaper.jpg)',
-    });
+    expect(screen.getByTestId('kernelon-shell')).toBeInTheDocument();
     expect(screen.queryByText('新员工运作工作台')).not.toBeInTheDocument();
     expect(screen.queryByText('Core Services')).not.toBeInTheDocument();
     expect(screen.queryByText('入职进度')).not.toBeInTheDocument();
@@ -257,28 +252,13 @@ describe('KernelOnShell', () => {
     const menu = screen.getByRole('menu', { name: 'KernelOn desktop context menu' });
     const submenu = screen.getByRole('menu', { name: '个性化' });
 
-    const menuGlassShell = menu.closest('[data-liquid-glass-menu-shell="main"]');
-    const submenuGlassShell = submenu.closest('[data-liquid-glass-menu-shell="submenu"]');
-    const menuGlass = menuGlassShell?.querySelector<HTMLElement>('.glass');
-    const menuWarp = menuGlassShell?.querySelector<HTMLElement>('.glass__warp');
-    const submenuGlass = submenuGlassShell?.querySelector<HTMLElement>('.glass');
-    const submenuWarp = submenuGlassShell?.querySelector<HTMLElement>('.glass__warp');
-
-    expect(menu).toHaveAttribute('data-menu-surface', 'liquid-glass-apple');
-    expect(menuGlassShell).toHaveStyle({
-      height: '248px',
-      left: '338px',
-      top: '168px',
-      width: '338px',
-    });
-    expect(menuGlassShell?.getAttribute('style')).not.toContain('scale');
-    expect(menuGlass).toHaveStyle({
-      borderRadius: '32px',
-      boxShadow: '0px 16px 70px rgba(0, 0, 0, 0.75)',
-    });
-    expect(menuGlass?.getAttribute('style')).toContain('padding: 24px 32px');
-    expect(menuWarp?.style.backdropFilter).toBe('blur(28px) saturate(140%)');
-    expect(menuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe('-50');
+    expect(menu).toHaveAttribute('data-menu-surface', 'liquid-glass');
+    expect(menu).toHaveStyle({ height: '200px', left: '338px', top: '168px', width: '274px' });
+    expect(menu.getAttribute('style')).toContain(
+      'backdrop-filter: blur(14px) saturate(174%) contrast(106%)',
+    );
+    expect(menu.getAttribute('style')).toContain('rgba(104, 147, 118, 0.16)');
+    expect(menu.getAttribute('style')).not.toContain('circle at 24% 12%');
     expect(
       within(menu)
         .getAllByRole('menuitem')
@@ -293,68 +273,46 @@ describe('KernelOnShell', () => {
         .getAllByRole('menuitem')
         .map((item) => item.textContent),
     ).toEqual(['壁纸', '小组件', 'Dock 与菜单栏', '桌面排列']);
-    expect(submenu).toHaveAttribute('data-menu-surface', 'liquid-glass-apple');
-    expect(submenuGlassShell).toHaveStyle({
-      height: '204px',
-      left: '684px',
-      top: '282px',
-      width: '300px',
-    });
-    expect(submenuGlassShell?.getAttribute('style')).not.toContain('scale');
-    expect(submenuGlass).toHaveStyle({
-      borderRadius: '32px',
-      boxShadow: '0px 16px 70px rgba(0, 0, 0, 0.75)',
-    });
-    expect(submenuGlass?.getAttribute('style')).toContain('padding: 24px 32px');
-    expect(submenuWarp?.style.backdropFilter).toBe('blur(28px) saturate(140%)');
-    expect(submenuGlassShell?.querySelector('feDisplacementMap')?.getAttribute('scale')).toBe(
-      '-50',
+    expect(submenu).toHaveStyle({ height: '156px', left: '620px', top: '258px', width: '236px' });
+    expect(submenu.getAttribute('style')).toContain(
+      'backdrop-filter: blur(14px) saturate(174%) contrast(106%)',
     );
-    expect(menuGlassShell?.querySelector('feImage')?.getAttribute('href')).toContain(
-      'data:image/jpeg',
-    );
-    expect(
-      Array.from(menuGlassShell?.children ?? []).filter(
-        (layer) => layer instanceof HTMLElement && layer.tagName === 'SPAN',
-      ),
-    ).toHaveLength(2);
-    expect(menuGlassShell?.children[0]).toHaveClass('opacity-20');
-    expect(menuGlassShell?.children[1]).toHaveClass('opacity-100');
+    expect(submenu.getAttribute('style')).toContain('rgba(104, 147, 118, 0.16)');
+    expect(submenu.getAttribute('style')).not.toContain('circle at 24% 12%');
 
     const newItem = within(menu).getByRole('menuitem', { name: '新建' });
     const appStoreItem = within(menu).getByRole('menuitem', { name: 'APP Store' });
     const personalizationItem = within(menu).getByRole('menuitem', { name: '个性化' });
 
     expect(personalizationItem).toHaveStyle({ fontWeight: '520' });
-    expect(personalizationItem).not.toHaveAttribute('data-highlight-tone');
+    expect(personalizationItem).toHaveAttribute('data-highlight-tone', 'dock-glass');
     expect(personalizationItem.getAttribute('style')).not.toContain('linear-gradient');
     expect(personalizationItem.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.22)');
     expect(personalizationItem.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.28)');
     expect(personalizationItem.getAttribute('style')).not.toContain('rgba(145, 221, 242, 0.2)');
-    expect(personalizationItem.querySelector('[data-highlight-capsule="true"]')).not.toBeInTheDocument();
+    expect(personalizationItem.querySelector('[data-highlight-capsule="true"]')).toHaveStyle({
+      background:
+        'linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(238,246,231,0.11) 44%, rgba(104,147,118,0.16) 100%)',
+      boxShadow:
+        'inset 0 0 0 1px rgba(255,255,255,0.20), inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(255,255,255,0.18), 0 4px 10px rgba(5,24,9,0.08)',
+    });
+    expect(personalizationItem.querySelector('[data-highlight-capsule="true"]')).not.toHaveStyle({
+      boxShadow: '0 8px 18px rgba(5,24,9,0.16)',
+    });
     expect(within(menu).getAllByTestId('context-menu-item-icon')).toHaveLength(5);
     expect(within(submenu).getAllByTestId('context-menu-item-icon')).toHaveLength(4);
-    expect(within(menu).getAllByTestId('context-menu-item-icon')[0].getAttribute('style')).not.toContain(
-      'drop-shadow',
-    );
     expect(menu.querySelectorAll('[role="separator"]')).toHaveLength(0);
     expect(submenu.querySelectorAll('[role="separator"]')).toHaveLength(0);
-    expect(menuGlassShell?.querySelector('.glass__warp')).toBeInTheDocument();
+    expect(menu).toHaveClass('border-white/40');
 
     await user.hover(newItem);
     expect(newItem).toHaveAttribute('data-interaction-state', 'hovered');
-    expect(newItem).not.toHaveAttribute('data-highlight-tone');
-    expect(newItem.querySelector('[data-highlight-capsule="true"]')).not.toBeInTheDocument();
+    expect(newItem).toHaveAttribute('data-highlight-tone', 'dock-glass');
     expect(personalizationItem).toHaveAttribute('data-interaction-state', 'idle');
 
     const newSubmenu = screen.getByRole('menu', { name: '新建' });
 
-    expect(newSubmenu).toHaveStyle({
-      height: '204px',
-      left: '684px',
-      top: '202px',
-      width: '300px',
-    });
+    expect(newSubmenu).toHaveStyle({ height: '156px', left: '620px', top: '178px', width: '236px' });
     expect(
       within(newSubmenu)
         .getAllByRole('menuitem')

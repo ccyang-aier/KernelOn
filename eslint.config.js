@@ -10,8 +10,6 @@ export default tseslint.config(
       '**/dist/**',
       '**/coverage/**',
       '**/node_modules/**',
-      'open_source/**',
-      'packages/ui/src/components/liquid-glass-apple/**',
       '**/*.tsbuildinfo',
       'pnpm-lock.yaml',
     ],
