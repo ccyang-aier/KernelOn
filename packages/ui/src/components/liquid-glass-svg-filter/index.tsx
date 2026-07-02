@@ -222,6 +222,9 @@ const GlassContainer = forwardRef<
                 ...backdropStyle,
                 position: "absolute",
                 inset: "0",
+                borderRadius: `${cornerRadius}px`,
+                clipPath: `inset(0 round ${cornerRadius}px)`,
+                overflow: "hidden",
               } as CSSProperties
             }
           />
@@ -246,7 +249,7 @@ const GlassContainer = forwardRef<
 
 GlassContainer.displayName = "GlassContainer"
 
-interface LiquidGlassProps {
+interface LiquidGlassSvgFilterProps {
   children: React.ReactNode
   displacementScale?: number
   blurAmount?: number
@@ -265,7 +268,7 @@ interface LiquidGlassProps {
   onClick?: () => void
 }
 
-export default function LiquidGlass({
+export default function LiquidGlassSvgFilter({
   children,
   displacementScale = 70,
   blurAmount = 0.0625,
@@ -282,7 +285,7 @@ export default function LiquidGlass({
   style = {},
   mode = "standard",
   onClick,
-}: LiquidGlassProps) {
+}: LiquidGlassSvgFilterProps) {
   const glassRef = useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = useState(false)
   const [isActive, setIsActive] = useState(false)
