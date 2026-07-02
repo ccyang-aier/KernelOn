@@ -2,7 +2,7 @@ import {
   fireEvent,
   render,
   screen,
-  waitForElementToBeRemoved,
+  waitFor,
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -238,6 +238,11 @@ describe('KernelOnShell', () => {
 
     render(<KernelOnShell initialState={initialState} runtime={runtime} />);
 
+    expect(screen.getByTestId('kernelon-desktop-wallpaper')).toHaveAttribute(
+      'src',
+      '/kernelon-assets/wallpapers/kernelon-flower-wallpaper.png',
+    );
+
     const desktopSurface = screen.getByTestId('kernelon-desktop-surface');
     const contextMenuEvent = new MouseEvent('contextmenu', {
       bubbles: true,
@@ -252,12 +257,10 @@ describe('KernelOnShell', () => {
     const menu = screen.getByRole('menu', { name: 'KernelOn desktop context menu' });
     const submenu = screen.getByRole('menu', { name: '个性化' });
 
-    expect(menu).toHaveAttribute('data-menu-surface', 'liquid-glass');
-    expect(menu).toHaveStyle({ height: '200px', left: '338px', top: '168px', width: '274px' });
-    expect(menu.getAttribute('style')).toContain(
-      'backdrop-filter: blur(14px) saturate(174%) contrast(106%)',
-    );
-    expect(menu.getAttribute('style')).toContain('rgba(104, 147, 118, 0.16)');
+    expect(menu).toHaveAttribute('data-menu-surface', 'liquid-glass-svg-filter');
+    expect(menu).toHaveStyle({ height: '200px', width: '274px' });
+    expect(menu.getAttribute('style')).not.toContain('backdrop-filter');
+    expect(menu.closest('[data-kernelon-context-menu-glass="main"]')).not.toBeNull();
     expect(menu.getAttribute('style')).not.toContain('circle at 24% 12%');
     expect(
       within(menu)
@@ -273,11 +276,10 @@ describe('KernelOnShell', () => {
         .getAllByRole('menuitem')
         .map((item) => item.textContent),
     ).toEqual(['壁纸', '小组件', 'Dock 与菜单栏', '桌面排列']);
-    expect(submenu).toHaveStyle({ height: '156px', left: '620px', top: '258px', width: '236px' });
-    expect(submenu.getAttribute('style')).toContain(
-      'backdrop-filter: blur(14px) saturate(174%) contrast(106%)',
-    );
-    expect(submenu.getAttribute('style')).toContain('rgba(104, 147, 118, 0.16)');
+    expect(submenu).toHaveAttribute('data-menu-surface', 'liquid-glass-svg-filter');
+    expect(submenu).toHaveStyle({ height: '156px', width: '236px' });
+    expect(submenu.getAttribute('style')).not.toContain('backdrop-filter');
+    expect(submenu.closest('[data-kernelon-context-menu-glass="submenu"]')).not.toBeNull();
     expect(submenu.getAttribute('style')).not.toContain('circle at 24% 12%');
 
     const newItem = within(menu).getByRole('menuitem', { name: '新建' });
@@ -303,7 +305,7 @@ describe('KernelOnShell', () => {
     expect(within(submenu).getAllByTestId('context-menu-item-icon')).toHaveLength(4);
     expect(menu.querySelectorAll('[role="separator"]')).toHaveLength(0);
     expect(submenu.querySelectorAll('[role="separator"]')).toHaveLength(0);
-    expect(menu).toHaveClass('border-white/40');
+    expect(menu).toHaveClass('relative', 'z-10');
 
     await user.hover(newItem);
     expect(newItem).toHaveAttribute('data-interaction-state', 'hovered');
@@ -312,7 +314,8 @@ describe('KernelOnShell', () => {
 
     const newSubmenu = screen.getByRole('menu', { name: '新建' });
 
-    expect(newSubmenu).toHaveStyle({ height: '156px', left: '620px', top: '178px', width: '236px' });
+    expect(newSubmenu).toHaveStyle({ height: '156px', width: '236px' });
+    expect(newSubmenu.closest('[data-kernelon-context-menu-glass="submenu"]')).not.toBeNull();
     expect(
       within(newSubmenu)
         .getAllByRole('menuitem')
@@ -334,8 +337,10 @@ describe('KernelOnShell', () => {
 
     await user.keyboard('{Escape}');
 
-    await waitForElementToBeRemoved(() =>
-      screen.queryByRole('menu', { name: 'KernelOn desktop context menu' }),
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('menu', { name: 'KernelOn desktop context menu' }),
+      ).not.toBeInTheDocument(),
     );
   });
 });

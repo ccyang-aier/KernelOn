@@ -30,17 +30,20 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
   type ComponentType,
   type LazyExoticComponent,
   type MouseEvent as ReactMouseEvent,
+  type RefObject,
   type ReactNode,
   type SVGProps,
 } from 'react';
 import { useStore } from 'zustand';
 
 import type { DesktopItem, KernelAppManifest, WidgetManifest } from '@kernelon/core';
+import { LiquidGlassSvgFilter } from '@kernelon/ui';
 
 import type { AppWindowSurfaceProps, ShellRuntimeRegistry, WidgetSurfaceProps } from './runtime';
 import {
@@ -125,10 +128,13 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       className="relative min-h-screen overflow-hidden bg-[var(--ko-bg)] text-[var(--ko-ink)]"
       data-testid="kernelon-shell"
     >
-      <div
+      <img
+        alt=""
         aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${kernelOnDesktopWallpaper})` }}
+        className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+        data-testid="kernelon-desktop-wallpaper"
+        draggable={false}
+        src={kernelOnDesktopWallpaper}
       />
       <div
         aria-hidden="true"
@@ -264,6 +270,7 @@ function KernelOnDesktopContextMenu({
   onClose,
   onOpenSpotlight,
 }: KernelOnDesktopContextMenuProps) {
+  const contextMenuRootRef = useRef<HTMLDivElement>(null);
   const [activeSubmenu, setActiveSubmenu] =
     useState<KernelOnDesktopSubmenu>('personalization');
   const [hoveredItem, setHoveredItem] = useState('personalization');
@@ -334,32 +341,18 @@ function KernelOnDesktopContextMenu({
 
   return (
     <div
+      ref={contextMenuRootRef}
       className="fixed inset-0 z-40 pointer-events-none"
       data-kernelon-context-menu-root="true"
     >
-      <motion.div
+      <DesktopContextMenuGlassSurface
         aria-label="KernelOn desktop context menu"
-        className="pointer-events-auto fixed overflow-hidden rounded-[22px] border border-white/40 text-white outline-none"
-        data-menu-surface="liquid-glass"
-        exit={{
-          opacity: 0,
-          scale: 0.985,
-          y: 4,
-          transition: { duration: 0.1, ease: [0.22, 1, 0.36, 1] },
-        }}
-        initial={{ opacity: 0, scale: 0.965, y: 8 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        role="menu"
-        style={{
-          ...desktopContextMenuSurfaceStyle,
-          height: desktopContextMenuMetrics.mainHeight,
-          left: position.x,
-          top: position.y,
-          transformOrigin: '28px 28px',
-          width: desktopContextMenuMetrics.mainWidth,
-        }}
-        tabIndex={-1}
-        transition={{ type: 'spring', stiffness: 460, damping: 34, mass: 0.62 }}
+        cornerRadius={22}
+        height={desktopContextMenuMetrics.mainHeight}
+        layer="main"
+        mouseContainer={contextMenuRootRef}
+        position={position}
+        width={desktopContextMenuMetrics.mainWidth}
       >
         <div className="relative z-10 flex h-full flex-col px-[12px] py-[10px]">
           <KernelOnDesktopMenuItem
@@ -418,33 +411,19 @@ function KernelOnDesktopContextMenu({
             state={getItemState('spotlight')}
           />
         </div>
-      </motion.div>
+      </DesktopContextMenuGlassSurface>
 
       <AnimatePresence>
         {submenuConfig ? (
-          <motion.div
+          <DesktopContextMenuGlassSurface
             aria-label={submenuConfig.label}
-            className="pointer-events-auto fixed overflow-hidden rounded-[20px] border border-white/40 text-white outline-none"
-            data-menu-surface="liquid-glass"
+            cornerRadius={20}
+            height={desktopContextMenuMetrics.submenuHeight}
             key={activeSubmenu}
-            exit={{
-              opacity: 0,
-              scale: 0.985,
-              x: -8,
-              transition: { duration: 0.1, ease: [0.22, 1, 0.36, 1] },
-            }}
-            initial={{ opacity: 0, scale: 0.965, x: -12 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            role="menu"
-            style={{
-              ...desktopContextMenuSurfaceStyle,
-              height: desktopContextMenuMetrics.submenuHeight,
-              left: submenuPosition.x,
-              top: submenuPosition.y,
-              transformOrigin: '24px 24px',
-              width: desktopContextMenuMetrics.submenuWidth,
-            }}
-            transition={{ type: 'spring', stiffness: 430, damping: 32, mass: 0.58 }}
+            layer="submenu"
+            mouseContainer={contextMenuRootRef}
+            position={submenuPosition}
+            width={desktopContextMenuMetrics.submenuWidth}
           >
             <div className="relative z-10 flex h-full flex-col px-[11px] py-[10px]">
               {submenuConfig.items.map((item) => (
@@ -463,10 +442,64 @@ function KernelOnDesktopContextMenu({
                 />
               ))}
             </div>
-          </motion.div>
+          </DesktopContextMenuGlassSurface>
         ) : null}
       </AnimatePresence>
     </div>
+  );
+}
+
+interface DesktopContextMenuGlassSurfaceProps {
+  'aria-label': string;
+  children: ReactNode;
+  cornerRadius: number;
+  height: number;
+  layer: 'main' | 'submenu';
+  mouseContainer: RefObject<HTMLDivElement | null>;
+  position: DesktopContextMenuPosition;
+  width: number;
+}
+
+function DesktopContextMenuGlassSurface({
+  'aria-label': ariaLabel,
+  children,
+  cornerRadius,
+  height,
+  layer,
+  mouseContainer,
+  position,
+  width,
+}: DesktopContextMenuGlassSurfaceProps) {
+  return (
+    <LiquidGlassSvgFilter
+      aberrationIntensity={2}
+      blurAmount={0.5}
+      className="pointer-events-auto text-white outline-none"
+      cornerRadius={cornerRadius}
+      displacementScale={100}
+      elasticity={0}
+      mode="standard"
+      mouseContainer={mouseContainer}
+      padding="0"
+      saturation={140}
+      style={{
+        left: position.x + width / 2,
+        position: 'fixed',
+        top: position.y + height / 2,
+      }}
+    >
+      <div
+        aria-label={ariaLabel}
+        className="relative z-10 text-white outline-none"
+        data-kernelon-context-menu-glass={layer}
+        data-menu-surface="liquid-glass-svg-filter"
+        role="menu"
+        style={{ height, width }}
+        tabIndex={-1}
+      >
+        {children}
+      </div>
+    </LiquidGlassSvgFilter>
   );
 }
 
@@ -577,10 +610,6 @@ const dockGlassSurfaceStyle = {
   WebkitBackdropFilter: 'blur(14px) saturate(174%) contrast(106%)',
   boxShadow:
     'inset 0 0 0 1px rgba(255,255,255,0.28), inset 0 1px 0 rgba(255,255,255,0.58), inset 0 -1px 0 rgba(255,255,255,0.34), inset 0 14px 24px rgba(255,255,255,0.08), inset 0 -18px 26px rgba(36,73,48,0.10), 0 15px 36px rgba(5,24,9,0.22), 0 2px 8px rgba(255,255,255,0.16)',
-} as CSSProperties;
-
-const desktopContextMenuSurfaceStyle = {
-  ...dockGlassSurfaceStyle,
 } as CSSProperties;
 
 const desktopContextMenuIdleItemStyle = {
