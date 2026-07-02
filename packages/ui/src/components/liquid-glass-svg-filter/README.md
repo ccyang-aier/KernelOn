@@ -1,6 +1,6 @@
-# LiquidGlassReact
+# LiquidGlassSvgFilter
 
-`LiquidGlassReact` 是从 `open_source/liquid-glass-react/src` 迁移到 KernelOn 全局组件库的源码级实现。组件后缀 `react` 沿用源项目 `liquid-glass-react` 名称，用于和后续其它 Liquid Glass 实现区分。
+`LiquidGlassSvgFilter` 是基于上游 `liquid-glass-react` 的 `src` 源码迁移到 KernelOn 全局组件库的源码级实现。组件后缀 `svg-filter` 表示该版本以 SVG filter、displacement map 和 CSS `backdrop-filter` 为核心实现方式，用于和后续其它 Liquid Glass 实现区分。
 
 ## 实现方式
 
@@ -12,13 +12,13 @@
 ## 使用
 
 ```tsx
-import { LiquidGlassReact } from '@kernelon/ui';
+import { LiquidGlassSvgFilter } from '@kernelon/ui';
 
 export function Example() {
   return (
-    <LiquidGlassReact padding="12px 20px" mode="standard">
+    <LiquidGlassSvgFilter padding="12px 20px" mode="standard">
       <span>KernelOn</span>
-    </LiquidGlassReact>
+    </LiquidGlassSvgFilter>
   );
 }
 ```

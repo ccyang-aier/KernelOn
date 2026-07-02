@@ -21,6 +21,7 @@ open_source/
 !.env.example
 
 # Logs
+logs/
 *.log
 npm-debug.log*
 pnpm-debug.log*
