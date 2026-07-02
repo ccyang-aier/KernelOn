@@ -472,16 +472,16 @@ function DesktopContextMenuGlassSurface({
 }: DesktopContextMenuGlassSurfaceProps) {
   return (
     <LiquidGlassSvgFilter
-      aberrationIntensity={2}
-      blurAmount={0.5}
+      aberrationIntensity={4}
+      blurAmount={0.0625}
       className="pointer-events-auto text-white outline-none"
       cornerRadius={cornerRadius}
-      displacementScale={100}
+      displacementScale={180}
       elasticity={0}
       mode="standard"
       mouseContainer={mouseContainer}
       padding="0"
-      saturation={140}
+      saturation={160}
       style={{
         left: position.x + width / 2,
         position: 'fixed',

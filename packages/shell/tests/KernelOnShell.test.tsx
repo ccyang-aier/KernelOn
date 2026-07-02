@@ -261,6 +261,13 @@ describe('KernelOnShell', () => {
     expect(menu).toHaveStyle({ height: '200px', width: '274px' });
     expect(menu.getAttribute('style')).not.toContain('backdrop-filter');
     expect(menu.closest('[data-kernelon-context-menu-glass="main"]')).not.toBeNull();
+    const menuWarp = menu.closest('.glass')?.querySelector('.glass__warp');
+    expect(menuWarp).not.toBeNull();
+    expect(menuWarp?.getAttribute('style')).toContain('filter: url(');
+    expect(menuWarp?.getAttribute('style')).toContain(
+      'backdrop-filter: blur(6px) saturate(160%)',
+    );
+    expect(menuWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 22px)');
     expect(menu.getAttribute('style')).not.toContain('circle at 24% 12%');
     expect(
       within(menu)
@@ -280,6 +287,12 @@ describe('KernelOnShell', () => {
     expect(submenu).toHaveStyle({ height: '156px', width: '236px' });
     expect(submenu.getAttribute('style')).not.toContain('backdrop-filter');
     expect(submenu.closest('[data-kernelon-context-menu-glass="submenu"]')).not.toBeNull();
+    const submenuWarp = submenu.closest('.glass')?.querySelector('.glass__warp');
+    expect(submenuWarp).not.toBeNull();
+    expect(submenuWarp?.getAttribute('style')).toContain(
+      'backdrop-filter: blur(6px) saturate(160%)',
+    );
+    expect(submenuWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 20px)');
     expect(submenu.getAttribute('style')).not.toContain('circle at 24% 12%');
 
     const newItem = within(menu).getByRole('menuitem', { name: '新建' });
