@@ -10,6 +10,8 @@ export default tseslint.config(
       '**/dist/**',
       '**/coverage/**',
       '**/node_modules/**',
+      'open_source/**',
+      'packages/ui/src/components/liquid-glass-react/**',
       '**/*.tsbuildinfo',
       'pnpm-lock.yaml',
     ],
