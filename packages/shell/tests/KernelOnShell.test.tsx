@@ -229,7 +229,7 @@ describe('KernelOnShell', () => {
     expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:onboarding-window');
   });
 
-  it('replaces the native desktop context menu with a liquid glass probe card', async () => {
+  it('replaces the native desktop context menu with a liquid glass desktop context menu', async () => {
     const runtime = createRuntime();
     const user = userEvent.setup();
 
@@ -253,25 +253,114 @@ describe('KernelOnShell', () => {
 
     expect(fireEvent(desktopSurface, contextMenuEvent)).toBe(false);
     expect(contextMenuEvent.defaultPrevented).toBe(true);
+    expect(desktopSurface).not.toHaveClass('z-10');
 
-    const probeCard = screen.getByTestId('kernelon-liquid-glass-context-card');
-    const glass = probeCard.closest('.glass');
-    const liquidGlassRoot = glass?.parentElement;
+    const contextMenuCard = screen.getByTestId('kernelon-liquid-glass-context-card');
+    const contextMenuList = screen.getByTestId('kernelon-liquid-glass-context-menu-list');
+    const glass = contextMenuCard.closest('.glass');
+    const liquidGlassRoot = glass?.parentElement as HTMLElement;
     const warp = glass?.querySelector('.glass__warp');
 
-    expect(probeCard).toHaveTextContent('Liquid Glass');
-    expect(probeCard).toHaveTextContent('Glass Card');
-    expect(probeCard).toHaveTextContent('KernelOn desktop context probe.');
+    expect(
+      Array.from(contextMenuList.children).map((item) => item.textContent),
+    ).toEqual(['新建', '通知与待办', '个性化', 'APP Store', 'AI Spotlight']);
+    expect(screen.getByRole('menu', { name: 'KernelOn desktop context menu' })).toBe(contextMenuList);
+    expect(within(contextMenuList).getAllByRole('menuitem')).toHaveLength(5);
+    expect(screen.getAllByTestId('kernelon-liquid-glass-context-menu-icon')).toHaveLength(5);
+    expect(screen.getAllByTestId('kernelon-liquid-glass-context-menu-chevron')).toHaveLength(2);
+    expect(screen.queryByTestId('kernelon-liquid-glass-context-menu-highlight')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('kernelon-liquid-glass-context-submenu-card')).not.toBeInTheDocument();
+
+    const personalizationMenuItem = screen
+      .getByText('个性化')
+      .closest('[data-kernelon-context-menu-item]') as HTMLElement;
+    const newMenuItem = screen
+      .getByText('新建')
+      .closest('[data-kernelon-context-menu-item]') as HTMLElement;
+    const spotlightMenuItem = within(contextMenuList).getByRole('menuitem', { name: 'AI Spotlight' });
+
+    fireEvent.click(personalizationMenuItem);
+
+    expect(screen.getByTestId('kernelon-liquid-glass-context-menu-highlight')).toHaveAttribute(
+      'data-highlight-capsule',
+      'true',
+    );
+    expect(screen.getByRole('menu', { name: '个性化' })).toBeInTheDocument();
+    const submenuLiquidGlassRoot = screen
+      .getByTestId('kernelon-liquid-glass-context-submenu-card')
+      .closest('.glass')?.parentElement as HTMLElement;
+
+    expect(submenuLiquidGlassRoot).toHaveStyle({
+      left: '603px',
+      position: 'absolute',
+      top: '234px',
+    });
+    expect(submenuLiquidGlassRoot).not.toHaveStyle({ zIndex: '41' });
+    expect(screen.getAllByTestId('kernelon-liquid-glass-context-submenu-icon')).toHaveLength(4);
+    expect(within(screen.getByTestId('kernelon-liquid-glass-context-submenu-list')).getAllByRole('menuitem')).toHaveLength(4);
+    expect(personalizationMenuItem).toHaveAttribute(
+      'data-interaction-state',
+      'hovered',
+    );
+    expect(personalizationMenuItem).toHaveAttribute('aria-expanded', 'true');
+
+    const wallpaperSubmenuItem = within(screen.getByRole('menu', { name: '个性化' })).getByRole(
+      'menuitem',
+      { name: '壁纸' },
+    );
+
+    fireEvent.pointerEnter(wallpaperSubmenuItem);
+
+    expect(wallpaperSubmenuItem).toHaveAttribute('data-interaction-state', 'hovered');
+    expect(screen.getByTestId('kernelon-liquid-glass-context-submenu-highlight')).toHaveAttribute(
+      'data-highlight-capsule',
+      'true',
+    );
+
+    fireEvent.pointerDown(personalizationMenuItem);
+
+    expect(personalizationMenuItem).toHaveAttribute('data-interaction-state', 'pressed');
+
+    fireEvent.pointerUp(personalizationMenuItem);
+
+    expect(personalizationMenuItem).toHaveAttribute('data-interaction-state', 'hovered');
+
+    fireEvent.pointerLeave(contextMenuList);
+
+    expect(screen.queryByTestId('kernelon-liquid-glass-context-menu-highlight')).not.toBeInTheDocument();
+
+    fireEvent.pointerEnter(newMenuItem);
+
+    expect(newMenuItem).toHaveAttribute('aria-expanded', 'true');
+    expect(personalizationMenuItem).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('menu', { name: '新建' })).toBeInTheDocument();
+    expect(within(screen.getByRole('menu', { name: '新建' })).getByRole('menuitem', { name: '新人档案' })).toBeInTheDocument();
+
+    fireEvent.pointerEnter(spotlightMenuItem);
+
+    expect(screen.queryByTestId('kernelon-liquid-glass-context-submenu-card')).not.toBeInTheDocument();
+
+    const statusSpotlightButton = within(screen.getByTestId('kernelon-status-bar')).getByRole(
+      'button',
+      { name: 'AI Spotlight' },
+    );
+
+    expect(statusSpotlightButton).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(spotlightMenuItem);
+
+    expect(statusSpotlightButton).toHaveAttribute('aria-pressed', 'true');
     expect(liquidGlassRoot).toHaveStyle({ left: '338px', position: 'absolute', top: '168px' });
-    expect(glass).toHaveStyle({ borderRadius: '32px', padding: '28px 32px' });
+    expect(liquidGlassRoot).not.toHaveStyle({ zIndex: '40' });
+    expect(glass).toHaveStyle({ borderRadius: '32px', padding: '12px 14px' });
     expect(warp).not.toBeNull();
     expect(warp?.getAttribute('style')).toContain('filter: url(');
     expect(warp?.getAttribute('style')).toContain(
       'backdrop-filter: blur(20px) saturate(140%)',
     );
     expect(warp?.getAttribute('style')).toContain('clip-path: inset(0 round 32px)');
-    expect(screen.queryByRole('menu', { name: 'KernelOn desktop context menu' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menu', { name: '个性化' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Glass Card')).not.toBeInTheDocument();
 
     await user.keyboard('{Escape}');
 
