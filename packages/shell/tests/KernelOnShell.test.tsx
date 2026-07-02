@@ -229,7 +229,7 @@ describe('KernelOnShell', () => {
     expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:onboarding-window');
   });
 
-  it('replaces the native desktop context menu with the KernelOn system menu', async () => {
+  it('replaces the native desktop context menu with a liquid glass probe card', async () => {
     const runtime = createRuntime();
     const user = userEvent.setup();
 
@@ -254,106 +254,29 @@ describe('KernelOnShell', () => {
     expect(fireEvent(desktopSurface, contextMenuEvent)).toBe(false);
     expect(contextMenuEvent.defaultPrevented).toBe(true);
 
-    const menu = screen.getByRole('menu', { name: 'KernelOn desktop context menu' });
-    const submenu = screen.getByRole('menu', { name: '个性化' });
+    const probeCard = screen.getByTestId('kernelon-liquid-glass-context-card');
+    const glass = probeCard.closest('.glass');
+    const liquidGlassRoot = glass?.parentElement;
+    const warp = glass?.querySelector('.glass__warp');
 
-    expect(menu).toHaveAttribute('data-menu-surface', 'liquid-glass-svg-filter');
-    expect(menu).toHaveStyle({ height: '200px', width: '274px' });
-    expect(menu.getAttribute('style')).not.toContain('backdrop-filter');
-    expect(menu.closest('[data-kernelon-context-menu-glass="main"]')).not.toBeNull();
-    const menuWarp = menu.closest('.glass')?.querySelector('.glass__warp');
-    expect(menuWarp).not.toBeNull();
-    expect(menuWarp?.getAttribute('style')).toContain('filter: url(');
-    expect(menuWarp?.getAttribute('style')).toContain(
-      'backdrop-filter: blur(6px) saturate(160%)',
+    expect(probeCard).toHaveTextContent('Liquid Glass');
+    expect(probeCard).toHaveTextContent('Glass Card');
+    expect(probeCard).toHaveTextContent('KernelOn desktop context probe.');
+    expect(liquidGlassRoot).toHaveStyle({ left: '338px', position: 'absolute', top: '168px' });
+    expect(glass).toHaveStyle({ borderRadius: '32px', padding: '28px 32px' });
+    expect(warp).not.toBeNull();
+    expect(warp?.getAttribute('style')).toContain('filter: url(');
+    expect(warp?.getAttribute('style')).toContain(
+      'backdrop-filter: blur(20px) saturate(140%)',
     );
-    expect(menuWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 22px)');
-    expect(menu.getAttribute('style')).not.toContain('circle at 24% 12%');
-    expect(
-      within(menu)
-        .getAllByRole('menuitem')
-        .map((item) => item.textContent),
-    ).toEqual(['新建', '通知与待办', '个性化', 'APP Store', 'AI Spotlight']);
-    expect(within(menu).getByRole('menuitem', { name: '个性化' })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    );
-    expect(
-      within(submenu)
-        .getAllByRole('menuitem')
-        .map((item) => item.textContent),
-    ).toEqual(['壁纸', '小组件', 'Dock 与菜单栏', '桌面排列']);
-    expect(submenu).toHaveAttribute('data-menu-surface', 'liquid-glass-svg-filter');
-    expect(submenu).toHaveStyle({ height: '156px', width: '236px' });
-    expect(submenu.getAttribute('style')).not.toContain('backdrop-filter');
-    expect(submenu.closest('[data-kernelon-context-menu-glass="submenu"]')).not.toBeNull();
-    const submenuWarp = submenu.closest('.glass')?.querySelector('.glass__warp');
-    expect(submenuWarp).not.toBeNull();
-    expect(submenuWarp?.getAttribute('style')).toContain(
-      'backdrop-filter: blur(6px) saturate(160%)',
-    );
-    expect(submenuWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 20px)');
-    expect(submenu.getAttribute('style')).not.toContain('circle at 24% 12%');
-
-    const newItem = within(menu).getByRole('menuitem', { name: '新建' });
-    const appStoreItem = within(menu).getByRole('menuitem', { name: 'APP Store' });
-    const personalizationItem = within(menu).getByRole('menuitem', { name: '个性化' });
-
-    expect(personalizationItem).toHaveStyle({ fontWeight: '520' });
-    expect(personalizationItem).toHaveAttribute('data-highlight-tone', 'dock-glass');
-    expect(personalizationItem.getAttribute('style')).not.toContain('linear-gradient');
-    expect(personalizationItem.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.22)');
-    expect(personalizationItem.getAttribute('style')).not.toContain('rgba(255, 255, 255, 0.28)');
-    expect(personalizationItem.getAttribute('style')).not.toContain('rgba(145, 221, 242, 0.2)');
-    expect(personalizationItem.querySelector('[data-highlight-capsule="true"]')).toHaveStyle({
-      background:
-        'linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(238,246,231,0.11) 44%, rgba(104,147,118,0.16) 100%)',
-      boxShadow:
-        'inset 0 0 0 1px rgba(255,255,255,0.20), inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(255,255,255,0.18), 0 4px 10px rgba(5,24,9,0.08)',
-    });
-    expect(personalizationItem.querySelector('[data-highlight-capsule="true"]')).not.toHaveStyle({
-      boxShadow: '0 8px 18px rgba(5,24,9,0.16)',
-    });
-    expect(within(menu).getAllByTestId('context-menu-item-icon')).toHaveLength(5);
-    expect(within(submenu).getAllByTestId('context-menu-item-icon')).toHaveLength(4);
-    expect(menu.querySelectorAll('[role="separator"]')).toHaveLength(0);
-    expect(submenu.querySelectorAll('[role="separator"]')).toHaveLength(0);
-    expect(menu).toHaveClass('relative', 'z-10');
-
-    await user.hover(newItem);
-    expect(newItem).toHaveAttribute('data-interaction-state', 'hovered');
-    expect(newItem).toHaveAttribute('data-highlight-tone', 'dock-glass');
-    expect(personalizationItem).toHaveAttribute('data-interaction-state', 'idle');
-
-    const newSubmenu = screen.getByRole('menu', { name: '新建' });
-
-    expect(newSubmenu).toHaveStyle({ height: '156px', width: '236px' });
-    expect(newSubmenu.closest('[data-kernelon-context-menu-glass="submenu"]')).not.toBeNull();
-    expect(
-      within(newSubmenu)
-        .getAllByRole('menuitem')
-        .map((item) => item.textContent),
-    ).toEqual(['新人档案', '导师匹配', '培训任务', '资源文档']);
-
-    await user.hover(appStoreItem);
-    fireEvent.pointerDown(appStoreItem);
-    expect(appStoreItem).toHaveAttribute('data-interaction-state', 'pressed');
-    fireEvent.pointerUp(appStoreItem);
-    expect(appStoreItem).toHaveAttribute('data-interaction-state', 'hovered');
-
-    await user.hover(personalizationItem);
-    const reopenedSubmenu = screen.getByRole('menu', { name: '个性化' });
-    const wallpaperItem = within(reopenedSubmenu).getByRole('menuitem', { name: '壁纸' });
-
-    await user.hover(wallpaperItem);
-    expect(wallpaperItem).toHaveAttribute('data-interaction-state', 'hovered');
+    expect(warp?.getAttribute('style')).toContain('clip-path: inset(0 round 32px)');
+    expect(screen.queryByRole('menu', { name: 'KernelOn desktop context menu' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menu', { name: '个性化' })).not.toBeInTheDocument();
 
     await user.keyboard('{Escape}');
 
     await waitFor(() =>
-      expect(
-        screen.queryByRole('menu', { name: 'KernelOn desktop context menu' }),
-      ).not.toBeInTheDocument(),
+      expect(screen.queryByTestId('kernelon-liquid-glass-context-card')).not.toBeInTheDocument(),
     );
   });
 });

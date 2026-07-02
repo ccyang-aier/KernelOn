@@ -95,6 +95,7 @@ export function KernelOnShell({ initialState, runtime }: KernelOnShellProps) {
 }
 
 function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry }>) {
+  const liquidGlassProbeContainerRef = useRef<HTMLElement>(null);
   const apps = useShellSelector((state) => state.apps);
   const widgets = useShellSelector((state) => state.widgets);
   const currentScreenId = useShellSelector((state) => state.currentScreenId);
@@ -117,13 +118,9 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     event.preventDefault();
     setDesktopContextMenu(resolveDesktopContextMenuPosition(event.clientX, event.clientY));
   }, []);
-  const handleContextMenuSpotlight = useCallback(() => {
-    toggleSpotlight();
-    closeDesktopContextMenu();
-  }, [closeDesktopContextMenu, toggleSpotlight]);
-
   return (
     <main
+      ref={liquidGlassProbeContainerRef}
       aria-label="KernelOn shell"
       className="relative min-h-screen overflow-hidden bg-[var(--ko-bg)] text-[var(--ko-ink)]"
       data-testid="kernelon-shell"
@@ -167,8 +164,8 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         {desktopContextMenu ? (
           <KernelOnDesktopContextMenu
             key={`${desktopContextMenu.x}-${desktopContextMenu.y}`}
+            mouseContainer={liquidGlassProbeContainerRef}
             onClose={closeDesktopContextMenu}
-            onOpenSpotlight={handleContextMenuSpotlight}
             position={desktopContextMenu}
           />
         ) : null}
@@ -189,6 +186,12 @@ interface DesktopContextMenuPosition {
   y: number;
 }
 
+const desktopContextMenuProbeCardMetrics = {
+  width: 320,
+  height: 180,
+  viewportGutter: 10,
+};
+
 const desktopContextMenuMetrics = {
   mainWidth: 274,
   mainHeight: 200,
@@ -204,21 +207,20 @@ function resolveDesktopContextMenuPosition(x: number, y: number): DesktopContext
     return { x, y };
   }
 
-  const totalWidth =
-    desktopContextMenuMetrics.mainWidth +
-    desktopContextMenuMetrics.submenuGap +
-    desktopContextMenuMetrics.submenuWidth;
-  const totalHeight = Math.max(
-    desktopContextMenuMetrics.mainHeight,
-    desktopContextMenuMetrics.submenuTopOffset + desktopContextMenuMetrics.submenuHeight,
-  );
-
   return {
-    x: clampToViewport(x, desktopContextMenuMetrics.viewportGutter, window.innerWidth - totalWidth),
+    x: clampToViewport(
+      x,
+      desktopContextMenuProbeCardMetrics.width / 2 + desktopContextMenuProbeCardMetrics.viewportGutter,
+      window.innerWidth -
+        desktopContextMenuProbeCardMetrics.width / 2 -
+        desktopContextMenuProbeCardMetrics.viewportGutter,
+    ),
     y: clampToViewport(
       y,
-      desktopContextMenuMetrics.viewportGutter,
-      window.innerHeight - totalHeight,
+      desktopContextMenuProbeCardMetrics.height / 2 + desktopContextMenuProbeCardMetrics.viewportGutter,
+      window.innerHeight -
+        desktopContextMenuProbeCardMetrics.height / 2 -
+        desktopContextMenuProbeCardMetrics.viewportGutter,
     ),
   };
 }
@@ -228,6 +230,71 @@ function clampToViewport(value: number, minimum: number, maximum: number) {
 }
 
 interface KernelOnDesktopContextMenuProps {
+  position: DesktopContextMenuPosition;
+  mouseContainer: RefObject<HTMLElement | null>;
+  onClose(): void;
+}
+
+function KernelOnDesktopContextMenu({
+  position,
+  mouseContainer,
+  onClose,
+}: KernelOnDesktopContextMenuProps) {
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target;
+
+      if (target instanceof Element && target.closest('[data-kernelon-liquid-glass-probe="true"]')) {
+        return;
+      }
+
+      onClose();
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    }
+
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <LiquidGlassSvgFilter
+      displacementScale={100}
+      blurAmount={0.5}
+      saturation={140}
+      aberrationIntensity={2}
+      elasticity={0}
+      cornerRadius={32}
+      mouseContainer={mouseContainer}
+      mode="standard"
+      padding="28px 32px"
+      style={{ position: 'absolute', left: position.x, top: position.y }}
+    >
+      <div
+        className="w-64 cursor-default select-none"
+        data-kernelon-liquid-glass-probe="true"
+        data-testid="kernelon-liquid-glass-context-card"
+      >
+        <p className="text-sm uppercase tracking-[0.3em] text-white/70">Liquid Glass</p>
+        <h2 className="mt-3 text-3xl font-semibold text-white">Glass Card</h2>
+        <p className="mt-4 text-sm leading-6 text-white/80">
+          KernelOn desktop context probe.
+        </p>
+      </div>
+    </LiquidGlassSvgFilter>
+  );
+}
+
+interface ArchivedKernelOnDesktopContextMenuProps {
   position: DesktopContextMenuPosition;
   onClose(): void;
   onOpenSpotlight(): void;
@@ -265,11 +332,11 @@ const desktopContextSubmenus = {
   }
 >;
 
-function KernelOnDesktopContextMenu({
+function ArchivedKernelOnDesktopContextMenu({
   position,
   onClose,
   onOpenSpotlight,
-}: KernelOnDesktopContextMenuProps) {
+}: ArchivedKernelOnDesktopContextMenuProps) {
   const contextMenuRootRef = useRef<HTMLDivElement>(null);
   const [activeSubmenu, setActiveSubmenu] =
     useState<KernelOnDesktopSubmenu>('personalization');
@@ -448,6 +515,12 @@ function KernelOnDesktopContextMenu({
     </div>
   );
 }
+
+const archivedDesktopContextMenuImplementation = {
+  ContextMenu: ArchivedKernelOnDesktopContextMenu,
+};
+
+void archivedDesktopContextMenuImplementation;
 
 interface DesktopContextMenuGlassSurfaceProps {
   'aria-label': string;
