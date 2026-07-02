@@ -1,13 +1,6 @@
-import { defaultDesktopScreens, kernelApps, kernelWidgets } from '@kernelon/catalog';
-
-import { KernelOnWebRuntime } from '../runtime/KernelOnWebRuntime';
-
-const defaultShellState = {
-  apps: kernelApps,
-  widgets: kernelWidgets,
-  screens: defaultDesktopScreens,
-};
+import { defaultShellInitialState } from '@kernelon/catalog';
+import { KernelOnModuleRuntime } from '@kernelon/modules/runtime';
 
 export default function Page() {
-  return <KernelOnWebRuntime initialState={defaultShellState} />;
+  return <KernelOnModuleRuntime initialState={defaultShellInitialState} />;
 }

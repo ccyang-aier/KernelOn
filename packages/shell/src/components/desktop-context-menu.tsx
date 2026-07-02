@@ -12,8 +12,8 @@ import {
   ListTodo,
   Palette,
   PanelBottom,
+  ScanSearch,
   ShoppingBag,
-  Sparkles,
   UserRoundPlus,
   type LucideIcon,
 } from 'lucide-react';
@@ -49,7 +49,7 @@ const desktopContextMenuItems = [
   { Icon: ListTodo, itemKey: 'notifications', label: '通知与待办' },
   { Icon: Palette, itemKey: 'personalization', label: '个性化', submenu: 'personalization' },
   { Icon: ShoppingBag, itemKey: 'app-store', label: 'APP Store' },
-  { Icon: Sparkles, itemKey: 'spotlight', label: 'AI Spotlight' },
+  { Icon: ScanSearch, itemKey: 'spotlight', label: 'AI Spotlight' },
 ] satisfies Array<{
   Icon: LucideIcon;
   itemKey: string;
@@ -249,7 +249,7 @@ export function KernelOnDesktopContextMenu({
           data-testid="kernelon-liquid-glass-context-card"
         >
           <div
-            className="flex flex-col gap-0 text-base font-medium leading-none text-white/90"
+            className="flex flex-col gap-0 text-[15px] font-medium leading-none text-white/90"
             aria-label="KernelOn desktop context menu"
             onPointerLeave={() => {
               setHoveredMenuItem(null);
@@ -344,7 +344,7 @@ export function KernelOnDesktopContextMenu({
           >
             <div
               aria-label={submenuConfig.label}
-              className="flex flex-col gap-0 text-[15.5px] font-medium leading-none text-white/90"
+              className="flex flex-col gap-0 text-[14.5px] font-medium leading-none text-white/90"
               onPointerLeave={() => {
                 setHoveredSubmenuItem(null);
                 setPressedSubmenuItem(null);
@@ -446,9 +446,9 @@ const desktopContextMenuPressedHighlightStyle = {
 
 const desktopContextMenuHighlightTransition = {
   type: 'spring',
-  stiffness: 520,
-  damping: 28,
-  mass: 0.72,
+  stiffness: 640,
+  damping: 20,
+  mass: 0.82,
 } as const;
 
 function getDesktopContextMenuHighlightStyle(state: DesktopContextMenuItemState) {

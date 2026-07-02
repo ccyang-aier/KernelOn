@@ -278,6 +278,11 @@ describe('KernelOnShell', () => {
       .getByText('新建')
       .closest('[data-kernelon-context-menu-item]') as HTMLElement;
     const spotlightMenuItem = within(contextMenuList).getByRole('menuitem', { name: 'AI Spotlight' });
+    const spotlightIcon = within(spotlightMenuItem).getByTestId(
+      'kernelon-liquid-glass-context-menu-icon',
+    );
+
+    expect(spotlightIcon.querySelector('svg')).toHaveClass('lucide-scan-search');
 
     fireEvent.click(personalizationMenuItem);
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { defaultDesktopScreens, kernelApps, kernelWidgets } from '../src';
+import { defaultDesktopScreens, defaultShellInitialState, kernelApps, kernelWidgets } from '../src';
 
 describe('KernelOn built-in catalog', () => {
   it('keeps catalog metadata separate from desktop placement', () => {
@@ -13,5 +13,11 @@ describe('KernelOn built-in catalog', () => {
     expect(
       kernelWidgets.every((widget) => widget.runtime.widget.loaderKey.startsWith('widget:')),
     ).toBe(true);
+  });
+
+  it('exposes a shared default shell state for web and desktop mounts', () => {
+    expect(defaultShellInitialState.apps).toBe(kernelApps);
+    expect(defaultShellInitialState.widgets).toBe(kernelWidgets);
+    expect(defaultShellInitialState.screens).toBe(defaultDesktopScreens);
   });
 });

@@ -1,13 +1,6 @@
-import { defaultDesktopScreens, kernelApps, kernelWidgets } from '@kernelon/catalog';
-
-import { KernelOnDesktopRuntime } from './runtime/KernelOnDesktopRuntime';
-
-const defaultShellState = {
-  apps: kernelApps,
-  widgets: kernelWidgets,
-  screens: defaultDesktopScreens,
-};
+import { defaultShellInitialState } from '@kernelon/catalog';
+import { KernelOnModuleRuntime } from '@kernelon/modules/runtime';
 
 export function DesktopApp() {
-  return <KernelOnDesktopRuntime initialState={defaultShellState} />;
+  return <KernelOnModuleRuntime initialState={defaultShellInitialState} />;
 }

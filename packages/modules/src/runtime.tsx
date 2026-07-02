@@ -1,6 +1,12 @@
 'use client';
 
-import type { AppWindowModule, ShellRuntimeRegistry, WidgetModule } from '@kernelon/shell';
+import {
+  KernelOnShell,
+  type AppWindowModule,
+  type ShellInitialState,
+  type ShellRuntimeRegistry,
+  type WidgetModule,
+} from '@kernelon/shell';
 
 const appWindowLoaders = {
   'app:onboarding-window': () => import('./apps/onboarding/OnboardingWindow'),
@@ -29,6 +35,12 @@ export const kernelModuleRuntime: ShellRuntimeRegistry = {
     return loader ? loader() : Promise.resolve({ default: MissingWidget });
   },
 };
+
+export function KernelOnModuleRuntime({
+  initialState,
+}: Readonly<{ initialState: ShellInitialState }>) {
+  return <KernelOnShell initialState={initialState} runtime={kernelModuleRuntime} />;
+}
 
 function MissingAppWindow() {
   return null;
