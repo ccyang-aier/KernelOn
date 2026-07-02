@@ -9,6 +9,9 @@ coverage/
 .tmp/
 *.tsbuildinfo
 
+# External source snapshots
+open_source/
+
 # Vite
 .vite/
 
