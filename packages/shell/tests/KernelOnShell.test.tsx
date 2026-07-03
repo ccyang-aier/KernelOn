@@ -86,7 +86,7 @@ describe('KernelOnShell', () => {
     expect(runtime.loadWidget).not.toHaveBeenCalled();
   });
 
-  it('emits a water ripple only when clicking the empty desktop surface', () => {
+  it('emits a liquid water ripple only when clicking the empty desktop surface', () => {
     const runtime = createRuntime();
 
     render(<KernelOnShell initialState={initialState} runtime={runtime} />);
@@ -110,10 +110,39 @@ describe('KernelOnShell', () => {
       clientY: 180,
     });
 
-    expect(screen.getByTestId('kernelon-desktop-click-ripple')).toHaveStyle({
+    const ripple = screen.getByTestId('kernelon-desktop-click-ripple');
+
+    expect(ripple).toHaveAttribute('data-ripple-shape', 'liquid');
+    expect(ripple).toHaveStyle({
       left: '220px',
       top: '180px',
     });
+    expect(ripple.querySelectorAll('[data-ripple-part="liquid-wave"]')).toHaveLength(4);
+    expect(ripple.querySelector('[data-ripple-part="outer-ring"]')).not.toBeInTheDocument();
+  });
+
+  it('can switch the desktop ripple back to the radial shape', () => {
+    const runtime = createRuntime();
+
+    render(
+      <KernelOnShell
+        desktopClickRippleShape="radial"
+        initialState={initialState}
+        runtime={runtime}
+      />,
+    );
+
+    fireEvent.pointerDown(screen.getByTestId('kernelon-desktop-surface'), {
+      button: 0,
+      clientX: 220,
+      clientY: 180,
+    });
+
+    const ripple = screen.getByTestId('kernelon-desktop-click-ripple');
+
+    expect(ripple).toHaveAttribute('data-ripple-shape', 'radial');
+    expect(ripple.querySelector('[data-ripple-part="outer-ring"]')).toBeInTheDocument();
+    expect(ripple.querySelectorAll('[data-ripple-part="liquid-wave"]')).toHaveLength(0);
   });
 
   it('renders the desktop status bar controls in the reference order', async () => {

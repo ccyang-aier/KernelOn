@@ -14,7 +14,11 @@ import {
 } from 'react';
 import { useStore } from 'zustand';
 
-import { DesktopClickRippleLayer, useDesktopClickRipple } from './components/desktop-click-ripple';
+import {
+  DesktopClickRippleLayer,
+  useDesktopClickRipple,
+  type DesktopClickRippleShape,
+} from './components/desktop-click-ripple';
 import {
   KernelOnDesktopContextMenu,
   resolveDesktopContextMenuPosition,
@@ -33,6 +37,7 @@ import {
 import { kernelOnDesktopWallpaper } from './visual-assets';
 
 export interface KernelOnShellProps {
+  desktopClickRippleShape?: DesktopClickRippleShape;
   initialState: ShellInitialState;
   runtime: ShellRuntimeRegistry;
 }
@@ -58,18 +63,31 @@ function useShellSelector<T>(selector: (state: ShellState) => T): T {
   return useStore(store, selector);
 }
 
-export function KernelOnShell({ initialState, runtime }: KernelOnShellProps) {
+export function KernelOnShell({
+  desktopClickRippleShape = 'liquid',
+  initialState,
+  runtime,
+}: KernelOnShellProps) {
   return (
     <ShellStoreProvider initialState={initialState}>
-      <KernelOnShellView runtime={runtime} />
+      <KernelOnShellView
+        desktopClickRippleShape={desktopClickRippleShape}
+        runtime={runtime}
+      />
     </ShellStoreProvider>
   );
 }
 
-function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry }>) {
+function KernelOnShellView({
+  desktopClickRippleShape,
+  runtime,
+}: Readonly<{
+  desktopClickRippleShape: DesktopClickRippleShape;
+  runtime: ShellRuntimeRegistry;
+}>) {
   const liquidGlassContextContainerRef = useRef<HTMLElement>(null);
   const { layerRef: desktopClickRippleLayerRef, playRipple: playDesktopClickRipple } =
-    useDesktopClickRipple();
+    useDesktopClickRipple({ shape: desktopClickRippleShape });
   const apps = useShellSelector((state) => state.apps);
   const widgets = useShellSelector((state) => state.widgets);
   const currentScreenId = useShellSelector((state) => state.currentScreenId);
