@@ -13,6 +13,7 @@
   "dependencies": {
     "@kernelon/core": "workspace:*",
     "@kernelon/ui": "workspace:*",
+    "gsap": "^3.15.0",
     "lucide-react": "^1.21.0",
     "motion": "12.42.0",
     "zustand": "^5.0.14"

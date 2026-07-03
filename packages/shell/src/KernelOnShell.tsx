@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import {
   createContext,
   useCallback,
@@ -8,13 +8,13 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
 import { useStore } from 'zustand';
 
+import { DesktopClickRippleLayer, useDesktopClickRipple } from './components/desktop-click-ripple';
 import {
   KernelOnDesktopContextMenu,
   resolveDesktopContextMenuPosition,
@@ -68,7 +68,8 @@ export function KernelOnShell({ initialState, runtime }: KernelOnShellProps) {
 
 function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry }>) {
   const liquidGlassContextContainerRef = useRef<HTMLElement>(null);
-  const desktopClickRippleIdRef = useRef(0);
+  const { layerRef: desktopClickRippleLayerRef, playRipple: playDesktopClickRipple } =
+    useDesktopClickRipple();
   const apps = useShellSelector((state) => state.apps);
   const widgets = useShellSelector((state) => state.widgets);
   const currentScreenId = useShellSelector((state) => state.currentScreenId);
@@ -90,7 +91,6 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const [desktopContextMenu, setDesktopContextMenu] = useState<DesktopContextMenuPosition | null>(
     null,
   );
-  const [desktopClickRipples, setDesktopClickRipples] = useState<DesktopClickRipple[]>([]);
 
   const closeDesktopContextMenu = useCallback(() => {
     setDesktopContextMenu(null);
@@ -107,20 +107,12 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     }
 
     const bounds = event.currentTarget.getBoundingClientRect();
-    const nextRipple = {
-      id: desktopClickRippleIdRef.current + 1,
+    playDesktopClickRipple({
       x: event.clientX - bounds.left,
       y: event.clientY - bounds.top,
-    };
-
-    desktopClickRippleIdRef.current = nextRipple.id;
+    });
     setDesktopContextMenu(null);
-    setDesktopClickRipples((ripples) => [...ripples.slice(-5), nextRipple]);
-  }, []);
-
-  const removeDesktopClickRipple = useCallback((rippleId: number) => {
-    setDesktopClickRipples((ripples) => ripples.filter((ripple) => ripple.id !== rippleId));
-  }, []);
+  }, [playDesktopClickRipple]);
 
   return (
     <main
@@ -155,10 +147,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         onContextMenu={handleDesktopContextMenu}
         onPointerDown={handleDesktopPointerDown}
       >
-        <DesktopClickRippleLayer
-          onRippleComplete={removeDesktopClickRipple}
-          ripples={desktopClickRipples}
-        />
+        <DesktopClickRippleLayer layerRef={desktopClickRippleLayerRef} />
         {desktopItems.map((item) => (
           <DesktopItemMount item={item} key={item.id} runtime={runtime} widgets={widgets} />
         ))}
@@ -204,60 +193,4 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       />
     </main>
   );
-}
-
-interface DesktopClickRipple {
-  id: number;
-  x: number;
-  y: number;
-}
-
-function DesktopClickRippleLayer({
-  onRippleComplete,
-  ripples,
-}: Readonly<{
-  onRippleComplete(rippleId: number): void;
-  ripples: DesktopClickRipple[];
-}>) {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-[18] overflow-hidden"
-      data-testid="kernelon-desktop-click-ripple-layer"
-    >
-      <AnimatePresence>
-        {ripples.map((ripple) => (
-          <motion.span
-            animate={{ opacity: [0.72, 0.58, 0.26, 0], scale: [0.04, 0.42, 0.86, 1.12] }}
-            className="absolute block size-44 -translate-x-1/2 -translate-y-1/2 rounded-full"
-            data-testid="kernelon-desktop-click-ripple"
-            exit={{ opacity: 0 }}
-            initial={{ opacity: 0.72, scale: 0.04 }}
-            key={ripple.id}
-            onAnimationComplete={() => onRippleComplete(ripple.id)}
-            style={resolveDesktopClickRippleStyle(ripple)}
-            transition={{
-              duration: 1.08,
-              ease: [0.16, 1, 0.3, 1],
-              times: [0, 0.24, 0.68, 1],
-            }}
-          >
-            <span className="absolute inset-[30%] rounded-full border border-white/75 shadow-[0_0_22px_rgba(255,255,255,0.54)]" />
-            <span className="absolute inset-[43%] rounded-full bg-white/46 blur-[1px]" />
-          </motion.span>
-        ))}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function resolveDesktopClickRippleStyle(ripple: DesktopClickRipple): CSSProperties {
-  return {
-    background:
-      'radial-gradient(circle, rgba(255,255,255,0.68) 0%, rgba(255,255,255,0.42) 12%, rgba(164,218,229,0.32) 30%, rgba(255,255,255,0) 66%)',
-    boxShadow:
-      '0 0 0 1px rgba(255,255,255,0.62), inset 0 0 28px rgba(255,255,255,0.42), 0 0 42px rgba(151,208,221,0.36)',
-    left: ripple.x,
-    top: ripple.y,
-  };
 }
