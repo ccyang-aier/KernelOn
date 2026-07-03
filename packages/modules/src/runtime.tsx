@@ -8,6 +8,8 @@ import {
   type WidgetModule,
 } from '@kernelon/shell';
 
+export type { ShellInitialState } from '@kernelon/shell';
+
 const appWindowLoaders = {
   'app:onboarding-window': () => import('./apps/onboarding/OnboardingWindow'),
   'app:mentor-window': () => import('./apps/mentor/MentorWindow'),

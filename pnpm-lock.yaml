@@ -102,6 +102,9 @@ importers:
       '@kernelon/catalog':
         specifier: workspace:*
         version: link:../../packages/catalog
+      '@kernelon/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@kernelon/modules':
         specifier: workspace:*
         version: link:../../packages/modules

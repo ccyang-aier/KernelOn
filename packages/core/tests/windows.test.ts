@@ -62,6 +62,29 @@ describe('window model helpers', () => {
     });
   });
 
+  it('keeps URL entry intent on the opened app window', () => {
+    const windows = openWindow([], mentorApp, {
+      id: 'mentor-window',
+      intent: {
+        source: 'url',
+        view: {
+          viewId: 'match',
+          entityId: 'newcomer-123',
+          params: { tab: 'pending' },
+        },
+      },
+    });
+
+    expect(windows[0]?.intent).toEqual({
+      source: 'url',
+      view: {
+        viewId: 'match',
+        entityId: 'newcomer-123',
+        params: { tab: 'pending' },
+      },
+    });
+  });
+
   it('focuses an existing window', () => {
     const windows = openWindow(
       openWindow([], mentorApp, { id: 'mentor-window', createdAt: 1 }),
@@ -97,6 +120,30 @@ describe('window model helpers', () => {
     expect(restored.find((window) => window.id === 'mentor-window')).toMatchObject({
       status: 'active',
       bounds: mentorApp.defaultWindow.bounds,
+      zIndex: 2,
+    });
+  });
+
+  it('updates window intent when restoring an existing app from a new entry point', () => {
+    const windows = openWindow([], mentorApp, {
+      id: 'mentor-window',
+      createdAt: 1,
+      intent: { source: 'dock' },
+    });
+
+    const restored = restoreWindow(windows, 'mentor-window', {
+      intent: {
+        source: 'url',
+        view: { viewId: 'profile', entityId: 'mentor-42' },
+      },
+    });
+
+    expect(restored[0]).toMatchObject({
+      intent: {
+        source: 'url',
+        view: { viewId: 'profile', entityId: 'mentor-42' },
+      },
+      status: 'active',
       zIndex: 2,
     });
   });

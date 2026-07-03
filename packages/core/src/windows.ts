@@ -1,12 +1,19 @@
 import type { KernelAppManifest, WindowDescriptor } from './types';
+import type { WindowOpenIntent } from './app-intents';
 
 const DEFAULT_MIN_WINDOW_WIDTH = 520;
 const DEFAULT_MIN_WINDOW_HEIGHT = 360;
 
 export interface OpenWindowOptions {
   id?: string;
+  intent?: WindowOpenIntent;
   title?: string;
   createdAt?: number;
+}
+
+export interface RestoreWindowOptions {
+  intent?: WindowOpenIntent;
+  title?: string;
 }
 
 export interface ResizeWindowOptions {
@@ -27,6 +34,7 @@ export function openWindow(
     appId: app.id,
     title: options.title ?? app.defaultWindow.title ?? app.name,
     bounds: app.defaultWindow.bounds,
+    ...(options.intent ? { intent: options.intent } : {}),
     zIndex,
     status: 'active',
     createdAt: options.createdAt ?? Date.now(),
@@ -61,7 +69,11 @@ export function minimizeWindow(windows: WindowDescriptor[], windowId: string): W
   );
 }
 
-export function restoreWindow(windows: WindowDescriptor[], windowId: string): WindowDescriptor[] {
+export function restoreWindow(
+  windows: WindowDescriptor[],
+  windowId: string,
+  options: RestoreWindowOptions = {},
+): WindowDescriptor[] {
   if (!windows.some((window) => window.id === windowId)) {
     return windows;
   }
@@ -70,7 +82,13 @@ export function restoreWindow(windows: WindowDescriptor[], windowId: string): Wi
 
   return windows.map((window) => {
     if (window.id === windowId) {
-      return { ...window, status: 'active', zIndex };
+      return {
+        ...window,
+        ...(options.intent ? { intent: options.intent } : {}),
+        ...(options.title ? { title: options.title } : {}),
+        status: 'active',
+        zIndex,
+      };
     }
 
     return window.status === 'minimized' ? window : { ...window, status: 'inactive' };

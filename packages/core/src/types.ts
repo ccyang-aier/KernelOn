@@ -1,3 +1,5 @@
+import type { WindowOpenIntent } from './app-intents';
+
 export type KernelAppPriority = 'P0' | 'P1' | 'P2';
 
 export type KernelAppCategory = 'operations' | 'growth' | 'insight' | 'resource' | 'system';
@@ -38,6 +40,7 @@ export interface WindowDescriptor {
   appId: string;
   title: string;
   bounds: WindowBounds;
+  intent?: WindowOpenIntent;
   restoreBounds?: WindowBounds;
   zIndex: number;
   status: WindowStatus;

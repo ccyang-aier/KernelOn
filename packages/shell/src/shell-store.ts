@@ -11,14 +11,17 @@ import {
   resizeWindow,
   restoreWindow,
   toggleWindowFullscreen,
+  toWindowOpenIntent,
 } from '@kernelon/core';
 import type {
+  AppOpenIntent,
   CommandDefinition,
   DesktopScreen,
   KernelAppManifest,
   WidgetManifest,
   WindowBounds,
   WindowDescriptor,
+  WindowOpenIntent,
 } from '@kernelon/core';
 import { createStore } from 'zustand/vanilla';
 
@@ -44,7 +47,8 @@ export interface ShellState {
   widgets: WidgetManifest[];
   commands: CommandDefinition[];
   screens: DesktopScreen[];
-  openApp(appId: string): void;
+  openApp(appId: string, options?: OpenShellAppOptions): void;
+  openAppIntent(intent: AppOpenIntent): void;
   focusWindow(windowId: string): void;
   closeWindow(windowId: string): void;
   minimizeWindow(windowId: string): void;
@@ -52,6 +56,11 @@ export interface ShellState {
   toggleWindowFullscreen(windowId: string, fullscreenBounds: WindowBounds): void;
   toggleLauncher(): void;
   toggleSpotlight(): void;
+}
+
+export interface OpenShellAppOptions {
+  intent?: WindowOpenIntent;
+  title?: string;
 }
 
 export type ShellStore = ReturnType<typeof createShellStore>;
@@ -77,7 +86,7 @@ export function createShellStore(initialState: ShellInitialState) {
         screenName: '新员工工作台',
       }),
     ],
-    openApp: (appId) => {
+    openApp: (appId, options = {}) => {
       const app = appRegistry.require(appId);
 
       set((state) => {
@@ -85,9 +94,31 @@ export function createShellStore(initialState: ShellInitialState) {
 
         return {
           windows: existingWindow
-            ? restoreWindow(state.windows, existingWindow.id)
-            : openWindow(state.windows, app),
+            ? restoreWindow(state.windows, existingWindow.id, {
+                intent: options.intent,
+                title: options.title,
+              })
+            : openWindow(state.windows, app, {
+                intent: options.intent,
+                title: options.title,
+              }),
           launcherOpen: false,
+        };
+      });
+    },
+    openAppIntent: (intent) => {
+      const app = appRegistry.require(intent.appId);
+
+      set((state) => {
+        const existingWindow = state.windows.find((window) => window.appId === app.id);
+        const windowIntent = toWindowOpenIntent(intent);
+
+        return {
+          windows: existingWindow
+            ? restoreWindow(state.windows, existingWindow.id, { intent: windowIntent })
+            : openWindow(state.windows, app, { intent: windowIntent }),
+          launcherOpen: false,
+          spotlightOpen: false,
         };
       });
     },

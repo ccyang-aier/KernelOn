@@ -31,6 +31,11 @@ interface WindowVisualFrame {
   mode: WindowVisualMode;
 }
 
+interface WindowVisualFrameInput {
+  bounds: WindowBounds;
+  mode?: WindowDescriptor['mode'];
+}
+
 interface WindowInteractionState {
   kind: 'move' | 'resize';
   direction?: ResizeDirection;
@@ -68,10 +73,25 @@ export function AppWindowContainer({
     resolveWindowVisualFrame(descriptor),
   );
   const [isFrameTransitioning, setIsFrameTransitioning] = useState(false);
+  const {
+    height: descriptorHeight,
+    width: descriptorWidth,
+    x: descriptorX,
+    y: descriptorY,
+  } = descriptor.bounds;
+  const descriptorMode = descriptor.mode;
   const isFullscreen = descriptor.mode === 'fullscreen';
 
   useEffect(() => {
-    const nextFrame = resolveWindowVisualFrame(descriptor);
+    const nextFrame = resolveWindowVisualFrame({
+      bounds: {
+        height: descriptorHeight,
+        width: descriptorWidth,
+        x: descriptorX,
+        y: descriptorY,
+      },
+      mode: descriptorMode,
+    });
     const previousFrame = previousFrameRef.current;
     const modeChanged = previousFrame.mode !== nextFrame.mode;
 
@@ -96,11 +116,11 @@ export function AppWindowContainer({
       window.clearTimeout(transitionTimer);
     };
   }, [
-    descriptor.bounds.height,
-    descriptor.bounds.width,
-    descriptor.bounds.x,
-    descriptor.bounds.y,
-    descriptor.mode,
+    descriptorHeight,
+    descriptorMode,
+    descriptorWidth,
+    descriptorX,
+    descriptorY,
   ]);
 
   const beginMove = useCallback(
@@ -338,10 +358,10 @@ function resolveWindowStyle(
   };
 }
 
-function resolveWindowVisualFrame(descriptor: WindowDescriptor): WindowVisualFrame {
+function resolveWindowVisualFrame({ bounds, mode }: WindowVisualFrameInput): WindowVisualFrame {
   return {
-    bounds: descriptor.bounds,
-    mode: descriptor.mode ?? 'windowed',
+    bounds,
+    mode: mode ?? 'windowed',
   };
 }
 
