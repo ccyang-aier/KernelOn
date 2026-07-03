@@ -33,6 +33,10 @@
   --ko-warning: var(--color-ko-warning);
   --ko-warning-soft: var(--color-ko-warning-soft);
   --ko-ring: var(--color-ko-ring);
+  --ko-cursor-default:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cfilter id='s' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeDropShadow dx='0' dy='1.2' stdDeviation='0.8' flood-color='rgba(0,0,0,0.35)'/%3E%3C/filter%3E%3Cpath d='M5.1 2.8v22.6l6.2-5.6 3.7 8.6 3.4-1.5-3.7-8.4 8.5-.6L5.1 2.8z' fill='%23fff' stroke='%23111' stroke-width='1.8' stroke-linejoin='round' filter='url(%23s)'/%3E%3C/svg%3E")
+      5 3,
+    default;
 }
 
 * {
@@ -59,4 +63,11 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+[data-kernelon-cursor-scope],
+[data-kernelon-cursor-scope] button,
+[data-kernelon-cursor-scope] .cursor-default,
+[data-kernelon-cursor-scope] [role='menuitem'] {
+  cursor: var(--ko-cursor-default);
 }

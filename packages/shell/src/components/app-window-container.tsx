@@ -17,7 +17,6 @@ const MIN_WINDOW_WIDTH = 520;
 const MIN_WINDOW_HEIGHT = 360;
 const DESKTOP_MARGIN = 12;
 const STATUS_BAR_CLEARANCE = 46;
-const DOCK_CLEARANCE = 142;
 
 type ResizeDirection = 'n' | 'e' | 's' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
@@ -142,25 +141,25 @@ export function AppWindowContainer({
       }}
       aria-label={`${descriptor.title} app window`}
       className={cn(
-        'absolute flex min-h-[360px] min-w-[520px] flex-col overflow-hidden border border-white/60 text-[var(--ko-ink)] outline-none backdrop-blur-[28px]',
-        isFullscreen ? 'rounded-[24px]' : 'rounded-[26px]',
+        'absolute flex min-h-[360px] min-w-[520px] flex-col overflow-hidden border text-[var(--ko-ink)] outline-none backdrop-blur-[28px] will-change-transform',
+        isFullscreen ? 'rounded-none border-transparent' : 'rounded-[26px] border-white/60',
       )}
       data-app-id={app.id}
       data-testid={`kernelon-app-container-${descriptor.id}`}
       data-window-mode={descriptor.mode ?? 'windowed'}
       data-window-status={descriptor.status}
       exit={{
-        filter: 'blur(18px)',
+        filter: 'blur(24px)',
         opacity: 0,
-        scale: 0.72,
-        transition: { duration: 0.22, ease: [0.32, 0, 0.67, 0] },
-        y: 220,
+        scale: 0.52,
+        transition: { duration: 0.3, ease: [0.36, 0, 0.66, -0.56] },
+        y: 340,
       }}
       initial={{
-        filter: 'blur(18px)',
+        filter: 'blur(24px)',
         opacity: 0,
-        scale: 0.72,
-        y: 220,
+        scale: 0.52,
+        y: 340,
       }}
       onPointerCancel={endInteraction}
       onPointerDown={() => onFocus(descriptor.id)}
@@ -168,14 +167,17 @@ export function AppWindowContainer({
       onPointerUp={endInteraction}
       style={resolveWindowStyle(descriptor)}
       transition={{
-        damping: 34,
-        mass: 0.82,
-        stiffness: 390,
+        damping: 30,
+        mass: 0.86,
+        stiffness: 310,
         type: 'spring',
       }}
     >
       <header className="relative flex h-11 shrink-0 items-center border-b border-white/42 bg-white/44 shadow-[inset_0_1px_0_rgba(255,255,255,0.82)]">
-        <div className="absolute left-4 top-1/2 z-10 flex -translate-y-1/2 items-center gap-2">
+        <div
+          className="group absolute left-4 top-1/2 z-10 flex -translate-y-1/2 items-center gap-2.5"
+          data-testid={`kernelon-app-window-traffic-lights-${descriptor.id}`}
+        >
           <TrafficLightButton
             className="bg-[#ff5f57] shadow-[0_0_0_0.5px_rgba(120,28,22,0.38),inset_0_1px_0_rgba(255,255,255,0.46)]"
             icon={X}
@@ -236,13 +238,17 @@ function TrafficLightButton({
     <button
       aria-label={label}
       className={cn(
-        'group flex size-3.5 items-center justify-center rounded-full text-black/62 outline-none transition duration-150 ease-out hover:scale-110 focus-visible:ring-2 focus-visible:ring-white/90',
+        'flex size-3.5 origin-center items-center justify-center rounded-full text-black/82 outline-none transition-[transform,box-shadow,filter] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:scale-[1.24] group-hover:brightness-[1.03] hover:scale-[1.32] focus-visible:ring-2 focus-visible:ring-white/90',
         className,
       )}
       onClick={onClick}
       type="button"
     >
-      <Icon aria-hidden="true" className="size-2 opacity-0 transition group-hover:opacity-70" />
+      <Icon
+        aria-hidden="true"
+        className="size-2.5 opacity-0 transition duration-150 ease-out group-hover:opacity-90"
+        strokeWidth={3}
+      />
     </button>
   );
 }
@@ -251,10 +257,10 @@ export function resolveFullscreenWindowBounds(): WindowBounds {
   const viewport = getViewportSize();
 
   return {
-    x: DESKTOP_MARGIN,
-    y: STATUS_BAR_CLEARANCE,
-    width: Math.max(MIN_WINDOW_WIDTH, viewport.width - DESKTOP_MARGIN * 2),
-    height: Math.max(MIN_WINDOW_HEIGHT, viewport.height - DOCK_CLEARANCE),
+    x: 0,
+    y: 0,
+    width: viewport.width,
+    height: viewport.height,
   };
 }
 
@@ -263,15 +269,17 @@ function resolveWindowStyle(descriptor: WindowDescriptor): CSSProperties {
     background:
       'linear-gradient(180deg, rgba(255,255,255,0.76), rgba(245,249,252,0.56)), radial-gradient(120% 160% at 12% -18%, rgba(255,255,255,0.72), rgba(255,255,255,0) 58%), radial-gradient(100% 120% at 82% 112%, rgba(107,147,178,0.18), rgba(107,147,178,0) 64%)',
     boxShadow:
-      descriptor.status === 'active'
-        ? 'inset 0 1px 0 rgba(255,255,255,0.86), inset 0 -1px 0 rgba(255,255,255,0.48), 0 34px 86px rgba(24,40,55,0.26), 0 9px 28px rgba(24,40,55,0.16)'
-        : 'inset 0 1px 0 rgba(255,255,255,0.72), 0 24px 56px rgba(24,40,55,0.18)',
+      descriptor.mode === 'fullscreen'
+        ? 'none'
+        : descriptor.status === 'active'
+          ? 'inset 0 1px 0 rgba(255,255,255,0.86), inset 0 -1px 0 rgba(255,255,255,0.48), 0 34px 86px rgba(24,40,55,0.26), 0 9px 28px rgba(24,40,55,0.16)'
+          : 'inset 0 1px 0 rgba(255,255,255,0.72), 0 24px 56px rgba(24,40,55,0.18)',
     height: descriptor.bounds.height,
     left: descriptor.bounds.x,
-    minHeight: MIN_WINDOW_HEIGHT,
-    minWidth: MIN_WINDOW_WIDTH,
+    minHeight: descriptor.mode === 'fullscreen' ? 0 : MIN_WINDOW_HEIGHT,
+    minWidth: descriptor.mode === 'fullscreen' ? 0 : MIN_WINDOW_WIDTH,
     top: descriptor.bounds.y,
-    transformOrigin: '50% calc(100% + 96px)',
+    transformOrigin: '50% calc(100% + 148px)',
     width: descriptor.bounds.width,
     zIndex: 40 + descriptor.zIndex,
   };

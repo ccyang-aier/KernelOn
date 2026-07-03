@@ -69,7 +69,10 @@ describe('KernelOnShell', () => {
 
     render(<KernelOnShell initialState={initialState} runtime={runtime} />);
 
-    expect(screen.getByTestId('kernelon-shell')).toBeInTheDocument();
+    expect(screen.getByTestId('kernelon-shell')).toHaveAttribute(
+      'data-kernelon-cursor-scope',
+      'true',
+    );
     expect(screen.queryByText('新员工运作工作台')).not.toBeInTheDocument();
     expect(screen.queryByText('Core Services')).not.toBeInTheDocument();
     expect(screen.queryByText('入职进度')).not.toBeInTheDocument();
@@ -252,12 +255,31 @@ describe('KernelOnShell', () => {
 
     expect(appContainer).toHaveAttribute('data-window-mode', 'windowed');
     expect(appContainer).toHaveAttribute('data-window-status', 'active');
+    expect(appContainer).toHaveClass('will-change-transform', 'rounded-[26px]', 'border-white/60');
     expect(appContainer).toHaveStyle({
       height: '640px',
       left: '96px',
       top: '72px',
       width: '960px',
     });
+    const trafficLights = within(appContainer).getByTestId(
+      'kernelon-app-window-traffic-lights-window:onboarding',
+    );
+    const trafficLightButtons = within(trafficLights).getAllByRole('button');
+    const closeTrafficLight = trafficLightButtons.at(0) as HTMLElement;
+
+    expect(trafficLights).toHaveClass('group', 'gap-2.5');
+    expect(trafficLightButtons).toHaveLength(3);
+    expect(closeTrafficLight).toHaveClass(
+      'origin-center',
+      'group-hover:scale-[1.24]',
+      'hover:scale-[1.32]',
+      'text-black/82',
+    );
+    expect(closeTrafficLight.querySelector('svg')).toHaveClass(
+      'size-2.5',
+      'group-hover:opacity-90',
+    );
     expect(await within(appContainer).findByText('Lazy onboarding window')).toBeInTheDocument();
     expect(
       within(appContainer).getByRole('button', { name: '最小化 新员工运作' }),
@@ -316,12 +338,16 @@ describe('KernelOnShell', () => {
     await user.click(within(appContainer).getByRole('button', { name: '进入全屏 新员工运作' }));
 
     expect(appContainer).toHaveAttribute('data-window-mode', 'fullscreen');
+    expect(appContainer).toHaveClass('rounded-none', 'border-transparent');
     expect(appContainer).toHaveStyle({
-      height: '758px',
-      left: '12px',
-      top: '46px',
-      width: '1416px',
+      height: '900px',
+      left: '0px',
+      top: '0px',
+      width: '1440px',
     });
+    expect(
+      screen.queryByTestId('kernelon-app-window-resize-se-window:onboarding'),
+    ).not.toBeInTheDocument();
 
     await user.click(within(appContainer).getByRole('button', { name: '退出全屏 新员工运作' }));
 
@@ -332,6 +358,9 @@ describe('KernelOnShell', () => {
       top: '72px',
       width: '960px',
     });
+    expect(
+      within(appContainer).getByTestId('kernelon-app-window-resize-se-window:onboarding'),
+    ).toBeInTheDocument();
   });
 
   it('replaces the native desktop context menu with a liquid glass desktop context menu', async () => {
@@ -422,8 +451,8 @@ describe('KernelOnShell', () => {
       top: '234px',
     });
     expect(submenuLiquidGlassRoot).not.toHaveStyle({ zIndex: '41' });
-    expect(submenuGlass).toHaveStyle({ borderRadius: '12px', padding: '10px 11px' });
-    expect(submenuWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 12px)');
+    expect(submenuGlass).toHaveStyle({ borderRadius: '16px', padding: '10px 11px' });
+    expect(submenuWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 16px)');
     expect(screen.getAllByTestId('kernelon-liquid-glass-context-submenu-icon')).toHaveLength(4);
     expect(
       within(screen.getByTestId('kernelon-liquid-glass-context-submenu-list')).getAllByRole(
@@ -489,11 +518,11 @@ describe('KernelOnShell', () => {
     expect(statusSpotlightButton).toHaveAttribute('aria-pressed', 'true');
     expect(liquidGlassRoot).toHaveStyle({ left: '338px', position: 'absolute', top: '168px' });
     expect(liquidGlassRoot).not.toHaveStyle({ zIndex: '40' });
-    expect(glass).toHaveStyle({ borderRadius: '12px', padding: '12px 14px' });
+    expect(glass).toHaveStyle({ borderRadius: '16px', padding: '12px 14px' });
     expect(warp).not.toBeNull();
     expect(warp?.getAttribute('style')).toContain('filter: url(');
     expect(warp?.getAttribute('style')).toContain('backdrop-filter: blur(20px) saturate(140%)');
-    expect(warp?.getAttribute('style')).toContain('clip-path: inset(0 round 12px)');
+    expect(warp?.getAttribute('style')).toContain('clip-path: inset(0 round 16px)');
     expect(screen.queryByRole('menu', { name: '个性化' })).not.toBeInTheDocument();
     expect(screen.queryByText('Glass Card')).not.toBeInTheDocument();
 

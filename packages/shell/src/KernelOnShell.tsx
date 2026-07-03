@@ -102,6 +102,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       ref={liquidGlassContextContainerRef}
       aria-label="KernelOn shell"
       className="relative min-h-screen overflow-hidden bg-[var(--ko-bg)] text-[var(--ko-ink)]"
+      data-kernelon-cursor-scope="true"
       data-testid="kernelon-shell"
     >
       <img

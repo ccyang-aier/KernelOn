@@ -235,7 +235,7 @@ export function KernelOnDesktopContextMenu({
         saturation={140}
         aberrationIntensity={2}
         elasticity={0}
-        cornerRadius={12}
+        cornerRadius={16}
         mouseContainer={mouseContainer}
         mode="standard"
         padding="12px 14px"
@@ -328,7 +328,7 @@ export function KernelOnDesktopContextMenu({
           saturation={140}
           aberrationIntensity={2}
           elasticity={0}
-          cornerRadius={12}
+          cornerRadius={16}
           mouseContainer={mouseContainer}
           mode="standard"
           padding="10px 11px"
