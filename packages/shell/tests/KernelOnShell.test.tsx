@@ -86,7 +86,7 @@ describe('KernelOnShell', () => {
     expect(runtime.loadWidget).not.toHaveBeenCalled();
   });
 
-  it('emits a liquid water ripple only when clicking the empty desktop surface', () => {
+  it('emits a water ripple only when clicking the empty desktop surface', () => {
     const runtime = createRuntime();
 
     render(<KernelOnShell initialState={initialState} runtime={runtime} />);
@@ -112,48 +112,15 @@ describe('KernelOnShell', () => {
 
     const ripple = screen.getByTestId('kernelon-desktop-click-ripple');
 
-    expect(ripple).toHaveAttribute('data-ripple-shape', 'liquid');
     expect(ripple).toHaveStyle({
-      height: '132px',
+      height: '96px',
       left: '220px',
       top: '180px',
-      width: '132px',
+      width: '96px',
     });
-    expect(ripple.querySelectorAll('[data-ripple-part="liquid-wave"]')).toHaveLength(10);
-    expect(ripple.querySelectorAll('[data-wave-ring="0"]')).toHaveLength(6);
-    expect(ripple.querySelector('[data-wave-ring="0"]')).toHaveAttribute(
-      'd',
-      expect.not.stringContaining('Z'),
-    );
-    expect(ripple.querySelector('[data-ripple-part="liquid-wavefield"]')).toHaveAttribute(
-      'viewBox',
-      '0 0 132 132',
-    );
-    expect(ripple.querySelector('[data-ripple-part="outer-ring"]')).not.toBeInTheDocument();
-  });
-
-  it('can switch the desktop ripple back to the radial shape', () => {
-    const runtime = createRuntime();
-
-    render(
-      <KernelOnShell
-        desktopClickRippleShape="radial"
-        initialState={initialState}
-        runtime={runtime}
-      />,
-    );
-
-    fireEvent.pointerDown(screen.getByTestId('kernelon-desktop-surface'), {
-      button: 0,
-      clientX: 220,
-      clientY: 180,
-    });
-
-    const ripple = screen.getByTestId('kernelon-desktop-click-ripple');
-
-    expect(ripple).toHaveAttribute('data-ripple-shape', 'radial');
     expect(ripple.querySelector('[data-ripple-part="outer-ring"]')).toBeInTheDocument();
-    expect(ripple.querySelectorAll('[data-ripple-part="liquid-wave"]')).toHaveLength(0);
+    expect(ripple.querySelector('[data-ripple-part="inner-ring"]')).toBeInTheDocument();
+    expect(ripple.querySelector('[data-ripple-part="core"]')).toBeInTheDocument();
   });
 
   it('renders the desktop status bar controls in the reference order', async () => {
