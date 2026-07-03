@@ -18,10 +18,10 @@ interface DesktopRipplePoint {
 
 type DesktopRippleGsap = (typeof import('gsap'))['gsap'];
 
-const DESKTOP_RIPPLE_WAVE_COUNT = 3;
-const DESKTOP_RIPPLE_WAVE_STAGGER = 0.28;
-const DESKTOP_RIPPLE_RING_REVEAL_DURATION = 0.18;
-const DESKTOP_RIPPLE_HALO_REVEAL_DURATION = 0.22;
+const DESKTOP_RIPPLE_WAVE_COUNT = 2;
+const DESKTOP_RIPPLE_WAVE_STAGGER = 0.34;
+const DESKTOP_RIPPLE_RING_REVEAL_DURATION = 0.2;
+const DESKTOP_RIPPLE_HALO_REVEAL_DURATION = 0.24;
 
 let desktopRippleGsapPromise: Promise<DesktopRippleGsap> | null = null;
 
@@ -244,10 +244,10 @@ function animateDesktopClickRipple(
           ring,
           { autoAlpha: 0, scale: 0.12 + index * 0.02 },
           {
-            autoAlpha: 0.82 - index * 0.1,
+            autoAlpha: 0.68 - index * 0.12,
             duration: DESKTOP_RIPPLE_RING_REVEAL_DURATION * motionScale,
             ease: 'power2.out',
-            scale: 0.26 + index * 0.03,
+            scale: 0.28 + index * 0.04,
           },
           waveStart,
         )
@@ -255,9 +255,9 @@ function animateDesktopClickRipple(
           ring,
           {
             autoAlpha: 0,
-            duration: (1.08 + index * 0.12) * motionScale,
+            duration: (1.24 + index * 0.16) * motionScale,
             ease: 'sine.out',
-            scale: 1.06 + index * 0.1,
+            scale: 1.28 + index * 0.18,
           },
           waveStart + DESKTOP_RIPPLE_RING_REVEAL_DURATION * motionScale,
         );
@@ -271,10 +271,10 @@ function animateDesktopClickRipple(
           halo,
           { autoAlpha: 0, scale: 0.16 + index * 0.02 },
           {
-            autoAlpha: 0.36 - index * 0.06,
+            autoAlpha: 0.28 - index * 0.08,
             duration: DESKTOP_RIPPLE_HALO_REVEAL_DURATION * motionScale,
             ease: 'power2.out',
-            scale: 0.34 + index * 0.04,
+            scale: 0.38 + index * 0.06,
           },
           waveStart,
         )
@@ -282,9 +282,9 @@ function animateDesktopClickRipple(
           halo,
           {
             autoAlpha: 0,
-            duration: (1.18 + index * 0.14) * motionScale,
+            duration: (1.34 + index * 0.18) * motionScale,
             ease: 'power2.out',
-            scale: 1.2 + index * 0.12,
+            scale: 1.52 + index * 0.2,
           },
           waveStart + DESKTOP_RIPPLE_HALO_REVEAL_DURATION * motionScale,
         );

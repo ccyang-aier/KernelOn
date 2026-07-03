@@ -118,12 +118,12 @@ describe('KernelOnShell', () => {
       top: '180px',
       width: '96px',
     });
-    expect(ripple.querySelectorAll('[data-ripple-part="wave-halo"]')).toHaveLength(3);
+    expect(ripple.querySelectorAll('[data-ripple-part="wave-halo"]')).toHaveLength(2);
     expect(
       Array.from(ripple.querySelectorAll('[data-ripple-part="wave-ring"]')).map((wave) =>
         wave.getAttribute('data-ripple-wave'),
       ),
-    ).toEqual(['0', '1', '2']);
+    ).toEqual(['0', '1']);
     expect(ripple.querySelector('[data-ripple-part="core"]')).toBeInTheDocument();
   });
 
