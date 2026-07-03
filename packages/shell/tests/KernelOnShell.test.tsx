@@ -86,6 +86,36 @@ describe('KernelOnShell', () => {
     expect(runtime.loadWidget).not.toHaveBeenCalled();
   });
 
+  it('emits a water ripple only when clicking the empty desktop surface', () => {
+    const runtime = createRuntime();
+
+    render(<KernelOnShell initialState={initialState} runtime={runtime} />);
+
+    const desktopSurface = screen.getByTestId('kernelon-desktop-surface');
+
+    expect(screen.getByTestId('kernelon-desktop-click-ripple-layer')).toBeInTheDocument();
+    expect(screen.queryByTestId('kernelon-desktop-click-ripple')).not.toBeInTheDocument();
+
+    fireEvent.pointerDown(desktopSurface, {
+      button: 2,
+      clientX: 180,
+      clientY: 140,
+    });
+
+    expect(screen.queryByTestId('kernelon-desktop-click-ripple')).not.toBeInTheDocument();
+
+    fireEvent.pointerDown(desktopSurface, {
+      button: 0,
+      clientX: 220,
+      clientY: 180,
+    });
+
+    expect(screen.getByTestId('kernelon-desktop-click-ripple')).toHaveStyle({
+      left: '220px',
+      top: '180px',
+    });
+  });
+
   it('renders the desktop status bar controls in the reference order', async () => {
     const runtime = createRuntime();
     const user = userEvent.setup();
