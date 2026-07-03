@@ -19,6 +19,9 @@ interface DesktopRipplePoint {
 type DesktopRippleGsap = (typeof import('gsap'))['gsap'];
 
 const DESKTOP_RIPPLE_WAVE_COUNT = 3;
+const DESKTOP_RIPPLE_WAVE_STAGGER = 0.28;
+const DESKTOP_RIPPLE_RING_REVEAL_DURATION = 0.18;
+const DESKTOP_RIPPLE_HALO_REVEAL_DURATION = 0.22;
 
 let desktopRippleGsapPromise: Promise<DesktopRippleGsap> | null = null;
 
@@ -216,7 +219,7 @@ function animateDesktopClickRipple(
         { autoAlpha: 0, scale: 0.18 },
         {
           autoAlpha: 0.72,
-          duration: 0.1 * motionScale,
+          duration: 0.12 * motionScale,
           ease: 'power2.out',
           scale: 0.42,
         },
@@ -226,15 +229,15 @@ function animateDesktopClickRipple(
         core,
         {
           autoAlpha: 0,
-          duration: 0.34 * motionScale,
+          duration: 0.48 * motionScale,
           ease: 'power2.out',
           scale: 0.8,
         },
-        0.1 * motionScale,
+        0.12 * motionScale,
       );
 
     waveRings.forEach((ring, index) => {
-      const waveStart = (0.04 + index * 0.18) * motionScale;
+      const waveStart = (0.06 + index * DESKTOP_RIPPLE_WAVE_STAGGER) * motionScale;
 
       timeline
         .fromTo(
@@ -242,7 +245,7 @@ function animateDesktopClickRipple(
           { autoAlpha: 0, scale: 0.12 + index * 0.02 },
           {
             autoAlpha: 0.82 - index * 0.1,
-            duration: 0.13 * motionScale,
+            duration: DESKTOP_RIPPLE_RING_REVEAL_DURATION * motionScale,
             ease: 'power2.out',
             scale: 0.26 + index * 0.03,
           },
@@ -252,16 +255,16 @@ function animateDesktopClickRipple(
           ring,
           {
             autoAlpha: 0,
-            duration: (0.72 + index * 0.08) * motionScale,
+            duration: (1.08 + index * 0.12) * motionScale,
             ease: 'sine.out',
             scale: 1.06 + index * 0.1,
           },
-          waveStart + 0.13 * motionScale,
+          waveStart + DESKTOP_RIPPLE_RING_REVEAL_DURATION * motionScale,
         );
     });
 
     waveHalos.forEach((halo, index) => {
-      const waveStart = (0.08 + index * 0.18) * motionScale;
+      const waveStart = (0.12 + index * DESKTOP_RIPPLE_WAVE_STAGGER) * motionScale;
 
       timeline
         .fromTo(
@@ -269,7 +272,7 @@ function animateDesktopClickRipple(
           { autoAlpha: 0, scale: 0.16 + index * 0.02 },
           {
             autoAlpha: 0.36 - index * 0.06,
-            duration: 0.16 * motionScale,
+            duration: DESKTOP_RIPPLE_HALO_REVEAL_DURATION * motionScale,
             ease: 'power2.out',
             scale: 0.34 + index * 0.04,
           },
@@ -279,11 +282,11 @@ function animateDesktopClickRipple(
           halo,
           {
             autoAlpha: 0,
-            duration: (0.82 + index * 0.1) * motionScale,
+            duration: (1.18 + index * 0.14) * motionScale,
             ease: 'power2.out',
             scale: 1.2 + index * 0.12,
           },
-          waveStart + 0.16 * motionScale,
+          waveStart + DESKTOP_RIPPLE_HALO_REVEAL_DURATION * motionScale,
         );
     });
 

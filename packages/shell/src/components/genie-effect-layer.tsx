@@ -11,7 +11,6 @@ import {
   createGenieMeshFrame,
   resolveGenieTargetRect,
   type GenieRect,
-  type GenieVertex,
 } from './genie-effect-geometry';
 
 export type GenieTransitionDirection = 'minimize' | 'open';
@@ -29,8 +28,7 @@ export interface GenieEffectLayerHandle {
 type GenieEffectLayerProps = object;
 
 const GENIE_DURATION_MS = 560;
-const GENIE_COLUMNS = 18;
-const GENIE_ROWS = 14;
+const GENIE_STRIP_ROWS = 96;
 
 export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLayerProps>(
   function GenieEffectLayer(_props, ref) {
@@ -135,9 +133,9 @@ function renderGenieFrame(
   const progress = easeInOutCubic(rawProgress);
   const collapseProgress = direction === 'minimize' ? progress : 1 - progress;
   const frame = createGenieMeshFrame({
-    columns: GENIE_COLUMNS,
+    columns: 1,
     progress: collapseProgress,
-    rows: GENIE_ROWS,
+    rows: GENIE_STRIP_ROWS,
     sourceRect,
     targetRect,
   });
@@ -147,125 +145,42 @@ function renderGenieFrame(
   context.save();
   context.globalAlpha =
     direction === 'minimize' ? 1 - progress * 0.08 : 0.92 + progress * 0.08;
-  drawTexturedMesh(context, snapshot, frame.vertices, frame.columns, frame.rows);
+  drawTexturedStrips(context, snapshot, frame.vertices, frame.rows);
   context.restore();
 }
 
-function drawTexturedMesh(
+function drawTexturedStrips(
   context: CanvasRenderingContext2D,
   image: HTMLCanvasElement,
-  vertices: GenieVertex[],
-  columns: number,
+  vertices: ReturnType<typeof createGenieMeshFrame>['vertices'],
   rows: number,
 ) {
-  const vertexAt = (row: number, column: number) => vertices[row * (columns + 1) + column];
-
   for (let row = 0; row < rows; row += 1) {
-    for (let column = 0; column < columns; column += 1) {
-      const topLeft = vertexAt(row, column);
-      const topRight = vertexAt(row, column + 1);
-      const bottomLeft = vertexAt(row + 1, column);
-      const bottomRight = vertexAt(row + 1, column + 1);
+    const topLeft = vertices[row * 2];
+    const topRight = vertices[row * 2 + 1];
+    const bottomLeft = vertices[(row + 1) * 2];
+    const bottomRight = vertices[(row + 1) * 2 + 1];
+    const topWidth = topRight.x - topLeft.x;
+    const bottomWidth = bottomRight.x - bottomLeft.x;
+    const drawWidth = Math.max(1, (topWidth + bottomWidth) / 2);
+    const drawX = (topLeft.x + topRight.x + bottomLeft.x + bottomRight.x) / 4 - drawWidth / 2;
+    const drawY = (topLeft.y + topRight.y) / 2;
+    const drawHeight = Math.max(0.75, (bottomLeft.y + bottomRight.y) / 2 - drawY);
+    const sourceY = Math.floor((row / rows) * image.height);
+    const sourceHeight = Math.ceil(image.height / rows) + 1;
 
-      drawTexturedTriangle(context, image, topLeft, topRight, bottomRight);
-      drawTexturedTriangle(context, image, topLeft, bottomRight, bottomLeft);
-    }
+    context.drawImage(
+      image,
+      0,
+      sourceY,
+      image.width,
+      sourceHeight,
+      drawX,
+      drawY,
+      drawWidth,
+      drawHeight + 1,
+    );
   }
-}
-
-function drawTexturedTriangle(
-  context: CanvasRenderingContext2D,
-  image: HTMLCanvasElement,
-  pointA: GenieVertex,
-  pointB: GenieVertex,
-  pointC: GenieVertex,
-) {
-  const sourceA = toImagePoint(pointA, image);
-  const sourceB = toImagePoint(pointB, image);
-  const sourceC = toImagePoint(pointC, image);
-  const transform = resolveTriangleTransform(sourceA, sourceB, sourceC, pointA, pointB, pointC);
-
-  if (!transform) {
-    return;
-  }
-
-  context.save();
-  context.beginPath();
-  context.moveTo(pointA.x, pointA.y);
-  context.lineTo(pointB.x, pointB.y);
-  context.lineTo(pointC.x, pointC.y);
-  context.closePath();
-  context.clip();
-  context.transform(
-    transform.a,
-    transform.b,
-    transform.c,
-    transform.d,
-    transform.e,
-    transform.f,
-  );
-  context.drawImage(image, 0, 0);
-  context.restore();
-}
-
-function resolveTriangleTransform(
-  sourceA: GenieRect,
-  sourceB: GenieRect,
-  sourceC: GenieRect,
-  targetA: GenieVertex,
-  targetB: GenieVertex,
-  targetC: GenieVertex,
-) {
-  const denominator =
-    sourceA.x * (sourceB.y - sourceC.y) +
-    sourceB.x * (sourceC.y - sourceA.y) +
-    sourceC.x * (sourceA.y - sourceB.y);
-
-  if (Math.abs(denominator) < 0.0001) {
-    return null;
-  }
-
-  return {
-    a:
-      (targetA.x * (sourceB.y - sourceC.y) +
-        targetB.x * (sourceC.y - sourceA.y) +
-        targetC.x * (sourceA.y - sourceB.y)) /
-      denominator,
-    b:
-      (targetA.y * (sourceB.y - sourceC.y) +
-        targetB.y * (sourceC.y - sourceA.y) +
-        targetC.y * (sourceA.y - sourceB.y)) /
-      denominator,
-    c:
-      (targetA.x * (sourceC.x - sourceB.x) +
-        targetB.x * (sourceA.x - sourceC.x) +
-        targetC.x * (sourceB.x - sourceA.x)) /
-      denominator,
-    d:
-      (targetA.y * (sourceC.x - sourceB.x) +
-        targetB.y * (sourceA.x - sourceC.x) +
-        targetC.y * (sourceB.x - sourceA.x)) /
-      denominator,
-    e:
-      (targetA.x * (sourceB.x * sourceC.y - sourceC.x * sourceB.y) +
-        targetB.x * (sourceC.x * sourceA.y - sourceA.x * sourceC.y) +
-        targetC.x * (sourceA.x * sourceB.y - sourceB.x * sourceA.y)) /
-      denominator,
-    f:
-      (targetA.y * (sourceB.x * sourceC.y - sourceC.x * sourceB.y) +
-        targetB.y * (sourceC.x * sourceA.y - sourceA.x * sourceC.y) +
-        targetC.y * (sourceA.x * sourceB.y - sourceB.x * sourceA.y)) /
-      denominator,
-  };
-}
-
-function toImagePoint(vertex: GenieVertex, image: HTMLCanvasElement): GenieRect {
-  return {
-    height: 0,
-    width: 0,
-    x: vertex.u * image.width,
-    y: vertex.v * image.height,
-  };
 }
 
 async function captureElementCanvas(
