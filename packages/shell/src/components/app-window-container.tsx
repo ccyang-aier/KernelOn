@@ -4,7 +4,9 @@ import { Maximize2, Minus, X, type LucideIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import {
   useCallback,
+  useEffect,
   useRef,
+  useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -17,8 +19,17 @@ const MIN_WINDOW_WIDTH = 520;
 const MIN_WINDOW_HEIGHT = 360;
 const DESKTOP_MARGIN = 12;
 const STATUS_BAR_CLEARANCE = 46;
+const WINDOW_CHROME_RADIUS = 26;
+const FULLSCREEN_CHROME_RADIUS = 0;
+const WINDOW_BOUNDS_TRANSITION_MS = 460;
 
 type ResizeDirection = 'n' | 'e' | 's' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
+type WindowVisualMode = NonNullable<WindowDescriptor['mode']>;
+
+interface WindowVisualFrame {
+  bounds: WindowBounds;
+  mode: WindowVisualMode;
+}
 
 interface WindowInteractionState {
   kind: 'move' | 'resize';
@@ -52,7 +63,45 @@ export function AppWindowContainer({
   window: descriptor,
 }: AppWindowContainerProps) {
   const interactionRef = useRef<WindowInteractionState | null>(null);
+  const previousFrameRef = useRef<WindowVisualFrame>(resolveWindowVisualFrame(descriptor));
+  const [visualFrame, setVisualFrame] = useState<WindowVisualFrame>(() =>
+    resolveWindowVisualFrame(descriptor),
+  );
+  const [isFrameTransitioning, setIsFrameTransitioning] = useState(false);
   const isFullscreen = descriptor.mode === 'fullscreen';
+
+  useEffect(() => {
+    const nextFrame = resolveWindowVisualFrame(descriptor);
+    const previousFrame = previousFrameRef.current;
+    const modeChanged = previousFrame.mode !== nextFrame.mode;
+
+    previousFrameRef.current = nextFrame;
+
+    if (!modeChanged) {
+      setIsFrameTransitioning(false);
+      setVisualFrame(nextFrame);
+      return undefined;
+    }
+
+    setIsFrameTransitioning(true);
+    const animationFrame = requestAnimationFrame(() => {
+      setVisualFrame(nextFrame);
+    });
+    const transitionTimer = window.setTimeout(() => {
+      setIsFrameTransitioning(false);
+    }, WINDOW_BOUNDS_TRANSITION_MS + 80);
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      window.clearTimeout(transitionTimer);
+    };
+  }, [
+    descriptor.bounds.height,
+    descriptor.bounds.width,
+    descriptor.bounds.x,
+    descriptor.bounds.y,
+    descriptor.mode,
+  ]);
 
   const beginMove = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
@@ -142,12 +191,16 @@ export function AppWindowContainer({
       aria-label={`${descriptor.title} app window`}
       className={cn(
         'absolute flex min-h-[360px] min-w-[520px] flex-col overflow-hidden border text-[var(--ko-ink)] outline-none backdrop-blur-[28px] will-change-transform',
+        isFrameTransitioning
+          ? 'transition-[left,top,width,height,border-radius,box-shadow] duration-[460ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
+          : '',
         isFullscreen ? 'rounded-none border-transparent' : 'rounded-[26px] border-white/60',
       )}
       data-app-id={app.id}
       data-testid={`kernelon-app-container-${descriptor.id}`}
       data-window-mode={descriptor.mode ?? 'windowed'}
       data-window-status={descriptor.status}
+      data-window-transitioning={isFrameTransitioning ? 'true' : 'false'}
       exit={{
         filter: 'blur(24px)',
         opacity: 0,
@@ -165,12 +218,12 @@ export function AppWindowContainer({
       onPointerDown={() => onFocus(descriptor.id)}
       onPointerMove={handlePointerMove}
       onPointerUp={endInteraction}
-      style={resolveWindowStyle(descriptor)}
+      style={resolveWindowStyle(descriptor, visualFrame)}
       transition={{
-        damping: 30,
-        mass: 0.86,
-        stiffness: 310,
-        type: 'spring',
+        filter: { duration: 0.18, ease: 'easeOut' },
+        opacity: { duration: 0.18, ease: 'easeOut' },
+        scale: { damping: 30, mass: 0.86, stiffness: 310, type: 'spring' },
+        y: { damping: 30, mass: 0.86, stiffness: 310, type: 'spring' },
       }}
     >
       <header className="relative flex h-11 shrink-0 items-center border-b border-white/42 bg-white/44 shadow-[inset_0_1px_0_rgba(255,255,255,0.82)]">
@@ -264,25 +317,42 @@ export function resolveFullscreenWindowBounds(): WindowBounds {
   };
 }
 
-function resolveWindowStyle(descriptor: WindowDescriptor): CSSProperties {
+function resolveWindowStyle(
+  descriptor: WindowDescriptor,
+  visualFrame: WindowVisualFrame,
+): CSSProperties {
   return {
     background:
       'linear-gradient(180deg, rgba(255,255,255,0.76), rgba(245,249,252,0.56)), radial-gradient(120% 160% at 12% -18%, rgba(255,255,255,0.72), rgba(255,255,255,0) 58%), radial-gradient(100% 120% at 82% 112%, rgba(107,147,178,0.18), rgba(107,147,178,0) 64%)',
-    boxShadow:
-      descriptor.mode === 'fullscreen'
-        ? 'none'
-        : descriptor.status === 'active'
-          ? 'inset 0 1px 0 rgba(255,255,255,0.86), inset 0 -1px 0 rgba(255,255,255,0.48), 0 34px 86px rgba(24,40,55,0.26), 0 9px 28px rgba(24,40,55,0.16)'
-          : 'inset 0 1px 0 rgba(255,255,255,0.72), 0 24px 56px rgba(24,40,55,0.18)',
-    height: descriptor.bounds.height,
-    left: descriptor.bounds.x,
+    borderRadius:
+      visualFrame.mode === 'fullscreen' ? FULLSCREEN_CHROME_RADIUS : WINDOW_CHROME_RADIUS,
+    boxShadow: resolveWindowShadow(descriptor, visualFrame.mode),
+    height: visualFrame.bounds.height,
+    left: visualFrame.bounds.x,
     minHeight: descriptor.mode === 'fullscreen' ? 0 : MIN_WINDOW_HEIGHT,
     minWidth: descriptor.mode === 'fullscreen' ? 0 : MIN_WINDOW_WIDTH,
-    top: descriptor.bounds.y,
+    top: visualFrame.bounds.y,
     transformOrigin: '50% calc(100% + 148px)',
-    width: descriptor.bounds.width,
+    width: visualFrame.bounds.width,
     zIndex: 40 + descriptor.zIndex,
   };
+}
+
+function resolveWindowVisualFrame(descriptor: WindowDescriptor): WindowVisualFrame {
+  return {
+    bounds: descriptor.bounds,
+    mode: descriptor.mode ?? 'windowed',
+  };
+}
+
+function resolveWindowShadow(descriptor: WindowDescriptor, visualMode: WindowVisualMode): string {
+  if (visualMode === 'fullscreen') {
+    return 'none';
+  }
+
+  return descriptor.status === 'active'
+    ? 'inset 0 1px 0 rgba(255,255,255,0.86), inset 0 -1px 0 rgba(255,255,255,0.48), 0 34px 86px rgba(24,40,55,0.26), 0 9px 28px rgba(24,40,55,0.16)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.72), 0 24px 56px rgba(24,40,55,0.18)';
 }
 
 function resolveMovedBounds(bounds: WindowBounds, deltaX: number, deltaY: number): WindowBounds {

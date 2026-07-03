@@ -339,12 +339,14 @@ describe('KernelOnShell', () => {
 
     expect(appContainer).toHaveAttribute('data-window-mode', 'fullscreen');
     expect(appContainer).toHaveClass('rounded-none', 'border-transparent');
-    expect(appContainer).toHaveStyle({
-      height: '900px',
-      left: '0px',
-      top: '0px',
-      width: '1440px',
-    });
+    await waitFor(() =>
+      expect(appContainer).toHaveStyle({
+        height: '900px',
+        left: '0px',
+        top: '0px',
+        width: '1440px',
+      }),
+    );
     expect(
       screen.queryByTestId('kernelon-app-window-resize-se-window:onboarding'),
     ).not.toBeInTheDocument();
@@ -352,12 +354,14 @@ describe('KernelOnShell', () => {
     await user.click(within(appContainer).getByRole('button', { name: '退出全屏 新员工运作' }));
 
     expect(appContainer).toHaveAttribute('data-window-mode', 'windowed');
-    expect(appContainer).toHaveStyle({
-      height: '640px',
-      left: '96px',
-      top: '72px',
-      width: '960px',
-    });
+    await waitFor(() =>
+      expect(appContainer).toHaveStyle({
+        height: '640px',
+        left: '96px',
+        top: '72px',
+        width: '960px',
+      }),
+    );
     expect(
       within(appContainer).getByTestId('kernelon-app-window-resize-se-window:onboarding'),
     ).toBeInTheDocument();
