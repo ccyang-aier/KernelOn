@@ -1,5 +1,6 @@
 'use client';
 
+import { toCanvas } from 'html-to-image';
 import {
   forwardRef,
   useCallback,
@@ -75,12 +76,14 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
 
         const sourceRect = getElementRect(sourceElement);
         const targetRect = resolveGenieTargetRect(getElementRect(targetElement));
-        const snapshot = (await captureElementCanvas(sourceElement, sourceRect)) ??
-          createFallbackSnapshot(sourceRect);
-
+        const fallbackSnapshot = createFallbackSnapshot(sourceRect);
         canvas.style.opacity = '1';
-        renderGenieFrame(context, snapshot, sourceRect, targetRect, direction, 0);
+        renderGenieFrame(context, fallbackSnapshot, sourceRect, targetRect, direction, 0);
         const restoreSourceVisibility = hideSourceElement(sourceElement);
+        const snapshot = (await captureElementCanvas(sourceElement, sourceRect)) ??
+          fallbackSnapshot;
+
+        renderGenieFrame(context, snapshot, sourceRect, targetRect, direction, 0);
 
         return new Promise<boolean>((resolve) => {
           let startedAt: number | null = null;
@@ -114,7 +117,7 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
     return (
       <canvas
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-[60] opacity-0 transition-opacity duration-75"
+        className="pointer-events-none fixed inset-0 z-[60] opacity-0"
         data-testid="kernelon-genie-effect-layer"
         ref={canvasRef}
         style={{ height: '100vh', width: '100vw' }}
@@ -189,8 +192,6 @@ async function captureElementCanvas(
   sourceRect: GenieRect,
 ): Promise<HTMLCanvasElement | null> {
   try {
-    const { toCanvas } = await import('html-to-image');
-
     return await toCanvas(element, {
       cacheBust: false,
       pixelRatio: Math.min(window.devicePixelRatio || 1, 2),

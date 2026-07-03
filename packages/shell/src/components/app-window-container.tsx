@@ -225,28 +225,10 @@ export function AppWindowContainer({
       data-testid={`kernelon-app-container-${descriptor.id}`}
       data-window-mode={descriptor.mode ?? 'windowed'}
       data-window-status={descriptor.status}
+      data-window-transition-mode="genie-managed"
       data-window-transitioning={isFrameTransitioning ? 'true' : 'false'}
-      exit={
-        genieHidden
-          ? { opacity: 0, transition: { duration: 0.01 } }
-          : {
-              filter: 'blur(24px)',
-              opacity: 0,
-              scale: 0.52,
-              transition: { duration: 0.3, ease: [0.36, 0, 0.66, -0.56] },
-              y: 340,
-            }
-      }
-      initial={
-        genieHidden
-          ? false
-          : {
-              filter: 'blur(24px)',
-              opacity: 0,
-              scale: 0.52,
-              y: 340,
-            }
-      }
+      exit={{ opacity: 0, transition: { duration: 0.01 } }}
+      initial={false}
       onPointerCancel={endInteraction}
       onPointerDown={() => onFocus(descriptor.id)}
       onPointerMove={handlePointerMove}

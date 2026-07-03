@@ -12,6 +12,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
+import { flushSync } from 'react-dom';
 import { useStore } from 'zustand';
 
 import { DesktopClickRippleLayer, useDesktopClickRipple } from './components/desktop-click-ripple';
@@ -187,7 +188,9 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         return;
       }
 
-      hideAppForGenie(appId);
+      flushSync(() => {
+        hideAppForGenie(appId);
+      });
       openApp(appId);
       void playOpenGenieFromDock(appId, dockElement);
     },
@@ -208,8 +211,9 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       }
 
       if (descriptor) {
-        hideAppForGenie(descriptor.appId);
-        await waitForAnimationFrame();
+        flushSync(() => {
+          hideAppForGenie(descriptor.appId);
+        });
       }
 
       minimizeWindow(windowId);

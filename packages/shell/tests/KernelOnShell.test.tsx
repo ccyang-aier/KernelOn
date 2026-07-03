@@ -305,6 +305,7 @@ describe('KernelOnShell', () => {
 
     expect(appContainer).toHaveAttribute('data-window-mode', 'windowed');
     expect(appContainer).toHaveAttribute('data-window-status', 'active');
+    expect(appContainer).toHaveAttribute('data-window-transition-mode', 'genie-managed');
     expect(appContainer).toHaveAttribute('data-genie-effect-source', 'window:onboarding');
     expect(onboardingDockButton).toHaveAttribute('data-kernelon-dock-target', 'onboarding');
     expect(screen.getByTestId('kernelon-genie-effect-layer')).toBeInTheDocument();
