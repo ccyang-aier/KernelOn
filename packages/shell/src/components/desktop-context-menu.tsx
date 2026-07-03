@@ -124,13 +124,9 @@ function resolveDesktopContextSubmenuPosition(
   const mainLeft = position.x - desktopContextMenuCardMetrics.width / 2;
   const mainRight = position.x + desktopContextMenuCardMetrics.width / 2;
   const rightX =
-    mainRight +
-    desktopContextMenuSubmenuMetrics.gap +
-    desktopContextMenuSubmenuMetrics.width / 2;
+    mainRight + desktopContextMenuSubmenuMetrics.gap + desktopContextMenuSubmenuMetrics.width / 2;
   const leftX =
-    mainLeft -
-    desktopContextMenuSubmenuMetrics.gap -
-    desktopContextMenuSubmenuMetrics.width / 2;
+    mainLeft - desktopContextMenuSubmenuMetrics.gap - desktopContextMenuSubmenuMetrics.width / 2;
   const mainTop = position.y - desktopContextMenuCardMetrics.height / 2;
   const rawY = mainTop + topOffset + desktopContextMenuSubmenuMetrics.height / 2;
 
@@ -153,8 +149,7 @@ function resolveDesktopContextSubmenuPosition(
     ),
     y: clampToViewport(
       rawY,
-      desktopContextMenuSubmenuMetrics.height / 2 +
-        desktopContextMenuSubmenuMetrics.viewportGutter,
+      desktopContextMenuSubmenuMetrics.height / 2 + desktopContextMenuSubmenuMetrics.viewportGutter,
       window.innerHeight -
         desktopContextMenuSubmenuMetrics.height / 2 -
         desktopContextMenuSubmenuMetrics.viewportGutter,
@@ -207,7 +202,10 @@ export function KernelOnDesktopContextMenu({
     function handlePointerDown(event: PointerEvent) {
       const target = event.target;
 
-      if (target instanceof Element && target.closest('[data-kernelon-liquid-glass-context-menu="true"]')) {
+      if (
+        target instanceof Element &&
+        target.closest('[data-kernelon-liquid-glass-context-menu="true"]')
+      ) {
         return;
       }
 
@@ -237,7 +235,7 @@ export function KernelOnDesktopContextMenu({
         saturation={140}
         aberrationIntensity={2}
         elasticity={0}
-        cornerRadius={32}
+        cornerRadius={22}
         mouseContainer={mouseContainer}
         mode="standard"
         padding="12px 14px"
@@ -330,7 +328,7 @@ export function KernelOnDesktopContextMenu({
           saturation={140}
           aberrationIntensity={2}
           elasticity={0}
-          cornerRadius={28}
+          cornerRadius={20}
           mouseContainer={mouseContainer}
           mode="standard"
           padding="10px 11px"

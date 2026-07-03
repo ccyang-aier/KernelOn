@@ -411,6 +411,10 @@ describe('KernelOnShell', () => {
     const submenuLiquidGlassRoot = screen
       .getByTestId('kernelon-liquid-glass-context-submenu-card')
       .closest('.glass')?.parentElement as HTMLElement;
+    const submenuGlass = screen
+      .getByTestId('kernelon-liquid-glass-context-submenu-card')
+      .closest('.glass');
+    const submenuWarp = submenuGlass?.querySelector('.glass__warp');
 
     expect(submenuLiquidGlassRoot).toHaveStyle({
       left: '603px',
@@ -418,6 +422,8 @@ describe('KernelOnShell', () => {
       top: '234px',
     });
     expect(submenuLiquidGlassRoot).not.toHaveStyle({ zIndex: '41' });
+    expect(submenuGlass).toHaveStyle({ borderRadius: '20px', padding: '10px 11px' });
+    expect(submenuWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 20px)');
     expect(screen.getAllByTestId('kernelon-liquid-glass-context-submenu-icon')).toHaveLength(4);
     expect(
       within(screen.getByTestId('kernelon-liquid-glass-context-submenu-list')).getAllByRole(
@@ -483,11 +489,11 @@ describe('KernelOnShell', () => {
     expect(statusSpotlightButton).toHaveAttribute('aria-pressed', 'true');
     expect(liquidGlassRoot).toHaveStyle({ left: '338px', position: 'absolute', top: '168px' });
     expect(liquidGlassRoot).not.toHaveStyle({ zIndex: '40' });
-    expect(glass).toHaveStyle({ borderRadius: '32px', padding: '12px 14px' });
+    expect(glass).toHaveStyle({ borderRadius: '22px', padding: '12px 14px' });
     expect(warp).not.toBeNull();
     expect(warp?.getAttribute('style')).toContain('filter: url(');
     expect(warp?.getAttribute('style')).toContain('backdrop-filter: blur(20px) saturate(140%)');
-    expect(warp?.getAttribute('style')).toContain('clip-path: inset(0 round 32px)');
+    expect(warp?.getAttribute('style')).toContain('clip-path: inset(0 round 22px)');
     expect(screen.queryByRole('menu', { name: '个性化' })).not.toBeInTheDocument();
     expect(screen.queryByText('Glass Card')).not.toBeInTheDocument();
 
