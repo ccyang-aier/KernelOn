@@ -119,7 +119,12 @@ describe('KernelOnShell', () => {
       top: '180px',
       width: '132px',
     });
-    expect(ripple.querySelectorAll('[data-ripple-part="liquid-wave"]')).toHaveLength(4);
+    expect(ripple.querySelectorAll('[data-ripple-part="liquid-wave"]')).toHaveLength(10);
+    expect(ripple.querySelectorAll('[data-wave-ring="0"]')).toHaveLength(6);
+    expect(ripple.querySelector('[data-wave-ring="0"]')).toHaveAttribute(
+      'd',
+      expect.not.stringContaining('Z'),
+    );
     expect(ripple.querySelector('[data-ripple-part="liquid-wavefield"]')).toHaveAttribute(
       'viewBox',
       '0 0 132 132',

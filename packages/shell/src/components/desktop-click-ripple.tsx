@@ -252,7 +252,7 @@ function createLiquidRippleParts(): [HTMLSpanElement, HTMLSpanElement, SVGSVGEle
   waveField.setAttribute('preserveAspectRatio', 'none');
   waveField.setAttribute('viewBox', '0 0 132 132');
   applyElementStyles(waveField, {
-    filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.50)) drop-shadow(0 0 22px rgba(138,215,231,0.30))',
+    filter: 'drop-shadow(0 0 7px rgba(255,255,255,0.42)) drop-shadow(0 0 14px rgba(138,215,231,0.22))',
     height: '132px',
     left: '0',
     overflow: 'visible',
@@ -265,16 +265,18 @@ function createLiquidRippleParts(): [HTMLSpanElement, HTMLSpanElement, SVGSVGEle
     willChange: 'opacity, transform',
   });
 
-  LIQUID_WAVE_PATHS.forEach((pathConfig, index) => {
+  createLiquidWaveSegments().forEach((segment) => {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.dataset.ripplePart = 'liquid-wave';
-    path.dataset.waveIndex = String(index);
-    path.setAttribute('d', pathConfig.d);
-    path.setAttribute('pathLength', '1');
-    path.setAttribute('stroke', pathConfig.stroke);
+    path.dataset.waveDelay = segment.delay.toFixed(3);
+    path.dataset.waveRing = String(segment.ringIndex);
+    path.dataset.waveSegment = String(segment.segmentIndex);
+    path.dataset.waveSpin = segment.spin.toFixed(2);
+    path.setAttribute('d', createLiquidWaveSegmentPath(segment));
+    path.setAttribute('stroke', segment.stroke);
     path.setAttribute('stroke-linecap', 'round');
     path.setAttribute('stroke-linejoin', 'round');
-    path.setAttribute('stroke-width', pathConfig.strokeWidth);
+    path.setAttribute('stroke-width', segment.strokeWidth);
     path.setAttribute('vector-effect', 'non-scaling-stroke');
     applyElementStyles(path, {
       opacity: '0',
@@ -287,28 +289,138 @@ function createLiquidRippleParts(): [HTMLSpanElement, HTMLSpanElement, SVGSVGEle
   return [haze, focus, waveField];
 }
 
-const LIQUID_WAVE_PATHS = [
+interface LiquidWaveRingPreset {
+  count: number;
+  phase: number;
+  radius: number;
+  stroke: string;
+  strokeWidthRange: readonly [number, number];
+  spanRange: readonly [number, number];
+  wobble: number;
+}
+
+interface LiquidWaveSegmentConfig {
+  delay: number;
+  endAngle: number;
+  phase: number;
+  radius: number;
+  ringIndex: number;
+  segmentIndex: number;
+  spin: number;
+  startAngle: number;
+  stroke: string;
+  strokeWidth: string;
+  wobble: number;
+}
+
+const LIQUID_WAVE_RING_PRESETS = [
   {
-    d: 'M 66 18 C 72 20 78 17 84 21 C 91 24 96 28 101 33 C 107 38 112 43 113 51 C 115 57 113 62 116 67 C 115 73 116 79 112 86 C 108 92 103 96 99 101 C 93 106 87 110 80 111 C 74 113 69 110 63 114 C 57 112 51 113 45 109 C 39 105 33 101 29 95 C 25 90 19 84 18 77 C 17 71 20 66 17 60 C 19 54 19 48 23 42 C 27 36 32 32 38 28 C 44 25 49 20 56 20 C 61 19 64 16 66 18 Z',
-    stroke: 'rgba(255,255,255,0.90)',
-    strokeWidth: '2.75',
+    count: 6,
+    phase: 0.2,
+    radius: 49,
+    stroke: 'rgba(255,255,255,0.92)',
+    strokeWidthRange: [2.15, 2.65],
+    spanRange: [34, 52],
+    wobble: 1.35,
   },
   {
-    d: 'M 66 31 C 72 33 77 30 83 34 C 90 37 96 42 99 49 C 103 56 101 62 103 69 C 101 76 97 83 91 88 C 86 94 78 96 70 99 C 63 97 56 99 49 94 C 43 90 37 84 34 77 C 31 70 33 63 31 57 C 34 50 37 43 43 39 C 49 34 57 31 66 31 Z',
-    stroke: 'rgba(214,248,255,0.74)',
-    strokeWidth: '2',
+    count: 4,
+    phase: 1.35,
+    radius: 31,
+    stroke: 'rgba(214,248,255,0.62)',
+    strokeWidthRange: [1.25, 1.85],
+    spanRange: [26, 46],
+    wobble: 0.95,
   },
-  {
-    d: 'M 66 44 C 71 45 75 43 80 47 C 85 50 89 55 90 61 C 92 67 88 72 87 78 C 82 82 76 84 70 87 C 63 85 58 87 52 83 C 47 79 43 75 41 69 C 40 63 43 58 44 53 C 49 49 55 45 66 44 Z',
-    stroke: 'rgba(255,255,255,0.54)',
-    strokeWidth: '1.6',
-  },
-  {
-    d: 'M 66 10 C 75 12 83 9 92 14 C 103 19 112 26 118 37 C 124 48 122 58 125 68 C 123 79 120 91 111 101 C 102 111 92 117 80 122 C 69 124 58 121 47 119 C 35 115 25 108 18 97 C 11 86 8 75 9 62 C 10 50 15 39 23 30 C 32 20 44 14 56 12 C 61 11 64 8 66 10 Z',
-    stroke: 'rgba(255,255,255,0.72)',
-    strokeWidth: '1.25',
-  },
-] as const;
+] satisfies LiquidWaveRingPreset[];
+
+function createLiquidWaveSegments(): LiquidWaveSegmentConfig[] {
+  return LIQUID_WAVE_RING_PRESETS.flatMap((ring, ringIndex) => {
+    const ringOffset = randomBetween(-24, 24);
+    const angleStep = 360 / ring.count;
+
+    return Array.from({ length: ring.count }, (_, segmentIndex) => {
+      const centerAngle =
+        -90 + ringOffset + segmentIndex * angleStep + randomBetween(-angleStep * 0.1, angleStep * 0.1);
+      const span = randomBetween(ring.spanRange[0], ring.spanRange[1]);
+
+      return {
+        delay: ringIndex * 0.035 + segmentIndex * 0.012 + randomBetween(0, 0.035),
+        endAngle: centerAngle + span / 2,
+        phase: ring.phase + randomBetween(0, Math.PI * 2),
+        radius: ring.radius + randomBetween(-1.8, 1.8),
+        ringIndex,
+        segmentIndex,
+        spin: randomBetween(-1.6, 1.6),
+        startAngle: centerAngle - span / 2,
+        stroke: ring.stroke,
+        strokeWidth: randomBetween(ring.strokeWidthRange[0], ring.strokeWidthRange[1]).toFixed(2),
+        wobble: ring.wobble * randomBetween(0.8, 1.25),
+      };
+    });
+  });
+}
+
+function createLiquidWaveSegmentPath({
+  endAngle,
+  phase,
+  radius,
+  startAngle,
+  wobble,
+}: LiquidWaveSegmentConfig): string {
+  const pointCount = 5;
+  const points = Array.from({ length: pointCount }, (_, index) => {
+    const progress = index / (pointCount - 1);
+    const angle = startAngle + (endAngle - startAngle) * progress;
+    const waveOffset =
+      Math.sin(phase + progress * Math.PI * 2.3) * wobble +
+      Math.sin(phase * 0.7 + progress * Math.PI * 5.4) * wobble * 0.32;
+
+    return polarToLiquidPoint(angle, radius + waveOffset);
+  });
+  const [firstPoint, ...restPoints] = points;
+
+  return restPoints.reduce((path, point, index) => {
+    const previousPoint = points[index];
+    const previousAngle = startAngle + (endAngle - startAngle) * (index / (pointCount - 1));
+    const currentAngle = startAngle + (endAngle - startAngle) * ((index + 1) / (pointCount - 1));
+    const controlLength = radius * 0.1;
+    const firstControl = tangentControlPoint(previousPoint, previousAngle, controlLength);
+    const secondControl = tangentControlPoint(point, currentAngle, -controlLength);
+
+    return `${path} C ${formatPathPoint(firstControl)} ${formatPathPoint(secondControl)} ${formatPathPoint(point)}`;
+  }, `M ${formatPathPoint(firstPoint)}`);
+}
+
+function polarToLiquidPoint(angle: number, radius: number): { x: number; y: number } {
+  const radians = (angle * Math.PI) / 180;
+
+  return {
+    x: 66 + Math.cos(radians) * radius,
+    y: 66 + Math.sin(radians) * radius,
+  };
+}
+
+function tangentControlPoint(
+  point: { x: number; y: number },
+  angle: number,
+  distance: number,
+): { x: number; y: number } {
+  const tangentRadians = ((angle + 90) * Math.PI) / 180;
+
+  return {
+    x: point.x + Math.cos(tangentRadians) * distance,
+    y: point.y + Math.sin(tangentRadians) * distance,
+  };
+}
+
+function formatPathPoint({ x, y }: { x: number; y: number }): string {
+  return `${x.toFixed(2)} ${y.toFixed(2)}`;
+}
+
+function randomBetween(min: number, max: number): number {
+  return min + Math.random() * (max - min);
+}
 
 function animateDesktopClickRipple(
   root: HTMLSpanElement,
@@ -361,8 +473,8 @@ function animateLiquidDesktopClickRipple(
 
   const waveLengths = waves.map((path) => {
     const length = typeof path.getTotalLength === 'function' ? path.getTotalLength() : 1;
-    path.style.strokeDasharray = resolveLiquidWaveDashPattern(length);
-    path.style.strokeDashoffset = `${length * 0.22}`;
+    path.style.strokeDasharray = `${length}`;
+    path.style.strokeDashoffset = `${length}`;
     return length;
   });
 
@@ -403,37 +515,37 @@ function animateLiquidDesktopClickRipple(
 
   waves.forEach((path, index) => {
     const length = waveLengths[index] ?? 1;
-    const startScale = [0.46, 0.58, 0.7, 0.38][index] ?? 0.5;
-    const endScale = [1.08, 1.0, 0.92, 1.16][index] ?? 1;
-    const endRotation = [-2, 2, -1, 3][index] ?? 0;
+    const ringIndex = Number(path.dataset.waveRing ?? 0);
+    const segmentIndex = Number(path.dataset.waveSegment ?? 0);
+    const segmentDelay = Number(path.dataset.waveDelay ?? 0);
+    const segmentSpin = Number(path.dataset.waveSpin ?? 0);
+    const startScale = [0.42, 0.56, 0.7, 0.36][ringIndex] ?? 0.5;
+    const endScale = [1.08, 1.0, 0.92, 1.14][ringIndex] ?? 1;
+    const endRotation = ([-2, 2, -1, 3][ringIndex] ?? 0) + segmentSpin;
 
     timeline.fromTo(
       path,
       {
-        autoAlpha: index === 0 ? 0.88 : 0.7,
+        autoAlpha: ringIndex === 0 ? 0.88 : 0.68,
         rotation: 0,
         scale: startScale,
-        strokeDashoffset: length * 0.22,
+        strokeDashoffset: length,
       },
       {
         autoAlpha: 0,
-        duration: (0.86 + index * 0.08) * motionScale,
+        duration: (0.78 + ringIndex * 0.11 + segmentIndex * 0.018) * motionScale,
         ease: 'power2.out',
         rotation: endRotation,
         scale: endScale,
-        strokeDashoffset: -length * 0.22,
+        strokeDashoffset: -length * 0.18,
       },
-      index * 0.035 * motionScale,
+      segmentDelay * motionScale,
     );
   });
 
   return {
     kill: () => timeline.kill(),
   };
-}
-
-function resolveLiquidWaveDashPattern(length: number): string {
-  return `${length * 0.92} ${length * 0.08}`;
 }
 
 function animateRadialDesktopClickRipple(
