@@ -83,9 +83,10 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
         const restoreSourceVisibility = hideSourceElement(sourceElement);
 
         return new Promise<boolean>((resolve) => {
-          const startedAt = performance.now();
+          let startedAt: number | null = null;
 
           const step = (time: number) => {
+            startedAt ??= time;
             const progress = Math.min((time - startedAt) / GENIE_DURATION_MS, 1);
 
             renderGenieFrame(context, snapshot, sourceRect, targetRect, direction, progress);
@@ -283,7 +284,7 @@ function getViewportSize() {
 
 function shouldBypassGenieAnimation(): boolean {
   return (
-    typeof window.CanvasRenderingContext2D === 'undefined' ||
+    navigator.userAgent.includes('jsdom') ||
     (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)
   );
 }

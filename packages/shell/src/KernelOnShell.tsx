@@ -207,9 +207,14 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         });
       }
 
+      if (descriptor) {
+        hideAppForGenie(descriptor.appId);
+        await waitForAnimationFrame();
+      }
+
       minimizeWindow(windowId);
     },
-    [findDockTarget, minimizeWindow, windows],
+    [findDockTarget, hideAppForGenie, minimizeWindow, windows],
   );
 
   return (
