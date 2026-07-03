@@ -1,5 +1,5 @@
 :root {
-  --ko-cursor-default: url('/kernelon-assets/cursors/cursor-arrow-solid.svg') 6 2, default;
+  --ko-cursor-default: url('/kernelon-assets/cursors/cursor-arrow-solid.svg') 6 3, default;
 }
 
 [data-kernelon-cursor-scope],
