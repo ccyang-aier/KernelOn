@@ -50,9 +50,10 @@ export interface AppWindowContainerProps {
   app: KernelAppManifest;
   window: WindowDescriptor;
   children: ReactNode;
+  genieHidden?: boolean;
   onClose(windowId: string): void;
   onFocus(windowId: string): void;
-  onMinimize(windowId: string): void;
+  onMinimize(windowId: string, sourceElement: HTMLElement | null): void;
   onResize(windowId: string, bounds: WindowBounds): void;
   onToggleFullscreen(windowId: string, bounds: WindowBounds): void;
 }
@@ -60,6 +61,7 @@ export interface AppWindowContainerProps {
 export function AppWindowContainer({
   app,
   children,
+  genieHidden = false,
   onClose,
   onFocus,
   onMinimize,
@@ -68,6 +70,7 @@ export function AppWindowContainer({
   window: descriptor,
 }: AppWindowContainerProps) {
   const interactionRef = useRef<WindowInteractionState | null>(null);
+  const frameRef = useRef<HTMLElement | null>(null);
   const previousFrameRef = useRef<WindowVisualFrame>(resolveWindowVisualFrame(descriptor));
   const [visualFrame, setVisualFrame] = useState<WindowVisualFrame>(() =>
     resolveWindowVisualFrame(descriptor),
@@ -204,7 +207,7 @@ export function AppWindowContainer({
     <motion.section
       animate={{
         filter: 'blur(0px)',
-        opacity: descriptor.status === 'active' ? 1 : 0.92,
+        opacity: genieHidden ? 0 : descriptor.status === 'active' ? 1 : 0.92,
         scale: 1,
         y: 0,
       }}
@@ -217,28 +220,42 @@ export function AppWindowContainer({
         isFullscreen ? 'rounded-none border-transparent' : 'rounded-[26px] border-white/60',
       )}
       data-app-id={app.id}
+      data-genie-effect-hidden={genieHidden ? 'true' : undefined}
+      data-genie-effect-source={descriptor.id}
       data-testid={`kernelon-app-container-${descriptor.id}`}
       data-window-mode={descriptor.mode ?? 'windowed'}
       data-window-status={descriptor.status}
       data-window-transitioning={isFrameTransitioning ? 'true' : 'false'}
-      exit={{
-        filter: 'blur(24px)',
-        opacity: 0,
-        scale: 0.52,
-        transition: { duration: 0.3, ease: [0.36, 0, 0.66, -0.56] },
-        y: 340,
-      }}
-      initial={{
-        filter: 'blur(24px)',
-        opacity: 0,
-        scale: 0.52,
-        y: 340,
-      }}
+      exit={
+        genieHidden
+          ? { opacity: 0, transition: { duration: 0.01 } }
+          : {
+              filter: 'blur(24px)',
+              opacity: 0,
+              scale: 0.52,
+              transition: { duration: 0.3, ease: [0.36, 0, 0.66, -0.56] },
+              y: 340,
+            }
+      }
+      initial={
+        genieHidden
+          ? false
+          : {
+              filter: 'blur(24px)',
+              opacity: 0,
+              scale: 0.52,
+              y: 340,
+            }
+      }
       onPointerCancel={endInteraction}
       onPointerDown={() => onFocus(descriptor.id)}
       onPointerMove={handlePointerMove}
       onPointerUp={endInteraction}
-      style={resolveWindowStyle(descriptor, visualFrame)}
+      ref={frameRef}
+      style={{
+        ...resolveWindowStyle(descriptor, visualFrame),
+        pointerEvents: genieHidden ? 'none' : undefined,
+      }}
       transition={{
         filter: { duration: 0.18, ease: 'easeOut' },
         opacity: { duration: 0.18, ease: 'easeOut' },
@@ -261,7 +278,7 @@ export function AppWindowContainer({
             className="bg-[#febc2e] shadow-[0_0_0_0.5px_rgba(126,78,0,0.36),inset_0_1px_0_rgba(255,255,255,0.48)]"
             icon={Minus}
             label={`最小化 ${descriptor.title}`}
-            onClick={() => onMinimize(descriptor.id)}
+            onClick={() => onMinimize(descriptor.id, frameRef.current)}
           />
           <TrafficLightButton
             className="bg-[#28c840] shadow-[0_0_0_0.5px_rgba(20,96,30,0.36),inset_0_1px_0_rgba(255,255,255,0.48)]"

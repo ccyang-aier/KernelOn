@@ -118,9 +118,12 @@ describe('KernelOnShell', () => {
       top: '180px',
       width: '96px',
     });
-    expect(ripple.querySelector('[data-ripple-part="halo"]')).toBeInTheDocument();
-    expect(ripple.querySelector('[data-ripple-part="outer-ring"]')).toBeInTheDocument();
-    expect(ripple.querySelector('[data-ripple-part="inner-ring"]')).toBeInTheDocument();
+    expect(ripple.querySelectorAll('[data-ripple-part="wave-halo"]')).toHaveLength(3);
+    expect(
+      Array.from(ripple.querySelectorAll('[data-ripple-part="wave-ring"]')).map((wave) =>
+        wave.getAttribute('data-ripple-wave'),
+      ),
+    ).toEqual(['0', '1', '2']);
     expect(ripple.querySelector('[data-ripple-part="core"]')).toBeInTheDocument();
   });
 
@@ -296,9 +299,15 @@ describe('KernelOnShell', () => {
     );
 
     const appContainer = await screen.findByTestId('kernelon-app-container-window:onboarding');
+    const onboardingDockButton = within(screen.getByTestId('kernelon-dock')).getAllByRole(
+      'button',
+    )[1];
 
     expect(appContainer).toHaveAttribute('data-window-mode', 'windowed');
     expect(appContainer).toHaveAttribute('data-window-status', 'active');
+    expect(appContainer).toHaveAttribute('data-genie-effect-source', 'window:onboarding');
+    expect(onboardingDockButton).toHaveAttribute('data-kernelon-dock-target', 'onboarding');
+    expect(screen.getByTestId('kernelon-genie-effect-layer')).toBeInTheDocument();
     expect(appContainer).toHaveClass('will-change-transform', 'rounded-[26px]', 'border-white/60');
     expect(appContainer).toHaveStyle({
       height: '640px',

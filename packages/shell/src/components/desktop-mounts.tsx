@@ -46,6 +46,7 @@ function WidgetMount({
 
 export function AppWindowMount({
   app,
+  genieHidden,
   onClose,
   onFocus,
   onMinimize,
@@ -55,9 +56,10 @@ export function AppWindowMount({
   window,
 }: Readonly<{
   app: KernelAppManifest;
+  genieHidden?: boolean;
   onClose: AppWindowContainerAction;
   onFocus: AppWindowContainerAction;
-  onMinimize: AppWindowContainerAction;
+  onMinimize: AppWindowContainerMinimizeAction;
   onResize: AppWindowContainerResizeAction;
   onToggleFullscreen: AppWindowContainerResizeAction;
   runtime: ShellRuntimeRegistry;
@@ -68,6 +70,7 @@ export function AppWindowMount({
   return (
     <AppWindowContainer
       app={app}
+      genieHidden={genieHidden}
       onClose={onClose}
       onFocus={onFocus}
       onMinimize={onMinimize}
@@ -81,6 +84,10 @@ export function AppWindowMount({
 }
 
 type AppWindowContainerAction = (windowId: string) => void;
+type AppWindowContainerMinimizeAction = (
+  windowId: string,
+  sourceElement: HTMLElement | null,
+) => void;
 type AppWindowContainerResizeAction = (
   windowId: string,
   bounds: AppWindowSurfaceProps['window']['bounds'],

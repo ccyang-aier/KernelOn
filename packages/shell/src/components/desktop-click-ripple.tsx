@@ -18,6 +18,8 @@ interface DesktopRipplePoint {
 
 type DesktopRippleGsap = (typeof import('gsap'))['gsap'];
 
+const DESKTOP_RIPPLE_WAVE_COUNT = 3;
+
 let desktopRippleGsapPromise: Promise<DesktopRippleGsap> | null = null;
 
 export function useDesktopClickRipple(): {
@@ -121,18 +123,25 @@ function createDesktopClickRippleElement(x: number, y: number): HTMLSpanElement 
   });
 
   root.append(
-    createDesktopRipplePart('halo'),
-    createDesktopRipplePart('outer-ring'),
-    createDesktopRipplePart('inner-ring'),
+    ...Array.from({ length: DESKTOP_RIPPLE_WAVE_COUNT }, (_, index) =>
+      createDesktopRipplePart('wave-halo', index),
+    ),
+    ...Array.from({ length: DESKTOP_RIPPLE_WAVE_COUNT }, (_, index) =>
+      createDesktopRipplePart('wave-ring', index),
+    ),
     createDesktopRipplePart('core'),
   );
 
   return root;
 }
 
-function createDesktopRipplePart(kind: 'halo' | 'outer-ring' | 'inner-ring' | 'core') {
+function createDesktopRipplePart(kind: 'core' | 'wave-halo' | 'wave-ring', waveIndex?: number) {
   const part = document.createElement('span');
   part.dataset.ripplePart = kind;
+
+  if (waveIndex !== undefined) {
+    part.dataset.rippleWave = String(waveIndex);
+  }
 
   const baseStyles = {
     borderRadius: '9999px',
@@ -151,21 +160,20 @@ function createDesktopRipplePart(kind: 'halo' | 'outer-ring' | 'inner-ring' | 'c
         'radial-gradient(circle, rgba(255,255,255,0.72) 0%, rgba(185,231,240,0.38) 50%, rgba(255,255,255,0) 72%)',
       filter: 'blur(0.5px)',
       inset: '35px',
+      zIndex: '3',
     },
-    halo: {
+    'wave-halo': {
       background:
-        'radial-gradient(circle, rgba(255,255,255,0.60) 0%, rgba(182,228,238,0.24) 31%, rgba(255,255,255,0) 68%)',
-      boxShadow: '0 0 0 1px rgba(255,255,255,0.34), inset 0 0 18px rgba(255,255,255,0.28)',
+        'radial-gradient(circle, rgba(255,255,255,0.42) 0%, rgba(182,228,238,0.20) 34%, rgba(255,255,255,0) 70%)',
+      filter: 'blur(1px)',
+      inset: '4px',
+      zIndex: '1',
     },
-    'inner-ring': {
-      border: '1px solid rgba(255,255,255,0.58)',
-      boxShadow: '0 0 12px rgba(255,255,255,0.32)',
-      inset: '26px',
-    },
-    'outer-ring': {
-      border: '1px solid rgba(255,255,255,0.70)',
-      boxShadow: '0 0 18px rgba(255,255,255,0.38), 0 0 26px rgba(145,208,223,0.22)',
-      inset: '10px',
+    'wave-ring': {
+      border: '1px solid rgba(255,255,255,0.68)',
+      boxShadow: '0 0 14px rgba(255,255,255,0.34), 0 0 24px rgba(145,208,223,0.20)',
+      inset: '12px',
+      zIndex: '2',
     },
   } satisfies Record<typeof kind, Record<string, string>>;
 
@@ -179,10 +187,13 @@ function animateDesktopClickRipple(
   onComplete: () => void,
 ): Promise<DesktopRippleTimeline> {
   return loadDesktopRippleGsap().then((gsap) => {
-    const halo = root.querySelector('[data-ripple-part="halo"]');
-    const outerRing = root.querySelector('[data-ripple-part="outer-ring"]');
-    const innerRing = root.querySelector('[data-ripple-part="inner-ring"]');
     const core = root.querySelector('[data-ripple-part="core"]');
+    const waveHalos = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-ripple-part="wave-halo"]'),
+    );
+    const waveRings = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-ripple-part="wave-ring"]'),
+    );
     const motionScale = prefersReducedMotion() ? 0.68 : 1;
     const timeline = gsap.timeline({
       defaults: { ease: 'power3.out' },
@@ -200,9 +211,6 @@ function animateDesktopClickRipple(
 
     timeline
       .addLabel('touch', 0)
-      .addLabel('inner-wave', 0.045 * motionScale)
-      .addLabel('outer-wave', 0.13 * motionScale)
-      .addLabel('halo-wave', 0.22 * motionScale)
       .fromTo(
         core,
         { autoAlpha: 0, scale: 0.18 },
@@ -223,71 +231,61 @@ function animateDesktopClickRipple(
           scale: 0.8,
         },
         0.1 * motionScale,
-      )
-      .fromTo(
-        innerRing,
-        { autoAlpha: 0, rotation: -4, scale: 0.08 },
-        {
-          autoAlpha: 0.76,
-          duration: 0.13 * motionScale,
-          ease: 'power2.out',
-          scale: 0.24,
-        },
-        'inner-wave',
-      )
-      .to(
-        innerRing,
-        {
-          autoAlpha: 0,
-          duration: 0.78 * motionScale,
-          ease: 'power2.out',
-          rotation: 6,
-          scale: 0.98,
-        },
-        0.17 * motionScale,
-      )
-      .fromTo(
-        outerRing,
-        { autoAlpha: 0, scale: 0.12 },
-        {
-          autoAlpha: 0.88,
-          duration: 0.16 * motionScale,
-          ease: 'power2.out',
-          scale: 0.3,
-        },
-        'outer-wave',
-      )
-      .to(
-        outerRing,
-        {
-          autoAlpha: 0,
-          duration: 0.92 * motionScale,
-          ease: 'sine.out',
-          scale: 1.12,
-        },
-        0.28 * motionScale,
-      )
-      .fromTo(
-        halo,
-        { autoAlpha: 0, scale: 0.18 },
-        {
-          autoAlpha: 0.48,
-          duration: 0.18 * motionScale,
-          ease: 'power2.out',
-          scale: 0.38,
-        },
-        'halo-wave',
-      )
-      .to(
-        halo,
-        {
-          autoAlpha: 0,
-          duration: 1.04 * motionScale,
-          ease: 'power2.out',
-          scale: 1.24,
-        },
-        0.4 * motionScale,
       );
+
+    waveRings.forEach((ring, index) => {
+      const waveStart = (0.04 + index * 0.18) * motionScale;
+
+      timeline
+        .fromTo(
+          ring,
+          { autoAlpha: 0, scale: 0.12 + index * 0.02 },
+          {
+            autoAlpha: 0.82 - index * 0.1,
+            duration: 0.13 * motionScale,
+            ease: 'power2.out',
+            scale: 0.26 + index * 0.03,
+          },
+          waveStart,
+        )
+        .to(
+          ring,
+          {
+            autoAlpha: 0,
+            duration: (0.72 + index * 0.08) * motionScale,
+            ease: 'sine.out',
+            scale: 1.06 + index * 0.1,
+          },
+          waveStart + 0.13 * motionScale,
+        );
+    });
+
+    waveHalos.forEach((halo, index) => {
+      const waveStart = (0.08 + index * 0.18) * motionScale;
+
+      timeline
+        .fromTo(
+          halo,
+          { autoAlpha: 0, scale: 0.16 + index * 0.02 },
+          {
+            autoAlpha: 0.36 - index * 0.06,
+            duration: 0.16 * motionScale,
+            ease: 'power2.out',
+            scale: 0.34 + index * 0.04,
+          },
+          waveStart,
+        )
+        .to(
+          halo,
+          {
+            autoAlpha: 0,
+            duration: (0.82 + index * 0.1) * motionScale,
+            ease: 'power2.out',
+            scale: 1.2 + index * 0.12,
+          },
+          waveStart + 0.16 * motionScale,
+        );
+    });
 
     return {
       kill: () => timeline.kill(),

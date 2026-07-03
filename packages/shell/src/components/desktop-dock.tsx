@@ -1,6 +1,6 @@
 'use client';
 
-import { type CSSProperties } from 'react';
+import { type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react';
 
 import type { KernelAppManifest } from '@kernelon/core';
 
@@ -12,7 +12,7 @@ import {
 export interface DesktopDockProps {
   apps: KernelAppManifest[];
   dockAppIds: string[];
-  onOpenApp(appId: string): void;
+  onOpenApp(appId: string, dockElement?: HTMLElement): void;
   onToggleLauncher(): void;
   onToggleSpotlight(): void;
 }
@@ -31,7 +31,7 @@ export function DesktopDock({
   return (
     <nav
       aria-label="KernelOn Dock"
-      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-20 flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-[var(--dock-gap)] overflow-x-auto rounded-[clamp(20px,2.2vw,32px)] border border-white/40 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-[70] flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-[var(--dock-gap)] overflow-x-auto rounded-[clamp(20px,2.2vw,32px)] border border-white/40 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       data-testid="kernelon-dock"
       style={dockStyle}
     >
@@ -41,7 +41,7 @@ export function DesktopDock({
           assetKey={app.id}
           key={app.id}
           label={app.name}
-          onClick={() => onOpenApp(app.id)}
+          onClick={(event) => onOpenApp(app.id, event.currentTarget)}
         />
       ))}
       <DockIconButton assetKey="ai-spotlight" label="AI Spotlight" onClick={onToggleSpotlight} />
@@ -59,7 +59,7 @@ export function DesktopDock({
 interface DockIconButtonProps {
   assetKey: string;
   label: string;
-  onClick?: () => void;
+  onClick?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
 }
 
 function DockIconButton({ assetKey, label, onClick }: DockIconButtonProps) {
@@ -67,6 +67,7 @@ function DockIconButton({ assetKey, label, onClick }: DockIconButtonProps) {
     <button
       aria-label={label}
       className="group relative flex size-[var(--dock-icon-size)] shrink-0 items-center justify-center rounded-[clamp(12px,1.1vw,16px)] outline-none transition duration-200 ease-out hover:-translate-y-1.5 hover:scale-[1.05] focus-visible:ring-2 focus-visible:ring-white/80"
+      data-kernelon-dock-target={assetKey}
       onClick={onClick}
       style={
         {

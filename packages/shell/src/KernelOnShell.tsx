@@ -22,6 +22,10 @@ import {
 } from './components/desktop-context-menu';
 import { DesktopDock } from './components/desktop-dock';
 import { AppWindowMount, DesktopItemMount } from './components/desktop-mounts';
+import {
+  GenieEffectLayer,
+  type GenieEffectLayerHandle,
+} from './components/genie-effect-layer';
 import { KernelOnStatusBar } from './components/status-bar';
 import type { ShellRuntimeRegistry } from './runtime';
 import {
@@ -68,6 +72,7 @@ export function KernelOnShell({ initialState, runtime }: KernelOnShellProps) {
 
 function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry }>) {
   const liquidGlassContextContainerRef = useRef<HTMLElement>(null);
+  const genieEffectLayerRef = useRef<GenieEffectLayerHandle>(null);
   const { layerRef: desktopClickRippleLayerRef, playRipple: playDesktopClickRipple } =
     useDesktopClickRipple();
   const apps = useShellSelector((state) => state.apps);
@@ -91,6 +96,9 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const [desktopContextMenu, setDesktopContextMenu] = useState<DesktopContextMenuPosition | null>(
     null,
   );
+  const [genieHiddenAppIds, setGenieHiddenAppIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
 
   const closeDesktopContextMenu = useCallback(() => {
     setDesktopContextMenu(null);
@@ -113,6 +121,96 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     });
     setDesktopContextMenu(null);
   }, [playDesktopClickRipple]);
+
+  const hideAppForGenie = useCallback((appId: string) => {
+    setGenieHiddenAppIds((hiddenAppIds) => new Set(hiddenAppIds).add(appId));
+  }, []);
+
+  const revealAppFromGenie = useCallback((appId: string) => {
+    setGenieHiddenAppIds((hiddenAppIds) => {
+      if (!hiddenAppIds.has(appId)) {
+        return hiddenAppIds;
+      }
+
+      const nextHiddenAppIds = new Set(hiddenAppIds);
+
+      nextHiddenAppIds.delete(appId);
+      return nextHiddenAppIds;
+    });
+  }, []);
+
+  const findDockTarget = useCallback((appId: string): HTMLElement | null => {
+    const shellRoot = liquidGlassContextContainerRef.current;
+
+    if (!shellRoot) {
+      return null;
+    }
+
+    return Array.from(
+      shellRoot.querySelectorAll<HTMLElement>('[data-kernelon-dock-target]'),
+    ).find((element) => element.dataset.kernelonDockTarget === appId) ?? null;
+  }, []);
+
+  const playOpenGenieFromDock = useCallback(
+    async (appId: string, dockElement: HTMLElement) => {
+      try {
+        const sourceElement = await waitForAppWindowElement(
+          liquidGlassContextContainerRef.current,
+          appId,
+        );
+
+        if (!sourceElement || !dockElement.isConnected) {
+          return;
+        }
+
+        await genieEffectLayerRef.current?.play({
+          direction: 'open',
+          sourceElement,
+          targetElement: dockElement,
+        });
+      } finally {
+        revealAppFromGenie(appId);
+      }
+    },
+    [revealAppFromGenie],
+  );
+
+  const handleOpenAppFromDock = useCallback(
+    (appId: string, dockElement?: HTMLElement) => {
+      const existingWindow = windows.find((window) => window.appId === appId);
+      const shouldPlayGenie = Boolean(
+        dockElement && (!existingWindow || existingWindow.status === 'minimized'),
+      );
+
+      if (!shouldPlayGenie || !dockElement) {
+        openApp(appId);
+        return;
+      }
+
+      hideAppForGenie(appId);
+      openApp(appId);
+      void playOpenGenieFromDock(appId, dockElement);
+    },
+    [hideAppForGenie, openApp, playOpenGenieFromDock, windows],
+  );
+
+  const handleMinimizeWindow = useCallback(
+    async (windowId: string, sourceElement: HTMLElement | null) => {
+      const descriptor = windows.find((window) => window.id === windowId);
+      const dockElement = descriptor ? findDockTarget(descriptor.appId) : null;
+
+      if (sourceElement && dockElement) {
+        await genieEffectLayerRef.current?.play({
+          direction: 'minimize',
+          sourceElement,
+          targetElement: dockElement,
+        });
+      }
+
+      minimizeWindow(windowId);
+    },
+    [findDockTarget, minimizeWindow, windows],
+  );
 
   return (
     <main
@@ -161,9 +259,10 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
                 <AppWindowMount
                   app={app}
                   key={window.id}
+                  genieHidden={genieHiddenAppIds.has(app.id)}
                   onClose={closeWindow}
                   onFocus={focusWindow}
-                  onMinimize={minimizeWindow}
+                  onMinimize={handleMinimizeWindow}
                   onResize={resizeWindow}
                   onToggleFullscreen={toggleWindowFullscreen}
                   runtime={runtime}
@@ -187,10 +286,36 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       <DesktopDock
         apps={apps}
         dockAppIds={dockAppIds}
-        onOpenApp={openApp}
+        onOpenApp={handleOpenAppFromDock}
         onToggleLauncher={toggleLauncher}
         onToggleSpotlight={toggleSpotlight}
       />
+      <GenieEffectLayer ref={genieEffectLayerRef} />
     </main>
   );
+}
+
+async function waitForAppWindowElement(
+  shellRoot: HTMLElement | null,
+  appId: string,
+): Promise<HTMLElement | null> {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    await waitForAnimationFrame();
+
+    const sourceElement = Array.from(
+      shellRoot?.querySelectorAll<HTMLElement>('[data-genie-effect-source]') ?? [],
+    ).find((element) => element.dataset.appId === appId);
+
+    if (sourceElement) {
+      return sourceElement;
+    }
+  }
+
+  return null;
+}
+
+function waitForAnimationFrame(): Promise<void> {
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(() => resolve());
+  });
 }
