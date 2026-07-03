@@ -114,10 +114,16 @@ describe('KernelOnShell', () => {
 
     expect(ripple).toHaveAttribute('data-ripple-shape', 'liquid');
     expect(ripple).toHaveStyle({
+      height: '132px',
       left: '220px',
       top: '180px',
+      width: '132px',
     });
     expect(ripple.querySelectorAll('[data-ripple-part="liquid-wave"]')).toHaveLength(4);
+    expect(ripple.querySelector('[data-ripple-part="liquid-wavefield"]')).toHaveAttribute(
+      'viewBox',
+      '0 0 132 132',
+    );
     expect(ripple.querySelector('[data-ripple-part="outer-ring"]')).not.toBeInTheDocument();
   });
 

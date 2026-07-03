@@ -160,7 +160,7 @@ function createDesktopClickRippleElement(
 
 function getDesktopRippleSize(shape: DesktopClickRippleShape): { height: number; width: number } {
   if (shape === 'liquid') {
-    return { height: 118, width: 168 };
+    return { height: 132, width: 132 };
   }
 
   return { height: 96, width: 96 };
@@ -215,11 +215,11 @@ function createLiquidRippleParts(): [HTMLSpanElement, HTMLSpanElement, SVGSVGEle
   haze.dataset.ripplePart = 'liquid-haze';
   applyElementStyles(haze, {
     background:
-      'radial-gradient(ellipse at center, rgba(255,255,255,0.54) 0%, rgba(184,232,241,0.26) 38%, rgba(255,255,255,0) 72%)',
+      'radial-gradient(circle at center, rgba(255,255,255,0.52) 0%, rgba(184,232,241,0.24) 40%, rgba(255,255,255,0) 74%)',
     borderRadius: '9999px',
     display: 'block',
     filter: 'blur(1.2px)',
-    inset: '10px 0',
+    inset: '0',
     opacity: '0',
     position: 'absolute',
     transform: 'scale(0.42)',
@@ -231,18 +231,18 @@ function createLiquidRippleParts(): [HTMLSpanElement, HTMLSpanElement, SVGSVGEle
   focus.dataset.ripplePart = 'liquid-focus';
   applyElementStyles(focus, {
     background:
-      'radial-gradient(ellipse at center, rgba(255,255,255,0.64) 0%, rgba(194,238,247,0.30) 44%, rgba(255,255,255,0) 74%)',
+      'radial-gradient(circle at center, rgba(255,255,255,0.62) 0%, rgba(194,238,247,0.30) 44%, rgba(255,255,255,0) 74%)',
     borderRadius: '9999px',
     display: 'block',
     filter: 'blur(1px)',
-    height: '36px',
-    left: '48px',
+    height: '42px',
+    left: '45px',
     opacity: '0',
     position: 'absolute',
-    top: '41px',
+    top: '45px',
     transform: 'scale(0.24)',
     transformOrigin: '50% 50%',
-    width: '72px',
+    width: '42px',
     willChange: 'opacity, transform',
   });
 
@@ -250,10 +250,10 @@ function createLiquidRippleParts(): [HTMLSpanElement, HTMLSpanElement, SVGSVGEle
   waveField.dataset.ripplePart = 'liquid-wavefield';
   waveField.setAttribute('fill', 'none');
   waveField.setAttribute('preserveAspectRatio', 'none');
-  waveField.setAttribute('viewBox', '0 0 168 118');
+  waveField.setAttribute('viewBox', '0 0 132 132');
   applyElementStyles(waveField, {
     filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.50)) drop-shadow(0 0 22px rgba(138,215,231,0.30))',
-    height: '118px',
+    height: '132px',
     left: '0',
     overflow: 'visible',
     opacity: '0',
@@ -261,7 +261,7 @@ function createLiquidRippleParts(): [HTMLSpanElement, HTMLSpanElement, SVGSVGEle
     top: '0',
     transform: 'scale(0.58)',
     transformOrigin: '50% 50%',
-    width: '168px',
+    width: '132px',
     willChange: 'opacity, transform',
   });
 
@@ -289,22 +289,22 @@ function createLiquidRippleParts(): [HTMLSpanElement, HTMLSpanElement, SVGSVGEle
 
 const LIQUID_WAVE_PATHS = [
   {
-    d: 'M 84 30 C 102 27 124 33 137 45 C 153 61 144 80 124 90 C 106 100 78 95 58 91 C 35 86 21 74 25 56 C 29 39 54 33 68 31 C 76 30 80 33 84 30 Z',
+    d: 'M 66 18 C 72 20 78 17 84 21 C 91 24 96 28 101 33 C 107 38 112 43 113 51 C 115 57 113 62 116 67 C 115 73 116 79 112 86 C 108 92 103 96 99 101 C 93 106 87 110 80 111 C 74 113 69 110 63 114 C 57 112 51 113 45 109 C 39 105 33 101 29 95 C 25 90 19 84 18 77 C 17 71 20 66 17 60 C 19 54 19 48 23 42 C 27 36 32 32 38 28 C 44 25 49 20 56 20 C 61 19 64 16 66 18 Z',
     stroke: 'rgba(255,255,255,0.90)',
     strokeWidth: '2.75',
   },
   {
-    d: 'M 84 41 C 103 40 120 49 123 61 C 126 74 106 83 84 81 C 63 80 45 72 46 59 C 47 49 64 42 84 41 Z',
+    d: 'M 66 31 C 72 33 77 30 83 34 C 90 37 96 42 99 49 C 103 56 101 62 103 69 C 101 76 97 83 91 88 C 86 94 78 96 70 99 C 63 97 56 99 49 94 C 43 90 37 84 34 77 C 31 70 33 63 31 57 C 34 50 37 43 43 39 C 49 34 57 31 66 31 Z',
     stroke: 'rgba(214,248,255,0.74)',
     strokeWidth: '2',
   },
   {
-    d: 'M 84 51 C 97 50 109 55 111 62 C 113 70 98 75 84 73 C 70 72 59 68 61 60 C 62 54 72 52 84 51 Z',
+    d: 'M 66 44 C 71 45 75 43 80 47 C 85 50 89 55 90 61 C 92 67 88 72 87 78 C 82 82 76 84 70 87 C 63 85 58 87 52 83 C 47 79 43 75 41 69 C 40 63 43 58 44 53 C 49 49 55 45 66 44 Z',
     stroke: 'rgba(255,255,255,0.54)',
     strokeWidth: '1.6',
   },
   {
-    d: 'M 84 23 C 111 22 145 38 152 58 C 160 83 126 103 85 104 C 43 105 11 83 17 58 C 22 37 55 24 84 23 Z',
+    d: 'M 66 10 C 75 12 83 9 92 14 C 103 19 112 26 118 37 C 124 48 122 58 125 68 C 123 79 120 91 111 101 C 102 111 92 117 80 122 C 69 124 58 121 47 119 C 35 115 25 108 18 97 C 11 86 8 75 9 62 C 10 50 15 39 23 30 C 32 20 44 14 56 12 C 61 11 64 8 66 10 Z',
     stroke: 'rgba(255,255,255,0.72)',
     strokeWidth: '1.25',
   },
@@ -433,14 +433,7 @@ function animateLiquidDesktopClickRipple(
 }
 
 function resolveLiquidWaveDashPattern(length: number): string {
-  return [
-    length * 0.42,
-    length * 0.08,
-    length * 0.18,
-    length * 0.1,
-    length * 0.12,
-    length * 0.1,
-  ].join(' ');
+  return `${length * 0.92} ${length * 0.08}`;
 }
 
 function animateRadialDesktopClickRipple(
