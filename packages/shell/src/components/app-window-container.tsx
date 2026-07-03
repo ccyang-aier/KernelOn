@@ -21,7 +21,7 @@ const DESKTOP_MARGIN = 12;
 const STATUS_BAR_CLEARANCE = 46;
 const WINDOW_CHROME_RADIUS = 26;
 const FULLSCREEN_CHROME_RADIUS = 0;
-const WINDOW_BOUNDS_TRANSITION_MS = 460;
+const WINDOW_BOUNDS_TRANSITION_MS = 320;
 
 type ResizeDirection = 'n' | 'e' | 's' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 type WindowVisualMode = NonNullable<WindowDescriptor['mode']>;
@@ -192,7 +192,7 @@ export function AppWindowContainer({
       className={cn(
         'absolute flex min-h-[360px] min-w-[520px] flex-col overflow-hidden border text-[var(--ko-ink)] outline-none backdrop-blur-[28px] will-change-transform',
         isFrameTransitioning
-          ? 'transition-[left,top,width,height,border-radius,box-shadow] duration-[460ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
+          ? 'transition-[left,top,width,height,border-radius,box-shadow] duration-[320ms] ease-[cubic-bezier(0.25,0.9,0.25,1)]'
           : '',
         isFullscreen ? 'rounded-none border-transparent' : 'rounded-[26px] border-white/60',
       )}

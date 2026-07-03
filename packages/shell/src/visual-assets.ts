@@ -4,6 +4,12 @@ export const kernelOnBrandLogo = `${ASSET_ROOT}/brand/kernelon-logo.png`;
 export const kernelOnDesktopWallpaper = `${ASSET_ROOT}/wallpapers/kernelon-flower-wallpaper.png`;
 export const kernelOnStatusAvatar = `${ASSET_ROOT}/status/avatar-manager.png`;
 
+export const shellCursorAssets = {
+  default: `${ASSET_ROOT}/cursors/cursor-arrow-solid.svg`,
+} as const;
+
+export const kernelOnDefaultCursor = shellCursorAssets.default;
+
 export const dockIconAssets = {
   'ai-spotlight': `${ASSET_ROOT}/dock-icons/ai-spotlight.png`,
   assessment: `${ASSET_ROOT}/dock-icons/assessment.png`,

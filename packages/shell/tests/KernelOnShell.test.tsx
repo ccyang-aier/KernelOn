@@ -2,7 +2,12 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import { KernelOnShell, type ShellInitialState, type ShellRuntimeRegistry } from '../src';
+import {
+  KernelOnShell,
+  kernelOnDefaultCursor,
+  type ShellInitialState,
+  type ShellRuntimeRegistry,
+} from '../src';
 
 const initialState: ShellInitialState = {
   apps: [
@@ -73,6 +78,7 @@ describe('KernelOnShell', () => {
       'data-kernelon-cursor-scope',
       'true',
     );
+    expect(kernelOnDefaultCursor).toBe('/kernelon-assets/cursors/cursor-arrow-solid.svg');
     expect(screen.queryByText('新员工运作工作台')).not.toBeInTheDocument();
     expect(screen.queryByText('Core Services')).not.toBeInTheDocument();
     expect(screen.queryByText('入职进度')).not.toBeInTheDocument();

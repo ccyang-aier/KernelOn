@@ -1,0 +1,10 @@
+:root {
+  --ko-cursor-default: url('/kernelon-assets/cursors/cursor-arrow-solid.svg') 3 3, default;
+}
+
+[data-kernelon-cursor-scope],
+[data-kernelon-cursor-scope] button,
+[data-kernelon-cursor-scope] .cursor-default,
+[data-kernelon-cursor-scope] [role='menuitem'] {
+  cursor: var(--ko-cursor-default);
+}
