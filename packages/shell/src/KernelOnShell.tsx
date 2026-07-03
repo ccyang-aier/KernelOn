@@ -74,13 +74,19 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const dockAppIds = useShellSelector((state) => state.dockAppIds);
   const launcherOpen = useShellSelector((state) => state.launcherOpen);
   const spotlightOpen = useShellSelector((state) => state.spotlightOpen);
+  const closeWindow = useShellSelector((state) => state.closeWindow);
+  const focusWindow = useShellSelector((state) => state.focusWindow);
+  const minimizeWindow = useShellSelector((state) => state.minimizeWindow);
   const openApp = useShellSelector((state) => state.openApp);
+  const resizeWindow = useShellSelector((state) => state.resizeWindow);
+  const toggleWindowFullscreen = useShellSelector((state) => state.toggleWindowFullscreen);
   const toggleLauncher = useShellSelector((state) => state.toggleLauncher);
   const toggleSpotlight = useShellSelector((state) => state.toggleSpotlight);
   const currentScreen = screens.find((screen) => screen.id === currentScreenId) ?? screens[0];
   const desktopItems = currentScreen?.items ?? [];
-  const [desktopContextMenu, setDesktopContextMenu] =
-    useState<DesktopContextMenuPosition | null>(null);
+  const [desktopContextMenu, setDesktopContextMenu] = useState<DesktopContextMenuPosition | null>(
+    null,
+  );
 
   const closeDesktopContextMenu = useCallback(() => {
     setDesktopContextMenu(null);
@@ -125,13 +131,27 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         {desktopItems.map((item) => (
           <DesktopItemMount item={item} key={item.id} runtime={runtime} widgets={widgets} />
         ))}
-        {windows.map((window) => {
-          const app = apps.find((item) => item.id === window.appId);
+        <AnimatePresence>
+          {windows
+            .filter((window) => window.status !== 'minimized')
+            .map((window) => {
+              const app = apps.find((item) => item.id === window.appId);
 
-          return app ? (
-            <AppWindowMount app={app} key={window.id} runtime={runtime} window={window} />
-          ) : null;
-        })}
+              return app ? (
+                <AppWindowMount
+                  app={app}
+                  key={window.id}
+                  onClose={closeWindow}
+                  onFocus={focusWindow}
+                  onMinimize={minimizeWindow}
+                  onResize={resizeWindow}
+                  onToggleFullscreen={toggleWindowFullscreen}
+                  runtime={runtime}
+                  window={window}
+                />
+              ) : null;
+            })}
+        </AnimatePresence>
       </section>
       <AnimatePresence>
         {desktopContextMenu ? (

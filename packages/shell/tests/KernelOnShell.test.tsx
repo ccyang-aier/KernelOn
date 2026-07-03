@@ -1,10 +1,4 @@
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -229,6 +223,117 @@ describe('KernelOnShell', () => {
     expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:onboarding-window');
   });
 
+  it('mounts app content inside a macOS-like container that minimizes and restores from the Dock', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          dockAppIds: ['onboarding'],
+          windows: [
+            {
+              id: 'window:onboarding',
+              appId: 'onboarding',
+              title: '新员工运作',
+              bounds: { x: 96, y: 72, width: 960, height: 640 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:onboarding');
+
+    expect(appContainer).toHaveAttribute('data-window-mode', 'windowed');
+    expect(appContainer).toHaveAttribute('data-window-status', 'active');
+    expect(appContainer).toHaveStyle({
+      height: '640px',
+      left: '96px',
+      top: '72px',
+      width: '960px',
+    });
+    expect(await within(appContainer).findByText('Lazy onboarding window')).toBeInTheDocument();
+    expect(
+      within(appContainer).getByRole('button', { name: '最小化 新员工运作' }),
+    ).toBeInTheDocument();
+    expect(
+      within(appContainer).getByRole('button', { name: '进入全屏 新员工运作' }),
+    ).toBeInTheDocument();
+    expect(
+      within(appContainer).getByTestId('kernelon-app-window-resize-se-window:onboarding'),
+    ).toBeInTheDocument();
+
+    await user.click(within(appContainer).getByRole('button', { name: '最小化 新员工运作' }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('kernelon-app-container-window:onboarding'),
+      ).not.toBeInTheDocument(),
+    );
+
+    await user.click(screen.getByRole('button', { name: '新员工运作' }));
+
+    expect(
+      await screen.findByTestId('kernelon-app-container-window:onboarding'),
+    ).toBeInTheDocument();
+  });
+
+  it('expands an app container to fullscreen and restores its previous bounds', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1440 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 900 });
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          windows: [
+            {
+              id: 'window:onboarding',
+              appId: 'onboarding',
+              title: '新员工运作',
+              bounds: { x: 96, y: 72, width: 960, height: 640 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:onboarding');
+
+    await user.click(within(appContainer).getByRole('button', { name: '进入全屏 新员工运作' }));
+
+    expect(appContainer).toHaveAttribute('data-window-mode', 'fullscreen');
+    expect(appContainer).toHaveStyle({
+      height: '758px',
+      left: '12px',
+      top: '46px',
+      width: '1416px',
+    });
+
+    await user.click(within(appContainer).getByRole('button', { name: '退出全屏 新员工运作' }));
+
+    expect(appContainer).toHaveAttribute('data-window-mode', 'windowed');
+    expect(appContainer).toHaveStyle({
+      height: '640px',
+      left: '96px',
+      top: '72px',
+      width: '960px',
+    });
+  });
+
   it('replaces the native desktop context menu with a liquid glass desktop context menu', async () => {
     const runtime = createRuntime();
     const user = userEvent.setup();
@@ -261,15 +366,25 @@ describe('KernelOnShell', () => {
     const liquidGlassRoot = glass?.parentElement as HTMLElement;
     const warp = glass?.querySelector('.glass__warp');
 
-    expect(
-      Array.from(contextMenuList.children).map((item) => item.textContent),
-    ).toEqual(['新建', '通知与待办', '个性化', 'APP Store', 'AI Spotlight']);
-    expect(screen.getByRole('menu', { name: 'KernelOn desktop context menu' })).toBe(contextMenuList);
+    expect(Array.from(contextMenuList.children).map((item) => item.textContent)).toEqual([
+      '新建',
+      '通知与待办',
+      '个性化',
+      'APP Store',
+      'AI Spotlight',
+    ]);
+    expect(screen.getByRole('menu', { name: 'KernelOn desktop context menu' })).toBe(
+      contextMenuList,
+    );
     expect(within(contextMenuList).getAllByRole('menuitem')).toHaveLength(5);
     expect(screen.getAllByTestId('kernelon-liquid-glass-context-menu-icon')).toHaveLength(5);
     expect(screen.getAllByTestId('kernelon-liquid-glass-context-menu-chevron')).toHaveLength(2);
-    expect(screen.queryByTestId('kernelon-liquid-glass-context-menu-highlight')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('kernelon-liquid-glass-context-submenu-card')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('kernelon-liquid-glass-context-menu-highlight'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('kernelon-liquid-glass-context-submenu-card'),
+    ).not.toBeInTheDocument();
 
     const personalizationMenuItem = screen
       .getByText('个性化')
@@ -277,7 +392,9 @@ describe('KernelOnShell', () => {
     const newMenuItem = screen
       .getByText('新建')
       .closest('[data-kernelon-context-menu-item]') as HTMLElement;
-    const spotlightMenuItem = within(contextMenuList).getByRole('menuitem', { name: 'AI Spotlight' });
+    const spotlightMenuItem = within(contextMenuList).getByRole('menuitem', {
+      name: 'AI Spotlight',
+    });
     const spotlightIcon = within(spotlightMenuItem).getByTestId(
       'kernelon-liquid-glass-context-menu-icon',
     );
@@ -302,11 +419,12 @@ describe('KernelOnShell', () => {
     });
     expect(submenuLiquidGlassRoot).not.toHaveStyle({ zIndex: '41' });
     expect(screen.getAllByTestId('kernelon-liquid-glass-context-submenu-icon')).toHaveLength(4);
-    expect(within(screen.getByTestId('kernelon-liquid-glass-context-submenu-list')).getAllByRole('menuitem')).toHaveLength(4);
-    expect(personalizationMenuItem).toHaveAttribute(
-      'data-interaction-state',
-      'hovered',
-    );
+    expect(
+      within(screen.getByTestId('kernelon-liquid-glass-context-submenu-list')).getAllByRole(
+        'menuitem',
+      ),
+    ).toHaveLength(4);
+    expect(personalizationMenuItem).toHaveAttribute('data-interaction-state', 'hovered');
     expect(personalizationMenuItem).toHaveAttribute('aria-expanded', 'true');
 
     const wallpaperSubmenuItem = within(screen.getByRole('menu', { name: '个性化' })).getByRole(
@@ -332,18 +450,26 @@ describe('KernelOnShell', () => {
 
     fireEvent.pointerLeave(contextMenuList);
 
-    expect(screen.queryByTestId('kernelon-liquid-glass-context-menu-highlight')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('kernelon-liquid-glass-context-menu-highlight'),
+    ).not.toBeInTheDocument();
 
     fireEvent.pointerEnter(newMenuItem);
 
     expect(newMenuItem).toHaveAttribute('aria-expanded', 'true');
     expect(personalizationMenuItem).toHaveAttribute('aria-expanded', 'false');
     expect(screen.getByRole('menu', { name: '新建' })).toBeInTheDocument();
-    expect(within(screen.getByRole('menu', { name: '新建' })).getByRole('menuitem', { name: '新人档案' })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('menu', { name: '新建' })).getByRole('menuitem', {
+        name: '新人档案',
+      }),
+    ).toBeInTheDocument();
 
     fireEvent.pointerEnter(spotlightMenuItem);
 
-    expect(screen.queryByTestId('kernelon-liquid-glass-context-submenu-card')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('kernelon-liquid-glass-context-submenu-card'),
+    ).not.toBeInTheDocument();
 
     const statusSpotlightButton = within(screen.getByTestId('kernelon-status-bar')).getByRole(
       'button',
@@ -360,9 +486,7 @@ describe('KernelOnShell', () => {
     expect(glass).toHaveStyle({ borderRadius: '32px', padding: '12px 14px' });
     expect(warp).not.toBeNull();
     expect(warp?.getAttribute('style')).toContain('filter: url(');
-    expect(warp?.getAttribute('style')).toContain(
-      'backdrop-filter: blur(20px) saturate(140%)',
-    );
+    expect(warp?.getAttribute('style')).toContain('backdrop-filter: blur(20px) saturate(140%)');
     expect(warp?.getAttribute('style')).toContain('clip-path: inset(0 round 32px)');
     expect(screen.queryByRole('menu', { name: '个性化' })).not.toBeInTheDocument();
     expect(screen.queryByText('Glass Card')).not.toBeInTheDocument();

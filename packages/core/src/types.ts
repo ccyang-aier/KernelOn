@@ -31,14 +31,17 @@ export interface KernelAppManifest {
 }
 
 export type WindowStatus = 'active' | 'inactive' | 'minimized';
+export type WindowMode = 'windowed' | 'fullscreen';
 
 export interface WindowDescriptor {
   id: string;
   appId: string;
   title: string;
   bounds: WindowBounds;
+  restoreBounds?: WindowBounds;
   zIndex: number;
   status: WindowStatus;
+  mode?: WindowMode;
   createdAt: number;
 }
 

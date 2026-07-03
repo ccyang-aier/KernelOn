@@ -6,13 +6,18 @@ import {
   createAppOpenCommands,
   createDefaultDesktopScreen,
   focusWindow,
+  minimizeWindow,
   openWindow,
+  resizeWindow,
+  restoreWindow,
+  toggleWindowFullscreen,
 } from '@kernelon/core';
 import type {
   CommandDefinition,
   DesktopScreen,
   KernelAppManifest,
   WidgetManifest,
+  WindowBounds,
   WindowDescriptor,
 } from '@kernelon/core';
 import { createStore } from 'zustand/vanilla';
@@ -42,6 +47,9 @@ export interface ShellState {
   openApp(appId: string): void;
   focusWindow(windowId: string): void;
   closeWindow(windowId: string): void;
+  minimizeWindow(windowId: string): void;
+  resizeWindow(windowId: string, bounds: WindowBounds): void;
+  toggleWindowFullscreen(windowId: string, fullscreenBounds: WindowBounds): void;
   toggleLauncher(): void;
   toggleSpotlight(): void;
 }
@@ -72,10 +80,16 @@ export function createShellStore(initialState: ShellInitialState) {
     openApp: (appId) => {
       const app = appRegistry.require(appId);
 
-      set((state) => ({
-        windows: openWindow(state.windows, app),
-        launcherOpen: false,
-      }));
+      set((state) => {
+        const existingWindow = state.windows.find((window) => window.appId === app.id);
+
+        return {
+          windows: existingWindow
+            ? restoreWindow(state.windows, existingWindow.id)
+            : openWindow(state.windows, app),
+          launcherOpen: false,
+        };
+      });
     },
     focusWindow: (windowId) => {
       set((state) => ({
@@ -85,6 +99,21 @@ export function createShellStore(initialState: ShellInitialState) {
     closeWindow: (windowId) => {
       set((state) => ({
         windows: closeWindow(state.windows, windowId),
+      }));
+    },
+    minimizeWindow: (windowId) => {
+      set((state) => ({
+        windows: minimizeWindow(state.windows, windowId),
+      }));
+    },
+    resizeWindow: (windowId, bounds) => {
+      set((state) => ({
+        windows: resizeWindow(state.windows, windowId, bounds),
+      }));
+    },
+    toggleWindowFullscreen: (windowId, fullscreenBounds) => {
+      set((state) => ({
+        windows: toggleWindowFullscreen(state.windows, windowId, fullscreenBounds),
       }));
     },
     toggleLauncher: () => {

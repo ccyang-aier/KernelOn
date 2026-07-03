@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { closeWindow, focusWindow, openWindow, type KernelAppManifest } from '../src';
+import {
+  closeWindow,
+  focusWindow,
+  minimizeWindow,
+  openWindow,
+  resizeWindow,
+  restoreWindow,
+  toggleWindowFullscreen,
+  type KernelAppManifest,
+} from '../src';
 
 const mentorApp: KernelAppManifest = {
   id: 'mentor',
@@ -71,5 +80,79 @@ describe('window model helpers', () => {
     const windows = openWindow([], mentorApp, { id: 'mentor-window', createdAt: 1 });
 
     expect(closeWindow(windows, 'mentor-window')).toEqual([]);
+  });
+
+  it('minimizes and restores an existing window without losing its bounds', () => {
+    const windows = openWindow([], mentorApp, { id: 'mentor-window', createdAt: 1 });
+
+    const minimized = minimizeWindow(windows, 'mentor-window');
+
+    expect(minimized.find((window) => window.id === 'mentor-window')).toMatchObject({
+      status: 'minimized',
+      bounds: mentorApp.defaultWindow.bounds,
+    });
+
+    const restored = restoreWindow(minimized, 'mentor-window');
+
+    expect(restored.find((window) => window.id === 'mentor-window')).toMatchObject({
+      status: 'active',
+      bounds: mentorApp.defaultWindow.bounds,
+      zIndex: 2,
+    });
+  });
+
+  it('resizes a window while preserving the minimum usable app container size', () => {
+    const windows = openWindow([], mentorApp, { id: 'mentor-window', createdAt: 1 });
+
+    const resized = resizeWindow(windows, 'mentor-window', {
+      x: 144,
+      y: 112,
+      width: 1160,
+      height: 720,
+    });
+
+    expect(resized.find((window) => window.id === 'mentor-window')?.bounds).toEqual({
+      x: 144,
+      y: 112,
+      width: 1160,
+      height: 720,
+    });
+
+    const clamped = resizeWindow(resized, 'mentor-window', {
+      x: 144,
+      y: 112,
+      width: 220,
+      height: 160,
+    });
+
+    expect(clamped.find((window) => window.id === 'mentor-window')?.bounds).toEqual({
+      x: 144,
+      y: 112,
+      width: 520,
+      height: 360,
+    });
+  });
+
+  it('toggles a window into fullscreen and restores the previous window bounds', () => {
+    const windows = openWindow([], mentorApp, { id: 'mentor-window', createdAt: 1 });
+    const fullscreenBounds = { x: 12, y: 46, width: 1416, height: 758 };
+
+    const fullscreen = toggleWindowFullscreen(windows, 'mentor-window', fullscreenBounds);
+
+    expect(fullscreen.find((window) => window.id === 'mentor-window')).toMatchObject({
+      bounds: fullscreenBounds,
+      mode: 'fullscreen',
+      restoreBounds: mentorApp.defaultWindow.bounds,
+      status: 'active',
+    });
+
+    const restored = toggleWindowFullscreen(fullscreen, 'mentor-window', fullscreenBounds);
+
+    expect(restored.find((window) => window.id === 'mentor-window')).toMatchObject({
+      bounds: mentorApp.defaultWindow.bounds,
+      mode: 'windowed',
+      status: 'active',
+    });
+    expect(restored.find((window) => window.id === 'mentor-window')?.restoreBounds).toBeUndefined();
   });
 });
