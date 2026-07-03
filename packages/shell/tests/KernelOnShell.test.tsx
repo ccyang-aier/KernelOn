@@ -118,6 +118,7 @@ describe('KernelOnShell', () => {
       top: '180px',
       width: '96px',
     });
+    expect(ripple.querySelector('[data-ripple-part="halo"]')).toBeInTheDocument();
     expect(ripple.querySelector('[data-ripple-part="outer-ring"]')).toBeInTheDocument();
     expect(ripple.querySelector('[data-ripple-part="inner-ring"]')).toBeInTheDocument();
     expect(ripple.querySelector('[data-ripple-part="core"]')).toBeInTheDocument();

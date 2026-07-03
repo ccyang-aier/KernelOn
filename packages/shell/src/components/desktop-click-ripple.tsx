@@ -199,50 +199,94 @@ function animateDesktopClickRipple(
     });
 
     timeline
+      .addLabel('touch', 0)
+      .addLabel('inner-wave', 0.045 * motionScale)
+      .addLabel('outer-wave', 0.13 * motionScale)
+      .addLabel('halo-wave', 0.22 * motionScale)
       .fromTo(
-        halo,
-        { autoAlpha: 0.54, scale: 0.14 },
+        core,
+        { autoAlpha: 0, scale: 0.18 },
         {
-          autoAlpha: 0,
-          duration: 1.34 * motionScale,
+          autoAlpha: 0.72,
+          duration: 0.1 * motionScale,
           ease: 'power2.out',
-          scale: 1.22,
+          scale: 0.42,
         },
-        0,
+        'touch',
       )
-      .fromTo(
-        outerRing,
-        { autoAlpha: 0.92, scale: 0.16 },
+      .to(
+        core,
         {
           autoAlpha: 0,
-          duration: 1.12 * motionScale,
-          ease: 'sine.out',
-          scale: 1.12,
+          duration: 0.34 * motionScale,
+          ease: 'power2.out',
+          scale: 0.8,
         },
-        0.02 * motionScale,
+        0.1 * motionScale,
       )
       .fromTo(
         innerRing,
-        { autoAlpha: 0.72, rotation: -4, scale: 0.1 },
+        { autoAlpha: 0, rotation: -4, scale: 0.08 },
+        {
+          autoAlpha: 0.76,
+          duration: 0.13 * motionScale,
+          ease: 'power2.out',
+          scale: 0.24,
+        },
+        'inner-wave',
+      )
+      .to(
+        innerRing,
         {
           autoAlpha: 0,
-          duration: 0.86 * motionScale,
+          duration: 0.78 * motionScale,
           ease: 'power2.out',
           rotation: 6,
-          scale: 0.96,
+          scale: 0.98,
         },
-        0.08 * motionScale,
+        0.17 * motionScale,
       )
       .fromTo(
-        core,
-        { autoAlpha: 0.7, scale: 0.26 },
+        outerRing,
+        { autoAlpha: 0, scale: 0.12 },
+        {
+          autoAlpha: 0.88,
+          duration: 0.16 * motionScale,
+          ease: 'power2.out',
+          scale: 0.3,
+        },
+        'outer-wave',
+      )
+      .to(
+        outerRing,
         {
           autoAlpha: 0,
-          duration: 0.46 * motionScale,
-          ease: 'power2.out',
-          scale: 0.78,
+          duration: 0.92 * motionScale,
+          ease: 'sine.out',
+          scale: 1.12,
         },
-        0,
+        0.28 * motionScale,
+      )
+      .fromTo(
+        halo,
+        { autoAlpha: 0, scale: 0.18 },
+        {
+          autoAlpha: 0.48,
+          duration: 0.18 * motionScale,
+          ease: 'power2.out',
+          scale: 0.38,
+        },
+        'halo-wave',
+      )
+      .to(
+        halo,
+        {
+          autoAlpha: 0,
+          duration: 1.04 * motionScale,
+          ease: 'power2.out',
+          scale: 1.24,
+        },
+        0.4 * motionScale,
       );
 
     return {
