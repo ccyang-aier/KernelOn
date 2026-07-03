@@ -31,6 +31,19 @@ URL 只用于需要可进入、可分享、可刷新恢复的业务目标：
 
 无论从哪种深链进入，最终体验都应回到 KernelOn 桌面：Shell 根据入口意图打开对应 App 窗口或 App 内视图，而不是把 App 变成传统独立页面。
 
+## 当前实现映射
+
+当前代码已按上述方案建立入口意图闭环：
+
+- `apps/web/src/app/page.tsx` 与 `apps/web/src/app/workspace/page.tsx` 都装配同一个桌面 Shell。
+- `apps/web/src/features/workspace/resolve-workspace-entry.ts` 负责解析 `open`、`view`、`id/entityId` 等 URL 参数，并生成初始 Shell 状态。
+- `packages/core/src/app-intents.ts` 定义 `AppOpenIntent`、`AppViewTarget` 与 `WindowOpenIntent`，作为 URL 入口意图和窗口状态之间的纯 TypeScript 契约。
+- `packages/core/src/windows.ts` 允许窗口携带 `intent`，用于表达该窗口由 URL、通知、Spotlight 等入口打开了哪个 App 视图。
+- `packages/shell/src/shell-store.ts` 负责打开或恢复窗口；Shell 内部窗口操作仍只更新本地 UI 状态，不同步到浏览器 URL。
+- `packages/modules/src/runtime.tsx` 继续通过 `loaderKey` 懒加载 App/Widget 运行层，避免 Shell 直接耦合业务组件。
+
+当前实现已经支持 `/workspace?open={appId}` 与 `/workspace?open={appId}&view={view}&id={entityId}`。`/apps/{appId}/...` 仍是可选的语义化深链入口，只有在需要更强的服务端权限校验、数据预取或外部系统对接时再补充。
+
 ## 地址栏行为
 
 - 桌面内打开 App：不 `push` 新 URL。
