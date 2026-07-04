@@ -170,6 +170,8 @@
 
 ### 3.6 浏览器降级策略粗糙
 
+状态：pass（2026-07-04，视觉验收通过，code review 通过）
+
 现状：
 
 - Firefox 通过 UA 判断关闭 SVG filter。
