@@ -47,10 +47,12 @@ export function KernelOnStatusBar({
         mode="standard"
         padding="0px"
         style={{ position: 'absolute', left: '50vw', top: 20 }}
+        useInternalContainerChrome={false}
       >
         <div
           className="flex h-[40px] w-screen items-start justify-between px-[14px] pt-[2px]"
           data-testid="kernelon-status-glass"
+          style={statusBarExternalChromeStyle}
         >
           <StatusBarFeedbackButton
             aria-label="KernelOn product identity"
@@ -555,6 +557,11 @@ function formatStatusBarTime(date: Date): string {
 
 const statusBarShellStyle = {
   height: 40,
+} as CSSProperties;
+
+const statusBarExternalChromeStyle = {
+  boxShadow:
+    'inset 0 -1px 0 rgba(232,248,250,0.16), inset 0 1px 0 rgba(255,255,255,0.06)',
 } as CSSProperties;
 
 const statusBrandLogoStyle = {

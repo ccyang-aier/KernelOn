@@ -57,6 +57,14 @@ const getLiquidGlassRenderMode = (): LiquidGlassRenderMode => {
   return "full"
 }
 
+const getGlassContainerBoxShadow = (useInternalContainerChrome: boolean, overLight: boolean): string => {
+  if (!useInternalContainerChrome) {
+    return "none"
+  }
+
+  return overLight ? "0px 16px 70px rgba(0, 0, 0, 0.75)" : "0px 12px 40px rgba(0, 0, 0, 0.25)"
+}
+
 /* ---------- SVG filter (edge-only displacement) ---------- */
 const GlassFilter: React.FC<{ id: string; displacementScale: number; aberrationIntensity: number; width: number; height: number; mode: "standard" | "polar" | "prominent" | "shader"; shaderMapUrl?: string }> = ({
   id,
@@ -169,6 +177,7 @@ const GlassContainer = forwardRef<
     padding?: string
     glassSize?: { width: number; height: number }
     mode?: "standard" | "polar" | "prominent" | "shader"
+    useInternalContainerChrome?: boolean
   }>
 >(
   (
@@ -185,6 +194,7 @@ const GlassContainer = forwardRef<
       padding = "24px 32px",
       glassSize = { width: 270, height: 69 },
       mode = "standard",
+      useInternalContainerChrome = true,
     },
     ref,
   ) => {
@@ -215,6 +225,7 @@ const GlassContainer = forwardRef<
 
         <div
           className="glass"
+          data-liquid-glass-container-chrome={useInternalContainerChrome ? "internal" : "external"}
           style={{
             borderRadius: `${cornerRadius}px`,
             position: "relative",
@@ -224,7 +235,7 @@ const GlassContainer = forwardRef<
             padding,
             overflow: "hidden",
             transition: "all 0.2s ease-in-out",
-            boxShadow: overLight ? "0px 16px 70px rgba(0, 0, 0, 0.75)" : "0px 12px 40px rgba(0, 0, 0, 0.25)",
+            boxShadow: getGlassContainerBoxShadow(useInternalContainerChrome, overLight),
           }}
         >
           {/* backdrop layer that gets wiggly */}
@@ -281,6 +292,7 @@ interface LiquidGlassSvgFilterProps {
   style?: LiquidGlassPlacementStyle
   overLight?: boolean
   mode?: "standard" | "polar" | "prominent" | "shader"
+  useInternalContainerChrome?: boolean
 }
 
 export default function LiquidGlassSvgFilter({
@@ -299,6 +311,7 @@ export default function LiquidGlassSvgFilter({
   overLight = false,
   style = {},
   mode = "standard",
+  useInternalContainerChrome = true,
 }: LiquidGlassSvgFilterProps) {
   const glassRef = useRef<HTMLDivElement>(null)
   const [glassSize, setGlassSize] = useState({ width: 270, height: 69 })
@@ -567,62 +580,69 @@ export default function LiquidGlassSvgFilter({
         mouseOffset={mouseOffset}
         overLight={overLight}
         mode={mode}
+        useInternalContainerChrome={useInternalContainerChrome}
       >
         {children}
       </GlassContainer>
 
-      {/* Border layer 1 - extracted from glass container */}
-      <span
-        style={{
-          ...positionStyles,
-          height: glassSize.height,
-          width: glassSize.width,
-          borderRadius: `${cornerRadius}px`,
-          transform: baseStyle.transform,
-          transition: baseStyle.transition,
-          pointerEvents: "none",
-          mixBlendMode: "screen",
-          opacity: 0.2,
-          padding: "1.5px",
-          WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-          WebkitMaskComposite: "xor",
-          maskComposite: "exclude",
-          boxShadow: "0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)",
-          background: `linear-gradient(
-          ${135 + mouseOffset.x * 1.2}deg,
-          rgba(255, 255, 255, 0.0) 0%,
-          rgba(255, 255, 255, ${0.12 + Math.abs(mouseOffset.x) * 0.008}) ${Math.max(10, 33 + mouseOffset.y * 0.3)}%,
-          rgba(255, 255, 255, ${0.4 + Math.abs(mouseOffset.x) * 0.012}) ${Math.min(90, 66 + mouseOffset.y * 0.4)}%,
-          rgba(255, 255, 255, 0.0) 100%
-        )`,
-        }}
-      />
+      {useInternalContainerChrome ? (
+        <>
+          {/* Border layer 1 - extracted from glass container */}
+          <span
+            data-liquid-glass-container-border="screen"
+            style={{
+              ...positionStyles,
+              height: glassSize.height,
+              width: glassSize.width,
+              borderRadius: `${cornerRadius}px`,
+              transform: baseStyle.transform,
+              transition: baseStyle.transition,
+              pointerEvents: "none",
+              mixBlendMode: "screen",
+              opacity: 0.2,
+              padding: "1.5px",
+              WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+              WebkitMaskComposite: "xor",
+              maskComposite: "exclude",
+              boxShadow: "0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)",
+              background: `linear-gradient(
+              ${135 + mouseOffset.x * 1.2}deg,
+              rgba(255, 255, 255, 0.0) 0%,
+              rgba(255, 255, 255, ${0.12 + Math.abs(mouseOffset.x) * 0.008}) ${Math.max(10, 33 + mouseOffset.y * 0.3)}%,
+              rgba(255, 255, 255, ${0.4 + Math.abs(mouseOffset.x) * 0.012}) ${Math.min(90, 66 + mouseOffset.y * 0.4)}%,
+              rgba(255, 255, 255, 0.0) 100%
+            )`,
+            }}
+          />
 
-      {/* Border layer 2 - duplicate with mix-blend-overlay */}
-      <span
-        style={{
-          ...positionStyles,
-          height: glassSize.height,
-          width: glassSize.width,
-          borderRadius: `${cornerRadius}px`,
-          transform: baseStyle.transform,
-          transition: baseStyle.transition,
-          pointerEvents: "none",
-          mixBlendMode: "overlay",
-          padding: "1.5px",
-          WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-          WebkitMaskComposite: "xor",
-          maskComposite: "exclude",
-          boxShadow: "0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)",
-          background: `linear-gradient(
-          ${135 + mouseOffset.x * 1.2}deg,
-          rgba(255, 255, 255, 0.0) 0%,
-          rgba(255, 255, 255, ${0.32 + Math.abs(mouseOffset.x) * 0.008}) ${Math.max(10, 33 + mouseOffset.y * 0.3)}%,
-          rgba(255, 255, 255, ${0.6 + Math.abs(mouseOffset.x) * 0.012}) ${Math.min(90, 66 + mouseOffset.y * 0.4)}%,
-          rgba(255, 255, 255, 0.0) 100%
-        )`,
-        }}
-      />
+          {/* Border layer 2 - duplicate with mix-blend-overlay */}
+          <span
+            data-liquid-glass-container-border="overlay"
+            style={{
+              ...positionStyles,
+              height: glassSize.height,
+              width: glassSize.width,
+              borderRadius: `${cornerRadius}px`,
+              transform: baseStyle.transform,
+              transition: baseStyle.transition,
+              pointerEvents: "none",
+              mixBlendMode: "overlay",
+              padding: "1.5px",
+              WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+              WebkitMaskComposite: "xor",
+              maskComposite: "exclude",
+              boxShadow: "0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)",
+              background: `linear-gradient(
+              ${135 + mouseOffset.x * 1.2}deg,
+              rgba(255, 255, 255, 0.0) 0%,
+              rgba(255, 255, 255, ${0.32 + Math.abs(mouseOffset.x) * 0.008}) ${Math.max(10, 33 + mouseOffset.y * 0.3)}%,
+              rgba(255, 255, 255, ${0.6 + Math.abs(mouseOffset.x) * 0.012}) ${Math.min(90, 66 + mouseOffset.y * 0.4)}%,
+              rgba(255, 255, 255, 0.0) 100%
+            )`,
+            }}
+          />
+        </>
+      ) : null}
 
     </div>
   )

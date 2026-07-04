@@ -161,7 +161,15 @@ describe('KernelOnShell', () => {
       'px-[14px]',
       'pt-[2px]',
     );
-    expect(statusSurface).toHaveStyle({ borderRadius: '0px', padding: '0px' });
+    expect(statusGlass).toHaveStyle({
+      boxShadow:
+        'inset 0 -1px 0 rgba(232,248,250,0.16), inset 0 1px 0 rgba(255,255,255,0.06)',
+    });
+    expect(statusSurface).toHaveAttribute('data-liquid-glass-container-chrome', 'external');
+    expect(statusSurface).toHaveStyle({ borderRadius: '0px', boxShadow: 'none', padding: '0px' });
+    expect(
+      statusFrame?.querySelector('[data-liquid-glass-container-border]'),
+    ).not.toBeInTheDocument();
     expect(statusWarp).toHaveAttribute('data-liquid-glass-render-mode', 'full');
     expect(statusWarp?.getAttribute('style')).toContain('filter: url(');
     expect(statusWarp?.getAttribute('style')).toContain('backdrop-filter: blur(');
