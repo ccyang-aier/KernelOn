@@ -1,14 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noImplicitAny": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "paths": {
-      "@/*": ["./src/components/liquid-glass-studio/*"]
-    },
-    "types": ["vitest/globals", "@webgpu/types"]
+    "types": ["vitest/globals"]
   },
   "include": ["src"],
-  "exclude": ["src/components/liquid-glass-studio/main.tsx"]
+  "exclude": ["src/components/liquid-glass-studio/**"]
 }

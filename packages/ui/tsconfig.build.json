@@ -7,8 +7,11 @@
     "noEmit": false,
     "outDir": "dist",
     "rootDir": "src",
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "types": ["@webgpu/types"]
   },
   "include": ["src"],
-  "exclude": ["dist", "src/components/liquid-glass-studio/main.tsx"]
+  "exclude": ["dist"]
 }
