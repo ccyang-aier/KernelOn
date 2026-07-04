@@ -8,6 +8,7 @@ import {
   resizeWindow,
   restoreWindow,
   toggleWindowFullscreen,
+  type AppHeaderDescriptor,
   type KernelAppManifest,
 } from '../src';
 
@@ -48,6 +49,89 @@ const archiveApp: KernelAppManifest = {
 };
 
 describe('window model helpers', () => {
+  it('copies the app header descriptor into a newly opened window', () => {
+    const appHeader = {
+      mode: 'standard',
+      preset: 'dashboard',
+      identity: {
+        title: 'Mentor Console',
+        subtitle: 'Live capacity',
+        status: 'synced',
+      },
+      leading: [{ type: 'navigation', backCommandId: 'mentor.back' }],
+      center: [
+        {
+          type: 'segment',
+          id: 'mentor-view',
+          value: 'active',
+          options: [
+            { label: 'Active', value: 'active' },
+            { label: 'Archive', value: 'archive' },
+          ],
+        },
+      ],
+      trailing: [
+        {
+          type: 'search',
+          id: 'mentor-search',
+          placeholder: 'Search mentors',
+          commandId: 'mentor.search',
+        },
+      ],
+    } satisfies AppHeaderDescriptor;
+    const windows = openWindow(
+      [],
+      {
+        ...mentorApp,
+        defaultWindow: {
+          ...mentorApp.defaultWindow,
+          header: appHeader,
+        },
+      },
+      { id: 'mentor-window', createdAt: 1 },
+    );
+
+    expect(windows[0]?.header).toEqual(appHeader);
+    expect(JSON.parse(JSON.stringify(windows[0]?.header))).toEqual(appHeader);
+  });
+
+  it('can override an existing window header while restoring it', () => {
+    const windows = openWindow([], mentorApp, {
+      id: 'mentor-window',
+      createdAt: 1,
+      header: {
+        mode: 'standard',
+        identity: { title: 'Mentor Console' },
+      },
+    });
+
+    const restored = restoreWindow(windows, 'mentor-window', {
+      header: {
+        mode: 'composable',
+        identity: {
+          title: 'Matching Queue',
+          subtitle: 'Needs review',
+          status: 'edited',
+        },
+        trailing: [{ type: 'slot', id: 'review-actions' }],
+      },
+    });
+
+    expect(restored[0]).toMatchObject({
+      header: {
+        mode: 'composable',
+        identity: {
+          title: 'Matching Queue',
+          subtitle: 'Needs review',
+          status: 'edited',
+        },
+        trailing: [{ type: 'slot', id: 'review-actions' }],
+      },
+      status: 'active',
+      zIndex: 2,
+    });
+  });
+
   it('opens a focused window and deactivates previous windows', () => {
     const first = openWindow([], mentorApp, { id: 'mentor-window', createdAt: 1 });
     const second = openWindow(first, archiveApp, { id: 'archive-window', createdAt: 2 });

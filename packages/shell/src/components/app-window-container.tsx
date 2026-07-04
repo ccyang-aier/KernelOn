@@ -1,6 +1,5 @@
 'use client';
 
-import { Maximize2, Minus, X, type LucideIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import {
   useCallback,
@@ -12,8 +11,16 @@ import {
   type ReactNode,
 } from 'react';
 
-import type { KernelAppManifest, WindowBounds, WindowDescriptor } from '@kernelon/core';
+import type {
+  AppHeaderDescriptor,
+  KernelAppManifest,
+  WindowBounds,
+  WindowDescriptor,
+} from '@kernelon/core';
 import { cn } from '@kernelon/ui';
+
+import type { AppHeaderCommandPayload } from '../app-header';
+import { AppContainerHeader } from './app-container-header';
 
 const MIN_WINDOW_WIDTH = 520;
 const MIN_WINDOW_HEIGHT = 360;
@@ -54,8 +61,11 @@ export interface AppWindowContainerProps {
   children: ReactNode;
   constrainToWorkspace?: boolean;
   genieHidden?: boolean;
+  header?: AppHeaderDescriptor;
+  headerSlots?: Readonly<Record<string, ReactNode>>;
   onClose(windowId: string): void;
   onFocus(windowId: string): void;
+  onHeaderCommand?(payload: AppHeaderCommandPayload): void;
   onMinimize(windowId: string, sourceElement: HTMLElement | null): void;
   onResize(windowId: string, bounds: WindowBounds): void;
   onToggleFullscreen(windowId: string, bounds: WindowBounds): void;
@@ -66,8 +76,11 @@ export function AppWindowContainer({
   children,
   constrainToWorkspace = true,
   genieHidden = false,
+  header,
+  headerSlots,
   onClose,
   onFocus,
+  onHeaderCommand,
   onMinimize,
   onResize,
   onToggleFullscreen,
@@ -253,38 +266,19 @@ export function AppWindowContainer({
         y: { damping: 30, mass: 0.86, stiffness: 310, type: 'spring' },
       }}
     >
-      <header className="relative flex h-11 shrink-0 items-center border-b border-white/42 bg-white/44 shadow-[inset_0_1px_0_rgba(255,255,255,0.82)]">
-        <div
-          className="group absolute left-4 top-1/2 z-10 flex -translate-y-1/2 items-center gap-2.5"
-          data-testid={`kernelon-app-window-traffic-lights-${descriptor.id}`}
-        >
-          <TrafficLightButton
-            className="bg-[#ff5f57] shadow-[0_0_0_0.5px_rgba(120,28,22,0.38),inset_0_1px_0_rgba(255,255,255,0.46)]"
-            icon={X}
-            label={`关闭 ${descriptor.title}`}
-            onClick={() => onClose(descriptor.id)}
-          />
-          <TrafficLightButton
-            className="bg-[#febc2e] shadow-[0_0_0_0.5px_rgba(126,78,0,0.36),inset_0_1px_0_rgba(255,255,255,0.48)]"
-            icon={Minus}
-            label={`最小化 ${descriptor.title}`}
-            onClick={() => onMinimize(descriptor.id, frameRef.current)}
-          />
-          <TrafficLightButton
-            className="bg-[#28c840] shadow-[0_0_0_0.5px_rgba(20,96,30,0.36),inset_0_1px_0_rgba(255,255,255,0.48)]"
-            icon={Maximize2}
-            label={`${isFullscreen ? '退出全屏' : '进入全屏'} ${descriptor.title}`}
-            onClick={handleFullscreenToggle}
-          />
-        </div>
-        <div
-          className="flex h-full flex-1 cursor-default select-none items-center justify-center px-28 text-[13px] font-semibold text-[#1f2937]/82"
-          onDoubleClick={handleFullscreenToggle}
-          onPointerDown={beginMove}
-        >
-          <span className="truncate">{descriptor.title}</span>
-        </div>
-      </header>
+      <AppContainerHeader
+        getSourceElement={() => frameRef.current}
+        header={header}
+        isFullscreen={isFullscreen}
+        onBeginMove={beginMove}
+        onClose={() => onClose(descriptor.id)}
+        onCommand={onHeaderCommand ?? ignoreHeaderCommand}
+        onMinimize={(sourceElement) => onMinimize(descriptor.id, sourceElement)}
+        onToggleFullscreen={handleFullscreenToggle}
+        slots={headerSlots}
+        windowId={descriptor.id}
+        windowTitle={descriptor.title}
+      />
       <div className="relative min-h-0 flex-1 overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.70),rgba(246,250,255,0.48))]">
         <div className="h-full overflow-auto">{children}</div>
       </div>
@@ -300,36 +294,6 @@ export function AppWindowContainer({
           ))
         : null}
     </motion.section>
-  );
-}
-
-function TrafficLightButton({
-  className,
-  icon: Icon,
-  label,
-  onClick,
-}: Readonly<{
-  className: string;
-  icon: LucideIcon;
-  label: string;
-  onClick(): void;
-}>) {
-  return (
-    <button
-      aria-label={label}
-      className={cn(
-        'flex size-3.5 origin-center items-center justify-center rounded-full text-black/82 outline-none transition-[transform,box-shadow,filter] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:scale-[1.24] group-hover:brightness-[1.03] hover:scale-[1.32] focus-visible:ring-2 focus-visible:ring-white/90',
-        className,
-      )}
-      onClick={onClick}
-      type="button"
-    >
-      <Icon
-        aria-hidden="true"
-        className="size-2.5 opacity-0 transition duration-150 ease-out group-hover:opacity-90"
-        strokeWidth={3}
-      />
-    </button>
   );
 }
 
@@ -503,6 +467,10 @@ function getViewportSize() {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
+}
+
+function ignoreHeaderCommand() {
+  // App header commands are optional. Static descriptors can render before handlers exist.
 }
 
 const resizeHandles: Array<{

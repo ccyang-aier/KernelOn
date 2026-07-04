@@ -1,12 +1,15 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useEffect } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  AppHeaderSlot,
   KernelOnShell,
   kernelOnDefaultCursor,
   type ShellInitialState,
   type ShellRuntimeRegistry,
+  useAppHeader,
 } from '../src';
 
 const initialState: ShellInitialState = {
@@ -137,8 +140,13 @@ describe('KernelOnShell', () => {
     const statusFrame = statusBar.firstElementChild;
     const statusGlass = screen.getByTestId('kernelon-status-glass');
     const statusBrand = screen.getByTestId('kernelon-status-brand');
+    const statusBrandLogoButton = screen.getByTestId('kernelon-status-brand-logo-button');
+    const statusBrandWordmarkButton = screen.getByTestId(
+      'kernelon-status-brand-wordmark-button',
+    );
     const statusControls = screen.getByTestId('kernelon-status-controls');
     const statusBrandLogo = screen.getByTestId('kernelon-status-brand-logo');
+    const statusBrandWordmark = screen.getByTestId('kernelon-status-brand-wordmark');
     const statusSurface = statusGlass.closest('.glass');
     const statusWarp = statusSurface?.querySelector('.glass__warp');
 
@@ -174,16 +182,23 @@ describe('KernelOnShell', () => {
     expect(statusWarp?.getAttribute('style')).toContain('filter: url(');
     expect(statusWarp?.getAttribute('style')).toContain('backdrop-filter: blur(');
     expect(statusWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 0px)');
-    expect(statusBrand).toHaveClass('h-[38px]', 'justify-start', 'gap-[8px]');
-    expect(statusBrand).toHaveAttribute('data-kernelon-status-feedback', 'gsap-press');
+    expect(statusBrand).toHaveClass('h-[38px]', 'justify-start', 'gap-[4px]');
+    expect(statusBrand).not.toHaveAttribute('data-kernelon-status-feedback', 'gsap-press');
     expect(statusBrand).toHaveTextContent('KernelOn');
+    expect(statusBrandLogoButton).toHaveAttribute('data-kernelon-status-feedback', 'gsap-press');
+    expect(statusBrandWordmarkButton).toHaveAttribute(
+      'data-kernelon-status-feedback',
+      'gsap-press',
+    );
     expect(statusControls).toHaveClass('h-[38px]', 'w-[500px]', 'justify-end');
     expect(statusControls).not.toHaveClass('pr-[10px]');
     expect(statusBrandLogo).toHaveAttribute(
       'src',
       '/kernelon-assets/brand/kernelon-logo-speedboat.png',
     );
-    expect(statusBrandLogo).toHaveClass('-ml-[3px]', 'h-[30px]', 'w-[30px]');
+    expect(statusBrandLogo).toHaveClass('h-[30px]', 'w-[30px]');
+    expect(statusBrandLogo).not.toHaveClass('-ml-[3px]');
+    expect(statusBrandWordmark).toHaveClass('font-semibold');
     expect(screen.queryByText('09:41')).not.toBeInTheDocument();
     expect(within(statusBar).queryByLabelText('System time 09:41')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'KernelOn profile' })).not.toBeInTheDocument();
@@ -193,8 +208,9 @@ describe('KernelOnShell', () => {
     const statusButtons = within(statusBar).getAllByRole('button');
     const statusButtonLabels = statusButtons.map((button) => button.getAttribute('aria-label'));
 
-    expect(statusButtonLabels.slice(0, 9)).toEqual([
-      'KernelOn product identity',
+    expect(statusButtonLabels.slice(0, 10)).toEqual([
+      'KernelOn logo',
+      'KernelOn wordmark',
       'Theme',
       'Volume',
       'Bluetooth',
@@ -219,9 +235,11 @@ describe('KernelOnShell', () => {
 
     const spotlightButton = within(statusBar).getByRole('button', { name: 'AI Spotlight' });
     const notificationDot = screen.getByTestId('kernelon-notification-dot');
+    const statusTime = screen.getByTestId('kernelon-status-time');
 
     expect(spotlightButton).toHaveAttribute('aria-pressed', 'false');
     expect(notificationDot).toHaveClass('top-[2px]', 'right-[-2px]', 'size-[7px]');
+    expect(statusTime).toHaveClass('font-normal');
 
     await user.click(spotlightButton);
 
@@ -287,6 +305,256 @@ describe('KernelOnShell', () => {
     expect(await screen.findByText('Lazy onboarding window')).toBeInTheDocument();
     expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:onboarding-window');
     expect(runtime.loadWidget).not.toHaveBeenCalled();
+  });
+
+  it('renders a managed App Header with navigation, identity, center tools, trailing actions, and subbar', async () => {
+    const runtime = createRuntime();
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            {
+              ...initialState.apps[0],
+              defaultWindow: {
+                ...initialState.apps[0].defaultWindow,
+                header: {
+                  mode: 'standard',
+                  preset: 'dashboard',
+                  identity: {
+                    title: 'Mentor Matching',
+                    subtitle: 'Queue - Edited',
+                    status: 'edited',
+                  },
+                  leading: [{ type: 'navigation', backCommandId: 'mentor.back' }],
+                  center: [
+                    {
+                      type: 'segment',
+                      id: 'matching-view',
+                      value: 'pending',
+                      options: [
+                        { label: 'Pending', value: 'pending' },
+                        { label: 'Assigned', value: 'assigned' },
+                      ],
+                    },
+                  ],
+                  trailing: [
+                    {
+                      type: 'button',
+                      id: 'refresh',
+                      icon: 'RefreshCw',
+                      label: 'Refresh mentors',
+                      commandId: 'mentor.refresh',
+                    },
+                    {
+                      type: 'search',
+                      id: 'mentor-search',
+                      placeholder: 'Search mentors',
+                      commandId: 'mentor.search',
+                    },
+                  ],
+                  subbar: [
+                    {
+                      type: 'button',
+                      id: 'filters',
+                      icon: 'ListFilter',
+                      label: 'Open filters',
+                      commandId: 'mentor.filters',
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          windows: [
+            {
+              id: 'window:onboarding',
+              appId: 'onboarding',
+              title: 'Fallback title',
+              bounds: { x: 96, y: 72, width: 960, height: 640 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:onboarding');
+    const appHeader = within(appContainer).getByTestId('kernelon-app-header-window:onboarding');
+
+    expect(appHeader).toHaveAttribute('data-app-header-mode', 'standard');
+    expect(appHeader).toHaveAttribute('data-app-header-preset', 'dashboard');
+    expect(within(appHeader).getByTestId('kernelon-app-header-leading-window:onboarding')).toBeInTheDocument();
+    expect(within(appHeader).getByTestId('kernelon-app-header-center-window:onboarding')).toBeInTheDocument();
+    expect(within(appHeader).getByTestId('kernelon-app-header-trailing-window:onboarding')).toBeInTheDocument();
+    expect(within(appHeader).getByTestId('kernelon-app-header-subbar-window:onboarding')).toBeInTheDocument();
+    expect(within(appHeader).getByText('Mentor Matching')).toBeInTheDocument();
+    expect(within(appHeader).getByText('Queue - Edited')).toBeInTheDocument();
+    expect(within(appHeader).getByRole('button', { name: 'Back' })).toBeInTheDocument();
+    expect(within(appHeader).getByRole('button', { name: 'Pending' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(within(appHeader).getByRole('button', { name: 'Assigned' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    expect(within(appHeader).getByRole('button', { name: 'Refresh mentors' })).toBeInTheDocument();
+    expect(within(appHeader).getByPlaceholderText('Search mentors')).toBeInTheDocument();
+    expect(within(appHeader).getByRole('button', { name: 'Open filters' })).toBeInTheDocument();
+    expect(within(appHeader).queryByText('Fallback title')).not.toBeInTheDocument();
+  });
+
+  it('keeps App Header controls from starting window drag interactions', async () => {
+    const runtime = createRuntime();
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1440 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 900 });
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            {
+              ...initialState.apps[0],
+              defaultWindow: {
+                ...initialState.apps[0].defaultWindow,
+                header: {
+                  identity: { title: 'Controlled App' },
+                  trailing: [
+                    {
+                      type: 'button',
+                      id: 'refresh',
+                      icon: 'RefreshCw',
+                      label: 'Refresh mentors',
+                      commandId: 'mentor.refresh',
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          windows: [
+            {
+              id: 'window:onboarding',
+              appId: 'onboarding',
+              title: 'Controlled App',
+              bounds: { x: 96, y: 72, width: 960, height: 640 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:onboarding');
+    const refreshButton = within(appContainer).getByRole('button', { name: 'Refresh mentors' });
+
+    fireEvent.pointerDown(refreshButton, { button: 0, clientX: 420, clientY: 92 });
+    fireEvent.pointerMove(appContainer, { clientX: 720, clientY: 220 });
+    fireEvent.pointerUp(refreshButton, { clientX: 720, clientY: 220 });
+
+    expect(appContainer).toHaveStyle({
+      left: '96px',
+      top: '72px',
+    });
+  });
+
+  it('lets a lazy-loaded app update its App Header and fill controlled slots', async () => {
+    const user = userEvent.setup();
+    const saveHandler = vi.fn();
+    const runtime: ShellRuntimeRegistry = {
+      loadAppWindow: vi.fn(async () => ({
+        default: function RuntimeHeaderWindow() {
+          const header = useAppHeader();
+
+          useEffect(() => {
+            const unregisterSave = header.registerCommand('runtime.save', saveHandler);
+
+            header.setHeader({
+              mode: 'composable',
+              identity: {
+                title: 'Runtime Header',
+                subtitle: 'Updated by app',
+                status: 'saving',
+              },
+              trailing: [
+                { type: 'slot', id: 'runtime-actions' },
+                {
+                  type: 'button',
+                  id: 'save',
+                  icon: 'Save',
+                  label: 'Save runtime header',
+                  commandId: 'runtime.save',
+                },
+              ],
+            });
+
+            return unregisterSave;
+          }, [header]);
+
+          return (
+            <>
+              <AppHeaderSlot id="runtime-actions">
+                <button type="button">Custom review action</button>
+              </AppHeaderSlot>
+              <div>Runtime app body</div>
+            </>
+          );
+        },
+      })),
+      loadWidget: vi.fn(async () => ({
+        default: function TestWidget() {
+          return <div>Lazy onboarding widget</div>;
+        },
+      })),
+    };
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          windows: [
+            {
+              id: 'window:onboarding',
+              appId: 'onboarding',
+              title: 'Fallback title',
+              bounds: { x: 96, y: 72, width: 960, height: 640 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:onboarding');
+    const appHeader = within(appContainer).getByTestId('kernelon-app-header-window:onboarding');
+
+    expect(await within(appHeader).findByText('Runtime Header')).toBeInTheDocument();
+    expect(within(appHeader).getByText('Updated by app')).toBeInTheDocument();
+    expect(within(appHeader).getByRole('button', { name: 'Custom review action' })).toBeInTheDocument();
+
+    await user.click(within(appHeader).getByRole('button', { name: 'Save runtime header' }));
+
+    expect(saveHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        commandId: 'runtime.save',
+        itemId: 'save',
+        type: 'button',
+        windowId: 'window:onboarding',
+      }),
+    );
   });
 
   it('opens a docked app from the Dock before lazy-loading its window', async () => {

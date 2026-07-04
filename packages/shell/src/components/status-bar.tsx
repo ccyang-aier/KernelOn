@@ -2,10 +2,6 @@
 
 import { LiquidGlassSvgFilter } from '@kernelon/ui';
 import {
-  Bell,
-  Search,
-} from 'lucide-react';
-import {
   useCallback,
   useEffect,
   useRef,
@@ -54,28 +50,41 @@ export function KernelOnStatusBar({
           data-testid="kernelon-status-glass"
           style={statusBarExternalChromeStyle}
         >
-          <StatusBarFeedbackButton
+          <span
             aria-label="KernelOn product identity"
-            className="-ml-[4px] flex h-[38px] min-w-0 items-center justify-start gap-[8px] px-[4px]"
+            className="-ml-[4px] flex h-[38px] min-w-0 items-center justify-start gap-[4px]"
             data-testid="kernelon-status-brand"
-            glyphClassName="min-w-0 items-center gap-[8px]"
-            label="KernelOn product identity"
           >
-            <img
-              alt=""
-              className="-ml-[3px] h-[30px] w-[30px] shrink-0 object-contain"
-              data-testid="kernelon-status-brand-logo"
-              draggable={false}
-              src={kernelOnBrandLogo}
-              style={statusBrandLogoStyle}
-            />
-            <span
-              className="truncate text-[14px] font-semibold leading-none text-white/96"
-              style={statusBrandTextStyle}
+            <StatusBarFeedbackButton
+              aria-label="KernelOn logo"
+              className="flex h-[38px] w-[32px] items-center justify-center"
+              data-testid="kernelon-status-brand-logo-button"
+              label="KernelOn logo"
             >
-              KernelOn
-            </span>
-          </StatusBarFeedbackButton>
+              <img
+                alt=""
+                className="h-[30px] w-[30px] shrink-0 object-contain"
+                data-testid="kernelon-status-brand-logo"
+                draggable={false}
+                src={kernelOnBrandLogo}
+                style={statusBrandLogoStyle}
+              />
+            </StatusBarFeedbackButton>
+            <StatusBarFeedbackButton
+              aria-label="KernelOn wordmark"
+              className="flex h-[38px] min-w-0 items-center justify-start px-[2px]"
+              data-testid="kernelon-status-brand-wordmark-button"
+              label="KernelOn wordmark"
+            >
+              <span
+                className="truncate text-[14px] font-semibold leading-none text-white/96"
+                data-testid="kernelon-status-brand-wordmark"
+                style={statusBrandTextStyle}
+              >
+                KernelOn
+              </span>
+            </StatusBarFeedbackButton>
+          </span>
           <span
             className="flex h-[38px] w-[500px] shrink-0 items-center justify-end gap-[17px] max-[720px]:w-auto max-[720px]:gap-[11px] max-[560px]:gap-[8px]"
             data-testid="kernelon-status-controls"
@@ -100,7 +109,7 @@ export function KernelOnStatusBar({
             />
             <StatusBarIconButton
               Icon={StatusWifiIcon}
-              iconClassName="h-[24px] w-[24px]"
+              iconClassName="h-[25px] w-[25px]"
               label="Wi-Fi"
             />
             <StatusBarIconButton
@@ -110,14 +119,14 @@ export function KernelOnStatusBar({
               label="Battery"
             />
             <StatusBarIconButton
-              Icon={Search}
+              Icon={StatusSearchIcon}
               iconClassName="h-[24px] w-[24px]"
               label="AI Spotlight"
               onClick={onToggleSpotlight}
               pressed={spotlightOpen}
             />
             <StatusBarIconButton
-              Icon={Bell}
+              Icon={StatusBellIcon}
               badge={
                 <span
                   className="absolute top-[2px] right-[-2px] size-[7px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
@@ -233,7 +242,7 @@ function StatusBarFeedbackButton({
       ref={rootRef}
       aria-label={ariaLabel ?? label}
       aria-pressed={typeof pressed === 'boolean' ? pressed : undefined}
-      className={`relative shrink-0 overflow-hidden rounded-full border-0 bg-transparent text-white/95 outline-none transition-[background-color,box-shadow,color] duration-150 ease-out hover:bg-white/12 focus-visible:ring-2 focus-visible:ring-white/80 active:bg-white/16 ${pressed ? 'bg-white/14 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]' : ''} ${className}`}
+      className={`relative shrink-0 overflow-hidden rounded-full border-0 bg-transparent text-white/95 outline-none transition-[box-shadow,color,transform] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white/80 ${className}`}
       data-icon-variant={iconVariant}
       data-kernelon-status-feedback="gsap-press"
       data-testid={testId}
@@ -453,16 +462,15 @@ function StatusWifiIcon({ className, style }: StatusIconProps) {
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path
-        d="M4.35 8.9c4.36-3.02 10.94-3.02 15.3 0M7.65 13.45c2.5-1.72 6.2-1.72 8.7 0"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="2.65"
-      />
-      <path
-        d="M10.55 17.72c.86-.42 2.04-.42 2.9 0v.58c-.86.42-2.04.42-2.9 0v-.58Z"
-        fill="currentColor"
-      />
+      <g transform="translate(0 1.25)">
+        <path
+          d="M4.15 8.1c4.45-3.02 11.25-3.02 15.7 0M7.35 12.95c2.67-1.78 6.63-1.78 9.3 0"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="2.65"
+        />
+        <rect fill="currentColor" height="2.85" rx="1.42" width="4.2" x="9.9" y="17.05" />
+      </g>
     </svg>
   );
 }
@@ -476,31 +484,53 @@ function StatusBatteryIcon({ className, style }: StatusIconProps) {
       viewBox="0 0 40 29"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
-        <mask id="kernelon-status-battery-bolt-gap">
-          <rect fill="black" height="29" width="40" />
-          <path
-            d="M6.9 4.9h23.28c3.34 0 6.15 2.53 6.5 5.86h.48A2.84 2.84 0 0 1 40 13.62v1.76a2.84 2.84 0 0 1-2.84 2.86h-.48c-.35 3.36-3.16 5.94-6.5 5.94H6.9A6.9 6.9 0 0 1 0 17.28V11.8a6.9 6.9 0 0 1 6.9-6.9Z"
-            fill="white"
-          />
-          <path
-            d="M22.55 4.95 11.68 16.35h6.94l-2.68 8.55L28.4 12.58h-7.05l1.2-7.63Z"
-            fill="black"
-            stroke="black"
-            strokeLinejoin="round"
-            strokeWidth="1.45"
-          />
-        </mask>
-      </defs>
       <path
-        d="M6.9 4.9h23.28c3.34 0 6.15 2.53 6.5 5.86h.48A2.84 2.84 0 0 1 40 13.62v1.76a2.84 2.84 0 0 1-2.84 2.86h-.48c-.35 3.36-3.16 5.94-6.5 5.94H6.9A6.9 6.9 0 0 1 0 17.28V11.8a6.9 6.9 0 0 1 6.9-6.9Z"
+        d="M7.1 4.95h10.15l-3.82 8.55h2.9l-3.72 10.55H7.1A7.05 7.05 0 0 1 .05 17v-5A7.05 7.05 0 0 1 7.1 4.95Z"
         fill="currentColor"
-        mask="url(#kernelon-status-battery-bolt-gap)"
       />
       <path
-        d="M22.55 4.95 11.68 16.35h6.94l-2.68 8.55L28.4 12.58h-7.05l1.2-7.63Z"
-        fill="rgba(55,65,61,0.76)"
+        d="M27.25 4.95h4.9c3.12 0 5.68 2.38 6.06 5.56h.38A2.28 2.28 0 0 1 40 12.62v3.72a2.28 2.28 0 0 1-1.41 2.11h-.38c-.38 3.14-2.94 5.6-6.06 5.6h-9.12l4.28-8.58h3.18L27.25 4.95Z"
+        fill="currentColor"
       />
+      <path
+        d="M23.55 4.05 12.35 15.82h6.96l-3.12 9.34 13.64-13.78h-7.2l.92-7.33Z"
+        fill="rgba(55,65,61,0.92)"
+      />
+    </svg>
+  );
+}
+
+function StatusSearchIcon({ className, style }: StatusIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="currentColor"
+      style={style}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        clipRule="evenodd"
+        d="M10.72 3.1a7.62 7.62 0 0 0 0 15.24 7.58 7.58 0 0 0 4.46-1.44l3.34 3.33a1.22 1.22 0 0 0 1.72-1.72l-3.33-3.34a7.58 7.58 0 0 0 1.43-4.45 7.62 7.62 0 0 0-7.62-7.62Zm0 2.35a5.27 5.27 0 1 0 0 10.54 5.27 5.27 0 0 0 0-10.54Z"
+        fillRule="evenodd"
+      />
+    </svg>
+  );
+}
+
+function StatusBellIcon({ className, style }: StatusIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="currentColor"
+      style={style}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M12 3.1a5.45 5.45 0 0 0-5.45 5.45v2.46c0 1.38-.48 2.68-1.36 3.73l-.93 1.11A1.25 1.25 0 0 0 5.22 17.9h13.56a1.25 1.25 0 0 0 .96-2.05l-.93-1.11a5.8 5.8 0 0 1-1.36-3.73V8.55A5.45 5.45 0 0 0 12 3.1Z" />
+      <path d="M9.2 19.2a2.92 2.92 0 0 0 5.6 0H9.2Z" />
     </svg>
   );
 }
@@ -528,7 +558,7 @@ function StatusBarTime() {
     const updateTime = () => setDate(new Date());
 
     updateTime();
-    const intervalId = window.setInterval(updateTime, 30_000);
+    const intervalId = window.setInterval(updateTime, 1_000);
 
     return () => window.clearInterval(intervalId);
   }, []);
@@ -542,7 +572,7 @@ function StatusBarTime() {
     >
       <time
         aria-hidden="true"
-        className="text-right text-[15px] font-semibold leading-none text-white/95"
+        className="text-right text-[15px] font-normal leading-none text-white/95"
         data-testid="kernelon-status-time"
         dateTime={date.toISOString()}
         style={statusTimeTextStyle}
@@ -606,10 +636,9 @@ const statusGlyphStyle = {
 } as CSSProperties;
 
 const statusFeedbackAuraStyle = {
-  background:
-    'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.86) 0%, rgba(193,238,246,0.36) 38%, rgba(255,255,255,0) 72%)',
+  background: 'transparent',
   borderRadius: 999,
-  boxShadow: '0 0 12px rgba(255,255,255,0.32), 0 0 22px rgba(137,210,225,0.18)',
+  boxShadow: 'none',
   mixBlendMode: 'screen',
   willChange: 'opacity, transform',
 } as CSSProperties;

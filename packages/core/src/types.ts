@@ -15,6 +15,74 @@ export interface RuntimeLoaderReference {
   loaderKey: string;
 }
 
+export type AppHeaderMode = 'standard' | 'composable' | 'immersive';
+
+export type AppHeaderPreset = 'plain' | 'document' | 'browser' | 'dashboard' | 'editor';
+
+export type AppHeaderDensity = 'compact' | 'comfortable';
+
+export type AppHeaderIdentityStatus = 'edited' | 'saving' | 'synced';
+
+export interface AppHeaderIdentity {
+  title?: string;
+  subtitle?: string;
+  status?: AppHeaderIdentityStatus;
+}
+
+export interface AppHeaderNavigationItem {
+  type: 'navigation';
+  backCommandId?: string;
+  forwardCommandId?: string;
+}
+
+export interface AppHeaderButtonItem {
+  type: 'button';
+  id: string;
+  icon: string;
+  label: string;
+  commandId: string;
+}
+
+export interface AppHeaderSegmentItem {
+  type: 'segment';
+  id: string;
+  value: string;
+  options: Array<{
+    value: string;
+    label: string;
+  }>;
+}
+
+export interface AppHeaderSearchItem {
+  type: 'search';
+  id: string;
+  placeholder: string;
+  commandId: string;
+}
+
+export interface AppHeaderSlotItem {
+  type: 'slot';
+  id: string;
+}
+
+export type AppHeaderItem =
+  | AppHeaderButtonItem
+  | AppHeaderNavigationItem
+  | AppHeaderSegmentItem
+  | AppHeaderSearchItem
+  | AppHeaderSlotItem;
+
+export interface AppHeaderDescriptor {
+  mode?: AppHeaderMode;
+  preset?: AppHeaderPreset;
+  density?: AppHeaderDensity;
+  identity?: AppHeaderIdentity;
+  leading?: AppHeaderItem[];
+  center?: AppHeaderItem[];
+  trailing?: AppHeaderItem[];
+  subbar?: AppHeaderItem[];
+}
+
 export interface KernelAppManifest {
   id: string;
   name: string;
@@ -29,6 +97,7 @@ export interface KernelAppManifest {
   defaultWindow: {
     title?: string;
     bounds: WindowBounds;
+    header?: AppHeaderDescriptor;
   };
 }
 
@@ -40,6 +109,7 @@ export interface WindowDescriptor {
   appId: string;
   title: string;
   bounds: WindowBounds;
+  header?: AppHeaderDescriptor;
   intent?: WindowOpenIntent;
   restoreBounds?: WindowBounds;
   zIndex: number;

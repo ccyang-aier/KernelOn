@@ -1,4 +1,4 @@
-import type { KernelAppManifest, WindowDescriptor } from './types';
+import type { AppHeaderDescriptor, KernelAppManifest, WindowDescriptor } from './types';
 import type { WindowOpenIntent } from './app-intents';
 
 const DEFAULT_MIN_WINDOW_WIDTH = 520;
@@ -6,12 +6,14 @@ const DEFAULT_MIN_WINDOW_HEIGHT = 360;
 
 export interface OpenWindowOptions {
   id?: string;
+  header?: AppHeaderDescriptor;
   intent?: WindowOpenIntent;
   title?: string;
   createdAt?: number;
 }
 
 export interface RestoreWindowOptions {
+  header?: AppHeaderDescriptor;
   intent?: WindowOpenIntent;
   title?: string;
 }
@@ -34,6 +36,9 @@ export function openWindow(
     appId: app.id,
     title: options.title ?? app.defaultWindow.title ?? app.name,
     bounds: app.defaultWindow.bounds,
+    ...(options.header ?? app.defaultWindow.header
+      ? { header: options.header ?? app.defaultWindow.header }
+      : {}),
     ...(options.intent ? { intent: options.intent } : {}),
     zIndex,
     status: 'active',
@@ -84,6 +89,7 @@ export function restoreWindow(
     if (window.id === windowId) {
       return {
         ...window,
+        ...(options.header ? { header: options.header } : {}),
         ...(options.intent ? { intent: options.intent } : {}),
         ...(options.title ? { title: options.title } : {}),
         status: 'active',
