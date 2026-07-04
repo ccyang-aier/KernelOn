@@ -66,13 +66,13 @@ describe('DesktopDock', () => {
       iconSize,
     });
 
-    expect(focusedScale).toBeGreaterThan(1.85);
-    expect(focusedScale).toBeLessThan(2);
-    expect(neighborScale).toBeGreaterThan(1.72);
+    expect(focusedScale).toBeGreaterThan(1.6);
+    expect(focusedScale).toBeLessThan(1.7);
+    expect(neighborScale).toBeGreaterThan(1.5);
     expect(neighborScale).toBeLessThan(focusedScale);
-    expect(secondNeighborScale).toBeGreaterThan(1.46);
+    expect(secondNeighborScale).toBeGreaterThan(1.32);
     expect(secondNeighborScale).toBeLessThan(neighborScale);
-    expect(outerNeighborScale).toBeGreaterThan(1.06);
+    expect(outerNeighborScale).toBeGreaterThan(1.04);
     expect(outerNeighborScale).toBeLessThan(secondNeighborScale);
     expect(distantScale).toBe(1);
     expect(

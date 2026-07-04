@@ -59,11 +59,11 @@ export function resolveDockItemMagnification({
   const measuredIconSize = Math.max(iconSize, 1);
   const absDistance = Math.abs(distance);
   const falloffStops = [
-    { distance: 0, scale: 1.92 },
-    { distance: measuredIconSize * 1.1, scale: 1.82 },
-    { distance: measuredIconSize * 2.4, scale: 1.58 },
-    { distance: measuredIconSize * 3.7, scale: 1.28 },
-    { distance: measuredIconSize * 5.2, scale: 1.08 },
+    { distance: 0, scale: 1.64 },
+    { distance: measuredIconSize * 1.1, scale: 1.57 },
+    { distance: measuredIconSize * 2.4, scale: 1.41 },
+    { distance: measuredIconSize * 3.7, scale: 1.2 },
+    { distance: measuredIconSize * 5.2, scale: 1.06 },
     { distance: measuredIconSize * 6.1, scale: 1 },
   ];
 
