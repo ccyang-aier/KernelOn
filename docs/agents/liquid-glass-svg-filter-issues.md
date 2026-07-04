@@ -119,6 +119,8 @@
 
 ### 3.4 鼠标移动触发高频 React state 更新
 
+状态：pass（2026-07-04，视觉验收通过，code review 通过）
+
 现状：
 
 - 内部 `mousemove` 每次调用都会 set 两组 state：`internalMouseOffset` 和 `internalGlobalMousePos`。
