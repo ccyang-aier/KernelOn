@@ -139,11 +139,12 @@ describe('KernelOnShell', () => {
     const statusControls = screen.getByTestId('kernelon-status-controls');
     const statusBrandLogo = screen.getByTestId('kernelon-status-brand-logo');
 
-    expect(statusBar).toHaveClass('fixed', 'inset-x-0', 'top-[2px]');
-    expect(statusBar.getAttribute('style')).toContain('38px');
+    expect(statusBar).toHaveClass('fixed', 'inset-x-0', 'top-0');
+    expect(statusBar).not.toHaveClass('top-[2px]');
+    expect(statusBar.getAttribute('style')).toContain('40px');
     expect(statusFrame).toHaveAttribute('data-slot', 'liquid-glass-simple');
     expect(statusFrame).toHaveAttribute('data-testid', 'kernelon-status-glass');
-    expect(statusFrame).toHaveClass('h-[38px]', 'w-full', 'border-white/30');
+    expect(statusFrame).toHaveClass('h-[40px]', 'w-full', 'border-white/30');
     expect(statusFrame).toHaveStyle({
       '--ko-liquid-glass-blur': '14px',
       '--ko-liquid-glass-radius': '0px',
@@ -160,11 +161,14 @@ describe('KernelOnShell', () => {
     ).toHaveClass('bg-white/20');
     expect(
       statusFrame?.querySelector('[data-slot="liquid-glass-simple-content"]'),
-    ).toHaveClass('h-[38px]', 'w-full', 'justify-between', 'pl-[14px]');
-    expect(statusBrand).toHaveClass('h-full', 'gap-[8px]');
+    ).toHaveClass('h-full', 'w-full', 'justify-between', 'pl-[14px]', 'pt-[2px]');
+    expect(statusBrand).toHaveClass('h-[38px]', 'gap-[8px]');
     expect(statusBrand).toHaveTextContent('KernelOn');
     expect(statusControls).toHaveClass('h-[38px]', 'w-[320px]', 'pr-[10px]');
-    expect(statusBrandLogo).toHaveAttribute('src', '/kernelon-assets/brand/kernelon-logo.png');
+    expect(statusBrandLogo).toHaveAttribute(
+      'src',
+      '/kernelon-assets/brand/kernelon-logo-speedboat.png',
+    );
     expect(screen.queryByText('09:41')).not.toBeInTheDocument();
     expect(within(statusBar).queryByLabelText('System time 09:41')).not.toBeInTheDocument();
     expect(

@@ -30,14 +30,14 @@ export function KernelOnStatusBar({
   return (
     <header
       aria-label="KernelOn status bar"
-      className="pointer-events-none fixed inset-x-0 top-[2px] z-30 w-full"
+      className="pointer-events-none fixed inset-x-0 top-0 z-30 w-full"
       data-testid="kernelon-status-bar"
       style={statusBarShellStyle}
     >
       <LiquidGlassSimple
         blur={14}
-        className="pointer-events-auto h-[38px] w-full border-x-0 border-t-0 border-white/30 bg-white/10 text-white shadow-[0_8px_28px_rgba(42,92,112,0.14)]"
-        contentClassName="h-[38px] w-full justify-between pl-[14px]"
+        className="pointer-events-auto h-[40px] w-full border-x-0 border-t-0 border-white/30 bg-white/10 text-white shadow-[0_8px_28px_rgba(42,92,112,0.14)]"
+        contentClassName="h-full w-full justify-between pl-[14px] pt-[2px]"
         data-testid="kernelon-status-glass"
         displacementScale={72}
         filterId="kernelon-status-bar-liquid-glass"
@@ -47,7 +47,7 @@ export function KernelOnStatusBar({
       >
         <span
           aria-label="KernelOn product identity"
-          className="flex h-full min-w-0 items-center gap-[8px]"
+          className="flex h-[38px] min-w-0 items-center gap-[8px]"
           data-testid="kernelon-status-brand"
         >
           <img
@@ -194,7 +194,7 @@ function StatusBarProfileButton() {
 }
 
 const statusBarShellStyle = {
-  height: 38,
+  height: 40,
 } as CSSProperties;
 
 const statusBrandLogoStyle = {
