@@ -1,27 +1,8 @@
 'use client';
 
 import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  Circle,
-  Columns3,
-  Download,
-  Edit3,
-  Files,
-  LayoutGrid,
-  ListFilter,
   Maximize2,
   Minus,
-  MoreHorizontal,
-  PanelTop,
-  RefreshCw,
-  Save,
-  Search,
-  Share2,
-  SlidersHorizontal,
-  Sparkles,
-  Upload,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -30,17 +11,14 @@ import type {
   ReactNode,
 } from 'react';
 
-import type { AppHeaderDescriptor, AppHeaderItem } from '@kernelon/core';
+import type { AppHeaderDescriptor } from '@kernelon/core';
 import {
-  AppHeaderButton,
-  AppHeaderGroup,
-  AppHeaderSearchField,
-  AppHeaderSegmentedControl,
   AppHeaderTitleBlock,
   cn,
 } from '@kernelon/ui';
 
 import type { AppHeaderCommandPayload } from '../app-header';
+import { AppHeaderItems } from './app-header-items';
 
 interface AppContainerHeaderProps {
   header?: AppHeaderDescriptor;
@@ -88,7 +66,7 @@ export function AppContainerHeader({
   return (
     <header
       className={cn(
-        'relative shrink-0 overflow-hidden border-b border-white/42 bg-white/48 shadow-[inset_0_1px_0_rgba(255,255,255,0.82)] backdrop-blur-[22px]',
+        'relative shrink-0 overflow-hidden border-b border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface)] shadow-[var(--ko-app-header-inset-shadow)] backdrop-blur-[22px]',
         density === 'comfortable' ? 'min-h-[56px]' : 'min-h-11',
       )}
       data-app-header-mode={mode}
@@ -141,13 +119,13 @@ export function AppContainerHeader({
                 className="flex min-w-0 flex-1 items-center gap-2"
                 data-testid={`kernelon-app-header-leading-${windowId}`}
               >
-                {renderHeaderItems({
-                  items: header?.leading ?? [],
-                  onCommand,
-                  section: 'leading',
-                  slots,
-                  windowId,
-                })}
+                <AppHeaderItems
+                  items={header?.leading ?? []}
+                  onCommand={onCommand}
+                  section="leading"
+                  slots={slots}
+                  windowId={windowId}
+                />
                 <div
                   className="min-w-[120px] max-w-[260px] flex-1"
                   data-testid={`kernelon-app-header-identity-${windowId}`}
@@ -159,30 +137,30 @@ export function AppContainerHeader({
                 className="flex min-w-0 flex-[1.2] items-center justify-center gap-2"
                 data-testid={`kernelon-app-header-center-${windowId}`}
               >
-                {renderHeaderItems({
-                  items: header?.center ?? [],
-                  onCommand,
-                  section: 'center',
-                  slots,
-                  windowId,
-                })}
+                <AppHeaderItems
+                  items={header?.center ?? []}
+                  onCommand={onCommand}
+                  section="center"
+                  slots={slots}
+                  windowId={windowId}
+                />
               </div>
               <div
                 className="flex min-w-0 flex-1 items-center justify-end gap-2"
                 data-testid={`kernelon-app-header-trailing-${windowId}`}
               >
-                {renderHeaderItems({
-                  items: header?.trailing ?? [],
-                  onCommand,
-                  section: 'trailing',
-                  slots,
-                  windowId,
-                })}
+                <AppHeaderItems
+                  items={header?.trailing ?? []}
+                  onCommand={onCommand}
+                  section="trailing"
+                  slots={slots}
+                  windowId={windowId}
+                />
               </div>
             </>
           ) : (
             <div
-              className="flex h-full min-w-0 flex-1 items-center justify-center text-[13px] font-semibold text-[#1f2937]/82"
+              className="flex h-full min-w-0 flex-1 items-center justify-center text-[13px] font-semibold text-[var(--ko-app-header-ink)]"
               data-testid={`kernelon-app-header-identity-${windowId}`}
             >
               <span className="truncate">{title}</span>
@@ -192,152 +170,20 @@ export function AppContainerHeader({
       )}
       {mode !== 'immersive' && header?.subbar?.length ? (
         <div
-          className="flex min-h-9 min-w-0 items-center gap-2 border-t border-white/36 bg-white/26 px-4 py-1.5 pl-28"
+          className="flex min-h-9 min-w-0 items-center gap-2 border-t border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface-muted)] px-4 py-1.5 pl-28"
           data-testid={`kernelon-app-header-subbar-${windowId}`}
         >
-          {renderHeaderItems({
-            items: header.subbar,
-            onCommand,
-            section: 'subbar',
-            slots,
-            windowId,
-          })}
+          <AppHeaderItems
+            items={header.subbar}
+            onCommand={onCommand}
+            section="subbar"
+            slots={slots}
+            windowId={windowId}
+          />
         </div>
       ) : null}
     </header>
   );
-}
-
-function renderHeaderItems({
-  items,
-  onCommand,
-  section,
-  slots,
-  windowId,
-}: Readonly<{
-  items: AppHeaderItem[];
-  onCommand(payload: AppHeaderCommandPayload): void;
-  section: string;
-  slots: Readonly<Record<string, ReactNode>>;
-  windowId: string;
-}>) {
-  return items.map((item, index) => {
-    if (item.type === 'navigation') {
-      return (
-        <AppHeaderGroup key={`${section}:navigation:${index}`} onPointerDown={stopHeaderControlDrag}>
-          <AppHeaderButton
-            aria-label="Back"
-            className="h-7 w-7 px-0"
-            disabled={!item.backCommandId}
-            onClick={() => {
-              if (item.backCommandId) {
-                onCommand({
-                  commandId: item.backCommandId,
-                  itemId: `${section}:back`,
-                  type: 'navigation',
-                  windowId,
-                });
-              }
-            }}
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-          </AppHeaderButton>
-          <AppHeaderButton
-            aria-label="Forward"
-            className="h-7 w-7 px-0"
-            disabled={!item.forwardCommandId}
-            onClick={() => {
-              if (item.forwardCommandId) {
-                onCommand({
-                  commandId: item.forwardCommandId,
-                  itemId: `${section}:forward`,
-                  type: 'navigation',
-                  windowId,
-                });
-              }
-            }}
-          >
-            <ArrowRight aria-hidden="true" className="size-4" />
-          </AppHeaderButton>
-        </AppHeaderGroup>
-      );
-    }
-
-    if (item.type === 'button') {
-      const Icon = resolveHeaderIcon(item.icon);
-
-      return (
-        <AppHeaderButton
-          aria-label={item.label}
-          key={`${section}:button:${item.id}`}
-          onClick={() =>
-            onCommand({
-              commandId: item.commandId,
-              itemId: item.id,
-              type: 'button',
-              windowId,
-            })
-          }
-          onPointerDown={stopHeaderControlDrag}
-        >
-          <Icon aria-hidden="true" className="size-3.5" />
-          <span className="truncate">{item.label}</span>
-        </AppHeaderButton>
-      );
-    }
-
-    if (item.type === 'segment') {
-      return (
-        <AppHeaderSegmentedControl
-          key={`${section}:segment:${item.id}`}
-          onPointerDown={stopHeaderControlDrag}
-          onValueChange={(value) =>
-            onCommand({
-              commandId: `${item.id}.change`,
-              itemId: item.id,
-              type: 'segment',
-              value,
-              windowId,
-            })
-          }
-          options={item.options}
-          value={item.value}
-        />
-      );
-    }
-
-    if (item.type === 'search') {
-      return (
-        <AppHeaderSearchField
-          key={`${section}:search:${item.id}`}
-          leadingIcon={<Search aria-hidden="true" className="size-3.5" />}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              onCommand({
-                commandId: item.commandId,
-                itemId: item.id,
-                type: 'search',
-                value: event.currentTarget.value,
-                windowId,
-              });
-            }
-          }}
-          onPointerDown={stopHeaderControlDrag}
-          placeholder={item.placeholder}
-        />
-      );
-    }
-
-    return (
-      <div
-        className="contents"
-        key={`${section}:slot:${item.id}`}
-        onPointerDown={stopHeaderControlDrag}
-      >
-        {slots[item.id] ?? null}
-      </div>
-    );
-  });
 }
 
 function TrafficLightButton({
@@ -370,35 +216,8 @@ function TrafficLightButton({
   );
 }
 
-function stopHeaderControlDrag(event: ReactPointerEvent<HTMLElement>) {
-  event.stopPropagation();
-}
-
-function resolveHeaderIcon(icon: string): LucideIcon {
-  return headerIcons[icon] ?? Circle;
-}
-
 const appHeaderStatusLabels = {
   edited: 'Edited',
   saving: 'Saving',
   synced: 'Synced',
 } as const;
-
-const headerIcons: Record<string, LucideIcon> = {
-  Check,
-  Columns3,
-  Download,
-  Edit3,
-  Files,
-  LayoutGrid,
-  ListFilter,
-  MoreHorizontal,
-  PanelTop,
-  RefreshCw,
-  Save,
-  Search,
-  Share2,
-  SlidersHorizontal,
-  Sparkles,
-  Upload,
-};

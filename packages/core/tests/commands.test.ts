@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { createAppOpenCommands, createCommandRegistry, type KernelAppManifest } from '../src';
+import {
+  createAppHeaderCommands,
+  createAppOpenCommands,
+  createCommandRegistry,
+  type KernelAppManifest,
+} from '../src';
 
 const onboardingApp: KernelAppManifest = {
   id: 'onboarding',
@@ -28,6 +33,68 @@ describe('command model helpers', () => {
         id: 'open-app:onboarding',
         title: '打开新员工运作',
         runMode: 'open-app',
+        appId: 'onboarding',
+      }),
+    ]);
+  });
+
+  it('creates discoverable commands from app header descriptors', () => {
+    const commands = createAppHeaderCommands(onboardingApp, {
+      identity: { title: '新员工运作' },
+      leading: [{ type: 'navigation', backCommandId: 'onboarding.nav.back' }],
+      center: [
+        {
+          type: 'segment',
+          id: 'onboarding-view',
+          commandId: 'onboarding.view.change',
+          value: 'active',
+          options: [
+            { label: '进行中', value: 'active' },
+            { label: '已完成', value: 'done' },
+          ],
+        },
+      ],
+      trailing: [
+        {
+          type: 'button',
+          id: 'refresh',
+          icon: 'RefreshCw',
+          label: '刷新新人列表',
+          commandId: 'onboarding.refresh',
+        },
+        {
+          type: 'search',
+          id: 'search',
+          placeholder: '搜索新人',
+          commandId: 'onboarding.search',
+        },
+        { type: 'slot', id: 'custom-actions' },
+      ],
+    });
+
+    expect(commands).toEqual([
+      expect.objectContaining({
+        id: 'onboarding.nav.back',
+        title: '新员工运作：返回',
+        runMode: 'system',
+        appId: 'onboarding',
+      }),
+      expect.objectContaining({
+        id: 'onboarding.view.change',
+        title: '新员工运作：切换进行中/已完成',
+        runMode: 'system',
+        appId: 'onboarding',
+      }),
+      expect.objectContaining({
+        id: 'onboarding.refresh',
+        title: '新员工运作：刷新新人列表',
+        runMode: 'system',
+        appId: 'onboarding',
+      }),
+      expect.objectContaining({
+        id: 'onboarding.search',
+        title: '新员工运作：搜索新人',
+        runMode: 'system',
         appId: 'onboarding',
       }),
     ]);

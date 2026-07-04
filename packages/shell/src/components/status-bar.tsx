@@ -129,7 +129,7 @@ export function KernelOnStatusBar({
               Icon={StatusBellIcon}
               badge={
                 <span
-                  className="absolute top-[2px] right-[-2px] size-[7px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
+                  className="pointer-events-none absolute top-[3px] right-[-3px] size-[6.6px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
                   data-testid="kernelon-notification-dot"
                 />
               }
@@ -188,6 +188,7 @@ function StatusBarIconButton({
 }: StatusBarIconButtonProps) {
   return (
     <StatusBarFeedbackButton
+      badge={badge}
       className={`flex h-[30px] ${buttonClassName} items-center justify-center`}
       data-icon-variant={iconVariant}
       label={label}
@@ -202,7 +203,6 @@ function StatusBarIconButton({
         strokeWidth={1.38}
         style={statusGlyphStyle}
       />
-      {badge}
     </StatusBarFeedbackButton>
   );
 }
@@ -210,6 +210,7 @@ function StatusBarIconButton({
 interface StatusBarFeedbackButtonProps {
   children: ReactNode;
   label: string;
+  badge?: ReactNode;
   className?: string;
   glyphClassName?: string;
   pressed?: boolean;
@@ -222,6 +223,7 @@ interface StatusBarFeedbackButtonProps {
 function StatusBarFeedbackButton({
   children,
   label,
+  badge,
   className = '',
   glyphClassName = '',
   pressed,
@@ -242,7 +244,7 @@ function StatusBarFeedbackButton({
       ref={rootRef}
       aria-label={ariaLabel ?? label}
       aria-pressed={typeof pressed === 'boolean' ? pressed : undefined}
-      className={`relative shrink-0 overflow-hidden rounded-full border-0 bg-transparent text-white/95 outline-none transition-[box-shadow,color,transform] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white/80 ${className}`}
+      className={`relative shrink-0 overflow-visible rounded-full border-0 bg-transparent text-white/95 outline-none transition-[box-shadow,color,transform] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white/80 ${className}`}
       data-icon-variant={iconVariant}
       data-kernelon-status-feedback="gsap-press"
       data-testid={testId}
@@ -264,6 +266,7 @@ function StatusBarFeedbackButton({
       >
         {children}
       </span>
+      {badge}
     </button>
   );
 }
@@ -484,17 +487,31 @@ function StatusBatteryIcon({ className, style }: StatusIconProps) {
       viewBox="0 0 40 29"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <defs>
+        <mask id="kernelon-status-battery-bolt-outline-gap">
+          <rect fill="black" height="29" width="40" />
+          <path
+            d="M6.9 4.9h23.28c3.34 0 6.15 2.53 6.5 5.86h.48A2.84 2.84 0 0 1 40 13.62v1.76a2.84 2.84 0 0 1-2.84 2.86h-.48c-.35 3.36-3.16 5.94-6.5 5.94H6.9A6.9 6.9 0 0 1 0 17.28V11.8a6.9 6.9 0 0 1 6.9-6.9Z"
+            fill="white"
+          />
+          <path
+            d="M23.35 4.32 12.62 15.68h6.68l-3.02 9.05 12.88-13.1h-6.9l1.09-7.31Z"
+            fill="none"
+            stroke="black"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="5.8"
+          />
+        </mask>
+      </defs>
       <path
-        d="M7.1 4.95h10.15l-3.82 8.55h2.9l-3.72 10.55H7.1A7.05 7.05 0 0 1 .05 17v-5A7.05 7.05 0 0 1 7.1 4.95Z"
+        d="M6.9 4.9h23.28c3.34 0 6.15 2.53 6.5 5.86h.48A2.84 2.84 0 0 1 40 13.62v1.76a2.84 2.84 0 0 1-2.84 2.86h-.48c-.35 3.36-3.16 5.94-6.5 5.94H6.9A6.9 6.9 0 0 1 0 17.28V11.8a6.9 6.9 0 0 1 6.9-6.9Z"
         fill="currentColor"
+        mask="url(#kernelon-status-battery-bolt-outline-gap)"
       />
       <path
-        d="M27.25 4.95h4.9c3.12 0 5.68 2.38 6.06 5.56h.38A2.28 2.28 0 0 1 40 12.62v3.72a2.28 2.28 0 0 1-1.41 2.11h-.38c-.38 3.14-2.94 5.6-6.06 5.6h-9.12l4.28-8.58h3.18L27.25 4.95Z"
+        d="M23.35 4.32 12.62 15.68h6.68l-3.02 9.05 12.88-13.1h-6.9l1.09-7.31Z"
         fill="currentColor"
-      />
-      <path
-        d="M23.55 4.05 12.35 15.82h6.96l-3.12 9.34 13.64-13.78h-7.2l.92-7.33Z"
-        fill="rgba(55,65,61,0.92)"
       />
     </svg>
   );

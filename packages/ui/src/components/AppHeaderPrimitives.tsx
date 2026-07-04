@@ -22,10 +22,10 @@ export function AppHeaderButton({
   return (
     <button
       className={cn(
-        'inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-full border px-2.5 text-[12px] font-medium outline-none transition-[background-color,border-color,box-shadow,color,transform] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-white/90 disabled:cursor-not-allowed disabled:opacity-45',
+        'inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-full border px-2.5 text-[12px] font-medium outline-none transition-[background-color,border-color,box-shadow,color,transform] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-[var(--ko-app-header-focus-ring)] disabled:cursor-not-allowed disabled:opacity-45',
         selected
-          ? 'border-white/72 bg-white/82 text-[#1f2937] shadow-[0_7px_18px_rgba(36,52,68,0.13),inset_0_1px_0_rgba(255,255,255,0.82)]'
-          : 'border-white/46 bg-white/42 text-[#1f2937]/78 hover:border-white/68 hover:bg-white/66 hover:text-[#111827]',
+          ? 'border-[var(--ko-app-header-border-strong)] bg-[var(--ko-app-header-surface-strong)] text-[var(--ko-app-header-ink)] shadow-[var(--ko-app-header-control-shadow-selected)]'
+          : 'border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface-muted)] text-[var(--ko-app-header-ink)] hover:border-[var(--ko-app-header-border-strong)] hover:bg-[var(--ko-app-header-surface)] hover:text-[var(--ko-app-header-ink-strong)]',
         className,
       )}
       type={type}
@@ -44,7 +44,7 @@ export function AppHeaderGroup({ children, className, ...props }: AppHeaderGroup
   return (
     <div
       className={cn(
-        'inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-white/48 bg-white/36 p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.74),0_7px_18px_rgba(38,55,72,0.08)]',
+        'inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface-muted)] p-0.5 shadow-[var(--ko-app-header-control-shadow)]',
         className,
       )}
       {...props}
@@ -102,13 +102,15 @@ export function AppHeaderSearchField({
   return (
     <label
       className={cn(
-        'inline-flex h-9 min-w-[142px] max-w-[220px] shrink items-center gap-2 rounded-full border border-white/52 bg-white/50 px-3 text-[#1f2937]/72 shadow-[inset_0_1px_0_rgba(255,255,255,0.76),0_7px_18px_rgba(38,55,72,0.08)] focus-within:border-white/80 focus-within:bg-white/72 focus-within:ring-2 focus-within:ring-white/76',
+        'inline-flex h-9 min-w-[142px] max-w-[220px] shrink items-center gap-2 rounded-full border border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface)] px-3 text-[var(--ko-app-header-ink)] shadow-[var(--ko-app-header-control-shadow)] focus-within:border-[var(--ko-app-header-border-strong)] focus-within:bg-[var(--ko-app-header-surface-strong)] focus-within:ring-2 focus-within:ring-[var(--ko-app-header-focus-ring)]',
         className,
       )}
     >
-      {leadingIcon ? <span className="shrink-0 text-[#1f2937]/56">{leadingIcon}</span> : null}
+      {leadingIcon ? (
+        <span className="shrink-0 text-[var(--ko-app-header-placeholder)]">{leadingIcon}</span>
+      ) : null}
       <input
-        className="min-w-0 flex-1 bg-transparent text-[12px] font-medium text-[#111827] outline-none placeholder:text-[#1f2937]/52"
+        className="min-w-0 flex-1 bg-transparent text-[12px] font-medium text-[var(--ko-app-header-ink-strong)] outline-none placeholder:text-[var(--ko-app-header-placeholder)]"
         type={type}
         {...props}
       />
@@ -131,11 +133,11 @@ export function AppHeaderTitleBlock({
 }: AppHeaderTitleBlockProps) {
   return (
     <div className={cn('min-w-0 select-none', className)} {...props}>
-      <div className="truncate text-[13px] font-semibold leading-[1.15] text-[#172033]/86">
+      <div className="truncate text-[13px] font-semibold leading-[1.15] text-[var(--ko-app-header-ink)]">
         {title}
       </div>
       {subtitle || status ? (
-        <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] font-medium leading-none text-[#5f6d7d]/78">
+        <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] font-medium leading-none text-[var(--ko-app-header-ink-muted)]">
           {subtitle ? <span className="truncate">{subtitle}</span> : null}
           {status ? <span className="shrink-0">{status}</span> : null}
         </div>

@@ -1,3 +1,4 @@
+export * from './app-header';
 export * from './app-intents';
 export * from './app-registry';
 export * from './commands';

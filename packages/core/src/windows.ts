@@ -1,5 +1,6 @@
-import type { AppHeaderDescriptor, KernelAppManifest, WindowDescriptor } from './types';
+import type { AppHeaderDescriptor } from './app-header';
 import type { WindowOpenIntent } from './app-intents';
+import type { KernelAppManifest, WindowDescriptor } from './types';
 
 const DEFAULT_MIN_WINDOW_WIDTH = 520;
 const DEFAULT_MIN_WINDOW_HEIGHT = 360;

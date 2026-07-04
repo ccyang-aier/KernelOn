@@ -238,7 +238,7 @@ describe('KernelOnShell', () => {
     const statusTime = screen.getByTestId('kernelon-status-time');
 
     expect(spotlightButton).toHaveAttribute('aria-pressed', 'false');
-    expect(notificationDot).toHaveClass('top-[2px]', 'right-[-2px]', 'size-[7px]');
+    expect(notificationDot).toHaveClass('pointer-events-none', 'top-[3px]', 'right-[-3px]', 'size-[6.6px]');
     expect(statusTime).toHaveClass('font-normal');
 
     await user.click(spotlightButton);

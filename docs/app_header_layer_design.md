@@ -43,6 +43,8 @@ App Header 支持三种模式：
 
 声明层只保存轻量可序列化配置，例如标题、控件类型、图标名、命令 ID、搜索占位符和分段选项。运行层才注册命令处理器或填充 slot 内容。这样不会破坏 `packages/catalog`、`packages/modules` 和 `packages/shell` 的懒加载边界。
 
+Header 中出现的 `commandId` 不是临时字符串，而是可以被转换为 `CommandDefinition` 的命令协议。Shell 可以先渲染静态 descriptor，App 运行后再注册对应 handler；Spotlight、菜单或后续快捷键系统也可以复用同一批命令声明。
+
 ## 顶部区域结构
 
 App Header 分为五个稳定区域：
@@ -67,9 +69,10 @@ App Header 分为五个稳定区域：
 
 ## 实现映射
 
-- `packages/core` 定义 `AppHeaderDescriptor`、`AppHeaderItem` 和相关类型，并允许 App manifest 与窗口状态携带 header 配置。
+- `packages/core/src/app-header.ts` 定义 `AppHeaderDescriptor`、`AppHeaderItem`、命令声明辅助函数和相关类型，并允许 App manifest 与窗口状态携带 header 配置。
 - `packages/shell` 通过 `AppContainerHeader` 渲染容器顶部控制层，并提供 `useAppHeader` 与 `AppHeaderSlot` 给运行时 App 使用。
-- `packages/ui` 沉淀 `AppHeaderButton`、`AppHeaderGroup`、`AppHeaderSegmentedControl`、`AppHeaderSearchField` 和 `AppHeaderTitleBlock` 等视觉 primitives。
+- `packages/shell` 将整体布局、控件渲染和图标映射拆成内部小模块，避免容器组件承担过多变化原因。
+- `packages/ui` 沉淀 `AppHeaderButton`、`AppHeaderGroup`、`AppHeaderSegmentedControl`、`AppHeaderSearchField` 和 `AppHeaderTitleBlock` 等视觉 primitives，并通过 `--ko-app-header-*` token 收敛视觉细节。
 - `packages/modules` 中的业务 App 继续通过 `loaderKey` 懒加载，只在运行后注册命令处理器或填充受控 slot。
 
 这套实现让 Shell 继续只消费 manifest、窗口状态和运行时注册表，同时让每个 App 获得足够灵活的顶部控制能力。
