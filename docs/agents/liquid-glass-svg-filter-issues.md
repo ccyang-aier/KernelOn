@@ -67,6 +67,8 @@
 
 ### 3.2 Fragment 多 sibling 图层不适合作为普通容器
 
+状态：pass（2026-07-04，视觉验收通过，code review 通过）
+
 现状：
 
 - `LiquidGlassSvgFilter` 返回 Fragment。
