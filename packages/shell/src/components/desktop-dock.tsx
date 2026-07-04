@@ -1,6 +1,24 @@
 'use client';
 
-import { type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react';
+import {
+  useCallback,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FocusEvent as ReactFocusEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react';
+import {
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+  type MotionStyle,
+  type MotionValue,
+} from 'motion/react';
 
 import type { KernelAppManifest } from '@kernelon/core';
 
@@ -17,6 +35,50 @@ export interface DesktopDockProps {
   onToggleSpotlight(): void;
 }
 
+const DOCK_POINTER_RESTING_X = Number.NaN;
+const DOCK_DEFAULT_ICON_MEASURE = 56;
+const DOCK_ICON_SPRING = {
+  damping: 31,
+  mass: 0.28,
+  stiffness: 430,
+};
+
+export function resolveDockItemMagnification({
+  distance,
+  iconSize = DOCK_DEFAULT_ICON_MEASURE,
+  reducedMotion = false,
+}: {
+  distance: number;
+  iconSize?: number;
+  reducedMotion?: boolean;
+}): number {
+  if (reducedMotion || !Number.isFinite(distance)) {
+    return 1;
+  }
+
+  const measuredIconSize = Math.max(iconSize, 1);
+  const absDistance = Math.abs(distance);
+  const falloffStops = [
+    { distance: 0, scale: 1.36 },
+    { distance: measuredIconSize * 1.12, scale: 1.19 },
+    { distance: measuredIconSize * 2.05, scale: 1.07 },
+    { distance: measuredIconSize * 3.1, scale: 1 },
+  ];
+
+  if (absDistance >= falloffStops.at(-1)!.distance) {
+    return 1;
+  }
+
+  const stopIndex = falloffStops.findIndex((stop) => absDistance <= stop.distance);
+  const from = falloffStops[Math.max(stopIndex - 1, 0)];
+  const to = falloffStops[stopIndex];
+  const range = to.distance - from.distance;
+  const progress = range === 0 ? 0 : (absDistance - from.distance) / range;
+  const easedProgress = progress * progress * (3 - 2 * progress);
+
+  return from.scale + (to.scale - from.scale) * easedProgress;
+}
+
 export function DesktopDock({
   apps,
   dockAppIds,
@@ -24,55 +86,173 @@ export function DesktopDock({
   onToggleLauncher,
   onToggleSpotlight,
 }: DesktopDockProps) {
+  const shouldReduceMotion = useReducedMotion();
+  const mouseX = useMotionValue(DOCK_POINTER_RESTING_X);
+  const [isDockInteracting, setIsDockInteracting] = useState(false);
   const dockApps = dockAppIds
     .map((appId) => apps.find((app) => app.id === appId))
     .filter((app): app is KernelAppManifest => Boolean(app));
+  const setDockInteraction = useCallback(
+    (isInteracting: boolean) => {
+      setIsDockInteracting(isInteracting);
+
+      if (!isInteracting) {
+        mouseX.set(DOCK_POINTER_RESTING_X);
+      }
+    },
+    [mouseX],
+  );
+  const beginDockInteraction = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      if (event.pointerType === 'touch') {
+        return;
+      }
+
+      setDockInteraction(true);
+      mouseX.set(event.clientX);
+    },
+    [mouseX, setDockInteraction],
+  );
+  const endDockInteraction = useCallback(() => {
+    setDockInteraction(false);
+  }, [setDockInteraction]);
+  const handleDockBlur = useCallback(
+    (event: ReactFocusEvent<HTMLElement>) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        setDockInteraction(false);
+      }
+    },
+    [setDockInteraction],
+  );
 
   return (
-    <nav
+    <motion.nav
       aria-label="KernelOn Dock"
-      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-[70] flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center gap-[var(--dock-gap)] overflow-x-auto rounded-[clamp(20px,2.2vw,32px)] border border-white/40 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-[70] flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center overflow-x-auto rounded-[clamp(20px,2.2vw,32px)] border border-white/40 transition-[gap,padding] duration-500 ease-[cubic-bezier(0.18,1.2,0.22,1)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      data-kernelon-dock-interacting={String(isDockInteracting)}
       data-testid="kernelon-dock"
-      style={dockStyle}
+      onBlur={handleDockBlur}
+      onFocus={() => setDockInteraction(true)}
+      onPointerCancel={endDockInteraction}
+      onPointerEnter={beginDockInteraction}
+      onPointerLeave={endDockInteraction}
+      onPointerMove={beginDockInteraction}
+      style={
+        {
+          ...dockStyle,
+          '--dock-hover-gap-add': isDockInteracting ? '2px' : '0px',
+          '--dock-hover-pad-x-add': isDockInteracting ? '6px' : '0px',
+          '--dock-hover-pad-y-add': isDockInteracting ? '5px' : '0px',
+          '--dock-hover-progress': isDockInteracting ? 1 : 0,
+        } as CSSProperties
+      }
     >
-      <DockIconButton assetKey="launchpad" label="启动台" onClick={onToggleLauncher} />
+      <DockIconButton
+        assetKey="launchpad"
+        label="启动台"
+        mouseX={mouseX}
+        onClick={onToggleLauncher}
+        reducedMotion={Boolean(shouldReduceMotion)}
+      />
       {dockApps.map((app) => (
         <DockIconButton
           assetKey={app.id}
           key={app.id}
           label={app.name}
+          mouseX={mouseX}
           onClick={(event) => onOpenApp(app.id, event.currentTarget)}
+          reducedMotion={Boolean(shouldReduceMotion)}
         />
       ))}
-      <DockIconButton assetKey="ai-spotlight" label="AI Spotlight" onClick={onToggleSpotlight} />
+      <DockIconButton
+        assetKey="ai-spotlight"
+        label="AI Spotlight"
+        mouseX={mouseX}
+        onClick={onToggleSpotlight}
+        reducedMotion={Boolean(shouldReduceMotion)}
+      />
       <div
         aria-hidden="true"
         className="mx-[1px] h-[calc(var(--dock-icon-size)*0.78)] w-px bg-white/55 shadow-[1px_0_0_rgba(18,35,18,0.20)]"
       />
-      <DockIconButton assetKey="folder-stack" label="资源文件夹" />
-      <DockIconButton assetKey="document" label="最近文档" />
-      <DockIconButton assetKey="trash" label="废纸篓" />
-    </nav>
+      <DockIconButton
+        assetKey="folder-stack"
+        label="资源文件夹"
+        mouseX={mouseX}
+        reducedMotion={Boolean(shouldReduceMotion)}
+      />
+      <DockIconButton
+        assetKey="document"
+        label="最近文档"
+        mouseX={mouseX}
+        reducedMotion={Boolean(shouldReduceMotion)}
+      />
+      <DockIconButton
+        assetKey="trash"
+        label="废纸篓"
+        mouseX={mouseX}
+        reducedMotion={Boolean(shouldReduceMotion)}
+      />
+    </motion.nav>
   );
 }
 
 interface DockIconButtonProps {
   assetKey: string;
   label: string;
+  mouseX: MotionValue<number>;
   onClick?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
+  reducedMotion: boolean;
 }
 
-function DockIconButton({ assetKey, label, onClick }: DockIconButtonProps) {
+function DockIconButton({
+  assetKey,
+  label,
+  mouseX,
+  onClick,
+  reducedMotion,
+}: DockIconButtonProps) {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const distance = useMotionValue(DOCK_POINTER_RESTING_X);
+  const scaleTarget = useTransform(distance, (distanceValue) =>
+    resolveDockItemMagnification({
+      distance: distanceValue,
+      iconSize: buttonRef.current?.getBoundingClientRect().width ?? DOCK_DEFAULT_ICON_MEASURE,
+      reducedMotion,
+    }),
+  );
+  const scale = useSpring(scaleTarget, DOCK_ICON_SPRING);
+  const y = useTransform(scale, (scaleValue) => (scaleValue - 1) * -36);
+
+  useAnimationFrame(() => {
+    const button = buttonRef.current;
+    const pointerX = mouseX.get();
+
+    if (!button || !Number.isFinite(pointerX)) {
+      distance.set(DOCK_POINTER_RESTING_X);
+      return;
+    }
+
+    const rect = button.getBoundingClientRect();
+    distance.set(pointerX - (rect.left + rect.width / 2));
+  });
+
   return (
-    <button
+    <motion.button
       aria-label={label}
-      className="group relative flex size-[var(--dock-icon-size)] shrink-0 items-center justify-center rounded-[clamp(12px,1.1vw,16px)] outline-none transition duration-200 ease-out hover:-translate-y-1.5 hover:scale-[1.05] focus-visible:ring-2 focus-visible:ring-white/80"
+      className="group relative flex size-[var(--dock-icon-size)] shrink-0 origin-bottom items-center justify-center rounded-[clamp(12px,1.1vw,16px)] outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+      data-kernelon-dock-motion="distance-field"
       data-kernelon-dock-target={assetKey}
       onClick={onClick}
+      ref={buttonRef}
       style={
         {
           '--dock-icon-asset-scale': resolveDockIconAssetScale(assetKey),
-        } as CSSProperties
+          scale,
+          transformOrigin: '50% 100%',
+          willChange: reducedMotion ? 'auto' : 'transform',
+          y,
+        } as MotionStyle
       }
       title={label}
       type="button"
@@ -83,7 +263,7 @@ function DockIconButton({ assetKey, label, onClick }: DockIconButtonProps) {
         draggable={false}
         src={resolveDockIconAsset(assetKey)}
       />
-    </button>
+    </motion.button>
   );
 }
 
@@ -102,5 +282,8 @@ const dockStyle = {
   '--dock-icon-size': 'clamp(32px, 3.7vw, 66px)',
   '--dock-pad-x': 'clamp(9px, 0.9vw, 16px)',
   '--dock-pad-y': 'clamp(5px, 0.55vw, 9px)',
+  gap: 'calc(var(--dock-gap) + var(--dock-hover-gap-add))',
+  paddingBlock: 'calc(var(--dock-pad-y) + var(--dock-hover-pad-y-add))',
+  paddingInline: 'calc(var(--dock-pad-x) + var(--dock-hover-pad-x-add))',
   ...dockGlassSurfaceStyle,
 } as CSSProperties;
