@@ -172,7 +172,7 @@ describe('KernelOnShell', () => {
     ).toHaveClass('h-full', 'w-full', 'justify-between', 'px-[14px]', 'pt-[2px]');
     expect(statusBrand).toHaveClass('h-[38px]', 'justify-start', 'gap-[8px]');
     expect(statusBrand).toHaveTextContent('KernelOn');
-    expect(statusControls).toHaveClass('h-[38px]', 'w-[320px]', 'justify-end');
+    expect(statusControls).toHaveClass('h-[38px]', 'w-[500px]', 'justify-end');
     expect(statusControls).not.toHaveClass('pr-[10px]');
     expect(statusBrandLogo).toHaveAttribute(
       'src',
@@ -181,41 +181,33 @@ describe('KernelOnShell', () => {
     expect(statusBrandLogo).toHaveClass('-ml-[3px]', 'h-[30px]', 'w-[30px]');
     expect(screen.queryByText('09:41')).not.toBeInTheDocument();
     expect(within(statusBar).queryByLabelText('System time 09:41')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'KernelOn profile' })).not.toBeInTheDocument();
+    expect(screen.getByTestId('kernelon-status-time')).toHaveTextContent(
+      /^[A-Z][a-z]{2} [A-Z][a-z]{2} \d{1,2} \d{1,2}:\d{2} (AM|PM)$/,
+    );
     expect(
       within(statusBar)
         .getAllByRole('button')
         .map((button) => button.getAttribute('aria-label')),
     ).toEqual([
-      'Launchpad',
-      'Sync status',
+      'Theme',
+      'Volume',
+      'Bluetooth',
+      'Wi-Fi',
+      'Battery',
       'AI Spotlight',
       'Notifications',
       'Control Center',
-      'KernelOn profile',
     ]);
 
-    const launchpadButton = within(statusBar).getByRole('button', { name: 'Launchpad' });
-    const syncButton = within(statusBar).getByRole('button', { name: 'Sync status' });
     const spotlightButton = within(statusBar).getByRole('button', { name: 'AI Spotlight' });
-    const profileButton = within(statusBar).getByRole('button', { name: 'KernelOn profile' });
     const notificationDot = screen.getByTestId('kernelon-notification-dot');
 
-    expect(launchpadButton).toHaveAttribute('aria-pressed', 'false');
-    expect(syncButton).toHaveAttribute(
-      'data-icon-variant',
-      'material-symbols-light:cloud-done-outline-rounded',
-    );
     expect(spotlightButton).toHaveAttribute('aria-pressed', 'false');
     expect(notificationDot).toHaveClass('top-[2px]', 'right-[-2px]', 'size-[7px]');
-    expect(profileButton.querySelector('img')).toHaveAttribute(
-      'src',
-      '/kernelon-assets/status/avatar-manager.png',
-    );
 
-    await user.click(launchpadButton);
     await user.click(spotlightButton);
 
-    expect(launchpadButton).toHaveAttribute('aria-pressed', 'true');
     expect(spotlightButton).toHaveAttribute('aria-pressed', 'true');
   });
 

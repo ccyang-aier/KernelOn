@@ -3,27 +3,28 @@
 import { LiquidGlassSimple } from '@kernelon/ui';
 import {
   Bell,
-  LayoutGrid,
   Search,
 } from 'lucide-react';
-import { type ComponentType, type CSSProperties, type ReactNode, type SVGProps } from 'react';
+import {
+  useEffect,
+  useState,
+  type ComponentType,
+  type CSSProperties,
+  type ReactNode,
+  type SVGProps,
+} from 'react';
 
 import {
   kernelOnBrandLogo,
-  kernelOnStatusAvatar,
 } from '../visual-assets';
 
 export interface KernelOnStatusBarProps {
-  launcherOpen: boolean;
   spotlightOpen: boolean;
-  onToggleLauncher(): void;
   onToggleSpotlight(): void;
 }
 
 export function KernelOnStatusBar({
-  launcherOpen,
   spotlightOpen,
-  onToggleLauncher,
   onToggleSpotlight,
 }: KernelOnStatusBarProps) {
   return (
@@ -62,21 +63,33 @@ export function KernelOnStatusBar({
           </span>
         </span>
         <span
-          className="flex h-[38px] w-[320px] shrink-0 items-center justify-end gap-[18px]"
+          className="flex h-[38px] w-[500px] shrink-0 items-center justify-end gap-[17px]"
           data-testid="kernelon-status-controls"
         >
           <StatusBarIconButton
-            Icon={LayoutGrid}
+            Icon={StatusThemeIcon}
             iconClassName="h-[21px] w-[21px]"
-            label="Launchpad"
-            onClick={onToggleLauncher}
-            pressed={launcherOpen}
+            label="Theme"
           />
           <StatusBarIconButton
-            Icon={StatusSyncIcon}
-            iconClassName="h-[24px] w-[25px]"
-            iconVariant="material-symbols-light:cloud-done-outline-rounded"
-            label="Sync status"
+            Icon={StatusVolumeIcon}
+            iconClassName="h-[24px] w-[24px]"
+            label="Volume"
+          />
+          <StatusBarIconButton
+            Icon={StatusBluetoothIcon}
+            iconClassName="h-[21px] w-[21px]"
+            label="Bluetooth"
+          />
+          <StatusBarIconButton
+            Icon={StatusWifiIcon}
+            iconClassName="h-[24px] w-[24px]"
+            label="Wi-Fi"
+          />
+          <StatusBarIconButton
+            Icon={StatusBatteryIcon}
+            iconClassName="h-[25px] w-[25px]"
+            label="Battery"
           />
           <StatusBarIconButton
             Icon={Search}
@@ -101,7 +114,7 @@ export function KernelOnStatusBar({
             iconClassName="h-[23px] w-[23px]"
             label="Control Center"
           />
-          <StatusBarProfileButton />
+          <StatusBarTime />
         </span>
       </LiquidGlassSimple>
     </header>
@@ -153,7 +166,7 @@ function StatusBarIconButton({
   );
 }
 
-function StatusSyncIcon({ className, style }: StatusIconProps) {
+function StatusThemeIcon({ className, style }: StatusIconProps) {
   return (
     <svg
       aria-hidden="true"
@@ -163,7 +176,75 @@ function StatusSyncIcon({ className, style }: StatusIconProps) {
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M10.344 14.875L8.56 13.091q-.147-.147-.345-.156t-.363.155q-.165.166-.165.357q0 .192.165.357l1.933 1.938q.242.243.565.243t.566-.243l4.032-4.032q.146-.146.156-.35t-.156-.37t-.36-.165t-.36.166zM6.5 19q-1.871 0-3.185-1.306Q2 16.39 2 14.517q0-1.719 1.175-3.051t2.921-1.431q.337-2.185 2.01-3.61T12 5q2.502 0 4.251 1.749T18 11v1h.616q1.436.046 2.41 1.055T22 15.5q0 1.471-1.014 2.486T18.5 19z" />
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c3.91 0 7.24-2.5 8.48-6a7.58 7.58 0 0 1-4.98 1.84A7.34 7.34 0 0 1 8.16 9.5c0-1.9.72-3.63 1.9-4.93A8.9 8.9 0 0 1 12 3z" />
+    </svg>
+  );
+}
+
+function StatusVolumeIcon({ className, style }: StatusIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="currentColor"
+      style={style}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M3 9v6h4l5 5V4L7 9H3z" />
+      <path d="M14 8.05v7.9A4.47 4.47 0 0 0 16.5 12 4.47 4.47 0 0 0 14 8.05z" />
+      <path d="M14 3.23v2.06A7.01 7.01 0 0 1 19 12a7.01 7.01 0 0 1-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+    </svg>
+  );
+}
+
+function StatusBluetoothIcon({ className, style }: StatusIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="currentColor"
+      style={style}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M17.71 7.71 12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71L13.41 12l4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z" />
+    </svg>
+  );
+}
+
+function StatusWifiIcon({ className, style }: StatusIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="currentColor"
+      style={style}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="m1 9 2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9z" />
+      <path d="m9 17 3 3.01L15 17c-1.65-1.66-4.34-1.66-6 0z" />
+      <path d="m5 13 2 2c2.76-2.76 7.24-2.76 10 0l2-2c-3.86-3.86-10.13-3.86-14 0z" />
+    </svg>
+  );
+}
+
+function StatusBatteryIcon({ className, style }: StatusIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="currentColor"
+      style={style}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M4.6 7.5h11.8c.95 0 1.75.78 1.75 1.75v.65h.75c.62 0 1.1.48 1.1 1.1v2c0 .62-.48 1.1-1.1 1.1h-.75v.65c0 .97-.8 1.75-1.75 1.75H4.6a2.1 2.1 0 0 1-2.1-2.1V9.6c0-1.16.94-2.1 2.1-2.1z" />
+      <path
+        d="m12.9 8.75-4.1 4.6h2.65l-.55 3.05 4.3-5h-2.75l.45-2.65z"
+        fill="rgba(57,65,62,0.52)"
+      />
     </svg>
   );
 }
@@ -183,25 +264,53 @@ function StatusControlCenterIcon({ className, style }: StatusIconProps) {
   );
 }
 
-function StatusBarProfileButton() {
+function StatusBarTime() {
+  const [date, setDate] = useState(() => new Date());
+  const timeLabel = formatStatusBarTime(date);
+
+  useEffect(() => {
+    const updateTime = () => setDate(new Date());
+
+    updateTime();
+    const intervalId = window.setInterval(updateTime, 30_000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   return (
-    <button
-      aria-label="KernelOn profile"
-      className="relative flex size-[32px] shrink-0 items-center justify-center rounded-full outline-none transition duration-150 ease-out hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-white/80"
-      title="KernelOn profile"
-      type="button"
+    <time
+      aria-label={`System time ${timeLabel}`}
+      className="min-w-[136px] shrink-0 text-right text-[15px] font-semibold leading-none text-white/95"
+      data-testid="kernelon-status-time"
+      dateTime={date.toISOString()}
+      style={statusTimeTextStyle}
+      suppressHydrationWarning
     >
-      <span className="absolute inset-0 rounded-full bg-white/82 shadow-[0_0_5px_rgba(255,255,255,0.88),0_1px_3px_rgba(39,84,103,0.24)]" />
-      <span className="relative block size-[28px] overflow-hidden rounded-full bg-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.74)]">
-        <img
-          alt=""
-          className="h-full w-full object-cover"
-          draggable={false}
-          src={kernelOnStatusAvatar}
-        />
-      </span>
-    </button>
+      {timeLabel}
+    </time>
   );
+}
+
+function formatStatusBarTime(date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    day: 'numeric',
+    hour: 'numeric',
+    hour12: true,
+    minute: '2-digit',
+    month: 'short',
+    weekday: 'short',
+  }).formatToParts(date);
+  const valueByType = new Map(parts.map((part) => [part.type, part.value]));
+
+  return [
+    valueByType.get('weekday'),
+    valueByType.get('month'),
+    valueByType.get('day'),
+    `${valueByType.get('hour')}:${valueByType.get('minute')}`,
+    valueByType.get('dayPeriod'),
+  ]
+    .filter(Boolean)
+    .join(' ');
 }
 
 const statusBarShellStyle = {
@@ -216,6 +325,11 @@ const statusBrandLogoStyle = {
 const statusBrandTextStyle = {
   letterSpacing: 0,
   textShadow: '0 0 5px rgba(255,255,255,0.52), 0 1px 3px rgba(45,92,111,0.26)',
+} as CSSProperties;
+
+const statusTimeTextStyle = {
+  letterSpacing: 0,
+  textShadow: '0 0 4px rgba(255,255,255,0.48), 0 1px 3px rgba(45,92,111,0.28)',
 } as CSSProperties;
 
 const statusGlyphStyle = {

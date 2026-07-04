@@ -90,7 +90,6 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const screens = useShellSelector((state) => state.screens);
   const windows = useShellSelector((state) => state.windows);
   const dockAppIds = useShellSelector((state) => state.dockAppIds);
-  const launcherOpen = useShellSelector((state) => state.launcherOpen);
   const spotlightOpen = useShellSelector((state) => state.spotlightOpen);
   const closeWindow = useShellSelector((state) => state.closeWindow);
   const focusWindow = useShellSelector((state) => state.focusWindow);
@@ -293,8 +292,6 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_92%,rgba(255,255,255,0.20),transparent_34%),linear-gradient(180deg,rgba(4,19,12,0.02),rgba(4,19,12,0.08))]"
       />
       <KernelOnStatusBar
-        launcherOpen={launcherOpen}
-        onToggleLauncher={toggleLauncher}
         onToggleSpotlight={toggleSpotlight}
         spotlightOpen={spotlightOpen}
       />
