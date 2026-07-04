@@ -145,6 +145,8 @@
 
 ### 3.5 尺寸更新只监听 window resize
 
+状态：pass（2026-07-04，视觉验收通过，code review 通过）
+
 现状：
 
 - `glassSize` 初始为 `{ width: 270, height: 69 }`。
