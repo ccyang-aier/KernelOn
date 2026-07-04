@@ -75,21 +75,24 @@ export function KernelOnStatusBar({
             </span>
           </StatusBarFeedbackButton>
           <span
-            className="flex h-[38px] w-[500px] shrink-0 items-center justify-end gap-[17px]"
+            className="flex h-[38px] w-[500px] shrink-0 items-center justify-end gap-[17px] max-[720px]:w-auto max-[720px]:gap-[11px] max-[560px]:gap-[8px]"
             data-testid="kernelon-status-controls"
           >
             <StatusBarIconButton
               Icon={StatusThemeIcon}
+              buttonClassName="w-[27px] max-[680px]:hidden"
               iconClassName="h-[24px] w-[24px]"
               label="Theme"
             />
             <StatusBarIconButton
               Icon={StatusVolumeIcon}
+              buttonClassName="w-[27px] max-[680px]:hidden"
               iconClassName="h-[24px] w-[24px]"
               label="Volume"
             />
             <StatusBarIconButton
               Icon={StatusBluetoothIcon}
+              buttonClassName="w-[27px] max-[680px]:hidden"
               iconClassName="h-[23px] w-[23px]"
               label="Bluetooth"
             />
@@ -509,7 +512,7 @@ function StatusBarTime() {
 
   return (
     <StatusBarFeedbackButton
-      className="flex h-[30px] min-w-[136px] items-center justify-end px-[4px]"
+      className="flex h-[30px] min-w-[136px] items-center justify-end px-[4px] max-[460px]:hidden"
       data-testid="kernelon-status-time-button"
       glyphClassName="items-center justify-end"
       label={`System time ${timeLabel}`}
