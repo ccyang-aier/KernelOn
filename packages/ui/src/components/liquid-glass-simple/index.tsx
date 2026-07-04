@@ -16,10 +16,10 @@ export interface LiquidGlassSimpleProps extends HTMLAttributes<HTMLDivElement> {
   blur?: number | string;
 }
 
-const tintClasses: Record<LiquidGlassTone, string> = {
-  subtle: 'bg-white/20',
-  balanced: 'bg-white/30',
-  luminous: 'bg-white/40',
+const tintOpacityByTone: Record<LiquidGlassTone, number> = {
+  subtle: 0.2,
+  balanced: 0.25,
+  luminous: 0.34,
 };
 
 function toCssLength(value: number | string): string {
@@ -34,13 +34,13 @@ export function LiquidGlassSimple({
   children,
   className,
   contentClassName,
-  displacementScale = 120,
+  displacementScale = 150,
   filterId,
   interactive = false,
   radius = 28,
-  saturation = 150,
+  saturation = 100,
   tone = 'balanced',
-  blur = 8,
+  blur = 3,
   style,
   ...props
 }: LiquidGlassSimpleProps) {
@@ -52,15 +52,16 @@ export function LiquidGlassSimple({
     '--ko-liquid-glass-blur': toCssLength(blur),
     '--ko-liquid-glass-radius': toCssLength(radius),
     '--ko-liquid-glass-saturation': `${saturation}%`,
+    '--ko-liquid-glass-tint-opacity': tintOpacityByTone[tone],
     ...style,
   } as CSSProperties;
 
   return (
     <div
       className={cn(
-        'relative isolate inline-flex overflow-hidden rounded-[var(--ko-liquid-glass-radius)] border border-white/35 text-[var(--ko-ink)] shadow-[0_18px_55px_rgba(17,24,39,0.12),0_4px_16px_rgba(17,24,39,0.08)] transition-[box-shadow,transform] duration-300 ease-out',
+        'relative isolate inline-flex overflow-hidden rounded-[var(--ko-liquid-glass-radius)] text-[var(--ko-ink)] shadow-[0_6px_6px_rgba(0,0,0,0.2),0_0_20px_rgba(0,0,0,0.1)] transition-all duration-[400ms] ease-[cubic-bezier(0.175,0.885,0.32,2.2)]',
         interactive
-          ? 'cursor-pointer hover:-translate-y-px hover:shadow-[0_22px_64px_rgba(17,24,39,0.16),0_6px_18px_rgba(17,24,39,0.1)] active:translate-y-0 active:scale-[0.985]'
+          ? 'cursor-pointer hover:-translate-y-px active:translate-y-0 active:scale-[0.985]'
           : null,
         className,
       )}
@@ -84,7 +85,7 @@ export function LiquidGlassSimple({
         >
           <feTurbulence
             type="fractalNoise"
-            baseFrequency="0.012 0.016"
+            baseFrequency="0.01 0.01"
             numOctaves="1"
             seed="5"
             result="turbulence"
@@ -94,16 +95,16 @@ export function LiquidGlassSimple({
             <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
             <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
           </feComponentTransfer>
-          <feGaussianBlur in="mapped" stdDeviation="2.8" result="softMap" />
+          <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
           <feSpecularLighting
             in="softMap"
-            surfaceScale="4"
-            specularConstant="0.9"
-            specularExponent="90"
+            surfaceScale="5"
+            specularConstant="1"
+            specularExponent="100"
             lightingColor="white"
             result="specLight"
           >
-            <fePointLight x="-180" y="-180" z="260" />
+            <fePointLight x="-200" y="-200" z="300" />
           </feSpecularLighting>
           <feComposite
             in="specLight"
@@ -136,11 +137,11 @@ export function LiquidGlassSimple({
       />
       <span
         aria-hidden="true"
-        className={cn(
-          'absolute inset-0 z-[1] rounded-[var(--ko-liquid-glass-radius)]',
-          tintClasses[tone],
-        )}
+        className="absolute inset-0 z-[1] rounded-[var(--ko-liquid-glass-radius)]"
         data-slot="liquid-glass-simple-tint"
+        style={{
+          background: 'rgba(255, 255, 255, var(--ko-liquid-glass-tint-opacity))',
+        }}
       />
       <span
         aria-hidden="true"
@@ -148,7 +149,7 @@ export function LiquidGlassSimple({
         data-slot="liquid-glass-simple-shine"
         style={{
           boxShadow:
-            'inset 1px 1px 1px rgba(255,255,255,0.58), inset -1px -1px 1px rgba(255,255,255,0.42), inset 0 0 18px rgba(255,255,255,0.12)',
+            'inset 2px 2px 1px 0 rgba(255,255,255,0.5), inset -1px -1px 1px 1px rgba(255,255,255,0.5)',
         }}
       />
       <span

@@ -35,24 +35,20 @@ export function KernelOnStatusBar({
       style={statusBarShellStyle}
     >
       <LiquidGlassSimple
-        blur={14}
-        className="pointer-events-auto h-[40px] w-full border-x-0 border-t-0 border-white/30 bg-white/10 text-white shadow-[0_8px_28px_rgba(42,92,112,0.14)]"
-        contentClassName="h-full w-full justify-between pl-[14px] pt-[2px]"
+        className="pointer-events-auto h-[40px] w-full text-white"
+        contentClassName="h-full w-full justify-between px-[14px] pt-[2px]"
         data-testid="kernelon-status-glass"
-        displacementScale={72}
         filterId="kernelon-status-bar-liquid-glass"
         radius={0}
-        saturation={168}
-        tone="subtle"
       >
         <span
           aria-label="KernelOn product identity"
-          className="flex h-[38px] min-w-0 items-center gap-[8px]"
+          className="flex h-[38px] min-w-0 items-center justify-start gap-[8px]"
           data-testid="kernelon-status-brand"
         >
           <img
             alt=""
-            className="h-[30px] w-[52px] shrink-0 object-contain"
+            className="-ml-[3px] h-[30px] w-[30px] shrink-0 object-contain"
             data-testid="kernelon-status-brand-logo"
             draggable={false}
             src={kernelOnBrandLogo}
@@ -66,7 +62,7 @@ export function KernelOnStatusBar({
           </span>
         </span>
         <span
-          className="flex h-[38px] w-[320px] shrink-0 items-center justify-end gap-[18px] pr-[10px]"
+          className="flex h-[38px] w-[320px] shrink-0 items-center justify-end gap-[18px]"
           data-testid="kernelon-status-controls"
         >
           <StatusBarIconButton

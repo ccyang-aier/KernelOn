@@ -144,11 +144,12 @@ describe('KernelOnShell', () => {
     expect(statusBar.getAttribute('style')).toContain('40px');
     expect(statusFrame).toHaveAttribute('data-slot', 'liquid-glass-simple');
     expect(statusFrame).toHaveAttribute('data-testid', 'kernelon-status-glass');
-    expect(statusFrame).toHaveClass('h-[40px]', 'w-full', 'border-white/30');
+    expect(statusFrame).toHaveClass('h-[40px]', 'w-full', 'text-white');
     expect(statusFrame).toHaveStyle({
-      '--ko-liquid-glass-blur': '14px',
+      '--ko-liquid-glass-blur': '3px',
       '--ko-liquid-glass-radius': '0px',
-      '--ko-liquid-glass-saturation': '168%',
+      '--ko-liquid-glass-saturation': '100%',
+      '--ko-liquid-glass-tint-opacity': '0.25',
     });
     expect(
       statusFrame?.querySelector('filter#kernelon-status-bar-liquid-glass'),
@@ -158,17 +159,21 @@ describe('KernelOnShell', () => {
     ).toBeInTheDocument();
     expect(
       statusFrame?.querySelector('[data-slot="liquid-glass-simple-tint"]'),
-    ).toHaveClass('bg-white/20');
+    ).toHaveStyle({
+      background: 'rgba(255, 255, 255, var(--ko-liquid-glass-tint-opacity))',
+    });
     expect(
       statusFrame?.querySelector('[data-slot="liquid-glass-simple-content"]'),
-    ).toHaveClass('h-full', 'w-full', 'justify-between', 'pl-[14px]', 'pt-[2px]');
-    expect(statusBrand).toHaveClass('h-[38px]', 'gap-[8px]');
+    ).toHaveClass('h-full', 'w-full', 'justify-between', 'px-[14px]', 'pt-[2px]');
+    expect(statusBrand).toHaveClass('h-[38px]', 'justify-start', 'gap-[8px]');
     expect(statusBrand).toHaveTextContent('KernelOn');
-    expect(statusControls).toHaveClass('h-[38px]', 'w-[320px]', 'pr-[10px]');
+    expect(statusControls).toHaveClass('h-[38px]', 'w-[320px]', 'justify-end');
+    expect(statusControls).not.toHaveClass('pr-[10px]');
     expect(statusBrandLogo).toHaveAttribute(
       'src',
       '/kernelon-assets/brand/kernelon-logo-speedboat.png',
     );
+    expect(statusBrandLogo).toHaveClass('-ml-[3px]', 'h-[30px]', 'w-[30px]');
     expect(screen.queryByText('09:41')).not.toBeInTheDocument();
     expect(within(statusBar).queryByLabelText('System time 09:41')).not.toBeInTheDocument();
     expect(
