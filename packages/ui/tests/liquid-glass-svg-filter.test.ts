@@ -32,7 +32,7 @@ describe('LiquidGlassSvgFilter', () => {
     }).not.toThrow();
   });
 
-  it('renders a single positioned host for the glass effect layers', () => {
+  it('renders an inert host while preserving positioned glass layers', () => {
     const markup = renderToStaticMarkup(
       createElement(
         LiquidGlassSvgFilter,
@@ -45,9 +45,13 @@ describe('LiquidGlassSvgFilter', () => {
 
     expect(hostOpenTag).toContain('data-slot="liquid-glass-svg-filter"');
     expect(hostOpenTag).toContain('position:absolute');
-    expect(hostOpenTag).toContain('left:12px');
-    expect(hostOpenTag).toContain('top:34px');
-    expect(hostOpenTag).toContain('width:270px');
-    expect(hostOpenTag).toContain('height:69px');
+    expect(hostOpenTag).toContain('top:0');
+    expect(hostOpenTag).toContain('left:0');
+    expect(hostOpenTag).toContain('width:0');
+    expect(hostOpenTag).toContain('height:0');
+    expect(hostOpenTag).toContain('overflow:visible');
+    expect(hostOpenTag).not.toContain('transform:');
+    expect(markup).toContain('position:absolute;top:34px;left:12px;height:69px;width:270px');
+    expect(markup).toContain('transform:translate(calc(-50% + 0px), calc(-50% + 0px)) scale(1)');
   });
 });
