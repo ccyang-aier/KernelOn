@@ -454,42 +454,51 @@ export default function LiquidGlassSvgFilter({
     transition: "all ease-out 0.2s",
   }
 
-  const positionStyles = {
+  const hostStyle: CSSProperties = {
+    ...baseStyle,
     position: baseStyle.position || "relative",
     top: baseStyle.top || "50%",
     left: baseStyle.left || "50%",
+    width: glassSize.width,
+    height: glassSize.height,
+  }
+
+  const glassContainerStyle: CSSProperties = {
+    display: "inline-block",
+    position: "relative",
+    transition: baseStyle.transition,
+  }
+
+  const layerStyle: CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    height: glassSize.height,
+    width: glassSize.width,
+    borderRadius: `${cornerRadius}px`,
+    pointerEvents: "none",
+    transition: baseStyle.transition,
   }
 
   return (
-    <>
+    <div data-slot="liquid-glass-svg-filter" style={hostStyle}>
       {/* Over light effect */}
       <div
         className={`bg-black transition-all duration-150 ease-in-out pointer-events-none ${overLight ? "opacity-20" : "opacity-0"}`}
         style={{
-          ...positionStyles,
-          height: glassSize.height,
-          width: glassSize.width,
-          borderRadius: `${cornerRadius}px`,
-          transform: baseStyle.transform,
-          transition: baseStyle.transition,
+          ...layerStyle,
         }}
       />
       <div
         className={`bg-black transition-all duration-150 ease-in-out pointer-events-none mix-blend-overlay ${overLight ? "opacity-100" : "opacity-0"}`}
         style={{
-          ...positionStyles,
-          height: glassSize.height,
-          width: glassSize.width,
-          borderRadius: `${cornerRadius}px`,
-          transform: baseStyle.transform,
-          transition: baseStyle.transition,
+          ...layerStyle,
         }}
       />
 
       <GlassContainer
         ref={glassRef}
         className={className}
-        style={baseStyle}
+        style={glassContainerStyle}
         cornerRadius={cornerRadius}
         displacementScale={overLight ? displacementScale * 0.5 : displacementScale}
         blurAmount={blurAmount}
@@ -513,13 +522,7 @@ export default function LiquidGlassSvgFilter({
       {/* Border layer 1 - extracted from glass container */}
       <span
         style={{
-          ...positionStyles,
-          height: glassSize.height,
-          width: glassSize.width,
-          borderRadius: `${cornerRadius}px`,
-          transform: baseStyle.transform,
-          transition: baseStyle.transition,
-          pointerEvents: "none",
+          ...layerStyle,
           mixBlendMode: "screen",
           opacity: 0.2,
           padding: "1.5px",
@@ -540,13 +543,7 @@ export default function LiquidGlassSvgFilter({
       {/* Border layer 2 - duplicate with mix-blend-overlay */}
       <span
         style={{
-          ...positionStyles,
-          height: glassSize.height,
-          width: glassSize.width,
-          borderRadius: `${cornerRadius}px`,
-          transform: baseStyle.transform,
-          transition: baseStyle.transition,
-          pointerEvents: "none",
+          ...layerStyle,
           mixBlendMode: "overlay",
           padding: "1.5px",
           WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
@@ -568,12 +565,8 @@ export default function LiquidGlassSvgFilter({
         <>
           <div
             style={{
-              ...positionStyles,
-              height: glassSize.height,
+              ...layerStyle,
               width: glassSize.width + 1,
-              borderRadius: `${cornerRadius}px`,
-              transform: baseStyle.transform,
-              pointerEvents: "none",
               transition: "all 0.2s ease-out",
               opacity: isHovered || isActive ? 0.5 : 0,
               backgroundImage: "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 50%)",
@@ -582,12 +575,8 @@ export default function LiquidGlassSvgFilter({
           />
           <div
             style={{
-              ...positionStyles,
-              height: glassSize.height,
+              ...layerStyle,
               width: glassSize.width + 1,
-              borderRadius: `${cornerRadius}px`,
-              transform: baseStyle.transform,
-              pointerEvents: "none",
               transition: "all 0.2s ease-out",
               opacity: isActive ? 0.5 : 0,
               backgroundImage: "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 80%)",
@@ -596,14 +585,8 @@ export default function LiquidGlassSvgFilter({
           />
           <div
             style={{
-              ...baseStyle,
-              height: glassSize.height,
+              ...layerStyle,
               width: glassSize.width + 1,
-              borderRadius: `${cornerRadius}px`,
-              position: baseStyle.position,
-              top: baseStyle.top,
-              left: baseStyle.left,
-              pointerEvents: "none",
               transition: "all 0.2s ease-out",
               opacity: isHovered ? 0.4 : isActive ? 0.8 : 0,
               backgroundImage: "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%)",
@@ -612,6 +595,6 @@ export default function LiquidGlassSvgFilter({
           />
         </>
       )}
-    </>
+    </div>
   )
 }
