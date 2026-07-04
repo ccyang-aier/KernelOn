@@ -50,27 +50,37 @@ describe('DesktopDock', () => {
     const iconSize = 64;
     const focusedScale = resolveDockItemMagnification({ distance: 0, iconSize });
     const neighborScale = resolveDockItemMagnification({
-      distance: iconSize * 1.12,
+      distance: iconSize * 1.2,
       iconSize,
     });
     const secondNeighborScale = resolveDockItemMagnification({
-      distance: iconSize * 2.05,
+      distance: iconSize * 2.6,
+      iconSize,
+    });
+    const outerNeighborScale = resolveDockItemMagnification({
+      distance: iconSize * 4.8,
       iconSize,
     });
     const distantScale = resolveDockItemMagnification({
-      distance: iconSize * 3.1,
+      distance: iconSize * 6.2,
       iconSize,
     });
 
-    expect(focusedScale).toBeCloseTo(1.36);
-    expect(neighborScale).toBeGreaterThan(1.18);
+    expect(focusedScale).toBeGreaterThan(1.85);
+    expect(focusedScale).toBeLessThan(2);
+    expect(neighborScale).toBeGreaterThan(1.72);
     expect(neighborScale).toBeLessThan(focusedScale);
-    expect(secondNeighborScale).toBeGreaterThan(1.06);
+    expect(secondNeighborScale).toBeGreaterThan(1.46);
     expect(secondNeighborScale).toBeLessThan(neighborScale);
+    expect(outerNeighborScale).toBeGreaterThan(1.06);
+    expect(outerNeighborScale).toBeLessThan(secondNeighborScale);
     expect(distantScale).toBe(1);
+    expect(
+      resolveDockItemMagnification({ distance: 0, iconSize, reducedMotion: true }),
+    ).toBe(1);
   });
 
-  it('enters an elastic hover state without changing the dock action surface', () => {
+  it('keeps the rail height fixed while dock items grow the layout width upward', () => {
     render(
       <DesktopDock
         apps={dockApps}
@@ -83,18 +93,29 @@ describe('DesktopDock', () => {
 
     const dock = screen.getByTestId('kernelon-dock');
 
+    expect(dock).toHaveClass('overflow-visible');
     expect(dock).toHaveAttribute('data-kernelon-dock-interacting', 'false');
+    expect(dock.style.height).toBe('var(--dock-rail-height)');
     expect(dock).toHaveStyle('--dock-hover-progress: 0');
+    expect(dock.style.getPropertyValue('--dock-hover-pad-y-add')).toBe('');
+
+    const onboardingButton = screen.getByRole('button', { name: '新员工运作' });
+
+    expect(onboardingButton).toHaveAttribute('data-kernelon-dock-motion', 'layout-width');
+    expect(onboardingButton.style.width).toBe(
+      'calc(var(--dock-icon-size) * var(--dock-item-scale))',
+    );
+    expect(onboardingButton.style.height).toBe(
+      'calc(var(--dock-icon-size) * var(--dock-item-scale))',
+    );
 
     fireEvent.pointerEnter(dock, { clientX: 320, pointerType: 'mouse' });
     fireEvent.pointerMove(dock, { clientX: 360, pointerType: 'mouse' });
 
     expect(dock).toHaveAttribute('data-kernelon-dock-interacting', 'true');
     expect(dock).toHaveStyle('--dock-hover-progress: 1');
-    expect(screen.getByRole('button', { name: '新员工运作' })).toHaveAttribute(
-      'data-kernelon-dock-motion',
-      'distance-field',
-    );
+    expect(dock.style.height).toBe('var(--dock-rail-height)');
+    expect(dock.style.getPropertyValue('--dock-hover-pad-y-add')).toBe('');
 
     fireEvent.pointerLeave(dock);
 

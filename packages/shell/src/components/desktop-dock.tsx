@@ -38,9 +38,9 @@ export interface DesktopDockProps {
 const DOCK_POINTER_RESTING_X = Number.NaN;
 const DOCK_DEFAULT_ICON_MEASURE = 56;
 const DOCK_ICON_SPRING = {
-  damping: 31,
-  mass: 0.28,
-  stiffness: 430,
+  damping: 46,
+  mass: 0.24,
+  stiffness: 720,
 };
 
 export function resolveDockItemMagnification({
@@ -59,10 +59,12 @@ export function resolveDockItemMagnification({
   const measuredIconSize = Math.max(iconSize, 1);
   const absDistance = Math.abs(distance);
   const falloffStops = [
-    { distance: 0, scale: 1.36 },
-    { distance: measuredIconSize * 1.12, scale: 1.19 },
-    { distance: measuredIconSize * 2.05, scale: 1.07 },
-    { distance: measuredIconSize * 3.1, scale: 1 },
+    { distance: 0, scale: 1.92 },
+    { distance: measuredIconSize * 1.1, scale: 1.82 },
+    { distance: measuredIconSize * 2.4, scale: 1.58 },
+    { distance: measuredIconSize * 3.7, scale: 1.28 },
+    { distance: measuredIconSize * 5.2, scale: 1.08 },
+    { distance: measuredIconSize * 6.1, scale: 1 },
   ];
 
   if (absDistance >= falloffStops.at(-1)!.distance) {
@@ -128,7 +130,7 @@ export function DesktopDock({
   return (
     <motion.nav
       aria-label="KernelOn Dock"
-      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-[70] flex max-w-[calc(100vw-20px)] -translate-x-1/2 items-center overflow-x-auto rounded-[clamp(20px,2.2vw,32px)] border border-white/40 transition-[gap,padding] duration-500 ease-[cubic-bezier(0.18,1.2,0.22,1)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-[70] flex h-[var(--dock-rail-height)] w-max max-w-[calc(100vw-20px)] -translate-x-1/2 items-end gap-[var(--dock-gap)] overflow-visible rounded-[clamp(20px,2.2vw,32px)] border border-white/40 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)]"
       data-kernelon-dock-interacting={String(isDockInteracting)}
       data-testid="kernelon-dock"
       onBlur={handleDockBlur}
@@ -140,9 +142,6 @@ export function DesktopDock({
       style={
         {
           ...dockStyle,
-          '--dock-hover-gap-add': isDockInteracting ? '2px' : '0px',
-          '--dock-hover-pad-x-add': isDockInteracting ? '6px' : '0px',
-          '--dock-hover-pad-y-add': isDockInteracting ? '5px' : '0px',
           '--dock-hover-progress': isDockInteracting ? 1 : 0,
         } as CSSProperties
       }
@@ -213,16 +212,16 @@ function DockIconButton({
   reducedMotion,
 }: DockIconButtonProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const baseIconSizeRef = useRef(DOCK_DEFAULT_ICON_MEASURE);
   const distance = useMotionValue(DOCK_POINTER_RESTING_X);
   const scaleTarget = useTransform(distance, (distanceValue) =>
     resolveDockItemMagnification({
       distance: distanceValue,
-      iconSize: buttonRef.current?.getBoundingClientRect().width ?? DOCK_DEFAULT_ICON_MEASURE,
+      iconSize: baseIconSizeRef.current,
       reducedMotion,
     }),
   );
   const scale = useSpring(scaleTarget, DOCK_ICON_SPRING);
-  const y = useTransform(scale, (scaleValue) => (scaleValue - 1) * -36);
 
   useAnimationFrame(() => {
     const button = buttonRef.current;
@@ -234,24 +233,26 @@ function DockIconButton({
     }
 
     const rect = button.getBoundingClientRect();
+    baseIconSizeRef.current = resolveDockItemBaseSize(button, scale.get());
     distance.set(pointerX - (rect.left + rect.width / 2));
   });
 
   return (
     <motion.button
       aria-label={label}
-      className="group relative flex size-[var(--dock-icon-size)] shrink-0 origin-bottom items-center justify-center rounded-[clamp(12px,1.1vw,16px)] outline-none focus-visible:ring-2 focus-visible:ring-white/80"
-      data-kernelon-dock-motion="distance-field"
+      className="group relative flex shrink-0 origin-bottom items-center justify-center rounded-[clamp(12px,1.1vw,16px)] outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+      data-kernelon-dock-motion="layout-width"
       data-kernelon-dock-target={assetKey}
       onClick={onClick}
       ref={buttonRef}
       style={
         {
           '--dock-icon-asset-scale': resolveDockIconAssetScale(assetKey),
-          scale,
+          '--dock-item-scale': scale,
+          height: 'calc(var(--dock-icon-size) * var(--dock-item-scale))',
           transformOrigin: '50% 100%',
-          willChange: reducedMotion ? 'auto' : 'transform',
-          y,
+          width: 'calc(var(--dock-icon-size) * var(--dock-item-scale))',
+          willChange: reducedMotion ? 'auto' : 'width, height',
         } as MotionStyle
       }
       title={label}
@@ -265,6 +266,23 @@ function DockIconButton({
       />
     </motion.button>
   );
+}
+
+function resolveDockItemBaseSize(
+  button: HTMLButtonElement | null,
+  currentScale: number,
+): number {
+  if (!button) {
+    return DOCK_DEFAULT_ICON_MEASURE;
+  }
+
+  const width = button.getBoundingClientRect().width;
+
+  if (width <= 0) {
+    return DOCK_DEFAULT_ICON_MEASURE;
+  }
+
+  return width / Math.max(currentScale, 0.1);
 }
 
 const dockGlassSurfaceStyle = {
@@ -282,8 +300,7 @@ const dockStyle = {
   '--dock-icon-size': 'clamp(32px, 3.7vw, 66px)',
   '--dock-pad-x': 'clamp(9px, 0.9vw, 16px)',
   '--dock-pad-y': 'clamp(5px, 0.55vw, 9px)',
-  gap: 'calc(var(--dock-gap) + var(--dock-hover-gap-add))',
-  paddingBlock: 'calc(var(--dock-pad-y) + var(--dock-hover-pad-y-add))',
-  paddingInline: 'calc(var(--dock-pad-x) + var(--dock-hover-pad-x-add))',
+  '--dock-rail-height': 'calc(var(--dock-icon-size) + var(--dock-pad-y) + var(--dock-pad-y))',
+  height: 'var(--dock-rail-height)',
   ...dockGlassSurfaceStyle,
 } as CSSProperties;
