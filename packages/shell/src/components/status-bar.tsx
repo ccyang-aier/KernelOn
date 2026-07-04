@@ -173,24 +173,15 @@ function StatusControlCenterIcon({ className, style }: StatusIconProps) {
     <svg
       aria-hidden="true"
       className={className}
-      fill="none"
+      fill="currentColor"
       style={style}
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.85"
-      >
-        <rect height="5" rx="2.5" width="14.8" x="4.6" y="5.25" />
-        <rect height="5" rx="2.5" width="14.8" x="4.6" y="13.75" />
-      </g>
-      <g fill="currentColor">
-        <circle cx="8.05" cy="7.75" r="1.35" />
-        <circle cx="15.95" cy="16.25" r="1.35" />
-      </g>
+      <rect height="6.2" rx="1.5" width="6.2" x="4.85" y="4.85" />
+      <rect height="6.2" rx="1.5" width="6.2" x="12.95" y="4.85" />
+      <rect height="6.2" rx="1.5" width="6.2" x="4.85" y="12.95" />
+      <rect height="6.2" rx="1.5" width="6.2" x="12.95" y="12.95" />
     </svg>
   );
 }
