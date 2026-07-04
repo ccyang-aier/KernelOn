@@ -251,6 +251,8 @@ const GlassContainer = forwardRef<
 
 GlassContainer.displayName = "GlassContainer"
 
+type LiquidGlassPlacementStyle = Pick<CSSProperties, "position" | "top" | "right" | "bottom" | "left">
+
 interface LiquidGlassSvgFilterProps {
   children: React.ReactNode
   displacementScale?: number
@@ -264,7 +266,7 @@ interface LiquidGlassSvgFilterProps {
   mouseContainer?: React.RefObject<HTMLElement | null> | null
   className?: string
   padding?: string
-  style?: React.CSSProperties
+  style?: LiquidGlassPlacementStyle
   overLight?: boolean
   mode?: "standard" | "polar" | "prominent" | "shader"
   onClick?: () => void
@@ -448,8 +450,16 @@ export default function LiquidGlassSvgFilter({
 
   const transformStyle = `translate(calc(-50% + ${calculateElasticTranslation().x}px), calc(-50% + ${calculateElasticTranslation().y}px)) ${isActive && Boolean(onClick) ? "scale(0.96)" : calculateDirectionalScale()}`
 
+  const placementStyle: LiquidGlassPlacementStyle = {
+    position: style.position,
+    top: style.top,
+    right: style.right,
+    bottom: style.bottom,
+    left: style.left,
+  }
+
   const baseStyle = {
-    ...style,
+    ...placementStyle,
     transform: transformStyle,
     transition: "all ease-out 0.2s",
   }

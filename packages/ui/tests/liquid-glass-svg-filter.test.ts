@@ -36,8 +36,7 @@ describe('LiquidGlassSvgFilter', () => {
     const markup = renderToStaticMarkup(
       createElement(
         LiquidGlassSvgFilter,
-        { style: { left: 12, position: 'absolute', top: 34 } },
-        'content',
+        { children: 'content', style: { left: 12, position: 'absolute', top: 34 } },
       ),
     );
 
@@ -53,5 +52,46 @@ describe('LiquidGlassSvgFilter', () => {
     expect(hostOpenTag).not.toContain('transform:');
     expect(markup).toContain('position:absolute;top:34px;left:12px;height:69px;width:270px');
     expect(markup).toContain('transform:translate(calc(-50% + 0px), calc(-50% + 0px)) scale(1)');
+  });
+
+  it('ignores unsafe style fields that would alter the glass material', () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        LiquidGlassSvgFilter,
+        {
+          children: 'content',
+          style: {
+            filter: 'blur(20px)',
+            isolation: 'isolate',
+            opacity: 0.2,
+            overflow: 'hidden',
+            position: 'absolute',
+            transform: 'scale(4)',
+          } as never,
+        },
+      ),
+    );
+
+    const glassContainerOpenTag = markup.match(/<div class="relative[^"]*" style="[^"]*">/)?.[0] ?? '';
+
+    expect(glassContainerOpenTag).not.toContain('filter:blur(20px)');
+    expect(glassContainerOpenTag).not.toContain('isolation:isolate');
+    expect(glassContainerOpenTag).not.toContain('opacity:0.2');
+    expect(glassContainerOpenTag).not.toContain('overflow:hidden');
+    expect(glassContainerOpenTag).not.toContain('transform:scale(4)');
+    expect(glassContainerOpenTag).toContain(
+      'transform:translate(calc(-50% + 0px), calc(-50% + 0px)) scale(1)',
+    );
+  });
+
+  it('rejects unsafe style fields at the type boundary', () => {
+    createElement(
+      LiquidGlassSvgFilter,
+      {
+        children: 'content',
+        // @ts-expect-error LiquidGlassSvgFilter style only accepts placement fields.
+        style: { opacity: 0.2 },
+      },
+    );
   });
 });
