@@ -68,7 +68,7 @@ export function KernelOnStatusBar({
         >
           <StatusBarIconButton
             Icon={StatusThemeIcon}
-            iconClassName="h-[25px] w-[25px]"
+            iconClassName="h-[24px] w-[24px]"
             label="Theme"
           />
           <StatusBarIconButton
@@ -88,8 +88,8 @@ export function KernelOnStatusBar({
           />
           <StatusBarIconButton
             Icon={StatusBatteryIcon}
-            buttonClassName="w-[38px]"
-            iconClassName="h-[25px] w-[38px]"
+            buttonClassName="w-[35px]"
+            iconClassName="h-[25px] w-[35px]"
             label="Battery"
           />
           <StatusBarIconButton
@@ -182,14 +182,14 @@ function StatusThemeIcon({ className, style }: StatusIconProps) {
       <defs>
         <mask id="kernelon-status-theme-moon-mask">
           <rect fill="white" height="24" width="24" />
-          <circle cx="18.1" cy="8.25" fill="black" r="8.15" />
+          <circle cx="17.45" cy="8.15" fill="black" r="8.2" />
         </mask>
       </defs>
       <circle
-        cx="10.7"
-        cy="12.35"
+        cx="10.35"
+        cy="12.75"
         mask="url(#kernelon-status-theme-moon-mask)"
-        r="9.05"
+        r="8.65"
       />
     </svg>
   );
@@ -248,12 +248,12 @@ function StatusWifiIcon({ className, style }: StatusIconProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M3.95 9.1c4.58-3.55 11.52-3.55 16.1 0M7.1 12.65c2.84-2.14 6.96-2.14 9.8 0M10.36 16.2a2.67 2.67 0 0 1 3.28 0"
+        d="M4 7.95c4.56-3.2 11.44-3.2 16 0M7.15 12.15c2.78-1.92 6.92-1.92 9.7 0M10.18 16.05c1.02-.7 2.62-.7 3.64 0"
         stroke="currentColor"
         strokeLinecap="round"
-        strokeWidth="2.65"
+        strokeWidth="2.48"
       />
-      <circle cx="12" cy="18.85" fill="currentColor" r="1.55" />
+      <circle cx="12" cy="20.35" fill="currentColor" r="1.34" />
     </svg>
   );
 }
@@ -265,14 +265,14 @@ function StatusBatteryIcon({ className, style }: StatusIconProps) {
       className={className}
       fill="currentColor"
       style={style}
-      viewBox="0 0 56 29"
+      viewBox="0 0 50 29"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M8.9 4.55h31.35a7.6 7.6 0 0 1 7.55 7.08h1.85A4.35 4.35 0 0 1 54 15.98v.58a4.35 4.35 0 0 1-4.35 4.35H47.8a7.6 7.6 0 0 1-7.55 7.54H8.9A8.9 8.9 0 0 1 0 19.55v-6.1a8.9 8.9 0 0 1 8.9-8.9Z"
+        d="M8.1 4.45h27.6c4.04 0 7.42 3.02 8 7.02h1.38a4.45 4.45 0 0 1 4.42 4.45v.66a4.45 4.45 0 0 1-4.42 4.45H43.7c-.58 4.03-3.96 7.08-8 7.08H8.1A8.1 8.1 0 0 1 0 20.01v-7.46a8.1 8.1 0 0 1 8.1-8.1Z"
       />
       <path
-        d="M33.25 1.35 17.55 15.48h9.22L22.6 28.15l16.9-16H30.1l3.15-10.8Z"
+        d="M28.65 1.5 15.2 15.18h7.98l-3.5 12.48 15.2-14.9H26.8L28.65 1.5Z"
         fill="rgba(55,65,61,0.76)"
       />
     </svg>
