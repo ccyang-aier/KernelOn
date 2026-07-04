@@ -20,9 +20,13 @@ type DesktopRippleGsap = (typeof import('gsap'))['gsap'];
 
 const DESKTOP_RIPPLE_WAVE_COUNT = 2;
 const DESKTOP_RIPPLE_WAVE_STAGGER = 0.52;
-const DESKTOP_RIPPLE_RING_REVEAL_DURATION = 0.2;
+const DESKTOP_RIPPLE_RING_SEED_DURATION = 0.16;
+const DESKTOP_RIPPLE_RING_REVEAL_DURATION = 0.22;
+const DESKTOP_RIPPLE_HALO_SEED_DURATION = 0.18;
 const DESKTOP_RIPPLE_HALO_REVEAL_DURATION = 0.24;
-const DESKTOP_RIPPLE_WAVE_INITIAL_SCALE = 0.03;
+const DESKTOP_RIPPLE_WAVE_INITIAL_SCALE = 0.006;
+const DESKTOP_RIPPLE_RING_SEED_SCALE = 0.065;
+const DESKTOP_RIPPLE_HALO_SEED_SCALE = 0.08;
 
 let desktopRippleGsapPromise: Promise<DesktopRippleGsap> | null = null;
 
@@ -245,12 +249,22 @@ function animateDesktopClickRipple(
           ring,
           { autoAlpha: 0, scale: DESKTOP_RIPPLE_WAVE_INITIAL_SCALE },
           {
+            autoAlpha: 0.16 - index * 0.04,
+            duration: DESKTOP_RIPPLE_RING_SEED_DURATION * motionScale,
+            ease: 'sine.out',
+            scale: DESKTOP_RIPPLE_RING_SEED_SCALE,
+          },
+          waveStart,
+        )
+        .to(
+          ring,
+          {
             autoAlpha: 0.68 - index * 0.12,
             duration: DESKTOP_RIPPLE_RING_REVEAL_DURATION * motionScale,
             ease: 'power2.out',
-            scale: 0.28 + index * 0.04,
+            scale: 0.26 + index * 0.04,
           },
-          waveStart,
+          waveStart + DESKTOP_RIPPLE_RING_SEED_DURATION * motionScale,
         )
         .to(
           ring,
@@ -260,7 +274,9 @@ function animateDesktopClickRipple(
             ease: 'sine.out',
             scale: 1.28 + index * 0.18,
           },
-          waveStart + DESKTOP_RIPPLE_RING_REVEAL_DURATION * motionScale,
+          waveStart +
+            (DESKTOP_RIPPLE_RING_SEED_DURATION + DESKTOP_RIPPLE_RING_REVEAL_DURATION) *
+              motionScale,
         );
     });
 
@@ -272,12 +288,22 @@ function animateDesktopClickRipple(
           halo,
           { autoAlpha: 0, scale: DESKTOP_RIPPLE_WAVE_INITIAL_SCALE },
           {
+            autoAlpha: 0.08 - index * 0.02,
+            duration: DESKTOP_RIPPLE_HALO_SEED_DURATION * motionScale,
+            ease: 'sine.out',
+            scale: DESKTOP_RIPPLE_HALO_SEED_SCALE,
+          },
+          waveStart,
+        )
+        .to(
+          halo,
+          {
             autoAlpha: 0.28 - index * 0.08,
             duration: DESKTOP_RIPPLE_HALO_REVEAL_DURATION * motionScale,
             ease: 'power2.out',
-            scale: 0.38 + index * 0.06,
+            scale: 0.34 + index * 0.06,
           },
-          waveStart,
+          waveStart + DESKTOP_RIPPLE_HALO_SEED_DURATION * motionScale,
         )
         .to(
           halo,
@@ -287,7 +313,9 @@ function animateDesktopClickRipple(
             ease: 'power2.out',
             scale: 1.52 + index * 0.2,
           },
-          waveStart + DESKTOP_RIPPLE_HALO_REVEAL_DURATION * motionScale,
+          waveStart +
+            (DESKTOP_RIPPLE_HALO_SEED_DURATION + DESKTOP_RIPPLE_HALO_REVEAL_DURATION) *
+              motionScale,
         );
     });
 

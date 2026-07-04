@@ -20,6 +20,7 @@ export type { GenieRect, GenieTransitionDirection };
 
 export interface PlayGenieTransitionOptions {
   direction: GenieTransitionDirection;
+  onAfterFirstFrame?(): void;
   onBeforeClear?(): void;
   snapshot: HTMLCanvasElement | null | undefined;
   sourceElement?: HTMLElement | null;
@@ -59,6 +60,7 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
     const play = useCallback(
       async ({
         direction,
+        onAfterFirstFrame,
         onBeforeClear,
         snapshot,
         sourceElement,
@@ -92,6 +94,8 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
         if (direction === 'minimize' && sourceElement?.isConnected) {
           hideSourceElement(sourceElement);
         }
+
+        onAfterFirstFrame?.();
 
         return new Promise<boolean>((resolve) => {
           let startedAt: number | null = null;

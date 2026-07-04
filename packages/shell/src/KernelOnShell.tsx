@@ -31,6 +31,7 @@ import {
   type GenieRect,
   type GenieEffectLayerHandle,
 } from './components/genie-effect-layer';
+import { hideGenieWindow, revealGenieWindow } from './components/genie-hidden-windows';
 import { GenieSnapshotStage } from './components/genie-snapshot-stage';
 import { KernelOnStatusBar } from './components/status-bar';
 import type { ShellRuntimeRegistry } from './runtime';
@@ -104,6 +105,9 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const [desktopContextMenu, setDesktopContextMenu] = useState<DesktopContextMenuPosition | null>(
     null,
   );
+  const [genieHiddenWindowIds, setGenieHiddenWindowIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
   const closeDesktopContextMenu = useCallback(() => {
     setDesktopContextMenu(null);
   }, []);
@@ -169,7 +173,12 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       const sourceMode = existingWindow?.mode;
 
       if (!shouldPlayGenie || !dockElement || !snapshot || !sourceBounds) {
-        openApp(appId);
+        flushSync(() => {
+          setGenieHiddenWindowIds((hiddenWindowIds) =>
+            revealGenieWindow(hiddenWindowIds, existingWindow?.id),
+          );
+          openApp(appId);
+        });
         return;
       }
 
@@ -184,6 +193,9 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
               direction: 'open',
               onBeforeClear: () => {
                 flushSync(() => {
+                  setGenieHiddenWindowIds((hiddenWindowIds) =>
+                    revealGenieWindow(hiddenWindowIds, existingWindow?.id),
+                  );
                   openApp(appId);
                 });
               },
@@ -193,7 +205,12 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
             })) ?? false;
 
           if (!played) {
-            openApp(appId);
+            flushSync(() => {
+              setGenieHiddenWindowIds((hiddenWindowIds) =>
+                revealGenieWindow(hiddenWindowIds, existingWindow?.id),
+              );
+              openApp(appId);
+            });
           }
         } finally {
           endGenieTransition(appId);
@@ -223,6 +240,13 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
           const played =
             (await genieEffectLayerRef.current?.play({
               direction: 'minimize',
+              onAfterFirstFrame: () => {
+                flushSync(() => {
+                  setGenieHiddenWindowIds((hiddenWindowIds) =>
+                    hideGenieWindow(hiddenWindowIds, windowId),
+                  );
+                });
+              },
               onBeforeClear: () => {
                 flushSync(() => {
                   minimizeWindow(windowId);
@@ -235,6 +259,9 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
             })) ?? false;
 
           if (!played) {
+            setGenieHiddenWindowIds((hiddenWindowIds) =>
+              revealGenieWindow(hiddenWindowIds, windowId),
+            );
             minimizeWindow(windowId);
           }
         } finally {
@@ -294,6 +321,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
                   key={window.id}
                   onClose={closeWindow}
                   onFocus={focusWindow}
+                  genieHidden={genieHiddenWindowIds.has(window.id)}
                   onMinimize={handleMinimizeWindow}
                   onResize={resizeWindow}
                   onToggleFullscreen={toggleWindowFullscreen}
