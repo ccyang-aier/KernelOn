@@ -202,6 +202,7 @@ function GenieSnapshotItem({
       {AppWindowComponent ? (
         <AppWindowContainer
           app={app}
+          constrainToWorkspace={false}
           onClose={noop}
           onFocus={noop}
           onMinimize={noopMinimize}

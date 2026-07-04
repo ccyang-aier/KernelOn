@@ -34,6 +34,7 @@ interface WindowVisualFrame {
 
 interface WindowVisualFrameInput {
   bounds: WindowBounds;
+  constrainToWorkspace?: boolean;
   mode?: WindowDescriptor['mode'];
 }
 
@@ -51,6 +52,7 @@ export interface AppWindowContainerProps {
   app: KernelAppManifest;
   window: WindowDescriptor;
   children: ReactNode;
+  constrainToWorkspace?: boolean;
   genieHidden?: boolean;
   onClose(windowId: string): void;
   onFocus(windowId: string): void;
@@ -62,6 +64,7 @@ export interface AppWindowContainerProps {
 export function AppWindowContainer({
   app,
   children,
+  constrainToWorkspace = true,
   genieHidden = false,
   onClose,
   onFocus,
@@ -72,9 +75,11 @@ export function AppWindowContainer({
 }: AppWindowContainerProps) {
   const interactionRef = useRef<WindowInteractionState | null>(null);
   const frameRef = useRef<HTMLElement | null>(null);
-  const previousFrameRef = useRef<WindowVisualFrame>(resolveWindowVisualFrame(descriptor));
+  const previousFrameRef = useRef<WindowVisualFrame>(
+    resolveWindowVisualFrame({ ...descriptor, constrainToWorkspace }),
+  );
   const [visualFrame, setVisualFrame] = useState<WindowVisualFrame>(() =>
-    resolveWindowVisualFrame(descriptor),
+    resolveWindowVisualFrame({ ...descriptor, constrainToWorkspace }),
   );
   const [isFrameTransitioning, setIsFrameTransitioning] = useState(false);
   const {
@@ -94,6 +99,7 @@ export function AppWindowContainer({
         x: descriptorX,
         y: descriptorY,
       },
+      constrainToWorkspace,
       mode: descriptorMode,
     });
     const previousFrame = previousFrameRef.current;
@@ -125,6 +131,7 @@ export function AppWindowContainer({
     descriptorWidth,
     descriptorX,
     descriptorY,
+    constrainToWorkspace,
   ]);
 
   const beginMove = useCallback(
@@ -241,7 +248,7 @@ export function AppWindowContainer({
       }}
       transition={{
         filter: { duration: 0.18, ease: 'easeOut' },
-        opacity: { duration: 0.18, ease: 'easeOut' },
+        opacity: { duration: genieHidden ? 0 : 0.18, ease: 'easeOut' },
         scale: { damping: 30, mass: 0.86, stiffness: 310, type: 'spring' },
         y: { damping: 30, mass: 0.86, stiffness: 310, type: 'spring' },
       }}
@@ -340,9 +347,14 @@ export function resolveFullscreenWindowBounds(): WindowBounds {
 export function resolveWindowDisplayBounds(
   bounds: WindowBounds,
   mode?: WindowDescriptor['mode'],
+  options: { constrainToWorkspace?: boolean } = {},
 ): WindowBounds {
   if (mode === 'fullscreen') {
     return resolveFullscreenWindowBounds();
+  }
+
+  if (options.constrainToWorkspace === false) {
+    return bounds;
   }
 
   return fitWindowBoundsInsideWorkspace(bounds);
@@ -369,9 +381,13 @@ function resolveWindowStyle(
   };
 }
 
-function resolveWindowVisualFrame({ bounds, mode }: WindowVisualFrameInput): WindowVisualFrame {
+function resolveWindowVisualFrame({
+  bounds,
+  constrainToWorkspace,
+  mode,
+}: WindowVisualFrameInput): WindowVisualFrame {
   return {
-    bounds: resolveWindowDisplayBounds(bounds, mode),
+    bounds: resolveWindowDisplayBounds(bounds, mode, { constrainToWorkspace }),
     mode: mode ?? 'windowed',
   };
 }

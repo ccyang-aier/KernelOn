@@ -88,12 +88,13 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
 
         const viewport = getViewportSize();
         const dockPoint = resolveGenieDockPoint(getElementRect(targetElement));
-        canvas.style.opacity = '1';
-        renderGenieFrame(context, snapshot, viewport, sourceRect, dockPoint, direction, 0);
 
         if (direction === 'minimize' && sourceElement?.isConnected) {
           hideSourceElement(sourceElement);
         }
+
+        canvas.style.opacity = '1';
+        renderGenieFrame(context, snapshot, viewport, sourceRect, dockPoint, direction, 0);
 
         onAfterFirstFrame?.();
 
