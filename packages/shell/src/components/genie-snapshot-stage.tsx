@@ -29,11 +29,22 @@ export function GenieSnapshotStage({
   onSnapshotReady,
   runtime,
 }: GenieSnapshotStageProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const snapshotApps = appIds
     .map((appId) => apps.find((app) => app.id === appId))
     .filter((app): app is KernelAppManifest => Boolean(app));
 
-  if (shouldSkipSnapshotStage()) {
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setIsMounted(true);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  if (!isMounted || shouldSkipSnapshotStage()) {
     return null;
   }
 

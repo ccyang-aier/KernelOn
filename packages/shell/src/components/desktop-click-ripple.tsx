@@ -22,6 +22,7 @@ const DESKTOP_RIPPLE_WAVE_COUNT = 2;
 const DESKTOP_RIPPLE_WAVE_STAGGER = 0.52;
 const DESKTOP_RIPPLE_RING_REVEAL_DURATION = 0.2;
 const DESKTOP_RIPPLE_HALO_REVEAL_DURATION = 0.24;
+const DESKTOP_RIPPLE_WAVE_INITIAL_SCALE = 0.03;
 
 let desktopRippleGsapPromise: Promise<DesktopRippleGsap> | null = null;
 
@@ -152,7 +153,7 @@ function createDesktopRipplePart(kind: 'core' | 'wave-halo' | 'wave-ring', waveI
     inset: '0',
     opacity: '0',
     position: 'absolute',
-    transform: 'scale(0.2)',
+    transform: `scale(${DESKTOP_RIPPLE_WAVE_INITIAL_SCALE})`,
     transformOrigin: '50% 50%',
     willChange: 'opacity, transform',
   } satisfies Record<string, string>;
@@ -242,7 +243,7 @@ function animateDesktopClickRipple(
       timeline
         .fromTo(
           ring,
-          { autoAlpha: 0, scale: 0.12 + index * 0.02 },
+          { autoAlpha: 0, scale: DESKTOP_RIPPLE_WAVE_INITIAL_SCALE },
           {
             autoAlpha: 0.68 - index * 0.12,
             duration: DESKTOP_RIPPLE_RING_REVEAL_DURATION * motionScale,
@@ -269,7 +270,7 @@ function animateDesktopClickRipple(
       timeline
         .fromTo(
           halo,
-          { autoAlpha: 0, scale: 0.16 + index * 0.02 },
+          { autoAlpha: 0, scale: DESKTOP_RIPPLE_WAVE_INITIAL_SCALE },
           {
             autoAlpha: 0.28 - index * 0.08,
             duration: DESKTOP_RIPPLE_HALO_REVEAL_DURATION * motionScale,
