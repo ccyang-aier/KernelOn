@@ -11,6 +11,7 @@ describe('LiquidGlassSvgFilter mouse tracking', () => {
     cleanup();
     document.body.innerHTML = '';
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('coalesces internal mouse tracking updates with requestAnimationFrame', () => {
@@ -46,5 +47,28 @@ describe('LiquidGlassSvgFilter mouse tracking', () => {
     });
 
     expect(requestAnimationFrameSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('observes the glass element size with ResizeObserver', () => {
+    const observe = vi.fn();
+    const disconnect = vi.fn();
+
+    class MockResizeObserver {
+      observe = observe;
+      disconnect = disconnect;
+
+      constructor(_callback: ResizeObserverCallback) {}
+    }
+
+    vi.stubGlobal('ResizeObserver', MockResizeObserver);
+
+    render(
+      createElement(LiquidGlassSvgFilter, {
+        children: 'content',
+      }),
+    );
+
+    expect(observe).toHaveBeenCalledTimes(1);
+    expect(observe.mock.calls[0]?.[0]).toBeInstanceOf(HTMLDivElement);
   });
 });

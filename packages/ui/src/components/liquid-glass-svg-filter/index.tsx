@@ -467,7 +467,7 @@ export default function LiquidGlassSvgFilter({
     }
   }, [globalMousePos, elasticity, calculateFadeInFactor])
 
-  // Update glass size whenever component mounts or window resizes
+  // Keep filter and highlight layers aligned with the rendered glass element.
   useEffect(() => {
     const updateGlassSize = () => {
       if (glassRef.current) {
@@ -478,7 +478,16 @@ export default function LiquidGlassSvgFilter({
 
     updateGlassSize()
     window.addEventListener("resize", updateGlassSize)
-    return () => window.removeEventListener("resize", updateGlassSize)
+
+    const resizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(updateGlassSize) : null
+    if (glassRef.current) {
+      resizeObserver?.observe(glassRef.current)
+    }
+
+    return () => {
+      window.removeEventListener("resize", updateGlassSize)
+      resizeObserver?.disconnect()
+    }
   }, [])
 
   const transformStyle = `translate(calc(-50% + ${calculateElasticTranslation().x}px), calc(-50% + ${calculateElasticTranslation().y}px)) ${isActive && Boolean(onClick) ? "scale(0.96)" : calculateDirectionalScale()}`
