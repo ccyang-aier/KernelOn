@@ -88,7 +88,8 @@ export function KernelOnStatusBar({
           />
           <StatusBarIconButton
             Icon={StatusBatteryIcon}
-            iconClassName="h-[26px] w-[31px]"
+            buttonClassName="w-[38px]"
+            iconClassName="h-[25px] w-[38px]"
             label="Battery"
           />
           <StatusBarIconButton
@@ -127,6 +128,7 @@ type StatusBarIconComponent = ComponentType<StatusIconProps>;
 interface StatusBarIconButtonProps {
   Icon: StatusBarIconComponent;
   label: string;
+  buttonClassName?: string;
   iconClassName?: string;
   iconVariant?: string;
   badge?: ReactNode;
@@ -137,6 +139,7 @@ interface StatusBarIconButtonProps {
 function StatusBarIconButton({
   Icon,
   label,
+  buttonClassName = 'w-[27px]',
   iconClassName = 'h-[23px] w-[23px]',
   iconVariant,
   badge,
@@ -147,7 +150,7 @@ function StatusBarIconButton({
     <button
       aria-label={label}
       aria-pressed={typeof pressed === 'boolean' ? pressed : undefined}
-      className="relative flex h-[30px] w-[27px] shrink-0 items-center justify-center rounded-full text-white/95 outline-none transition duration-150 ease-out hover:scale-[1.025] focus-visible:ring-2 focus-visible:ring-white/80"
+      className={`relative flex h-[30px] ${buttonClassName} shrink-0 items-center justify-center rounded-full text-white/95 outline-none transition duration-150 ease-out hover:scale-[1.025] focus-visible:ring-2 focus-visible:ring-white/80`}
       data-icon-variant={iconVariant}
       onClick={onClick}
       title={label}
@@ -262,13 +265,15 @@ function StatusBatteryIcon({ className, style }: StatusIconProps) {
       className={className}
       fill="currentColor"
       style={style}
-      viewBox="0 0 28 24"
+      viewBox="0 0 56 29"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M5.15 5.55h13.9a4.25 4.25 0 0 1 4.1 3.15h.7a2.1 2.1 0 0 1 2.08 2.08v2.44a2.1 2.1 0 0 1-2.08 2.08h-.7a4.25 4.25 0 0 1-4.1 3.15H5.15A4.65 4.65 0 0 1 .5 13.8v-3.6a4.65 4.65 0 0 1 4.65-4.65z" />
       <path
-        d="m16.4 7.05-7.5 7.32h4.18l-.82 4.62 7.95-8.42h-4.48l.67-3.52z"
-        fill="rgba(61,73,69,0.68)"
+        d="M8.9 4.55h31.35a7.6 7.6 0 0 1 7.55 7.08h1.85A4.35 4.35 0 0 1 54 15.98v.58a4.35 4.35 0 0 1-4.35 4.35H47.8a7.6 7.6 0 0 1-7.55 7.54H8.9A8.9 8.9 0 0 1 0 19.55v-6.1a8.9 8.9 0 0 1 8.9-8.9Z"
+      />
+      <path
+        d="M33.25 1.35 17.55 15.48h9.22L22.6 28.15l16.9-16H30.1l3.15-10.8Z"
+        fill="rgba(55,65,61,0.76)"
       />
     </svg>
   );
