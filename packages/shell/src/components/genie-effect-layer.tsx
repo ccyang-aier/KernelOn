@@ -34,7 +34,7 @@ export interface GenieEffectLayerHandle {
 
 type GenieEffectLayerProps = object;
 
-const GENIE_DURATION_MS = 500;
+const GENIE_DURATION_MS = 350;
 const DESTINATION_ROW_OVERDRAW = 0.75;
 const MAX_DEVICE_PIXEL_RATIO = 2;
 const MIN_DRAW_WIDTH = 0.8;
