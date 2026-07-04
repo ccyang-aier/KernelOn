@@ -11,6 +11,7 @@ export interface LiquidGlassSimpleProps extends HTMLAttributes<HTMLDivElement> {
   filterId?: string;
   interactive?: boolean;
   radius?: number | string;
+  shine?: boolean;
   saturation?: number;
   tone?: LiquidGlassTone;
   blur?: number | string;
@@ -38,6 +39,7 @@ export function LiquidGlassSimple({
   filterId,
   interactive = false,
   radius = 28,
+  shine = true,
   saturation = 100,
   tone = 'balanced',
   blur = 3,
@@ -47,6 +49,9 @@ export function LiquidGlassSimple({
   const reactId = useId();
   const resolvedFilterId = filterId ?? `ko-liquid-glass-simple-${createStableId(reactId)}`;
   const backdropFilter = `blur(var(--ko-liquid-glass-blur)) saturate(var(--ko-liquid-glass-saturation))`;
+  const shineBoxShadow = shine
+    ? 'inset 2px 2px 1px 0 rgba(255,255,255,0.5), inset -1px -1px 1px 1px rgba(255,255,255,0.5)'
+    : 'none';
 
   const liquidGlassStyle = {
     '--ko-liquid-glass-blur': toCssLength(blur),
@@ -148,8 +153,7 @@ export function LiquidGlassSimple({
         className="absolute inset-0 z-[2] rounded-[var(--ko-liquid-glass-radius)]"
         data-slot="liquid-glass-simple-shine"
         style={{
-          boxShadow:
-            'inset 2px 2px 1px 0 rgba(255,255,255,0.5), inset -1px -1px 1px 1px rgba(255,255,255,0.5)',
+          boxShadow: shineBoxShadow,
         }}
       />
       <span

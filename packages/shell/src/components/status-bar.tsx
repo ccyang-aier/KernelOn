@@ -35,11 +35,12 @@ export function KernelOnStatusBar({
       style={statusBarShellStyle}
     >
       <LiquidGlassSimple
-        className="pointer-events-auto h-[40px] w-full text-white"
+        className="pointer-events-auto h-[40px] w-full text-white shadow-none"
         contentClassName="h-full w-full justify-between px-[14px] pt-[2px]"
         data-testid="kernelon-status-glass"
         filterId="kernelon-status-bar-liquid-glass"
         radius={0}
+        shine={false}
       >
         <span
           aria-label="KernelOn product identity"

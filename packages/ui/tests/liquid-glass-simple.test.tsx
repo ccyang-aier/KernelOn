@@ -45,4 +45,15 @@ describe('LiquidGlassSimple', () => {
       'backdrop-filter:blur(var(--ko-liquid-glass-blur)) saturate(var(--ko-liquid-glass-saturation))',
     );
   });
+
+  it('can render without edge shine for flush shell surfaces', () => {
+    const markup = renderToStaticMarkup(
+      <LiquidGlassSimple filterId="kernelon-glass-no-shine" shine={false}>
+        content
+      </LiquidGlassSimple>,
+    );
+
+    expect(markup).toContain('data-slot="liquid-glass-simple-shine"');
+    expect(markup).toContain('box-shadow:none');
+  });
 });

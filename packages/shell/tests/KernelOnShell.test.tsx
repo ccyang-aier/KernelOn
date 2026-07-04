@@ -144,7 +144,7 @@ describe('KernelOnShell', () => {
     expect(statusBar.getAttribute('style')).toContain('40px');
     expect(statusFrame).toHaveAttribute('data-slot', 'liquid-glass-simple');
     expect(statusFrame).toHaveAttribute('data-testid', 'kernelon-status-glass');
-    expect(statusFrame).toHaveClass('h-[40px]', 'w-full', 'text-white');
+    expect(statusFrame).toHaveClass('h-[40px]', 'w-full', 'text-white', 'shadow-none');
     expect(statusFrame).toHaveStyle({
       '--ko-liquid-glass-blur': '3px',
       '--ko-liquid-glass-radius': '0px',
@@ -157,6 +157,11 @@ describe('KernelOnShell', () => {
     expect(
       statusFrame?.querySelector('[data-slot="liquid-glass-simple-effect"]'),
     ).toBeInTheDocument();
+    expect(
+      statusFrame?.querySelector('[data-slot="liquid-glass-simple-shine"]'),
+    ).toHaveStyle({
+      boxShadow: 'none',
+    });
     expect(
       statusFrame?.querySelector('[data-slot="liquid-glass-simple-tint"]'),
     ).toHaveStyle({
