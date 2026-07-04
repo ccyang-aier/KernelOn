@@ -1,3 +1,5 @@
+export type GenieTransitionDirection = 'minimize' | 'open';
+
 export interface GeniePoint {
   x: number;
   y: number;
@@ -8,120 +10,109 @@ export interface GenieRect extends GeniePoint {
   width: number;
 }
 
-export interface GenieVertex extends GeniePoint {
-  column: number;
-  offsetX: number;
-  row: number;
-  u: number;
-  v: number;
+export interface GenieScanlineRow {
+  left: number;
+  right: number;
+  sourceHeight: number;
+  sourceY: number;
+  width: number;
+  y: number;
 }
 
-export interface GenieMeshFrame {
-  columns: number;
-  rowCenters: GeniePoint[];
-  rowWidths: number[];
-  rows: number;
-  vertices: GenieVertex[];
+export interface GenieScanlineFrame {
+  direction: GenieTransitionDirection;
+  rows: GenieScanlineRow[];
 }
 
-export interface CreateGenieMeshFrameOptions {
-  columns?: number;
+export interface CreateGenieScanlineFrameOptions {
+  direction: GenieTransitionDirection;
+  dockPoint: GeniePoint;
   progress: number;
-  rows?: number;
+  rowStep?: number;
   sourceRect: GenieRect;
-  targetRect: GenieRect;
 }
 
-const DEFAULT_COLUMNS = 18;
-const DEFAULT_ROWS = 14;
-const DEFAULT_DOCK_LANDING_SIZE = 44;
+const DEFAULT_ROW_STEP = 1;
+const X_STAGGER = 0.65;
+const Y_STAGGER = 0.2;
 
-export function resolveGenieTargetRect(
-  dockRect: GenieRect,
-  landingSize = DEFAULT_DOCK_LANDING_SIZE,
-): GenieRect {
-  const size = Math.min(landingSize, dockRect.width, dockRect.height);
-
+export function resolveGenieDockPoint(dockRect: GenieRect): GeniePoint {
   return {
-    height: size,
-    width: size,
-    x: dockRect.x + (dockRect.width - size) / 2,
-    y: dockRect.y + (dockRect.height - size) / 2,
+    x: dockRect.x + dockRect.width / 2,
+    y: dockRect.y + dockRect.height / 2,
   };
 }
 
-export function createGenieMeshFrame({
-  columns = DEFAULT_COLUMNS,
+export function createGenieScanlineFrame({
+  direction,
+  dockPoint,
   progress,
-  rows = DEFAULT_ROWS,
+  rowStep = DEFAULT_ROW_STEP,
   sourceRect,
-  targetRect,
-}: CreateGenieMeshFrameOptions): GenieMeshFrame {
+}: CreateGenieScanlineFrameOptions): GenieScanlineFrame {
   const normalizedProgress = clamp(progress, 0, 1);
-  const sourceCenterX = sourceRect.x + sourceRect.width / 2;
-  const targetCenterX = targetRect.x + targetRect.width / 2;
-  const motionAmplitude = Math.sin(normalizedProgress * Math.PI);
-  const vertices: GenieVertex[] = [];
-  const rowCenters: GeniePoint[] = [];
-  const rowWidths: number[] = [];
+  const safeHeight = Math.max(1, Math.round(sourceRect.height));
+  const safeRowStep = Math.max(1, Math.round(rowStep));
+  const rows: GenieScanlineRow[] = [];
 
-  for (let row = 0; row <= rows; row += 1) {
-    const v = row / rows;
-    const sourceY = sourceRect.y + sourceRect.height * v;
-    const targetY = targetRect.y + targetRect.height * v;
-    const rowProgress = resolveRowProgress(normalizedProgress, v);
-    const rowEase = easeInOutCubic(rowProgress);
-    const wave =
-      Math.sin((v * 2.75 + normalizedProgress * 1.35) * Math.PI) *
-      motionAmplitude *
-      sourceRect.width *
-      0.028 *
-      (0.32 + v * 0.68);
-    const rowCenterX = lerp(sourceCenterX, targetCenterX, rowEase) + wave;
-    const rowCenterY = lerp(sourceY, targetY, rowEase);
-    const rowWidth = lerp(sourceRect.width, targetRect.width, rowEase);
+  for (let sourceY = 0; sourceY < safeHeight; sourceY += safeRowStep) {
+    const sourceHeight = Math.min(safeRowStep, safeHeight - sourceY);
+    const rowRatio = sourceY / safeHeight;
+    const rowXStart =
+      direction === 'minimize' ? (1 - rowRatio) * X_STAGGER : rowRatio * X_STAGGER;
+    const xProgress = clamp(
+      (normalizedProgress - rowXStart) / Math.max(1 - rowXStart, Number.EPSILON),
+      0,
+      1,
+    );
+    const xEase = easeInOutCubic(xProgress);
+    const rowYStart =
+      direction === 'minimize' ? (1 - rowRatio) * Y_STAGGER : rowRatio * Y_STAGGER;
+    const yProgress = clamp(
+      (normalizedProgress - rowYStart) / Math.max(1 - rowYStart, Number.EPSILON),
+      0,
+      1,
+    );
+    const yEase = easeInQuad(yProgress);
+    const left =
+      direction === 'minimize'
+        ? lerp(sourceRect.x, dockPoint.x, xEase)
+        : lerp(dockPoint.x, sourceRect.x, xEase);
+    const right =
+      direction === 'minimize'
+        ? lerp(sourceRect.x + sourceRect.width, dockPoint.x, xEase)
+        : lerp(dockPoint.x, sourceRect.x + sourceRect.width, xEase);
+    const y =
+      direction === 'minimize'
+        ? lerp(sourceRect.y + sourceY, dockPoint.y, yEase)
+        : lerp(dockPoint.y, sourceRect.y + sourceY, yEase);
 
-    rowCenters.push({ x: rowCenterX, y: rowCenterY });
-    rowWidths.push(rowWidth);
-
-    for (let column = 0; column <= columns; column += 1) {
-      const u = column / columns;
-      const edgeCurl =
-        Math.sin((u - 0.5) * Math.PI) *
-        Math.sin((v + normalizedProgress) * Math.PI * 1.55) *
-        motionAmplitude *
-        sourceRect.width *
-        0.01 *
-        (0.25 + v * 0.75);
-      const offsetX = wave + edgeCurl;
-
-      vertices.push({
-        column,
-        offsetX,
-        row,
-        u,
-        v,
-        x: rowCenterX + (u - 0.5) * rowWidth + edgeCurl,
-        y: rowCenterY,
-      });
-    }
+    rows.push({
+      left,
+      right,
+      sourceHeight,
+      sourceY,
+      width: right - left,
+      y,
+    });
   }
 
   return {
-    columns,
-    rowCenters,
-    rowWidths,
+    direction,
     rows,
-    vertices,
   };
 }
 
-function resolveRowProgress(progress: number, rowRatio: number): number {
-  if (progress <= 0 || progress >= 1) {
-    return progress;
-  }
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
 
-  return clamp(progress * 1.12 + rowRatio * 0.24 - 0.08, 0, 1);
+export function easeOutQuad(value: number): number {
+  return 1 - (1 - value) * (1 - value);
+}
+
+function easeInQuad(value: number): number {
+  return value * value;
 }
 
 function easeInOutCubic(value: number): number {
@@ -130,8 +121,4 @@ function easeInOutCubic(value: number): number {
 
 function lerp(from: number, to: number, progress: number): number {
   return from + (to - from) * progress;
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
 }

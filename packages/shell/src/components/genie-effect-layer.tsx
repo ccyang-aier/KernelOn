@@ -1,6 +1,5 @@
 'use client';
 
-import { toCanvas } from 'html-to-image';
 import {
   forwardRef,
   useCallback,
@@ -9,16 +8,22 @@ import {
 } from 'react';
 
 import {
-  createGenieMeshFrame,
-  resolveGenieTargetRect,
+  createGenieScanlineFrame,
+  easeOutQuad,
+  resolveGenieDockPoint,
   type GenieRect,
+  type GenieScanlineFrame,
+  type GenieTransitionDirection,
 } from './genie-effect-geometry';
 
-export type GenieTransitionDirection = 'minimize' | 'open';
+export type { GenieRect, GenieTransitionDirection };
 
 export interface PlayGenieTransitionOptions {
   direction: GenieTransitionDirection;
-  sourceElement: HTMLElement;
+  onBeforeClear?(): void;
+  snapshot: HTMLCanvasElement | null | undefined;
+  sourceElement?: HTMLElement | null;
+  sourceRect: GenieRect;
   targetElement: HTMLElement;
 }
 
@@ -28,8 +33,10 @@ export interface GenieEffectLayerHandle {
 
 type GenieEffectLayerProps = object;
 
-const GENIE_DURATION_MS = 560;
-const GENIE_STRIP_ROWS = 96;
+const GENIE_DURATION_MS = 500;
+const DESTINATION_ROW_OVERDRAW = 0.75;
+const MAX_DEVICE_PIXEL_RATIO = 2;
+const MIN_DRAW_WIDTH = 0.8;
 
 export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLayerProps>(
   function GenieEffectLayer(_props, ref) {
@@ -52,15 +59,18 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
     const play = useCallback(
       async ({
         direction,
+        onBeforeClear,
+        snapshot,
         sourceElement,
+        sourceRect,
         targetElement,
       }: PlayGenieTransitionOptions): Promise<boolean> => {
         const canvas = canvasRef.current;
 
         if (
           !canvas ||
+          !snapshot ||
           shouldBypassGenieAnimation() ||
-          !sourceElement.isConnected ||
           !targetElement.isConnected
         ) {
           return false;
@@ -74,16 +84,14 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
 
         window.cancelAnimationFrame(animationFrameRef.current);
 
-        const sourceRect = getElementRect(sourceElement);
-        const targetRect = resolveGenieTargetRect(getElementRect(targetElement));
-        const fallbackSnapshot = createFallbackSnapshot(sourceRect);
+        const viewport = getViewportSize();
+        const dockPoint = resolveGenieDockPoint(getElementRect(targetElement));
         canvas.style.opacity = '1';
-        renderGenieFrame(context, fallbackSnapshot, sourceRect, targetRect, direction, 0);
-        const restoreSourceVisibility = hideSourceElement(sourceElement);
-        const snapshot = (await captureElementCanvas(sourceElement, sourceRect)) ??
-          fallbackSnapshot;
+        renderGenieFrame(context, snapshot, viewport, sourceRect, dockPoint, direction, 0);
 
-        renderGenieFrame(context, snapshot, sourceRect, targetRect, direction, 0);
+        if (direction === 'minimize' && sourceElement?.isConnected) {
+          hideSourceElement(sourceElement);
+        }
 
         return new Promise<boolean>((resolve) => {
           let startedAt: number | null = null;
@@ -92,16 +100,22 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
             startedAt ??= time;
             const progress = Math.min((time - startedAt) / GENIE_DURATION_MS, 1);
 
-            renderGenieFrame(context, snapshot, sourceRect, targetRect, direction, progress);
+            renderGenieFrame(
+              context,
+              snapshot,
+              viewport,
+              sourceRect,
+              dockPoint,
+              direction,
+              progress,
+            );
 
             if (progress < 1) {
               animationFrameRef.current = window.requestAnimationFrame(step);
               return;
             }
 
-            if (direction === 'open') {
-              restoreSourceVisibility();
-            }
+            onBeforeClear?.();
             clearCanvas();
             resolve(true);
           };
@@ -129,115 +143,92 @@ export const GenieEffectLayer = forwardRef<GenieEffectLayerHandle, GenieEffectLa
 function renderGenieFrame(
   context: CanvasRenderingContext2D,
   snapshot: HTMLCanvasElement,
+  viewport: { height: number; width: number },
   sourceRect: GenieRect,
-  targetRect: GenieRect,
+  dockPoint: { x: number; y: number },
   direction: GenieTransitionDirection,
   rawProgress: number,
 ) {
-  const progress = easeInOutCubic(rawProgress);
-  const collapseProgress = direction === 'minimize' ? progress : 1 - progress;
-  const frame = createGenieMeshFrame({
-    columns: 1,
-    progress: collapseProgress,
-    rows: GENIE_STRIP_ROWS,
+  const frame = createGenieScanlineFrame({
+    direction,
+    dockPoint,
+    progress: rawProgress,
     sourceRect,
-    targetRect,
   });
-  const viewport = getViewportSize();
 
   context.clearRect(0, 0, viewport.width, viewport.height);
   context.save();
-  context.globalAlpha =
-    direction === 'minimize' ? 1 - progress * 0.08 : 0.92 + progress * 0.08;
-  drawTexturedStrips(context, snapshot, frame.vertices, frame.rows);
+  drawScanlines(context, snapshot, sourceRect, frame);
+  drawDockGlow(context, viewport, dockPoint, direction, rawProgress);
   context.restore();
 }
 
-function drawTexturedStrips(
+function drawScanlines(
   context: CanvasRenderingContext2D,
-  image: HTMLCanvasElement,
-  vertices: ReturnType<typeof createGenieMeshFrame>['vertices'],
-  rows: number,
+  snapshot: HTMLCanvasElement,
+  sourceRect: GenieRect,
+  frame: GenieScanlineFrame,
 ) {
-  for (let row = 0; row < rows; row += 1) {
-    const topLeft = vertices[row * 2];
-    const topRight = vertices[row * 2 + 1];
-    const bottomLeft = vertices[(row + 1) * 2];
-    const bottomRight = vertices[(row + 1) * 2 + 1];
-    const topWidth = topRight.x - topLeft.x;
-    const bottomWidth = bottomRight.x - bottomLeft.x;
-    const drawWidth = Math.max(1, (topWidth + bottomWidth) / 2);
-    const drawX = (topLeft.x + topRight.x + bottomLeft.x + bottomRight.x) / 4 - drawWidth / 2;
-    const drawY = (topLeft.y + topRight.y) / 2;
-    const drawHeight = Math.max(0.75, (bottomLeft.y + bottomRight.y) / 2 - drawY);
-    const sourceY = Math.floor((row / rows) * image.height);
-    const sourceHeight = Math.ceil(image.height / rows) + 1;
+  const safeSourceHeight = Math.max(1, sourceRect.height);
+  const sourceScaleY = snapshot.height / safeSourceHeight;
+
+  for (const row of frame.rows) {
+    if (row.width < MIN_DRAW_WIDTH) {
+      continue;
+    }
+
+    const sourceY = Math.floor(row.sourceY * sourceScaleY);
+    const sourceHeight = Math.max(1, Math.ceil(row.sourceHeight * sourceScaleY));
 
     context.drawImage(
-      image,
+      snapshot,
       0,
       sourceY,
-      image.width,
-      sourceHeight,
-      drawX,
-      drawY,
-      drawWidth,
-      drawHeight + 1,
+      snapshot.width,
+      Math.min(sourceHeight, snapshot.height - sourceY),
+      row.left,
+      row.y,
+      row.width,
+      row.sourceHeight + DESTINATION_ROW_OVERDRAW,
     );
   }
 }
 
-async function captureElementCanvas(
-  element: HTMLElement,
-  sourceRect: GenieRect,
-): Promise<HTMLCanvasElement | null> {
-  try {
-    return await toCanvas(element, {
-      cacheBust: false,
-      pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
-      style: {
-        opacity: '1',
-        transform: 'none',
-      },
-      width: sourceRect.width,
-      height: sourceRect.height,
-    });
-  } catch {
-    return null;
-  }
-}
+function drawDockGlow(
+  context: CanvasRenderingContext2D,
+  viewport: { height: number; width: number },
+  dockPoint: { x: number; y: number },
+  direction: GenieTransitionDirection,
+  rawProgress: number,
+) {
+  const glowProgress = direction === 'minimize' ? rawProgress : 1 - rawProgress;
 
-function createFallbackSnapshot(sourceRect: GenieRect): HTMLCanvasElement {
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
-
-  canvas.width = Math.max(1, Math.round(sourceRect.width));
-  canvas.height = Math.max(1, Math.round(sourceRect.height));
-
-  if (context) {
-    const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
-
-    gradient.addColorStop(0, 'rgba(255,255,255,0.92)');
-    gradient.addColorStop(0.52, 'rgba(238,246,255,0.86)');
-    gradient.addColorStop(1, 'rgba(206,224,235,0.74)');
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+  if (glowProgress <= 0.75) {
+    return;
   }
 
-  return canvas;
+  const alpha = easeOutQuad((glowProgress - 0.75) / 0.25) * 0.3;
+  const alphaHex = Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const gradient = context.createRadialGradient(
+    dockPoint.x,
+    dockPoint.y,
+    0,
+    dockPoint.x,
+    dockPoint.y,
+    55,
+  );
+
+  gradient.addColorStop(0, `#ffffff${alphaHex}`);
+  gradient.addColorStop(1, 'transparent');
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, viewport.width, viewport.height);
 }
 
-function hideSourceElement(element: HTMLElement): () => void {
-  const previousOpacity = element.style.opacity;
-  const previousPointerEvents = element.style.pointerEvents;
-
+function hideSourceElement(element: HTMLElement): void {
   element.style.opacity = '0';
   element.style.pointerEvents = 'none';
-
-  return () => {
-    element.style.opacity = previousOpacity;
-    element.style.pointerEvents = previousPointerEvents;
-  };
 }
 
 function setupCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D | null {
@@ -248,7 +239,7 @@ function setupCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D | null
   }
 
   const viewport = getViewportSize();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const dpr = Math.min(window.devicePixelRatio || 1, MAX_DEVICE_PIXEL_RATIO);
 
   canvas.width = Math.round(viewport.width * dpr);
   canvas.height = Math.round(viewport.height * dpr);
@@ -288,8 +279,4 @@ function shouldBypassGenieAnimation(): boolean {
     navigator.userAgent.includes('jsdom') ||
     (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)
   );
-}
-
-function easeInOutCubic(value: number): number {
-  return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2;
 }

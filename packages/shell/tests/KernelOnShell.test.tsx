@@ -277,6 +277,9 @@ describe('KernelOnShell', () => {
     const runtime = createRuntime();
     const user = userEvent.setup();
 
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1440 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 900 });
+
     render(
       <KernelOnShell
         initialState={{
@@ -419,6 +422,51 @@ describe('KernelOnShell', () => {
     expect(
       within(appContainer).getByTestId('kernelon-app-window-resize-se-window:onboarding'),
     ).toBeInTheDocument();
+  });
+
+  it('keeps default app windows above the Dock safe area on compact viewports', async () => {
+    const runtime = createRuntime();
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1280 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 720 });
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            {
+              ...initialState.apps[0],
+              defaultWindow: {
+                title: 'Onboarding',
+                bounds: { x: 216, y: 148, width: 860, height: 580 },
+              },
+            },
+          ],
+          dockAppIds: ['onboarding'],
+          windows: [
+            {
+              id: 'window:onboarding',
+              appId: 'onboarding',
+              title: 'Onboarding',
+              bounds: { x: 216, y: 148, width: 860, height: 580 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:onboarding');
+
+    expect(appContainer).toHaveStyle({
+      height: '580px',
+      top: '52px',
+      width: '860px',
+    });
   });
 
   it('replaces the native desktop context menu with a liquid glass desktop context menu', async () => {

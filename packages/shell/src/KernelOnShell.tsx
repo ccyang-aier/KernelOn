@@ -15,6 +15,8 @@ import {
 import { flushSync } from 'react-dom';
 import { useStore } from 'zustand';
 
+import type { WindowBounds, WindowMode } from '@kernelon/core';
+
 import { DesktopClickRippleLayer, useDesktopClickRipple } from './components/desktop-click-ripple';
 import {
   KernelOnDesktopContextMenu,
@@ -23,10 +25,13 @@ import {
 } from './components/desktop-context-menu';
 import { DesktopDock } from './components/desktop-dock';
 import { AppWindowMount, DesktopItemMount } from './components/desktop-mounts';
+import { resolveWindowDisplayBounds } from './components/app-window-container';
 import {
   GenieEffectLayer,
+  type GenieRect,
   type GenieEffectLayerHandle,
 } from './components/genie-effect-layer';
+import { GenieSnapshotStage } from './components/genie-snapshot-stage';
 import { KernelOnStatusBar } from './components/status-bar';
 import type { ShellRuntimeRegistry } from './runtime';
 import {
@@ -74,6 +79,8 @@ export function KernelOnShell({ initialState, runtime }: KernelOnShellProps) {
 function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry }>) {
   const liquidGlassContextContainerRef = useRef<HTMLElement>(null);
   const genieEffectLayerRef = useRef<GenieEffectLayerHandle>(null);
+  const genieSnapshotsRef = useRef<Map<string, HTMLCanvasElement>>(new Map());
+  const genieTransitioningAppIdRef = useRef<string | null>(null);
   const { layerRef: desktopClickRippleLayerRef, playRipple: playDesktopClickRipple } =
     useDesktopClickRipple();
   const apps = useShellSelector((state) => state.apps);
@@ -97,10 +104,6 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const [desktopContextMenu, setDesktopContextMenu] = useState<DesktopContextMenuPosition | null>(
     null,
   );
-  const [genieHiddenAppIds, setGenieHiddenAppIds] = useState<ReadonlySet<string>>(
-    () => new Set(),
-  );
-
   const closeDesktopContextMenu = useCallback(() => {
     setDesktopContextMenu(null);
   }, []);
@@ -123,21 +126,23 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     setDesktopContextMenu(null);
   }, [playDesktopClickRipple]);
 
-  const hideAppForGenie = useCallback((appId: string) => {
-    setGenieHiddenAppIds((hiddenAppIds) => new Set(hiddenAppIds).add(appId));
+  const handleGenieSnapshotReady = useCallback((appId: string, snapshot: HTMLCanvasElement) => {
+    genieSnapshotsRef.current.set(appId, snapshot);
   }, []);
 
-  const revealAppFromGenie = useCallback((appId: string) => {
-    setGenieHiddenAppIds((hiddenAppIds) => {
-      if (!hiddenAppIds.has(appId)) {
-        return hiddenAppIds;
-      }
+  const beginGenieTransition = useCallback((appId: string): boolean => {
+    if (genieTransitioningAppIdRef.current) {
+      return false;
+    }
 
-      const nextHiddenAppIds = new Set(hiddenAppIds);
+    genieTransitioningAppIdRef.current = appId;
+    return true;
+  }, []);
 
-      nextHiddenAppIds.delete(appId);
-      return nextHiddenAppIds;
-    });
+  const endGenieTransition = useCallback((appId: string) => {
+    if (genieTransitioningAppIdRef.current === appId) {
+      genieTransitioningAppIdRef.current = null;
+    }
   }, []);
 
   const findDockTarget = useCallback((appId: string): HTMLElement | null => {
@@ -152,73 +157,92 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     ).find((element) => element.dataset.kernelonDockTarget === appId) ?? null;
   }, []);
 
-  const playOpenGenieFromDock = useCallback(
-    async (appId: string, dockElement: HTMLElement) => {
-      try {
-        const sourceElement = await waitForAppWindowElement(
-          liquidGlassContextContainerRef.current,
-          appId,
-        );
-
-        if (!sourceElement || !dockElement.isConnected) {
-          return;
-        }
-
-        await genieEffectLayerRef.current?.play({
-          direction: 'open',
-          sourceElement,
-          targetElement: dockElement,
-        });
-      } finally {
-        revealAppFromGenie(appId);
-      }
-    },
-    [revealAppFromGenie],
-  );
-
   const handleOpenAppFromDock = useCallback(
     (appId: string, dockElement?: HTMLElement) => {
       const existingWindow = windows.find((window) => window.appId === appId);
+      const app = apps.find((candidate) => candidate.id === appId);
       const shouldPlayGenie = Boolean(
         dockElement && (!existingWindow || existingWindow.status === 'minimized'),
       );
+      const snapshot = genieSnapshotsRef.current.get(appId);
+      const sourceBounds = existingWindow?.bounds ?? app?.defaultWindow.bounds;
+      const sourceMode = existingWindow?.mode;
 
-      if (!shouldPlayGenie || !dockElement) {
+      if (!shouldPlayGenie || !dockElement || !snapshot || !sourceBounds) {
         openApp(appId);
         return;
       }
 
-      flushSync(() => {
-        hideAppForGenie(appId);
-      });
-      openApp(appId);
-      void playOpenGenieFromDock(appId, dockElement);
+      if (!beginGenieTransition(appId)) {
+        return;
+      }
+
+      void (async () => {
+        try {
+          const played =
+            (await genieEffectLayerRef.current?.play({
+              direction: 'open',
+              onBeforeClear: () => {
+                flushSync(() => {
+                  openApp(appId);
+                });
+              },
+              snapshot,
+              sourceRect: windowBoundsToGenieRect(sourceBounds, sourceMode),
+              targetElement: dockElement,
+            })) ?? false;
+
+          if (!played) {
+            openApp(appId);
+          }
+        } finally {
+          endGenieTransition(appId);
+        }
+      })();
     },
-    [hideAppForGenie, openApp, playOpenGenieFromDock, windows],
+    [apps, beginGenieTransition, endGenieTransition, openApp, windows],
   );
 
   const handleMinimizeWindow = useCallback(
-    async (windowId: string, sourceElement: HTMLElement | null) => {
+    (windowId: string, sourceElement: HTMLElement | null) => {
       const descriptor = windows.find((window) => window.id === windowId);
       const dockElement = descriptor ? findDockTarget(descriptor.appId) : null;
+      const snapshot = descriptor ? genieSnapshotsRef.current.get(descriptor.appId) : null;
 
-      if (sourceElement && dockElement) {
-        await genieEffectLayerRef.current?.play({
-          direction: 'minimize',
-          sourceElement,
-          targetElement: dockElement,
-        });
+      if (!descriptor || !sourceElement || !dockElement || !snapshot) {
+        minimizeWindow(windowId);
+        return;
       }
 
-      if (descriptor) {
-        flushSync(() => {
-          hideAppForGenie(descriptor.appId);
-        });
+      if (!beginGenieTransition(descriptor.appId)) {
+        return;
       }
 
-      minimizeWindow(windowId);
+      void (async () => {
+        try {
+          const played =
+            (await genieEffectLayerRef.current?.play({
+              direction: 'minimize',
+              onBeforeClear: () => {
+                flushSync(() => {
+                  minimizeWindow(windowId);
+                });
+              },
+              snapshot,
+              sourceElement,
+              sourceRect: getElementRect(sourceElement),
+              targetElement: dockElement,
+            })) ?? false;
+
+          if (!played) {
+            minimizeWindow(windowId);
+          }
+        } finally {
+          endGenieTransition(descriptor.appId);
+        }
+      })();
     },
-    [findDockTarget, hideAppForGenie, minimizeWindow, windows],
+    [beginGenieTransition, endGenieTransition, findDockTarget, minimizeWindow, windows],
   );
 
   return (
@@ -268,7 +292,6 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
                 <AppWindowMount
                   app={app}
                   key={window.id}
-                  genieHidden={genieHiddenAppIds.has(app.id)}
                   onClose={closeWindow}
                   onFocus={focusWindow}
                   onMinimize={handleMinimizeWindow}
@@ -299,32 +322,35 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         onToggleLauncher={toggleLauncher}
         onToggleSpotlight={toggleSpotlight}
       />
+      <GenieSnapshotStage
+        appIds={dockAppIds}
+        apps={apps}
+        onSnapshotReady={handleGenieSnapshotReady}
+        runtime={runtime}
+      />
       <GenieEffectLayer ref={genieEffectLayerRef} />
     </main>
   );
 }
 
-async function waitForAppWindowElement(
-  shellRoot: HTMLElement | null,
-  appId: string,
-): Promise<HTMLElement | null> {
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    await waitForAnimationFrame();
+function windowBoundsToGenieRect(bounds: WindowBounds, mode?: WindowMode): GenieRect {
+  const displayBounds = resolveWindowDisplayBounds(bounds, mode);
 
-    const sourceElement = Array.from(
-      shellRoot?.querySelectorAll<HTMLElement>('[data-genie-effect-source]') ?? [],
-    ).find((element) => element.dataset.appId === appId);
-
-    if (sourceElement) {
-      return sourceElement;
-    }
-  }
-
-  return null;
+  return {
+    height: displayBounds.height,
+    width: displayBounds.width,
+    x: displayBounds.x,
+    y: displayBounds.y,
+  };
 }
 
-function waitForAnimationFrame(): Promise<void> {
-  return new Promise((resolve) => {
-    window.requestAnimationFrame(() => resolve());
-  });
+function getElementRect(element: HTMLElement): GenieRect {
+  const rect = element.getBoundingClientRect();
+
+  return {
+    height: rect.height,
+    width: rect.width,
+    x: rect.left,
+    y: rect.top,
+  };
 }

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  createGenieMeshFrame,
-  resolveGenieTargetRect,
+  createGenieScanlineFrame,
+  resolveGenieDockPoint,
   type GenieRect,
 } from '../src/components/genie-effect-geometry';
 
@@ -21,50 +21,55 @@ const dockRect: GenieRect = {
 };
 
 describe('genie effect geometry', () => {
-  it('starts as the window rect and resolves into the dock target rect', () => {
-    const start = createGenieMeshFrame({
-      columns: 4,
+  it('opens from the Dock center point into the exact window rect', () => {
+    const dockPoint = resolveGenieDockPoint(dockRect);
+    const start = createGenieScanlineFrame({
+      direction: 'open',
+      dockPoint,
       progress: 0,
-      rows: 4,
       sourceRect: windowRect,
-      targetRect: dockRect,
     });
-    const end = createGenieMeshFrame({
-      columns: 4,
+    const end = createGenieScanlineFrame({
+      direction: 'open',
+      dockPoint,
       progress: 1,
-      rows: 4,
       sourceRect: windowRect,
-      targetRect: dockRect,
     });
 
-    expect(start.vertices[0]).toMatchObject({ x: 96, y: 72 });
-    expect(start.vertices.at(-1)).toMatchObject({ x: 1056, y: 712 });
-    expect(end.vertices[0].x).toBeCloseTo(dockRect.x, 1);
-    expect(end.vertices[0].y).toBeCloseTo(dockRect.y, 1);
-    expect(end.vertices.at(-1)?.x).toBeCloseTo(dockRect.x + dockRect.width, 1);
-    expect(end.vertices.at(-1)?.y).toBeCloseTo(dockRect.y + dockRect.height, 1);
-  });
-
-  it('collapses bottom rows toward the Dock before the top rows for the silk-like pull', () => {
-    const frame = createGenieMeshFrame({
-      columns: 8,
-      progress: 0.45,
-      rows: 8,
-      sourceRect: windowRect,
-      targetRect: dockRect,
+    expect(start.rows[0]).toMatchObject({
+      left: dockPoint.x,
+      right: dockPoint.x,
+      y: dockPoint.y,
     });
-
-    expect(frame.rowWidths.at(-1)).toBeLessThan(frame.rowWidths[0]);
-    expect(frame.rowCenters.at(-1)?.y).toBeGreaterThan(frame.rowCenters[0].y);
-    expect(frame.vertices.some((vertex) => Math.abs(vertex.offsetX) > 0)).toBe(true);
+    expect(end.rows[0]).toMatchObject({
+      left: windowRect.x,
+      right: windowRect.x + windowRect.width,
+      y: windowRect.y,
+    });
+    expect(end.rows.at(-1)?.left).toBeCloseTo(windowRect.x, 1);
+    expect(end.rows.at(-1)?.right).toBeCloseTo(windowRect.x + windowRect.width, 1);
+    expect(end.rows.at(-1)?.y).toBeCloseTo(windowRect.y + windowRect.height - 1, 1);
   });
 
-  it('keeps the final target centered on the Dock icon with a compact landing size', () => {
-    expect(resolveGenieTargetRect(dockRect)).toEqual({
-      height: 44,
-      width: 44,
-      x: 717,
-      y: 819,
+  it('collapses bottom scanlines toward the Dock before the top scanlines', () => {
+    const frame = createGenieScanlineFrame({
+      direction: 'minimize',
+      dockPoint: resolveGenieDockPoint(dockRect),
+      progress: 0.35,
+      sourceRect: windowRect,
+    });
+    const topRow = frame.rows[0];
+    const bottomRow = frame.rows.at(-1);
+
+    expect(bottomRow).toBeDefined();
+    expect(bottomRow!.right - bottomRow!.left).toBeLessThan(topRow.right - topRow.left);
+    expect(bottomRow!.y).toBeGreaterThan(topRow.y);
+  });
+
+  it('uses the Dock icon center as the landing point rather than a compact rect', () => {
+    expect(resolveGenieDockPoint(dockRect)).toEqual({
+      x: 739,
+      y: 841,
     });
   });
 });

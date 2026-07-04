@@ -19,6 +19,7 @@ const MIN_WINDOW_WIDTH = 520;
 const MIN_WINDOW_HEIGHT = 360;
 const DESKTOP_MARGIN = 12;
 const STATUS_BAR_CLEARANCE = 46;
+const DOCK_SAFE_AREA_CLEARANCE = 88;
 const WINDOW_CHROME_RADIUS = 26;
 const FULLSCREEN_CHROME_RADIUS = 0;
 const WINDOW_BOUNDS_TRANSITION_MS = 320;
@@ -336,6 +337,17 @@ export function resolveFullscreenWindowBounds(): WindowBounds {
   };
 }
 
+export function resolveWindowDisplayBounds(
+  bounds: WindowBounds,
+  mode?: WindowDescriptor['mode'],
+): WindowBounds {
+  if (mode === 'fullscreen') {
+    return resolveFullscreenWindowBounds();
+  }
+
+  return fitWindowBoundsInsideWorkspace(bounds);
+}
+
 function resolveWindowStyle(
   descriptor: WindowDescriptor,
   visualFrame: WindowVisualFrame,
@@ -359,7 +371,7 @@ function resolveWindowStyle(
 
 function resolveWindowVisualFrame({ bounds, mode }: WindowVisualFrameInput): WindowVisualFrame {
   return {
-    bounds,
+    bounds: resolveWindowDisplayBounds(bounds, mode),
     mode: mode ?? 'windowed',
   };
 }
@@ -426,7 +438,7 @@ function resolveResizedBounds(
   nextWidth = Math.max(MIN_WINDOW_WIDTH, nextWidth);
   nextHeight = Math.max(MIN_WINDOW_HEIGHT, nextHeight);
 
-  return keepBoundsInsideWorkspace({
+  return fitWindowBoundsInsideWorkspace({
     height: nextHeight,
     width: nextWidth,
     x: nextX,
@@ -434,21 +446,33 @@ function resolveResizedBounds(
   });
 }
 
-function keepBoundsInsideWorkspace(bounds: WindowBounds): WindowBounds {
+function fitWindowBoundsInsideWorkspace(bounds: WindowBounds): WindowBounds {
   const viewport = getViewportSize();
-  const maxWidth = Math.max(MIN_WINDOW_WIDTH, viewport.width - bounds.x - DESKTOP_MARGIN);
-  const maxHeight = Math.max(MIN_WINDOW_HEIGHT, viewport.height - bounds.y - DESKTOP_MARGIN);
-  const width = Math.min(bounds.width, maxWidth);
-  const height = Math.min(bounds.height, maxHeight);
+  const width = Math.min(
+    bounds.width,
+    Math.max(MIN_WINDOW_WIDTH, viewport.width - DESKTOP_MARGIN * 2),
+  );
+  const height = Math.min(
+    bounds.height,
+    Math.max(
+      MIN_WINDOW_HEIGHT,
+      viewport.height - STATUS_BAR_CLEARANCE - DOCK_SAFE_AREA_CLEARANCE,
+    ),
+  );
+  const maxX = Math.max(DESKTOP_MARGIN, viewport.width - width - DESKTOP_MARGIN);
+  const maxY = Math.max(
+    STATUS_BAR_CLEARANCE,
+    viewport.height - height - DOCK_SAFE_AREA_CLEARANCE,
+  );
   const x = clamp(
     bounds.x,
     DESKTOP_MARGIN,
-    Math.max(DESKTOP_MARGIN, viewport.width - MIN_WINDOW_WIDTH),
+    maxX,
   );
   const y = clamp(
     bounds.y,
     STATUS_BAR_CLEARANCE,
-    Math.max(STATUS_BAR_CLEARANCE, viewport.height - MIN_WINDOW_HEIGHT),
+    maxY,
   );
 
   return { height, width, x, y };
