@@ -42,6 +42,8 @@
 
 ### 3.1 Client-only 边界不显式
 
+状态：pass（2026-07-04，视觉验收通过，code review 通过）
+
 现状：
 
 - `GlassContainer` render 阶段直接读取 `navigator.userAgent`。
