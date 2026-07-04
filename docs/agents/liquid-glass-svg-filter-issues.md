@@ -94,6 +94,8 @@
 
 ### 3.3 `style` API 过宽
 
+状态：pass（2026-07-04，视觉验收通过，code review 通过）
+
 现状：
 
 - 外部 `style` 被展开到 `baseStyle`，但内部会覆盖 `transform` 和 `transition`。
