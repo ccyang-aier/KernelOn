@@ -52,7 +52,7 @@ export function KernelOnStatusBar({
         >
           <img
             alt=""
-            className="h-[20px] w-[30px] shrink-0 object-contain"
+            className="h-[30px] w-[52px] shrink-0 object-contain"
             data-testid="kernelon-status-brand-logo"
             draggable={false}
             src={kernelOnBrandLogo}
