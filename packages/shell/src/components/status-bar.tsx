@@ -68,7 +68,7 @@ export function KernelOnStatusBar({
         >
           <StatusBarIconButton
             Icon={StatusThemeIcon}
-            iconClassName="h-[21px] w-[21px]"
+            iconClassName="h-[25px] w-[25px]"
             label="Theme"
           />
           <StatusBarIconButton
@@ -78,7 +78,7 @@ export function KernelOnStatusBar({
           />
           <StatusBarIconButton
             Icon={StatusBluetoothIcon}
-            iconClassName="h-[21px] w-[21px]"
+            iconClassName="h-[23px] w-[23px]"
             label="Bluetooth"
           />
           <StatusBarIconButton
@@ -88,7 +88,7 @@ export function KernelOnStatusBar({
           />
           <StatusBarIconButton
             Icon={StatusBatteryIcon}
-            iconClassName="h-[25px] w-[25px]"
+            iconClassName="h-[26px] w-[31px]"
             label="Battery"
           />
           <StatusBarIconButton
@@ -176,7 +176,18 @@ function StatusThemeIcon({ className, style }: StatusIconProps) {
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c3.91 0 7.24-2.5 8.48-6a7.58 7.58 0 0 1-4.98 1.84A7.34 7.34 0 0 1 8.16 9.5c0-1.9.72-3.63 1.9-4.93A8.9 8.9 0 0 1 12 3z" />
+      <defs>
+        <mask id="kernelon-status-theme-moon-mask">
+          <rect fill="white" height="24" width="24" />
+          <circle cx="18.1" cy="8.25" fill="black" r="8.15" />
+        </mask>
+      </defs>
+      <circle
+        cx="10.7"
+        cy="12.35"
+        mask="url(#kernelon-status-theme-moon-mask)"
+        r="9.05"
+      />
     </svg>
   );
 }
@@ -186,14 +197,18 @@ function StatusVolumeIcon({ className, style }: StatusIconProps) {
     <svg
       aria-hidden="true"
       className={className}
-      fill="currentColor"
       style={style}
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M3 9v6h4l5 5V4L7 9H3z" />
-      <path d="M14 8.05v7.9A4.47 4.47 0 0 0 16.5 12 4.47 4.47 0 0 0 14 8.05z" />
-      <path d="M14 3.23v2.06A7.01 7.01 0 0 1 19 12a7.01 7.01 0 0 1-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+      <path d="M3.35 9.15v5.7h4.08l5.22 4.25V4.9L7.43 9.15H3.35z" fill="currentColor" />
+      <path
+        d="M15.45 8.05c1.1.95 1.72 2.33 1.72 3.95s-.62 3-1.72 3.95M18.48 5.55A8.46 8.46 0 0 1 21.15 12a8.46 8.46 0 0 1-2.67 6.45"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.45"
+      />
     </svg>
   );
 }
@@ -203,12 +218,18 @@ function StatusBluetoothIcon({ className, style }: StatusIconProps) {
     <svg
       aria-hidden="true"
       className={className}
-      fill="currentColor"
+      fill="none"
       style={style}
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M17.71 7.71 12 2h-1v7.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 11 14.41V22h1l5.71-5.71L13.41 12l4.3-4.29zM13 5.83l1.88 1.88L13 9.59V5.83zm1.88 10.46L13 18.17v-3.76l1.88 1.88z" />
+      <path
+        d="m7.2 6.25 9.55 9.55L11.65 21V3l5.1 5.2L7.2 17.75"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.25"
+      />
     </svg>
   );
 }
@@ -218,14 +239,18 @@ function StatusWifiIcon({ className, style }: StatusIconProps) {
     <svg
       aria-hidden="true"
       className={className}
-      fill="currentColor"
+      fill="none"
       style={style}
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="m1 9 2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9z" />
-      <path d="m9 17 3 3.01L15 17c-1.65-1.66-4.34-1.66-6 0z" />
-      <path d="m5 13 2 2c2.76-2.76 7.24-2.76 10 0l2-2c-3.86-3.86-10.13-3.86-14 0z" />
+      <path
+        d="M3.95 9.1c4.58-3.55 11.52-3.55 16.1 0M7.1 12.65c2.84-2.14 6.96-2.14 9.8 0M10.36 16.2a2.67 2.67 0 0 1 3.28 0"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.65"
+      />
+      <circle cx="12" cy="18.85" fill="currentColor" r="1.55" />
     </svg>
   );
 }
@@ -237,13 +262,13 @@ function StatusBatteryIcon({ className, style }: StatusIconProps) {
       className={className}
       fill="currentColor"
       style={style}
-      viewBox="0 0 24 24"
+      viewBox="0 0 28 24"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M4.6 7.5h11.8c.95 0 1.75.78 1.75 1.75v.65h.75c.62 0 1.1.48 1.1 1.1v2c0 .62-.48 1.1-1.1 1.1h-.75v.65c0 .97-.8 1.75-1.75 1.75H4.6a2.1 2.1 0 0 1-2.1-2.1V9.6c0-1.16.94-2.1 2.1-2.1z" />
+      <path d="M5.15 5.55h13.9a4.25 4.25 0 0 1 4.1 3.15h.7a2.1 2.1 0 0 1 2.08 2.08v2.44a2.1 2.1 0 0 1-2.08 2.08h-.7a4.25 4.25 0 0 1-4.1 3.15H5.15A4.65 4.65 0 0 1 .5 13.8v-3.6a4.65 4.65 0 0 1 4.65-4.65z" />
       <path
-        d="m12.9 8.75-4.1 4.6h2.65l-.55 3.05 4.3-5h-2.75l.45-2.65z"
-        fill="rgba(57,65,62,0.52)"
+        d="m16.4 7.05-7.5 7.32h4.18l-.82 4.62 7.95-8.42h-4.48l.67-3.52z"
+        fill="rgba(61,73,69,0.68)"
       />
     </svg>
   );
