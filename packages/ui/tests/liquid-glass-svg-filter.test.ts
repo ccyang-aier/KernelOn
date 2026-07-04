@@ -95,6 +95,27 @@ describe('LiquidGlassSvgFilter', () => {
     );
   });
 
+  it('treats the glass filter as a non-interactive visual surface', () => {
+    createElement(
+      LiquidGlassSvgFilter,
+      {
+        children: 'content',
+        // @ts-expect-error LiquidGlassSvgFilter is a visual surface; compose real controls inside it.
+        onClick: () => undefined,
+      },
+    );
+
+    const markup = renderToStaticMarkup(
+      createElement(LiquidGlassSvgFilter, {
+        children: 'content',
+        onClick: () => undefined,
+      } as never),
+    );
+
+    expect(markup).not.toContain('cursor-pointer');
+    expect(markup).not.toContain('radial-gradient(circle at 50% 0%');
+  });
+
   it('mirrors backdrop blur through the WebKit-prefixed property', () => {
     const markup = renderToStaticMarkup(
       createElement(LiquidGlassSvgFilter, {

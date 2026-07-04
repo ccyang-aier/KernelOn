@@ -44,6 +44,7 @@ export function Example() {
 | `style` | `Pick<CSSProperties, "position" \| "top" \| "right" \| "bottom" \| "left">` | `{}` | 仅用于浮层定位；会忽略 `transform`、`opacity`、`filter`、`overflow`、`isolation` 等可能破坏玻璃材质的样式。 |
 | `overLight` | `boolean` | `false` | 是否位于浅色背景上；开启后会调整阴影、遮罩和位移强度。 |
 | `mode` | `"standard" \| "polar" \| "prominent" \| "shader"` | `"standard"` | 折射模式；前三种使用内置 displacement map，`shader` 使用 Canvas 生成位移图。 |
-| `onClick` | `() => void` | - | 点击回调；传入后启用可点击态、hover 高光和按下缩放。 |
+
+> `LiquidGlassSvgFilter` 只作为视觉 surface 使用，不作为按钮 primitive；需要交互时请在 `children` 内组合真实 `<button>`，或单独封装基于 `<button>` 的 `GlassButton`。
 
 > Chromium 默认使用 `full` 模式；Firefox 会进入 `reduced` 模式并关闭 SVG filter 位移层；不支持 `backdrop-filter` / `-webkit-backdrop-filter` 的环境会降为 `flat` 模式；WebKit/Safari 会同时写入标准属性与 WebKit 前缀，真实效果仍以浏览器能力为准。

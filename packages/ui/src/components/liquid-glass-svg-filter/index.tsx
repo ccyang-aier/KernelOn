@@ -164,16 +164,10 @@ const GlassContainer = forwardRef<
     saturation?: number
     aberrationIntensity?: number
     mouseOffset?: { x: number; y: number }
-    onMouseLeave?: () => void
-    onMouseEnter?: () => void
-    onMouseDown?: () => void
-    onMouseUp?: () => void
-    active?: boolean
     overLight?: boolean
     cornerRadius?: number
     padding?: string
     glassSize?: { width: number; height: number }
-    onClick?: () => void
     mode?: "standard" | "polar" | "prominent" | "shader"
   }>
 >(
@@ -186,16 +180,10 @@ const GlassContainer = forwardRef<
       blurAmount = 12,
       saturation = 180,
       aberrationIntensity = 2,
-      onMouseEnter,
-      onMouseLeave,
-      onMouseDown,
-      onMouseUp,
-      active = false,
       overLight = false,
       cornerRadius = 999,
       padding = "24px 32px",
       glassSize = { width: 270, height: 69 },
-      onClick,
       mode = "standard",
     },
     ref,
@@ -222,7 +210,7 @@ const GlassContainer = forwardRef<
     }
 
     return (
-      <div ref={ref} className={`relative ${className} ${active ? "active" : ""} ${Boolean(onClick) ? "cursor-pointer" : ""}`} style={style} onClick={onClick}>
+      <div ref={ref} className={`relative ${className}`} style={style}>
         <GlassFilter mode={mode} id={filterId} displacementScale={displacementScale} aberrationIntensity={aberrationIntensity} width={glassSize.width} height={glassSize.height} shaderMapUrl={shaderMapUrl} />
 
         <div
@@ -238,10 +226,6 @@ const GlassContainer = forwardRef<
             transition: "all 0.2s ease-in-out",
             boxShadow: overLight ? "0px 16px 70px rgba(0, 0, 0, 0.75)" : "0px 12px 40px rgba(0, 0, 0, 0.25)",
           }}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
-          onMouseDown={onMouseDown}
-          onMouseUp={onMouseUp}
         >
           {/* backdrop layer that gets wiggly */}
           <span
@@ -297,7 +281,6 @@ interface LiquidGlassSvgFilterProps {
   style?: LiquidGlassPlacementStyle
   overLight?: boolean
   mode?: "standard" | "polar" | "prominent" | "shader"
-  onClick?: () => void
 }
 
 export default function LiquidGlassSvgFilter({
@@ -316,11 +299,8 @@ export default function LiquidGlassSvgFilter({
   overLight = false,
   style = {},
   mode = "standard",
-  onClick,
 }: LiquidGlassSvgFilterProps) {
   const glassRef = useRef<HTMLDivElement>(null)
-  const [isHovered, setIsHovered] = useState(false)
-  const [isActive, setIsActive] = useState(false)
   const [glassSize, setGlassSize] = useState({ width: 270, height: 69 })
   const [internalGlobalMousePos, setInternalGlobalMousePos] = useState({ x: 0, y: 0 })
   const [internalMouseOffset, setInternalMouseOffset] = useState({ x: 0, y: 0 })
@@ -518,7 +498,7 @@ export default function LiquidGlassSvgFilter({
     }
   }, [])
 
-  const transformStyle = `translate(calc(-50% + ${calculateElasticTranslation().x}px), calc(-50% + ${calculateElasticTranslation().y}px)) ${isActive && Boolean(onClick) ? "scale(0.96)" : calculateDirectionalScale()}`
+  const transformStyle = `translate(calc(-50% + ${calculateElasticTranslation().x}px), calc(-50% + ${calculateElasticTranslation().y}px)) ${calculateDirectionalScale()}`
 
   const placementStyle: LiquidGlassPlacementStyle = {
     position: style.position,
@@ -587,13 +567,7 @@ export default function LiquidGlassSvgFilter({
         glassSize={glassSize}
         padding={padding}
         mouseOffset={mouseOffset}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onMouseDown={() => setIsActive(true)}
-        onMouseUp={() => setIsActive(false)}
-        active={isActive}
         overLight={overLight}
-        onClick={onClick}
         mode={mode}
       >
         {children}
@@ -652,55 +626,6 @@ export default function LiquidGlassSvgFilter({
         }}
       />
 
-      {/* Hover effects */}
-      {Boolean(onClick) && (
-        <>
-          <div
-            style={{
-              ...positionStyles,
-              height: glassSize.height,
-              width: glassSize.width + 1,
-              borderRadius: `${cornerRadius}px`,
-              transform: baseStyle.transform,
-              pointerEvents: "none",
-              transition: "all 0.2s ease-out",
-              opacity: isHovered || isActive ? 0.5 : 0,
-              backgroundImage: "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 50%)",
-              mixBlendMode: "overlay",
-            }}
-          />
-          <div
-            style={{
-              ...positionStyles,
-              height: glassSize.height,
-              width: glassSize.width + 1,
-              borderRadius: `${cornerRadius}px`,
-              transform: baseStyle.transform,
-              pointerEvents: "none",
-              transition: "all 0.2s ease-out",
-              opacity: isActive ? 0.5 : 0,
-              backgroundImage: "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 80%)",
-              mixBlendMode: "overlay",
-            }}
-          />
-          <div
-            style={{
-              ...baseStyle,
-              height: glassSize.height,
-              width: glassSize.width + 1,
-              borderRadius: `${cornerRadius}px`,
-              position: baseStyle.position,
-              top: baseStyle.top,
-              left: baseStyle.left,
-              pointerEvents: "none",
-              transition: "all 0.2s ease-out",
-              opacity: isHovered ? 0.4 : isActive ? 0.8 : 0,
-              backgroundImage: "radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%)",
-              mixBlendMode: "overlay",
-            }}
-          />
-        </>
-      )}
     </div>
   )
 }
