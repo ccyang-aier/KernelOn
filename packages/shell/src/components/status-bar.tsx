@@ -5,7 +5,6 @@ import {
   Bell,
   LayoutGrid,
   Search,
-  SlidersHorizontal,
 } from 'lucide-react';
 import { type ComponentType, type CSSProperties, type ReactNode, type SVGProps } from 'react';
 
@@ -98,7 +97,7 @@ export function KernelOnStatusBar({
             label="Notifications"
           />
           <StatusBarIconButton
-            Icon={SlidersHorizontal}
+            Icon={StatusControlCenterIcon}
             iconClassName="h-[23px] w-[23px]"
             label="Control Center"
           />
@@ -165,6 +164,33 @@ function StatusSyncIcon({ className, style }: StatusIconProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M10.344 14.875L8.56 13.091q-.147-.147-.345-.156t-.363.155q-.165.166-.165.357q0 .192.165.357l1.933 1.938q.242.243.565.243t.566-.243l4.032-4.032q.146-.146.156-.35t-.156-.37t-.36-.165t-.36.166zM6.5 19q-1.871 0-3.185-1.306Q2 16.39 2 14.517q0-1.719 1.175-3.051t2.921-1.431q.337-2.185 2.01-3.61T12 5q2.502 0 4.251 1.749T18 11v1h.616q1.436.046 2.41 1.055T22 15.5q0 1.471-1.014 2.486T18.5 19z" />
+    </svg>
+  );
+}
+
+function StatusControlCenterIcon({ className, style }: StatusIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      style={style}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.85"
+      >
+        <rect height="5" rx="2.5" width="14.8" x="4.6" y="5.25" />
+        <rect height="5" rx="2.5" width="14.8" x="4.6" y="13.75" />
+      </g>
+      <g fill="currentColor">
+        <circle cx="8.05" cy="7.75" r="1.35" />
+        <circle cx="15.95" cy="16.25" r="1.35" />
+      </g>
     </svg>
   );
 }
