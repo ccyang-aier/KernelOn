@@ -57,7 +57,9 @@ describe('LiquidGlassSvgFilter mouse tracking', () => {
       observe = observe;
       disconnect = disconnect;
 
-      constructor(_callback: ResizeObserverCallback) {}
+      constructor(callback: ResizeObserverCallback) {
+        void callback;
+      }
     }
 
     vi.stubGlobal('ResizeObserver', MockResizeObserver);
