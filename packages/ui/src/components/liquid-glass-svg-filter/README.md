@@ -18,7 +18,11 @@ import { LiquidGlassSvgFilter } from '@kernelon/ui';
 
 export function Example() {
   return (
-    <LiquidGlassSvgFilter padding="12px 20px" mode="standard">
+    <LiquidGlassSvgFilter
+      padding="12px 20px"
+      mode="standard"
+      style={{ position: 'absolute', left: 120, top: 80 }}
+    >
       <span>KernelOn</span>
     </LiquidGlassSvgFilter>
   );
@@ -41,7 +45,7 @@ export function Example() {
 | `mouseContainer` | `React.RefObject<HTMLElement \| null> \| null` | `null` | 鼠标追踪容器；未传入时使用组件自身。 |
 | `className` | `string` | `""` | 追加到外层容器的 class。 |
 | `padding` | `string` | `"24px 32px"` | 玻璃容器内边距，使用 CSS padding 写法。 |
-| `style` | `Pick<CSSProperties, "position" \| "top" \| "right" \| "bottom" \| "left">` | `{}` | 仅用于浮层定位；会忽略 `transform`、`opacity`、`filter`、`overflow`、`isolation` 等可能破坏玻璃材质的样式。 |
+| `style` | `Pick<CSSProperties, "position" \| "top" \| "left">` | `{}` | 仅用于浮层定位；会忽略 `transform`、`opacity`、`filter`、`overflow`、`isolation` 等可能破坏玻璃材质的样式。 |
 | `overLight` | `boolean` | `false` | 是否位于浅色背景上；开启后会调整阴影、遮罩和位移强度。 |
 | `mode` | `"standard" \| "polar" \| "prominent" \| "shader"` | `"standard"` | 折射模式；前三种使用内置 displacement map，`shader` 使用 Canvas 生成位移图。 |
 

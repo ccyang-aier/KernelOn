@@ -263,7 +263,7 @@ const GlassContainer = forwardRef<
 
 GlassContainer.displayName = "GlassContainer"
 
-type LiquidGlassPlacementStyle = Pick<CSSProperties, "position" | "top" | "right" | "bottom" | "left">
+type LiquidGlassPlacementStyle = Pick<CSSProperties, "position" | "top" | "left">
 
 interface LiquidGlassSvgFilterProps {
   children: React.ReactNode
@@ -503,8 +503,6 @@ export default function LiquidGlassSvgFilter({
   const placementStyle: LiquidGlassPlacementStyle = {
     position: style.position,
     top: style.top,
-    right: style.right,
-    bottom: style.bottom,
     left: style.left,
   }
 

@@ -93,6 +93,15 @@ describe('LiquidGlassSvgFilter', () => {
         style: { opacity: 0.2 },
       },
     );
+
+    createElement(
+      LiquidGlassSvgFilter,
+      {
+        children: 'content',
+        // @ts-expect-error LiquidGlassSvgFilter anchors surfaces from top/left only.
+        style: { bottom: 12, position: 'absolute', right: 24 },
+      },
+    );
   });
 
   it('treats the glass filter as a non-interactive visual surface', () => {
