@@ -19,7 +19,7 @@ interface DesktopRipplePoint {
 type DesktopRippleGsap = (typeof import('gsap'))['gsap'];
 
 const DESKTOP_RIPPLE_WAVE_COUNT = 2;
-const DESKTOP_RIPPLE_WAVE_STAGGER = 0.52;
+const DESKTOP_RIPPLE_WAVE_STAGGER = 0.42;
 const DESKTOP_RIPPLE_RING_SEED_DURATION = 0.16;
 const DESKTOP_RIPPLE_RING_REVEAL_DURATION = 0.22;
 const DESKTOP_RIPPLE_HALO_SEED_DURATION = 0.18;
