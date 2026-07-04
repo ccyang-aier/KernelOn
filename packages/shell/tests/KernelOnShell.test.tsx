@@ -141,7 +141,26 @@ describe('KernelOnShell', () => {
 
     expect(statusBar).toHaveClass('fixed', 'inset-x-0', 'top-[2px]');
     expect(statusBar.getAttribute('style')).toContain('38px');
-    expect(statusFrame).toHaveClass('h-[38px]', 'w-full', 'justify-between', 'pl-[14px]');
+    expect(statusFrame).toHaveAttribute('data-slot', 'liquid-glass-simple');
+    expect(statusFrame).toHaveAttribute('data-testid', 'kernelon-status-glass');
+    expect(statusFrame).toHaveClass('h-[38px]', 'w-full', 'border-white/30');
+    expect(statusFrame).toHaveStyle({
+      '--ko-liquid-glass-blur': '14px',
+      '--ko-liquid-glass-radius': '0px',
+      '--ko-liquid-glass-saturation': '168%',
+    });
+    expect(
+      statusFrame?.querySelector('filter#kernelon-status-bar-liquid-glass'),
+    ).toBeInTheDocument();
+    expect(
+      statusFrame?.querySelector('[data-slot="liquid-glass-simple-effect"]'),
+    ).toBeInTheDocument();
+    expect(
+      statusFrame?.querySelector('[data-slot="liquid-glass-simple-tint"]'),
+    ).toHaveClass('bg-white/20');
+    expect(
+      statusFrame?.querySelector('[data-slot="liquid-glass-simple-content"]'),
+    ).toHaveClass('h-[38px]', 'w-full', 'justify-between', 'pl-[14px]');
     expect(statusBrand).toHaveClass('h-full', 'gap-[8px]');
     expect(statusBrand).toHaveTextContent('KernelOn');
     expect(statusControls).toHaveClass('h-[38px]', 'w-[320px]', 'pr-[10px]');

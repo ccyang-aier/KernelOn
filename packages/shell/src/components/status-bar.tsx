@@ -1,5 +1,6 @@
 'use client';
 
+import { LiquidGlassSimple } from '@kernelon/ui';
 import {
   Bell,
   LayoutGrid,
@@ -33,8 +34,18 @@ export function KernelOnStatusBar({
       data-testid="kernelon-status-bar"
       style={statusBarShellStyle}
     >
-      <div className="pointer-events-auto flex h-[38px] w-full items-center justify-between pl-[14px]">
-        <div
+      <LiquidGlassSimple
+        blur={14}
+        className="pointer-events-auto h-[38px] w-full border-x-0 border-t-0 border-white/30 bg-white/10 text-white shadow-[0_8px_28px_rgba(42,92,112,0.14)]"
+        contentClassName="h-[38px] w-full justify-between pl-[14px]"
+        data-testid="kernelon-status-glass"
+        displacementScale={72}
+        filterId="kernelon-status-bar-liquid-glass"
+        radius={0}
+        saturation={168}
+        tone="subtle"
+      >
+        <span
           aria-label="KernelOn product identity"
           className="flex h-full min-w-0 items-center gap-[8px]"
           data-testid="kernelon-status-brand"
@@ -53,8 +64,8 @@ export function KernelOnStatusBar({
           >
             KernelOn
           </span>
-        </div>
-        <div
+        </span>
+        <span
           className="flex h-[38px] w-[320px] shrink-0 items-center justify-end gap-[18px] pr-[10px]"
           data-testid="kernelon-status-controls"
         >
@@ -95,8 +106,8 @@ export function KernelOnStatusBar({
             label="Control Center"
           />
           <StatusBarProfileButton />
-        </div>
-      </div>
+        </span>
+      </LiquidGlassSimple>
     </header>
   );
 }
