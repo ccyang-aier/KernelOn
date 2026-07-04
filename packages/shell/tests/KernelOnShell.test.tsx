@@ -135,42 +135,39 @@ describe('KernelOnShell', () => {
 
     const statusBar = screen.getByTestId('kernelon-status-bar');
     const statusFrame = statusBar.firstElementChild;
+    const statusGlass = screen.getByTestId('kernelon-status-glass');
     const statusBrand = screen.getByTestId('kernelon-status-brand');
     const statusControls = screen.getByTestId('kernelon-status-controls');
     const statusBrandLogo = screen.getByTestId('kernelon-status-brand-logo');
+    const statusSurface = statusGlass.closest('.glass');
+    const statusWarp = statusSurface?.querySelector('.glass__warp');
 
     expect(statusBar).toHaveClass('fixed', 'inset-x-0', 'top-0');
     expect(statusBar).not.toHaveClass('top-[2px]');
     expect(statusBar.getAttribute('style')).toContain('40px');
-    expect(statusFrame).toHaveAttribute('data-slot', 'liquid-glass-simple');
-    expect(statusFrame).toHaveAttribute('data-testid', 'kernelon-status-glass');
-    expect(statusFrame).toHaveClass('h-[40px]', 'w-full', 'text-white', 'shadow-none');
+    expect(statusFrame).toHaveAttribute('data-slot', 'liquid-glass-svg-filter');
     expect(statusFrame).toHaveStyle({
-      '--ko-liquid-glass-blur': '3px',
-      '--ko-liquid-glass-radius': '0px',
-      '--ko-liquid-glass-saturation': '100%',
-      '--ko-liquid-glass-tint-opacity': '0.25',
+      height: '0px',
+      left: '0px',
+      overflow: 'visible',
+      position: 'absolute',
+      top: '0px',
+      width: '0px',
     });
-    expect(
-      statusFrame?.querySelector('filter#kernelon-status-bar-liquid-glass'),
-    ).toBeInTheDocument();
-    expect(
-      statusFrame?.querySelector('[data-slot="liquid-glass-simple-effect"]'),
-    ).toBeInTheDocument();
-    expect(
-      statusFrame?.querySelector('[data-slot="liquid-glass-simple-shine"]'),
-    ).toHaveStyle({
-      boxShadow: 'none',
-    });
-    expect(
-      statusFrame?.querySelector('[data-slot="liquid-glass-simple-tint"]'),
-    ).toHaveStyle({
-      background: 'rgba(255, 255, 255, var(--ko-liquid-glass-tint-opacity))',
-    });
-    expect(
-      statusFrame?.querySelector('[data-slot="liquid-glass-simple-content"]'),
-    ).toHaveClass('h-full', 'w-full', 'justify-between', 'px-[14px]', 'pt-[2px]');
+    expect(statusGlass).toHaveClass(
+      'h-[40px]',
+      'w-screen',
+      'justify-between',
+      'px-[14px]',
+      'pt-[2px]',
+    );
+    expect(statusSurface).toHaveStyle({ borderRadius: '0px', padding: '0px' });
+    expect(statusWarp).toHaveAttribute('data-liquid-glass-render-mode', 'full');
+    expect(statusWarp?.getAttribute('style')).toContain('filter: url(');
+    expect(statusWarp?.getAttribute('style')).toContain('backdrop-filter: blur(');
+    expect(statusWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 0px)');
     expect(statusBrand).toHaveClass('h-[38px]', 'justify-start', 'gap-[8px]');
+    expect(statusBrand).toHaveAttribute('data-kernelon-status-feedback', 'gsap-press');
     expect(statusBrand).toHaveTextContent('KernelOn');
     expect(statusControls).toHaveClass('h-[38px]', 'w-[500px]', 'justify-end');
     expect(statusControls).not.toHaveClass('pr-[10px]');
@@ -185,11 +182,11 @@ describe('KernelOnShell', () => {
     expect(screen.getByTestId('kernelon-status-time')).toHaveTextContent(
       /^[A-Z][a-z]{2} [A-Z][a-z]{2} \d{1,2} \d{1,2}:\d{2} (AM|PM)$/,
     );
-    expect(
-      within(statusBar)
-        .getAllByRole('button')
-        .map((button) => button.getAttribute('aria-label')),
-    ).toEqual([
+    const statusButtons = within(statusBar).getAllByRole('button');
+    const statusButtonLabels = statusButtons.map((button) => button.getAttribute('aria-label'));
+
+    expect(statusButtonLabels.slice(0, 9)).toEqual([
+      'KernelOn product identity',
       'Theme',
       'Volume',
       'Bluetooth',
@@ -199,6 +196,18 @@ describe('KernelOnShell', () => {
       'Notifications',
       'Control Center',
     ]);
+    expect(statusButtonLabels.at(-1)).toMatch(
+      /^System time [A-Z][a-z]{2} [A-Z][a-z]{2} \d{1,2} \d{1,2}:\d{2} (AM|PM)$/,
+    );
+    statusButtons.forEach((button) => {
+      expect(button).toHaveAttribute('data-kernelon-status-feedback', 'gsap-press');
+      expect(
+        button.querySelector('[data-kernelon-status-feedback-aura="true"]'),
+      ).toBeInTheDocument();
+      expect(
+        button.querySelector('[data-kernelon-status-feedback-glyph="true"]'),
+      ).toBeInTheDocument();
+    });
 
     const spotlightButton = within(statusBar).getByRole('button', { name: 'AI Spotlight' });
     const notificationDot = screen.getByTestId('kernelon-notification-dot');

@@ -1,12 +1,14 @@
 'use client';
 
-import { LiquidGlassSimple } from '@kernelon/ui';
+import { LiquidGlassSvgFilter } from '@kernelon/ui';
 import {
   Bell,
   Search,
 } from 'lucide-react';
 import {
+  useCallback,
   useEffect,
+  useRef,
   useState,
   type ComponentType,
   type CSSProperties,
@@ -34,96 +36,120 @@ export function KernelOnStatusBar({
       data-testid="kernelon-status-bar"
       style={statusBarShellStyle}
     >
-      <LiquidGlassSimple
-        className="pointer-events-auto h-[40px] w-full text-white shadow-none"
-        contentClassName="h-full w-full justify-between px-[14px] pt-[2px]"
-        data-testid="kernelon-status-glass"
-        filterId="kernelon-status-bar-liquid-glass"
-        radius={0}
-        shine={false}
+      <LiquidGlassSvgFilter
+        displacementScale={48}
+        blurAmount={0.22}
+        saturation={155}
+        aberrationIntensity={1.25}
+        elasticity={0}
+        cornerRadius={0}
+        className="pointer-events-auto h-[40px] w-screen text-white"
+        mode="standard"
+        padding="0px"
+        style={{ position: 'absolute', left: '50vw', top: 20 }}
       >
-        <span
-          aria-label="KernelOn product identity"
-          className="flex h-[38px] min-w-0 items-center justify-start gap-[8px]"
-          data-testid="kernelon-status-brand"
+        <div
+          className="flex h-[40px] w-screen items-start justify-between px-[14px] pt-[2px]"
+          data-testid="kernelon-status-glass"
         >
-          <img
-            alt=""
-            className="-ml-[3px] h-[30px] w-[30px] shrink-0 object-contain"
-            data-testid="kernelon-status-brand-logo"
-            draggable={false}
-            src={kernelOnBrandLogo}
-            style={statusBrandLogoStyle}
-          />
-          <span
-            className="truncate text-[14px] font-semibold leading-none text-white/96"
-            style={statusBrandTextStyle}
+          <StatusBarFeedbackButton
+            aria-label="KernelOn product identity"
+            className="-ml-[4px] flex h-[38px] min-w-0 items-center justify-start gap-[8px] px-[4px]"
+            data-testid="kernelon-status-brand"
+            glyphClassName="min-w-0 items-center gap-[8px]"
+            label="KernelOn product identity"
           >
-            KernelOn
+            <img
+              alt=""
+              className="-ml-[3px] h-[30px] w-[30px] shrink-0 object-contain"
+              data-testid="kernelon-status-brand-logo"
+              draggable={false}
+              src={kernelOnBrandLogo}
+              style={statusBrandLogoStyle}
+            />
+            <span
+              className="truncate text-[14px] font-semibold leading-none text-white/96"
+              style={statusBrandTextStyle}
+            >
+              KernelOn
+            </span>
+          </StatusBarFeedbackButton>
+          <span
+            className="flex h-[38px] w-[500px] shrink-0 items-center justify-end gap-[17px]"
+            data-testid="kernelon-status-controls"
+          >
+            <StatusBarIconButton
+              Icon={StatusThemeIcon}
+              iconClassName="h-[24px] w-[24px]"
+              label="Theme"
+            />
+            <StatusBarIconButton
+              Icon={StatusVolumeIcon}
+              iconClassName="h-[24px] w-[24px]"
+              label="Volume"
+            />
+            <StatusBarIconButton
+              Icon={StatusBluetoothIcon}
+              iconClassName="h-[23px] w-[23px]"
+              label="Bluetooth"
+            />
+            <StatusBarIconButton
+              Icon={StatusWifiIcon}
+              iconClassName="h-[24px] w-[24px]"
+              label="Wi-Fi"
+            />
+            <StatusBarIconButton
+              Icon={StatusBatteryIcon}
+              buttonClassName="w-[32px]"
+              iconClassName="h-[25px] w-[32px]"
+              label="Battery"
+            />
+            <StatusBarIconButton
+              Icon={Search}
+              iconClassName="h-[24px] w-[24px]"
+              label="AI Spotlight"
+              onClick={onToggleSpotlight}
+              pressed={spotlightOpen}
+            />
+            <StatusBarIconButton
+              Icon={Bell}
+              badge={
+                <span
+                  className="absolute top-[2px] right-[-2px] size-[7px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
+                  data-testid="kernelon-notification-dot"
+                />
+              }
+              iconClassName="h-[23px] w-[23px]"
+              label="Notifications"
+            />
+            <StatusBarIconButton
+              Icon={StatusControlCenterIcon}
+              iconClassName="h-[23px] w-[23px]"
+              label="Control Center"
+            />
+            <StatusBarTime />
           </span>
-        </span>
-        <span
-          className="flex h-[38px] w-[500px] shrink-0 items-center justify-end gap-[17px]"
-          data-testid="kernelon-status-controls"
-        >
-          <StatusBarIconButton
-            Icon={StatusThemeIcon}
-            iconClassName="h-[24px] w-[24px]"
-            label="Theme"
-          />
-          <StatusBarIconButton
-            Icon={StatusVolumeIcon}
-            iconClassName="h-[24px] w-[24px]"
-            label="Volume"
-          />
-          <StatusBarIconButton
-            Icon={StatusBluetoothIcon}
-            iconClassName="h-[23px] w-[23px]"
-            label="Bluetooth"
-          />
-          <StatusBarIconButton
-            Icon={StatusWifiIcon}
-            iconClassName="h-[24px] w-[24px]"
-            label="Wi-Fi"
-          />
-          <StatusBarIconButton
-            Icon={StatusBatteryIcon}
-            buttonClassName="w-[35px]"
-            iconClassName="h-[25px] w-[35px]"
-            label="Battery"
-          />
-          <StatusBarIconButton
-            Icon={Search}
-            iconClassName="h-[24px] w-[24px]"
-            label="AI Spotlight"
-            onClick={onToggleSpotlight}
-            pressed={spotlightOpen}
-          />
-          <StatusBarIconButton
-            Icon={Bell}
-            badge={
-              <span
-                className="absolute top-[2px] right-[-2px] size-[7px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
-                data-testid="kernelon-notification-dot"
-              />
-            }
-            iconClassName="h-[23px] w-[23px]"
-            label="Notifications"
-          />
-          <StatusBarIconButton
-            Icon={StatusControlCenterIcon}
-            iconClassName="h-[23px] w-[23px]"
-            label="Control Center"
-          />
-          <StatusBarTime />
-        </span>
-      </LiquidGlassSimple>
+        </div>
+      </LiquidGlassSvgFilter>
     </header>
   );
 }
 
 type StatusIconProps = SVGProps<SVGSVGElement>;
 type StatusBarIconComponent = ComponentType<StatusIconProps>;
+type StatusBarGsap = (typeof import('gsap'))['gsap'];
+
+interface StatusBarFeedbackTimeline {
+  kill(): void;
+}
+
+interface StatusBarFeedbackTargets {
+  root: HTMLElement;
+  aura: HTMLElement;
+  glyph: HTMLElement;
+}
+
+let statusBarGsapPromise: Promise<StatusBarGsap> | null = null;
 
 interface StatusBarIconButtonProps {
   Icon: StatusBarIconComponent;
@@ -147,14 +173,12 @@ function StatusBarIconButton({
   onClick,
 }: StatusBarIconButtonProps) {
   return (
-    <button
-      aria-label={label}
-      aria-pressed={typeof pressed === 'boolean' ? pressed : undefined}
-      className={`relative flex h-[30px] ${buttonClassName} shrink-0 items-center justify-center rounded-full text-white/95 outline-none transition duration-150 ease-out hover:scale-[1.025] focus-visible:ring-2 focus-visible:ring-white/80`}
+    <StatusBarFeedbackButton
+      className={`flex h-[30px] ${buttonClassName} items-center justify-center`}
       data-icon-variant={iconVariant}
+      label={label}
       onClick={onClick}
-      title={label}
-      type="button"
+      pressed={pressed}
     >
       <Icon
         aria-hidden="true"
@@ -165,8 +189,185 @@ function StatusBarIconButton({
         style={statusGlyphStyle}
       />
       {badge}
+    </StatusBarFeedbackButton>
+  );
+}
+
+interface StatusBarFeedbackButtonProps {
+  children: ReactNode;
+  label: string;
+  className?: string;
+  glyphClassName?: string;
+  pressed?: boolean;
+  onClick?: () => void;
+  'aria-label'?: string;
+  'data-icon-variant'?: string;
+  'data-testid'?: string;
+}
+
+function StatusBarFeedbackButton({
+  children,
+  label,
+  className = '',
+  glyphClassName = '',
+  pressed,
+  onClick,
+  'aria-label': ariaLabel,
+  'data-icon-variant': iconVariant,
+  'data-testid': testId,
+}: StatusBarFeedbackButtonProps) {
+  const { auraRef, glyphRef, playFeedback, rootRef } = useStatusBarPressFeedback();
+
+  const handleClick = useCallback(() => {
+    playFeedback();
+    onClick?.();
+  }, [onClick, playFeedback]);
+
+  return (
+    <button
+      ref={rootRef}
+      aria-label={ariaLabel ?? label}
+      aria-pressed={typeof pressed === 'boolean' ? pressed : undefined}
+      className={`relative shrink-0 overflow-hidden rounded-full border-0 bg-transparent text-white/95 outline-none transition-[background-color,box-shadow,color] duration-150 ease-out hover:bg-white/12 focus-visible:ring-2 focus-visible:ring-white/80 active:bg-white/16 ${pressed ? 'bg-white/14 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]' : ''} ${className}`}
+      data-icon-variant={iconVariant}
+      data-kernelon-status-feedback="gsap-press"
+      data-testid={testId}
+      onClick={handleClick}
+      title={label}
+      type="button"
+    >
+      <span
+        ref={auraRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[-5px] opacity-0"
+        data-kernelon-status-feedback-aura="true"
+        style={statusFeedbackAuraStyle}
+      />
+      <span
+        ref={glyphRef}
+        className={`relative z-10 flex items-center justify-center ${glyphClassName}`}
+        data-kernelon-status-feedback-glyph="true"
+      >
+        {children}
+      </span>
     </button>
   );
+}
+
+function useStatusBarPressFeedback() {
+  const rootRef = useRef<HTMLButtonElement>(null);
+  const auraRef = useRef<HTMLSpanElement>(null);
+  const glyphRef = useRef<HTMLSpanElement>(null);
+  const timelineRef = useRef<StatusBarFeedbackTimeline | null>(null);
+  const disposedRef = useRef(false);
+
+  useEffect(() => {
+    disposedRef.current = false;
+    void loadStatusBarGsap();
+
+    return () => {
+      disposedRef.current = true;
+      timelineRef.current?.kill();
+      timelineRef.current = null;
+    };
+  }, []);
+
+  const playFeedback = useCallback(() => {
+    const root = rootRef.current;
+    const aura = auraRef.current;
+    const glyph = glyphRef.current;
+
+    if (!root || !aura || !glyph || disposedRef.current) {
+      return;
+    }
+
+    timelineRef.current?.kill();
+    timelineRef.current = null;
+
+    void animateStatusBarPress({ root, aura, glyph })
+      .then((timeline) => {
+        if (disposedRef.current) {
+          timeline.kill();
+          return;
+        }
+
+        timelineRef.current = timeline;
+      })
+      .catch(() => undefined);
+  }, []);
+
+  return { auraRef, glyphRef, playFeedback, rootRef };
+}
+
+function animateStatusBarPress({
+  root,
+  aura,
+  glyph,
+}: StatusBarFeedbackTargets): Promise<StatusBarFeedbackTimeline> {
+  return loadStatusBarGsap().then((gsap) => {
+    const reducedMotion = prefersReducedMotion();
+    const timeline = gsap.timeline({
+      defaults: { ease: 'power3.out' },
+      onComplete: () => {
+        gsap.set([root, aura, glyph], {
+          clearProps: 'opacity,visibility,transform,filter',
+        });
+      },
+    });
+
+    gsap.set([root, aura, glyph], {
+      force3D: true,
+      transformOrigin: '50% 50%',
+    });
+
+    if (reducedMotion) {
+      timeline
+        .fromTo(
+          aura,
+          { autoAlpha: 0, scale: 0.98 },
+          { autoAlpha: 0.38, duration: 0.1, ease: 'sine.out', scale: 1 },
+          0,
+        )
+        .to(aura, { autoAlpha: 0, duration: 0.2, ease: 'sine.out' }, 0.1);
+    } else {
+      timeline
+        .addLabel('press', 0)
+        .fromTo(
+          aura,
+          { autoAlpha: 0, scale: 0.42 },
+          { autoAlpha: 0.72, duration: 0.12, ease: 'sine.out', scale: 1.05 },
+          'press',
+        )
+        .to(aura, { autoAlpha: 0, duration: 0.34, ease: 'power2.out', scale: 1.62 }, 0.08)
+        .to(root, { duration: 0.08, ease: 'power2.out', scale: 0.94, y: 0.5 }, 'press')
+        .to(root, { duration: 0.36, ease: 'elastic.out(1, 0.58)', scale: 1, y: 0 }, 0.08)
+        .fromTo(
+          glyph,
+          { scale: 0.88 },
+          { duration: 0.28, ease: 'back.out(1.8)', scale: 1 },
+          'press+=0.03',
+        );
+    }
+
+    return {
+      kill() {
+        timeline.kill();
+        gsap.set([root, aura, glyph], {
+          clearProps: 'opacity,visibility,transform,filter',
+        });
+      },
+    };
+  });
+}
+
+function prefersReducedMotion(): boolean {
+  return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+}
+
+function loadStatusBarGsap(): Promise<StatusBarGsap> {
+  statusBarGsapPromise ??= import('gsap').then((module) => module.gsap);
+
+  return statusBarGsapPromise;
 }
 
 function StatusThemeIcon({ className, style }: StatusIconProps) {
@@ -248,12 +449,11 @@ function StatusWifiIcon({ className, style }: StatusIconProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M4 7.95c4.56-3.2 11.44-3.2 16 0M7.15 12.15c2.78-1.92 6.92-1.92 9.7 0M10.18 16.05c1.02-.7 2.62-.7 3.64 0"
+        d="M4.1 8.05c4.5-3.12 11.3-3.12 15.8 0M7.25 12.7c2.72-1.88 6.78-1.88 9.5 0M10.18 17.28c1.03-.68 2.61-.68 3.64 0"
         stroke="currentColor"
         strokeLinecap="round"
-        strokeWidth="2.48"
+        strokeWidth="2.5"
       />
-      <circle cx="12" cy="20.35" fill="currentColor" r="1.34" />
     </svg>
   );
 }
@@ -265,14 +465,14 @@ function StatusBatteryIcon({ className, style }: StatusIconProps) {
       className={className}
       fill="currentColor"
       style={style}
-      viewBox="0 0 50 29"
+      viewBox="0 0 44 29"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M8.1 4.45h27.6c4.04 0 7.42 3.02 8 7.02h1.38a4.45 4.45 0 0 1 4.42 4.45v.66a4.45 4.45 0 0 1-4.42 4.45H43.7c-.58 4.03-3.96 7.08-8 7.08H8.1A8.1 8.1 0 0 1 0 20.01v-7.46a8.1 8.1 0 0 1 8.1-8.1Z"
+        d="M7.7 4.7h25.8c3.76 0 6.9 2.86 7.28 6.64h.72a4.02 4.02 0 0 1 4 4.03v.48a4.02 4.02 0 0 1-4 4.03h-.72c-.38 3.82-3.52 6.72-7.28 6.72H7.7A7.7 7.7 0 0 1 0 18.9v-6.5a7.7 7.7 0 0 1 7.7-7.7Z"
       />
       <path
-        d="M28.65 1.5 15.2 15.18h7.98l-3.5 12.48 15.2-14.9H26.8L28.65 1.5Z"
+        d="M24.2 5.4 14.4 16.2h6.45l-2.55 9.55 10.8-11.65h-6.6l1.7-8.7Z"
         fill="rgba(55,65,61,0.76)"
       />
     </svg>
@@ -308,16 +508,23 @@ function StatusBarTime() {
   }, []);
 
   return (
-    <time
-      aria-label={`System time ${timeLabel}`}
-      className="min-w-[136px] shrink-0 text-right text-[15px] font-semibold leading-none text-white/95"
-      data-testid="kernelon-status-time"
-      dateTime={date.toISOString()}
-      style={statusTimeTextStyle}
-      suppressHydrationWarning
+    <StatusBarFeedbackButton
+      className="flex h-[30px] min-w-[136px] items-center justify-end px-[4px]"
+      data-testid="kernelon-status-time-button"
+      glyphClassName="items-center justify-end"
+      label={`System time ${timeLabel}`}
     >
-      {timeLabel}
-    </time>
+      <time
+        aria-hidden="true"
+        className="text-right text-[15px] font-semibold leading-none text-white/95"
+        data-testid="kernelon-status-time"
+        dateTime={date.toISOString()}
+        style={statusTimeTextStyle}
+        suppressHydrationWarning
+      >
+        {timeLabel}
+      </time>
+    </StatusBarFeedbackButton>
   );
 }
 
@@ -365,4 +572,13 @@ const statusTimeTextStyle = {
 const statusGlyphStyle = {
   filter:
     'drop-shadow(0 0 2px rgba(255,255,255,0.74)) drop-shadow(0 2px 2px rgba(45,92,111,0.24))',
+} as CSSProperties;
+
+const statusFeedbackAuraStyle = {
+  background:
+    'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.86) 0%, rgba(193,238,246,0.36) 38%, rgba(255,255,255,0) 72%)',
+  borderRadius: 999,
+  boxShadow: '0 0 12px rgba(255,255,255,0.32), 0 0 22px rgba(137,210,225,0.18)',
+  mixBlendMode: 'screen',
+  willChange: 'opacity, transform',
 } as CSSProperties;
