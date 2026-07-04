@@ -12,6 +12,7 @@ export default tseslint.config(
       '**/node_modules/**',
       'open_source/**',
       'tmp/**',
+      'packages/ui/src/components/liquid-glass-studio/**',
       'packages/ui/src/components/liquid-glass-svg-filter/**',
       '**/*.tsbuildinfo',
       'pnpm-lock.yaml',
