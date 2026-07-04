@@ -296,10 +296,29 @@ export default function LiquidGlassSvgFilter({
   const [glassSize, setGlassSize] = useState({ width: 270, height: 69 })
   const [internalGlobalMousePos, setInternalGlobalMousePos] = useState({ x: 0, y: 0 })
   const [internalMouseOffset, setInternalMouseOffset] = useState({ x: 0, y: 0 })
+  const pendingMouseStateRef = useRef<{
+    globalMousePos: { x: number; y: number }
+    mouseOffset: { x: number; y: number }
+  } | null>(null)
+  const mouseFrameRef = useRef<number | null>(null)
 
   // Use external mouse position if provided, otherwise use internal
   const globalMousePos = externalGlobalMousePos || internalGlobalMousePos
   const mouseOffset = externalMouseOffset || internalMouseOffset
+
+  const flushInternalMouseState = useCallback(() => {
+    mouseFrameRef.current = null
+
+    const nextMouseState = pendingMouseStateRef.current
+    pendingMouseStateRef.current = null
+
+    if (!nextMouseState) {
+      return
+    }
+
+    setInternalMouseOffset(nextMouseState.mouseOffset)
+    setInternalGlobalMousePos(nextMouseState.globalMousePos)
+  }, [])
 
   // Internal mouse tracking
   const handleMouseMove = useCallback(
@@ -313,17 +332,24 @@ export default function LiquidGlassSvgFilter({
       const centerX = rect.left + rect.width / 2
       const centerY = rect.top + rect.height / 2
 
-      setInternalMouseOffset({
-        x: ((e.clientX - centerX) / rect.width) * 100,
-        y: ((e.clientY - centerY) / rect.height) * 100,
-      })
+      pendingMouseStateRef.current = {
+        globalMousePos: {
+          x: e.clientX,
+          y: e.clientY,
+        },
+        mouseOffset: {
+          x: ((e.clientX - centerX) / rect.width) * 100,
+          y: ((e.clientY - centerY) / rect.height) * 100,
+        },
+      }
 
-      setInternalGlobalMousePos({
-        x: e.clientX,
-        y: e.clientY,
-      })
+      if (mouseFrameRef.current !== null) {
+        return
+      }
+
+      mouseFrameRef.current = window.requestAnimationFrame(flushInternalMouseState)
     },
-    [mouseContainer],
+    [flushInternalMouseState, mouseContainer],
   )
 
   // Set up mouse tracking if no external mouse position is provided
@@ -342,6 +368,13 @@ export default function LiquidGlassSvgFilter({
 
     return () => {
       container.removeEventListener("mousemove", handleMouseMove)
+
+      if (mouseFrameRef.current !== null) {
+        window.cancelAnimationFrame(mouseFrameRef.current)
+        mouseFrameRef.current = null
+      }
+
+      pendingMouseStateRef.current = null
     }
   }, [handleMouseMove, mouseContainer, externalGlobalMousePos, externalMouseOffset])
 
