@@ -33,6 +33,30 @@ const getMap = (mode: "standard" | "polar" | "prominent" | "shader", shaderMapUr
   }
 }
 
+type LiquidGlassRenderMode = "full" | "reduced" | "flat"
+
+const supportsBackdropFilter = (): boolean => {
+  if (typeof CSS === "undefined" || typeof CSS.supports !== "function") {
+    return true
+  }
+
+  return CSS.supports("backdrop-filter", "blur(1px)") || CSS.supports("-webkit-backdrop-filter", "blur(1px)")
+}
+
+const getLiquidGlassRenderMode = (): LiquidGlassRenderMode => {
+  const userAgent = typeof navigator === "undefined" ? "" : navigator.userAgent.toLowerCase()
+
+  if (!supportsBackdropFilter()) {
+    return "flat"
+  }
+
+  if (userAgent.includes("firefox")) {
+    return "reduced"
+  }
+
+  return "full"
+}
+
 /* ---------- SVG filter (edge-only displacement) ---------- */
 const GlassFilter: React.FC<{ id: string; displacementScale: number; aberrationIntensity: number; width: number; height: number; mode: "standard" | "polar" | "prominent" | "shader"; shaderMapUrl?: string }> = ({
   id,
@@ -179,7 +203,7 @@ const GlassContainer = forwardRef<
     const filterId = useId()
     const [shaderMapUrl, setShaderMapUrl] = useState<string>("")
 
-    const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.toLowerCase().includes("firefox")
+    const renderMode = getLiquidGlassRenderMode()
 
     // Generate shader displacement map when in shader mode
     useEffect(() => {
@@ -189,9 +213,12 @@ const GlassContainer = forwardRef<
       }
     }, [mode, glassSize.width, glassSize.height])
 
-    const backdropStyle = {
-      filter: isFirefox ? null : `url(#${filterId})`,
-      backdropFilter: `blur(${(overLight ? 12 : 4) + blurAmount * 32}px) saturate(${saturation}%)`,
+    const backdropFilterValue = `blur(${(overLight ? 12 : 4) + blurAmount * 32}px) saturate(${saturation}%)`
+    const hasBackdropFilter = renderMode !== "flat"
+    const backdropStyle: CSSProperties = {
+      filter: renderMode === "full" ? `url(#${filterId})` : undefined,
+      backdropFilter: hasBackdropFilter ? backdropFilterValue : undefined,
+      WebkitBackdropFilter: hasBackdropFilter ? backdropFilterValue : undefined,
     }
 
     return (
@@ -218,7 +245,8 @@ const GlassContainer = forwardRef<
         >
           {/* backdrop layer that gets wiggly */}
           <span
-            className="glass__warp"
+            className={`glass__warp glass__warp--${renderMode}`}
+            data-liquid-glass-render-mode={renderMode}
             style={
               {
                 ...backdropStyle,

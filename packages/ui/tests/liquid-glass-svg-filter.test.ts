@@ -94,4 +94,53 @@ describe('LiquidGlassSvgFilter', () => {
       },
     );
   });
+
+  it('mirrors backdrop blur through the WebKit-prefixed property', () => {
+    const markup = renderToStaticMarkup(
+      createElement(LiquidGlassSvgFilter, {
+        blurAmount: 0.5,
+        children: 'content',
+        saturation: 140,
+      }),
+    );
+
+    expect(markup).toContain('backdrop-filter:blur(20px) saturate(140%)');
+    expect(markup).toContain('-webkit-backdrop-filter:blur(20px) saturate(140%)');
+  });
+
+  it('marks Firefox as a reduced SVG filter mode', () => {
+    vi.stubGlobal('navigator', {
+      userAgent: 'Mozilla/5.0 Firefox/128.0',
+    });
+
+    const markup = renderToStaticMarkup(
+      createElement(LiquidGlassSvgFilter, {
+        children: 'content',
+      }),
+    );
+
+    const warpOpenTag = markup.match(/<span class="glass__warp[^"]*"[^>]*>/)?.[0] ?? '';
+
+    expect(warpOpenTag).toContain('data-liquid-glass-render-mode="reduced"');
+    expect(warpOpenTag).not.toContain('filter:url(');
+  });
+
+  it('marks unsupported backdrop-filter environments as flat mode', () => {
+    vi.stubGlobal('CSS', {
+      supports: vi.fn(() => false),
+    });
+
+    const markup = renderToStaticMarkup(
+      createElement(LiquidGlassSvgFilter, {
+        children: 'content',
+      }),
+    );
+
+    const warpOpenTag = markup.match(/<span class="glass__warp[^"]*"[^>]*>/)?.[0] ?? '';
+
+    expect(warpOpenTag).toContain('data-liquid-glass-render-mode="flat"');
+    expect(warpOpenTag).not.toContain('filter:url(');
+    expect(warpOpenTag).not.toContain('backdrop-filter:');
+    expect(warpOpenTag).not.toContain('-webkit-backdrop-filter:');
+  });
 });

@@ -46,4 +46,4 @@ export function Example() {
 | `mode` | `"standard" \| "polar" \| "prominent" \| "shader"` | `"standard"` | 折射模式；前三种使用内置 displacement map，`shader` 使用 Canvas 生成位移图。 |
 | `onClick` | `() => void` | - | 点击回调；传入后启用可点击态、hover 高光和按下缩放。 |
 
-> Safari 和 Firefox 对该效果只提供部分支持；源码在 Firefox 下会关闭 SVG filter 位移层。
+> Chromium 默认使用 `full` 模式；Firefox 会进入 `reduced` 模式并关闭 SVG filter 位移层；不支持 `backdrop-filter` / `-webkit-backdrop-filter` 的环境会降为 `flat` 模式；WebKit/Safari 会同时写入标准属性与 WebKit 前缀，真实效果仍以浏览器能力为准。
