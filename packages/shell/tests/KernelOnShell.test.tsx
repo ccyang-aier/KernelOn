@@ -165,7 +165,7 @@ describe('KernelOnShell', () => {
       boxShadow:
         'inset 0 -1px 0 rgba(232,248,250,0.16), inset 0 1px 0 rgba(255,255,255,0.06)',
     });
-    expect(statusSurface).toHaveAttribute('data-liquid-glass-container-chrome', 'external');
+    expect(statusSurface).toHaveAttribute('data-liquid-glass-container-border-mode', 'external');
     expect(statusSurface).toHaveStyle({ borderRadius: '0px', boxShadow: 'none', padding: '0px' });
     expect(
       statusFrame?.querySelector('[data-liquid-glass-container-border]'),

@@ -34,6 +34,7 @@ const getMap = (mode: "standard" | "polar" | "prominent" | "shader", shaderMapUr
 }
 
 type LiquidGlassRenderMode = "full" | "reduced" | "flat"
+type LiquidGlassContainerBorderMode = "built-in" | "external"
 
 const supportsBackdropFilter = (): boolean => {
   if (typeof CSS === "undefined" || typeof CSS.supports !== "function") {
@@ -57,8 +58,8 @@ const getLiquidGlassRenderMode = (): LiquidGlassRenderMode => {
   return "full"
 }
 
-const getGlassContainerBoxShadow = (useInternalContainerChrome: boolean, overLight: boolean): string => {
-  if (!useInternalContainerChrome) {
+const getGlassContainerBoxShadow = (containerBorderMode: LiquidGlassContainerBorderMode, overLight: boolean): string => {
+  if (containerBorderMode === "external") {
     return "none"
   }
 
@@ -177,7 +178,7 @@ const GlassContainer = forwardRef<
     padding?: string
     glassSize?: { width: number; height: number }
     mode?: "standard" | "polar" | "prominent" | "shader"
-    useInternalContainerChrome?: boolean
+    containerBorderMode?: LiquidGlassContainerBorderMode
   }>
 >(
   (
@@ -194,7 +195,7 @@ const GlassContainer = forwardRef<
       padding = "24px 32px",
       glassSize = { width: 270, height: 69 },
       mode = "standard",
-      useInternalContainerChrome = true,
+      containerBorderMode = "built-in",
     },
     ref,
   ) => {
@@ -225,7 +226,7 @@ const GlassContainer = forwardRef<
 
         <div
           className="glass"
-          data-liquid-glass-container-chrome={useInternalContainerChrome ? "internal" : "external"}
+          data-liquid-glass-container-border-mode={containerBorderMode}
           style={{
             borderRadius: `${cornerRadius}px`,
             position: "relative",
@@ -235,7 +236,7 @@ const GlassContainer = forwardRef<
             padding,
             overflow: "hidden",
             transition: "all 0.2s ease-in-out",
-            boxShadow: getGlassContainerBoxShadow(useInternalContainerChrome, overLight),
+            boxShadow: getGlassContainerBoxShadow(containerBorderMode, overLight),
           }}
         >
           {/* backdrop layer that gets wiggly */}
@@ -292,7 +293,7 @@ interface LiquidGlassSvgFilterProps {
   style?: LiquidGlassPlacementStyle
   overLight?: boolean
   mode?: "standard" | "polar" | "prominent" | "shader"
-  useInternalContainerChrome?: boolean
+  containerBorderMode?: LiquidGlassContainerBorderMode
 }
 
 export default function LiquidGlassSvgFilter({
@@ -311,7 +312,7 @@ export default function LiquidGlassSvgFilter({
   overLight = false,
   style = {},
   mode = "standard",
-  useInternalContainerChrome = true,
+  containerBorderMode = "built-in",
 }: LiquidGlassSvgFilterProps) {
   const glassRef = useRef<HTMLDivElement>(null)
   const [glassSize, setGlassSize] = useState({ width: 270, height: 69 })
@@ -580,12 +581,12 @@ export default function LiquidGlassSvgFilter({
         mouseOffset={mouseOffset}
         overLight={overLight}
         mode={mode}
-        useInternalContainerChrome={useInternalContainerChrome}
+        containerBorderMode={containerBorderMode}
       >
         {children}
       </GlassContainer>
 
-      {useInternalContainerChrome ? (
+      {containerBorderMode === "built-in" ? (
         <>
           {/* Border layer 1 - extracted from glass container */}
           <span

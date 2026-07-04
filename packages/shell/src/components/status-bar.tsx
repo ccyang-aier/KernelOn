@@ -44,10 +44,10 @@ export function KernelOnStatusBar({
         elasticity={0}
         cornerRadius={0}
         className="pointer-events-auto h-[40px] w-screen text-white"
+        containerBorderMode="external"
         mode="standard"
         padding="0px"
         style={{ position: 'absolute', left: '50vw', top: 20 }}
-        useInternalContainerChrome={false}
       >
         <div
           className="flex h-[40px] w-screen items-start justify-between px-[14px] pt-[2px]"
@@ -89,7 +89,7 @@ export function KernelOnStatusBar({
             <StatusBarIconButton
               Icon={StatusVolumeIcon}
               buttonClassName="w-[27px] max-[680px]:hidden"
-              iconClassName="h-[24px] w-[24px]"
+              iconClassName="h-[24px] w-[25px]"
               label="Volume"
             />
             <StatusBarIconButton
@@ -105,8 +105,8 @@ export function KernelOnStatusBar({
             />
             <StatusBarIconButton
               Icon={StatusBatteryIcon}
-              buttonClassName="w-[32px]"
-              iconClassName="h-[25px] w-[32px]"
+              buttonClassName="w-[30px]"
+              iconClassName="h-[24px] w-[30px]"
               label="Battery"
             />
             <StatusBarIconButton
@@ -407,7 +407,7 @@ function StatusVolumeIcon({ className, style }: StatusIconProps) {
       aria-hidden="true"
       className={className}
       style={style}
-      viewBox="0 0 24 24"
+      viewBox="-0.6 0 25.2 24"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M3.35 9.15v5.7h4.08l5.22 4.25V4.9L7.43 9.15H3.35z" fill="currentColor" />
@@ -454,10 +454,14 @@ function StatusWifiIcon({ className, style }: StatusIconProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M4.1 8.05c4.5-3.12 11.3-3.12 15.8 0M7.25 12.7c2.72-1.88 6.78-1.88 9.5 0M10.18 17.28c1.03-.68 2.61-.68 3.64 0"
+        d="M4.35 8.9c4.36-3.02 10.94-3.02 15.3 0M7.65 13.45c2.5-1.72 6.2-1.72 8.7 0"
         stroke="currentColor"
         strokeLinecap="round"
-        strokeWidth="2.5"
+        strokeWidth="2.65"
+      />
+      <path
+        d="M10.55 17.72c.86-.42 2.04-.42 2.9 0v.58c-.86.42-2.04.42-2.9 0v-.58Z"
+        fill="currentColor"
       />
     </svg>
   );
@@ -468,16 +472,33 @@ function StatusBatteryIcon({ className, style }: StatusIconProps) {
     <svg
       aria-hidden="true"
       className={className}
-      fill="currentColor"
       style={style}
-      viewBox="0 0 44 29"
+      viewBox="0 0 40 29"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <defs>
+        <mask id="kernelon-status-battery-bolt-gap">
+          <rect fill="black" height="29" width="40" />
+          <path
+            d="M6.9 4.9h23.28c3.34 0 6.15 2.53 6.5 5.86h.48A2.84 2.84 0 0 1 40 13.62v1.76a2.84 2.84 0 0 1-2.84 2.86h-.48c-.35 3.36-3.16 5.94-6.5 5.94H6.9A6.9 6.9 0 0 1 0 17.28V11.8a6.9 6.9 0 0 1 6.9-6.9Z"
+            fill="white"
+          />
+          <path
+            d="M22.55 4.95 11.68 16.35h6.94l-2.68 8.55L28.4 12.58h-7.05l1.2-7.63Z"
+            fill="black"
+            stroke="black"
+            strokeLinejoin="round"
+            strokeWidth="1.45"
+          />
+        </mask>
+      </defs>
       <path
-        d="M7.7 4.7h25.8c3.76 0 6.9 2.86 7.28 6.64h.72a4.02 4.02 0 0 1 4 4.03v.48a4.02 4.02 0 0 1-4 4.03h-.72c-.38 3.82-3.52 6.72-7.28 6.72H7.7A7.7 7.7 0 0 1 0 18.9v-6.5a7.7 7.7 0 0 1 7.7-7.7Z"
+        d="M6.9 4.9h23.28c3.34 0 6.15 2.53 6.5 5.86h.48A2.84 2.84 0 0 1 40 13.62v1.76a2.84 2.84 0 0 1-2.84 2.86h-.48c-.35 3.36-3.16 5.94-6.5 5.94H6.9A6.9 6.9 0 0 1 0 17.28V11.8a6.9 6.9 0 0 1 6.9-6.9Z"
+        fill="currentColor"
+        mask="url(#kernelon-status-battery-bolt-gap)"
       />
       <path
-        d="M24.2 5.4 14.4 16.2h6.45l-2.55 9.55 10.8-11.65h-6.6l1.7-8.7Z"
+        d="M22.55 4.95 11.68 16.35h6.94l-2.68 8.55L28.4 12.58h-7.05l1.2-7.63Z"
         fill="rgba(55,65,61,0.76)"
       />
     </svg>
