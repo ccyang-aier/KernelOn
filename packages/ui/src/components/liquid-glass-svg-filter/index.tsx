@@ -1,3 +1,5 @@
+'use client'
+
 import { type CSSProperties, forwardRef, useCallback, useEffect, useId, useRef, useState } from "react"
 import { ShaderDisplacementGenerator, fragmentShaders } from "./shader-utils"
 import { displacementMap, polarDisplacementMap, prominentDisplacementMap } from "./utils"
@@ -177,7 +179,7 @@ const GlassContainer = forwardRef<
     const filterId = useId()
     const [shaderMapUrl, setShaderMapUrl] = useState<string>("")
 
-    const isFirefox = navigator.userAgent.toLowerCase().includes("firefox")
+    const isFirefox = typeof navigator !== "undefined" && navigator.userAgent.toLowerCase().includes("firefox")
 
     // Generate shader displacement map when in shader mode
     useEffect(() => {

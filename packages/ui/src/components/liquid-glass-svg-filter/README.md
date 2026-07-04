@@ -1,5 +1,7 @@
 # LiquidGlassSvgFilter
 
+> 该组件依赖浏览器侧 SVG filter、CSS `backdrop-filter`、鼠标事件与可选 Canvas shader 生成，入口文件已显式声明 `'use client'`；在 Next.js 中应从 Client Component 边界内使用。
+
 `LiquidGlassSvgFilter` 是基于上游 `liquid-glass-react` 的 `src` 源码迁移到 KernelOn 全局组件库的源码级实现。组件后缀 `svg-filter` 表示该版本以 SVG filter、displacement map 和 CSS `backdrop-filter` 为核心实现方式，用于和后续其它 Liquid Glass 实现区分。
 
 ## 实现方式
