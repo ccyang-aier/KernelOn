@@ -32,6 +32,10 @@
       "types": "./src/apps/resources/ResourcesWindow.tsx",
       "import": "./src/apps/resources/ResourcesWindow.tsx"
     },
+    "./wallpaper-window": {
+      "types": "./src/apps/wallpaper/WallpaperWindow.tsx",
+      "import": "./src/apps/wallpaper/WallpaperWindow.tsx"
+    },
     "./onboarding-progress-widget": {
       "types": "./src/widgets/OnboardingProgressWidget.tsx",
       "import": "./src/widgets/OnboardingProgressWidget.tsx"
@@ -46,7 +50,8 @@
     }
   },
   "dependencies": {
-    "@kernelon/shell": "workspace:*"
+    "@kernelon/shell": "workspace:*",
+    "lucide-react": "^1.21.0"
   },
   "peerDependencies": {
     "react": "^19.0.0",

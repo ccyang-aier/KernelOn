@@ -161,6 +161,7 @@ interface KernelOnDesktopContextMenuProps {
   position: DesktopContextMenuPosition;
   mouseContainer: RefObject<HTMLElement | null>;
   onClose(): void;
+  onOpenWallpaper(): void;
   onOpenSpotlight(): void;
 }
 
@@ -168,6 +169,7 @@ export function KernelOnDesktopContextMenu({
   position,
   mouseContainer,
   onClose,
+  onOpenWallpaper,
   onOpenSpotlight,
 }: KernelOnDesktopContextMenuProps) {
   const [hoveredMenuItem, setHoveredMenuItem] = useState<string | null>(null);
@@ -196,6 +198,14 @@ export function KernelOnDesktopContextMenu({
     if (itemKey === 'spotlight') {
       onOpenSpotlight();
     }
+  }
+
+  function handleSubmenuItemClick(itemKey: string) {
+    if (itemKey === 'wallpaper') {
+      onOpenWallpaper();
+    }
+
+    onClose();
   }
 
   useEffect(() => {
@@ -230,6 +240,7 @@ export function KernelOnDesktopContextMenu({
   return (
     <>
       <LiquidGlassSvgFilter
+        className="z-[80]"
         displacementScale={100}
         blurAmount={0.5}
         saturation={140}
@@ -323,6 +334,7 @@ export function KernelOnDesktopContextMenu({
 
       {submenuConfig && submenuPosition ? (
         <LiquidGlassSvgFilter
+          className="z-[81]"
           displacementScale={100}
           blurAmount={0.5}
           saturation={140}
@@ -333,7 +345,11 @@ export function KernelOnDesktopContextMenu({
           mode="standard"
           padding="10px 11px"
           key={activeSubmenu}
-          style={{ position: 'absolute', left: submenuPosition.x, top: submenuPosition.y }}
+          style={{
+            position: 'absolute',
+            left: submenuPosition.x,
+            top: submenuPosition.y,
+          }}
         >
           <div
             className="w-[214px] cursor-default select-none"
@@ -364,7 +380,7 @@ export function KernelOnDesktopContextMenu({
                     data-interaction-state={submenuItemState}
                     data-kernelon-context-submenu-item={key}
                     key={key}
-                    onClick={onClose}
+                    onClick={() => handleSubmenuItemClick(key)}
                     onFocus={() => setHoveredSubmenuItem(key)}
                     onPointerCancel={() => setPressedSubmenuItem(null)}
                     onPointerDown={() => setPressedSubmenuItem(key)}

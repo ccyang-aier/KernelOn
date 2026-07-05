@@ -141,9 +141,7 @@ describe('KernelOnShell', () => {
     const statusGlass = screen.getByTestId('kernelon-status-glass');
     const statusBrand = screen.getByTestId('kernelon-status-brand');
     const statusBrandLogoButton = screen.getByTestId('kernelon-status-brand-logo-button');
-    const statusBrandWordmarkButton = screen.getByTestId(
-      'kernelon-status-brand-wordmark-button',
-    );
+    const statusBrandWordmarkButton = screen.getByTestId('kernelon-status-brand-wordmark-button');
     const statusControls = screen.getByTestId('kernelon-status-controls');
     const statusBrandLogo = screen.getByTestId('kernelon-status-brand-logo');
     const statusBrandWordmark = screen.getByTestId('kernelon-status-brand-wordmark');
@@ -170,8 +168,7 @@ describe('KernelOnShell', () => {
       'pt-[2px]',
     );
     expect(statusGlass).toHaveStyle({
-      boxShadow:
-        'inset 0 -1px 0 rgba(232,248,250,0.16), inset 0 1px 0 rgba(255,255,255,0.06)',
+      boxShadow: 'inset 0 -1px 0 rgba(232,248,250,0.16), inset 0 1px 0 rgba(255,255,255,0.06)',
     });
     expect(statusSurface).toHaveAttribute('data-liquid-glass-container-border-mode', 'external');
     expect(statusSurface).toHaveStyle({ borderRadius: '0px', boxShadow: 'none', padding: '0px' });
@@ -238,7 +235,12 @@ describe('KernelOnShell', () => {
     const statusTime = screen.getByTestId('kernelon-status-time');
 
     expect(spotlightButton).toHaveAttribute('aria-pressed', 'false');
-    expect(notificationDot).toHaveClass('pointer-events-none', 'top-[3px]', 'right-[-3px]', 'size-[6.6px]');
+    expect(notificationDot).toHaveClass(
+      'pointer-events-none',
+      'top-[3px]',
+      'right-[-3px]',
+      'size-[6.6px]',
+    );
     expect(statusTime).toHaveClass('font-normal');
 
     await user.click(spotlightButton);
@@ -388,10 +390,18 @@ describe('KernelOnShell', () => {
 
     expect(appHeader).toHaveAttribute('data-app-header-mode', 'standard');
     expect(appHeader).toHaveAttribute('data-app-header-preset', 'dashboard');
-    expect(within(appHeader).getByTestId('kernelon-app-header-leading-window:onboarding')).toBeInTheDocument();
-    expect(within(appHeader).getByTestId('kernelon-app-header-center-window:onboarding')).toBeInTheDocument();
-    expect(within(appHeader).getByTestId('kernelon-app-header-trailing-window:onboarding')).toBeInTheDocument();
-    expect(within(appHeader).getByTestId('kernelon-app-header-subbar-window:onboarding')).toBeInTheDocument();
+    expect(
+      within(appHeader).getByTestId('kernelon-app-header-leading-window:onboarding'),
+    ).toBeInTheDocument();
+    expect(
+      within(appHeader).getByTestId('kernelon-app-header-center-window:onboarding'),
+    ).toBeInTheDocument();
+    expect(
+      within(appHeader).getByTestId('kernelon-app-header-trailing-window:onboarding'),
+    ).toBeInTheDocument();
+    expect(
+      within(appHeader).getByTestId('kernelon-app-header-subbar-window:onboarding'),
+    ).toBeInTheDocument();
     expect(within(appHeader).getByText('Mentor Matching')).toBeInTheDocument();
     expect(within(appHeader).getByText('Queue - Edited')).toBeInTheDocument();
     expect(within(appHeader).getByRole('button', { name: 'Back' })).toBeInTheDocument();
@@ -543,7 +553,9 @@ describe('KernelOnShell', () => {
 
     expect(await within(appHeader).findByText('Runtime Header')).toBeInTheDocument();
     expect(within(appHeader).getByText('Updated by app')).toBeInTheDocument();
-    expect(within(appHeader).getByRole('button', { name: 'Custom review action' })).toBeInTheDocument();
+    expect(
+      within(appHeader).getByRole('button', { name: 'Custom review action' }),
+    ).toBeInTheDocument();
 
     await user.click(within(appHeader).getByRole('button', { name: 'Save runtime header' }));
 
@@ -779,6 +791,57 @@ describe('KernelOnShell', () => {
     });
   });
 
+  it('reconstrains app windows after the client viewport size changes', async () => {
+    const runtime = createRuntime();
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1440 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 900 });
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            {
+              ...initialState.apps[0],
+              defaultWindow: {
+                title: 'Onboarding',
+                bounds: { x: 48, y: 52, width: 1416, height: 760 },
+              },
+            },
+          ],
+          windows: [
+            {
+              id: 'window:onboarding',
+              appId: 'onboarding',
+              title: 'Onboarding',
+              bounds: { x: 48, y: 52, width: 1416, height: 760 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:onboarding');
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1180 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 760 });
+    fireEvent.resize(window);
+
+    await waitFor(() =>
+      expect(appContainer).toHaveStyle({
+        height: '626px',
+        left: '12px',
+        top: '46px',
+        width: '1156px',
+      }),
+    );
+  });
+
   it('replaces the native desktop context menu with a liquid glass desktop context menu', async () => {
     const runtime = createRuntime();
     const user = userEvent.setup();
@@ -947,5 +1010,67 @@ describe('KernelOnShell', () => {
     await waitFor(() =>
       expect(screen.queryByTestId('kernelon-liquid-glass-context-card')).not.toBeInTheDocument(),
     );
+  });
+
+  it('opens Wallpaper from the desktop personalization menu', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            ...initialState.apps,
+            {
+              id: 'wallpaper',
+              name: '壁纸管理',
+              description: '发现、预览、收藏、上传并应用 KernelOn 桌面壁纸',
+              priority: 'P2',
+              category: 'system',
+              icon: 'Image',
+              dockedByDefault: false,
+              runtime: {
+                window: {
+                  loaderKey: 'app:wallpaper-window',
+                },
+              },
+              defaultWindow: {
+                title: 'KernelOn WallPaper',
+                bounds: { x: 72, y: 58, width: 1240, height: 760 },
+              },
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const desktopSurface = screen.getByTestId('kernelon-desktop-surface');
+    const contextMenuEvent = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 338,
+      clientY: 168,
+    });
+
+    fireEvent(desktopSurface, contextMenuEvent);
+    await user.click(
+      within(screen.getByRole('menu', { name: 'KernelOn desktop context menu' })).getByRole(
+        'menuitem',
+        { name: '个性化' },
+      ),
+    );
+
+    const wallpaperSubmenuItem = within(screen.getByRole('menu', { name: '个性化' })).getByRole(
+      'menuitem',
+      { name: '壁纸' },
+    );
+
+    await user.click(wallpaperSubmenuItem);
+
+    expect(await screen.findByText('Lazy onboarding window')).toBeInTheDocument();
+    expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:wallpaper-window');
+    expect(screen.queryByRole('menu', { name: '个性化' })).not.toBeInTheDocument();
   });
 });

@@ -127,4 +127,53 @@ export const kernelApps: KernelAppManifest[] = [
       bounds: { x: 256, y: 180, width: 820, height: 560 },
     },
   },
+  {
+    id: 'wallpaper',
+    name: '壁纸管理',
+    description: '发现、预览、收藏、上传并应用 KernelOn 桌面壁纸',
+    priority: 'P2',
+    category: 'system',
+    icon: 'Image',
+    dockedByDefault: false,
+    runtime: {
+      window: {
+        loaderKey: 'app:wallpaper-window',
+      },
+    },
+    defaultWindow: {
+      title: 'KernelOn WallPaper',
+      bounds: { x: 48, y: 52, width: 1440, height: 760 },
+      header: {
+        mode: 'standard',
+        preset: 'editor',
+        density: 'comfortable',
+        identity: {
+          title: 'KernelOn WallPaper',
+          subtitle: '桌面个性化与壁纸管理',
+        },
+        trailing: [
+          {
+            type: 'search',
+            id: 'wallpaper-search',
+            placeholder: '搜索壁纸、作者...',
+            commandId: 'wallpaper.search',
+          },
+          {
+            type: 'button',
+            id: 'wallpaper-upload',
+            icon: 'Upload',
+            label: '上传',
+            commandId: 'wallpaper.upload',
+          },
+          {
+            type: 'button',
+            id: 'wallpaper-apply',
+            icon: 'Check',
+            label: '应用',
+            commandId: 'wallpaper.apply',
+          },
+        ],
+      },
+    },
+  },
 ];

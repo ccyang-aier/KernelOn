@@ -4,7 +4,7 @@ import { defaultDesktopScreens, defaultShellInitialState, kernelApps, kernelWidg
 
 describe('KernelOn built-in catalog', () => {
   it('keeps catalog metadata separate from desktop placement', () => {
-    expect(kernelApps).toHaveLength(7);
+    expect(kernelApps).toHaveLength(8);
     expect(defaultDesktopScreens[0]?.items).toHaveLength(0);
   });
 
@@ -13,6 +13,24 @@ describe('KernelOn built-in catalog', () => {
     expect(
       kernelWidgets.every((widget) => widget.runtime.widget.loaderKey.startsWith('widget:')),
     ).toBe(true);
+  });
+
+  it('declares Wallpaper as a system personalization app', () => {
+    expect(kernelApps).toContainEqual(
+      expect.objectContaining({
+        category: 'system',
+        description: '发现、预览、收藏、上传并应用 KernelOn 桌面壁纸',
+        dockedByDefault: false,
+        icon: 'Image',
+        id: 'wallpaper',
+        name: '壁纸管理',
+        runtime: {
+          window: {
+            loaderKey: 'app:wallpaper-window',
+          },
+        },
+      }),
+    );
   });
 
   it('exposes a shared default shell state for web and desktop mounts', () => {

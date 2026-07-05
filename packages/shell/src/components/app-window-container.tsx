@@ -30,6 +30,10 @@ const DOCK_SAFE_AREA_CLEARANCE = 88;
 const WINDOW_CHROME_RADIUS = 26;
 const FULLSCREEN_CHROME_RADIUS = 0;
 const WINDOW_BOUNDS_TRANSITION_MS = 320;
+const HYDRATION_VIEWPORT_SIZE = {
+  height: 900,
+  width: 1440,
+};
 
 type ResizeDirection = 'n' | 'e' | 's' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 type WindowVisualMode = NonNullable<WindowDescriptor['mode']>;
@@ -43,6 +47,11 @@ interface WindowVisualFrameInput {
   bounds: WindowBounds;
   constrainToWorkspace?: boolean;
   mode?: WindowDescriptor['mode'];
+}
+
+interface ViewportSize {
+  height: number;
+  width: number;
 }
 
 interface WindowInteractionState {
@@ -89,10 +98,10 @@ export function AppWindowContainer({
   const interactionRef = useRef<WindowInteractionState | null>(null);
   const frameRef = useRef<HTMLElement | null>(null);
   const previousFrameRef = useRef<WindowVisualFrame>(
-    resolveWindowVisualFrame({ ...descriptor, constrainToWorkspace }),
+    resolveWindowVisualFrame({ ...descriptor, constrainToWorkspace }, HYDRATION_VIEWPORT_SIZE),
   );
   const [visualFrame, setVisualFrame] = useState<WindowVisualFrame>(() =>
-    resolveWindowVisualFrame({ ...descriptor, constrainToWorkspace }),
+    resolveWindowVisualFrame({ ...descriptor, constrainToWorkspace }, HYDRATION_VIEWPORT_SIZE),
   );
   const [isFrameTransitioning, setIsFrameTransitioning] = useState(false);
   const {
@@ -137,6 +146,42 @@ export function AppWindowContainer({
     return () => {
       cancelAnimationFrame(animationFrame);
       window.clearTimeout(transitionTimer);
+    };
+  }, [
+    descriptorHeight,
+    descriptorMode,
+    descriptorWidth,
+    descriptorX,
+    descriptorY,
+    constrainToWorkspace,
+  ]);
+
+  useEffect(() => {
+    if (!globalThis.window) {
+      return undefined;
+    }
+
+    const syncWindowFrameToViewport = () => {
+      const nextFrame = resolveWindowVisualFrame({
+        bounds: {
+          height: descriptorHeight,
+          width: descriptorWidth,
+          x: descriptorX,
+          y: descriptorY,
+        },
+        constrainToWorkspace,
+        mode: descriptorMode,
+      });
+
+      previousFrameRef.current = nextFrame;
+      setVisualFrame(nextFrame);
+    };
+
+    syncWindowFrameToViewport();
+    globalThis.window.addEventListener('resize', syncWindowFrameToViewport);
+
+    return () => {
+      globalThis.window.removeEventListener('resize', syncWindowFrameToViewport);
     };
   }, [
     descriptorHeight,
@@ -297,9 +342,7 @@ export function AppWindowContainer({
   );
 }
 
-export function resolveFullscreenWindowBounds(): WindowBounds {
-  const viewport = getViewportSize();
-
+export function resolveFullscreenWindowBounds(viewport = getViewportSize()): WindowBounds {
   return {
     x: 0,
     y: 0,
@@ -311,17 +354,17 @@ export function resolveFullscreenWindowBounds(): WindowBounds {
 export function resolveWindowDisplayBounds(
   bounds: WindowBounds,
   mode?: WindowDescriptor['mode'],
-  options: { constrainToWorkspace?: boolean } = {},
+  options: { constrainToWorkspace?: boolean; viewport?: ViewportSize } = {},
 ): WindowBounds {
   if (mode === 'fullscreen') {
-    return resolveFullscreenWindowBounds();
+    return resolveFullscreenWindowBounds(options.viewport);
   }
 
   if (options.constrainToWorkspace === false) {
     return bounds;
   }
 
-  return fitWindowBoundsInsideWorkspace(bounds);
+  return fitWindowBoundsInsideWorkspace(bounds, options.viewport);
 }
 
 function resolveWindowStyle(
@@ -345,13 +388,12 @@ function resolveWindowStyle(
   };
 }
 
-function resolveWindowVisualFrame({
-  bounds,
-  constrainToWorkspace,
-  mode,
-}: WindowVisualFrameInput): WindowVisualFrame {
+function resolveWindowVisualFrame(
+  { bounds, constrainToWorkspace, mode }: WindowVisualFrameInput,
+  viewport?: ViewportSize,
+): WindowVisualFrame {
   return {
-    bounds: resolveWindowDisplayBounds(bounds, mode, { constrainToWorkspace }),
+    bounds: resolveWindowDisplayBounds(bounds, mode, { constrainToWorkspace, viewport }),
     mode: mode ?? 'windowed',
   };
 }
@@ -426,34 +468,22 @@ function resolveResizedBounds(
   });
 }
 
-function fitWindowBoundsInsideWorkspace(bounds: WindowBounds): WindowBounds {
-  const viewport = getViewportSize();
+function fitWindowBoundsInsideWorkspace(
+  bounds: WindowBounds,
+  viewport = getViewportSize(),
+): WindowBounds {
   const width = Math.min(
     bounds.width,
     Math.max(MIN_WINDOW_WIDTH, viewport.width - DESKTOP_MARGIN * 2),
   );
   const height = Math.min(
     bounds.height,
-    Math.max(
-      MIN_WINDOW_HEIGHT,
-      viewport.height - STATUS_BAR_CLEARANCE - DOCK_SAFE_AREA_CLEARANCE,
-    ),
+    Math.max(MIN_WINDOW_HEIGHT, viewport.height - STATUS_BAR_CLEARANCE - DOCK_SAFE_AREA_CLEARANCE),
   );
   const maxX = Math.max(DESKTOP_MARGIN, viewport.width - width - DESKTOP_MARGIN);
-  const maxY = Math.max(
-    STATUS_BAR_CLEARANCE,
-    viewport.height - height - DOCK_SAFE_AREA_CLEARANCE,
-  );
-  const x = clamp(
-    bounds.x,
-    DESKTOP_MARGIN,
-    maxX,
-  );
-  const y = clamp(
-    bounds.y,
-    STATUS_BAR_CLEARANCE,
-    maxY,
-  );
+  const maxY = Math.max(STATUS_BAR_CLEARANCE, viewport.height - height - DOCK_SAFE_AREA_CLEARANCE);
+  const x = clamp(bounds.x, DESKTOP_MARGIN, maxX);
+  const y = clamp(bounds.y, STATUS_BAR_CLEARANCE, maxY);
 
   return { height, width, x, y };
 }

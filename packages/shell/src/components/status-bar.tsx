@@ -91,7 +91,7 @@ export function KernelOnStatusBar({
           >
             <StatusBarIconButton
               Icon={StatusThemeIcon}
-              buttonClassName="w-[27px] max-[680px]:hidden"
+              buttonClassName="w-[28px] max-[680px]:hidden"
               iconClassName="h-[24px] w-[24px]"
               label="Theme"
             />
@@ -114,7 +114,7 @@ export function KernelOnStatusBar({
             />
             <StatusBarIconButton
               Icon={StatusBatteryIcon}
-              buttonClassName="w-[30px]"
+              buttonClassName="w-[34px]"
               iconClassName="h-[24px] w-[30px]"
               label="Battery"
             />
@@ -133,6 +133,7 @@ export function KernelOnStatusBar({
                   data-testid="kernelon-notification-dot"
                 />
               }
+              buttonClassName="mr-[4px] w-[27px]"
               iconClassName="h-[23px] w-[23px]"
               label="Notifications"
             />
@@ -356,14 +357,16 @@ function animateStatusBarPress({
           'press',
         )
         .to(aura, { autoAlpha: 0, duration: 0.34, ease: 'power2.out', scale: 1.62 }, 0.08)
-        .to(root, { duration: 0.08, ease: 'power2.out', scale: 0.94, y: 0.5 }, 'press')
-        .to(root, { duration: 0.36, ease: 'elastic.out(1, 0.58)', scale: 1, y: 0 }, 0.08)
+        .to(root, { duration: 0.08, ease: 'power2.out', scale: 0.91, y: 0.75 }, 'press')
+        .to(root, { duration: 0.14, ease: 'back.out(2.2)', scale: 1.07, y: -0.35 }, 0.08)
+        .to(root, { duration: 0.28, ease: 'elastic.out(1.05, 0.58)', scale: 1, y: 0 }, 0.18)
         .fromTo(
           glyph,
-          { scale: 0.88 },
-          { duration: 0.28, ease: 'back.out(1.8)', scale: 1 },
+          { scale: 0.84 },
+          { duration: 0.18, ease: 'back.out(2.4)', scale: 1.1 },
           'press+=0.03',
-        );
+        )
+        .to(glyph, { duration: 0.22, ease: 'elastic.out(1, 0.62)', scale: 1 }, 0.18);
     }
 
     return {

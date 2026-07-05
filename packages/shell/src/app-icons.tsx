@@ -5,6 +5,7 @@ import {
   ClipboardCheck,
   FolderKanban,
   Handshake,
+  Image,
   Milestone,
   UserRoundCheck,
   type LucideIcon,
@@ -18,6 +19,7 @@ const icons: Record<string, LucideIcon> = {
   ClipboardCheck,
   FolderKanban,
   Handshake,
+  Image,
   Milestone,
   UserRoundCheck,
 };
@@ -38,6 +40,8 @@ export function AppIcon({ name, ...props }: ComponentProps<LucideIcon> & { name:
       return <FolderKanban {...props} />;
     case 'Handshake':
       return <Handshake {...props} />;
+    case 'Image':
+      return <Image {...props} />;
     case 'Milestone':
       return <Milestone {...props} />;
     case 'UserRoundCheck':

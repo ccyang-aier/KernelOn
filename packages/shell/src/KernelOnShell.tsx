@@ -116,18 +116,21 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     setDesktopContextMenu(resolveDesktopContextMenuPosition(event.clientX, event.clientY));
   }, []);
 
-  const handleDesktopPointerDown = useCallback((event: ReactPointerEvent<HTMLElement>) => {
-    if (event.button !== 0 || event.target !== event.currentTarget) {
-      return;
-    }
+  const handleDesktopPointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      if (event.button !== 0 || event.target !== event.currentTarget) {
+        return;
+      }
 
-    const bounds = event.currentTarget.getBoundingClientRect();
-    playDesktopClickRipple({
-      x: event.clientX - bounds.left,
-      y: event.clientY - bounds.top,
-    });
-    setDesktopContextMenu(null);
-  }, [playDesktopClickRipple]);
+      const bounds = event.currentTarget.getBoundingClientRect();
+      playDesktopClickRipple({
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+      });
+      setDesktopContextMenu(null);
+    },
+    [playDesktopClickRipple],
+  );
 
   const handleGenieSnapshotReady = useCallback((appId: string, snapshot: HTMLCanvasElement) => {
     genieSnapshotsRef.current.set(appId, snapshot);
@@ -155,9 +158,11 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       return null;
     }
 
-    return Array.from(
-      shellRoot.querySelectorAll<HTMLElement>('[data-kernelon-dock-target]'),
-    ).find((element) => element.dataset.kernelonDockTarget === appId) ?? null;
+    return (
+      Array.from(shellRoot.querySelectorAll<HTMLElement>('[data-kernelon-dock-target]')).find(
+        (element) => element.dataset.kernelonDockTarget === appId,
+      ) ?? null
+    );
   }, []);
 
   const handleOpenAppFromDock = useCallback(
@@ -291,10 +296,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         aria-hidden="true"
         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_92%,rgba(255,255,255,0.20),transparent_34%),linear-gradient(180deg,rgba(4,19,12,0.02),rgba(4,19,12,0.08))]"
       />
-      <KernelOnStatusBar
-        onToggleSpotlight={toggleSpotlight}
-        spotlightOpen={spotlightOpen}
-      />
+      <KernelOnStatusBar onToggleSpotlight={toggleSpotlight} spotlightOpen={spotlightOpen} />
       <section
         aria-label="KernelOn desktop"
         className="relative min-h-screen"
@@ -335,6 +337,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
             key={`${desktopContextMenu.x}-${desktopContextMenu.y}`}
             mouseContainer={liquidGlassContextContainerRef}
             onClose={closeDesktopContextMenu}
+            onOpenWallpaper={() => openApp('wallpaper')}
             onOpenSpotlight={toggleSpotlight}
             position={desktopContextMenu}
           />
