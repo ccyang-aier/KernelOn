@@ -1,14 +1,14 @@
 export const wallpaperStyles = `
 section[data-app-id="wallpaper"] {
-  background: var(--ko-bg) !important;
-  border-color: rgba(255, 255, 255, 0.28) !important;
+  background: rgba(7, 9, 12, 0.86) !important;
+  border-color: rgba(255, 255, 255, 0.13) !important;
 }
 
 section[data-app-id="wallpaper"][data-window-layer="top"] {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.18),
-    0 34px 92px rgba(0, 0, 0, 0.34) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 34px 92px rgba(0, 0, 0, 0.42) !important;
 }
 
 section[data-app-id="wallpaper"] > header {
@@ -27,7 +27,7 @@ section[data-app-id="wallpaper"] > header {
 section[data-app-id="wallpaper"] > header + div {
   height: 100%;
   flex: 1 1 auto;
-  background: transparent !important;
+  background: rgba(7, 9, 12, 0.64) !important;
 }
 
 section[data-app-id="wallpaper"] > header + div > div {
@@ -152,7 +152,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   min-height: 620px;
   overflow: hidden;
   color: #fff;
-  background: var(--ko-bg);
+  background: rgba(7, 9, 12, 0.72);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -191,9 +191,15 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 
 .wallpaper-ux--media::after {
   background:
-    radial-gradient(circle at 80% 18%, rgba(230, 4, 22, 0.50), rgba(230, 4, 22, 0) 41%),
-    radial-gradient(circle at 17% 60%, rgba(132, 11, 22, 0.48), rgba(132, 11, 22, 0) 47%),
-    linear-gradient(106deg, rgba(112, 9, 18, 0.72), rgba(46, 22, 22, 0.74), rgba(141, 7, 17, 0.70));
+    radial-gradient(circle at 82% 18%, rgba(233, 18, 33, 0.36), rgba(233, 18, 33, 0) 42%),
+    radial-gradient(circle at 16% 62%, rgba(136, 22, 38, 0.34), rgba(136, 22, 38, 0) 48%),
+    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0) 31%),
+    linear-gradient(106deg, rgba(104, 14, 24, 0.44), rgba(25, 30, 32, 0.62), rgba(148, 10, 21, 0.42));
+}
+
+.wallpaper-ux--media::before {
+  filter: blur(42px) saturate(1.22) brightness(0.66);
+  opacity: 0.98;
 }
 
 .wallpaper-ux button {
@@ -211,11 +217,38 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 }
 
 .wallpaper-home {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 1;
-  overflow: hidden;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #0b0d10;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  scrollbar-width: thin;
+}
+
+.wallpaper-home::-webkit-scrollbar {
+  width: 9px;
+}
+
+.wallpaper-home::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wallpaper-home::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.wallpaper-home:focus {
+  outline: none;
+}
+
+.wallpaper-home__hero {
+  position: relative;
+  height: clamp(520px, 68vh, 690px);
+  min-height: 520px;
+  overflow: hidden;
 }
 
 .wallpaper-home__track {
@@ -246,13 +279,13 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   inset: 0;
   background:
     linear-gradient(90deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.08) 48%, rgba(0, 0, 0, 0.38) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.16) 50%, rgba(11, 5, 8, 0.95) 78%, rgba(7, 6, 8, 1) 100%);
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.18) 50%, rgba(11, 5, 8, 0.86) 82%, rgba(7, 6, 8, 1) 100%);
 }
 
 .wallpaper-home__content {
   position: absolute;
   left: clamp(52px, 6vw, 92px);
-  bottom: 256px;
+  bottom: clamp(168px, 24vh, 224px);
   z-index: 3;
   width: min(520px, 56vw);
   text-shadow: 0 3px 18px rgba(0, 0, 0, 0.65);
@@ -359,7 +392,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 .wallpaper-home__pagination {
   position: absolute;
   left: 50%;
-  bottom: 245px;
+  bottom: clamp(98px, 15vh, 144px);
   z-index: 4;
   display: flex;
   transform: translateX(-50%);
@@ -384,15 +417,14 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 }
 
 .wallpaper-recommendations {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  position: relative;
   z-index: 3;
-  min-height: 224px;
-  padding: 34px clamp(48px, 5.8vw, 86px) 0;
-  background: linear-gradient(180deg, rgba(20, 10, 13, 0.84), rgba(9, 7, 8, 0.98));
-  box-shadow: 0 -40px 70px rgba(10, 5, 7, 0.54);
+  min-height: 360px;
+  padding: 34px clamp(48px, 5.8vw, 86px) 124px;
+  background:
+    radial-gradient(circle at 22% 8%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 30%),
+    linear-gradient(180deg, rgba(20, 10, 13, 0.91), rgba(9, 7, 8, 0.99));
+  box-shadow: 0 -42px 76px rgba(10, 5, 7, 0.50);
 }
 
 .wallpaper-recommendations__title-row {
@@ -422,7 +454,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 }
 
 .wallpaper-rail-controls {
-  display: flex;
+  display: none;
   gap: 8px;
 }
 
@@ -440,22 +472,16 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 }
 
 .wallpaper-carousel {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
   gap: 23px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 22px;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-}
-
-.wallpaper-carousel::-webkit-scrollbar {
-  display: none;
+  overflow: visible;
+  padding-bottom: 0;
 }
 
 .wallpaper-carousel-card {
   position: relative;
-  min-width: 300px;
+  min-width: 0;
   height: 152px;
   overflow: hidden;
   border: 0;
@@ -548,6 +574,13 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 
 .wallpaper-page--media {
   padding: 112px clamp(52px, 5vw, 72px) 126px;
+  background:
+    radial-gradient(circle at 42% 12%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 34%),
+    linear-gradient(112deg, rgba(120, 14, 27, 0.24), rgba(16, 21, 24, 0.22), rgba(173, 11, 25, 0.22));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 120px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px) saturate(1.28);
 }
 
 .wallpaper-page__intro p {
@@ -872,12 +905,13 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   margin-right: 14px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  background: rgba(71, 6, 9, 0.48);
+  background: rgba(78, 15, 22, 0.42);
   color: #fff;
   padding: 0 17px;
   font-size: 14px;
   font-weight: 900;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 26px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(18px) saturate(1.22);
   cursor: pointer;
 }
 
@@ -900,7 +934,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   gap: 7px;
   border: 0;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.78);
   padding: 0 13px;
   font-size: 12px;
@@ -952,7 +986,9 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 
 .wallpaper-media-row:not(.wallpaper-media-row--head):hover,
 .wallpaper-media-row.is-selected {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(1.18);
 }
 
 .wallpaper-media-row--head {
@@ -1206,9 +1242,17 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
     padding: 0 12px 0 80px;
   }
 
+  .wallpaper-home__hero {
+    height: 560px;
+  }
+
   .wallpaper-home__content {
-    bottom: 250px;
+    bottom: 162px;
     width: calc(100% - 96px);
+  }
+
+  .wallpaper-home__pagination {
+    bottom: 92px;
   }
 
   .wallpaper-recommendations {

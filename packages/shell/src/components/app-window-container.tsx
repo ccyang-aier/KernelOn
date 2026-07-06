@@ -176,15 +176,15 @@ export function AppWindowContainer({
     const syncWindowFrameToViewport = () => {
       const nextFrame = resolveWindowVisualFrame({
         bounds: {
-        height: descriptorHeight,
-        width: descriptorWidth,
-        x: descriptorX,
-        y: descriptorY,
-      },
-      constrainToWorkspace,
-      mode: descriptorMode,
-      reserveDockArea: !isTopLayer,
-    });
+          height: descriptorHeight,
+          width: descriptorWidth,
+          x: descriptorX,
+          y: descriptorY,
+        },
+        constrainToWorkspace,
+        mode: descriptorMode,
+        reserveDockArea: !isTopLayer,
+      });
 
       previousFrameRef.current = nextFrame;
       setVisualFrame(nextFrame);
@@ -297,7 +297,11 @@ export function AppWindowContainer({
         isFrameTransitioning
           ? 'transition-[left,top,width,height,border-radius,box-shadow] duration-[320ms] ease-[cubic-bezier(0.25,0.9,0.25,1)]'
           : '',
-        isFullscreen ? 'rounded-none border-transparent' : 'rounded-[26px] border-white/60',
+        isFullscreen
+          ? 'rounded-none border-transparent'
+          : isTopLayer
+            ? 'rounded-[26px] border-white/15'
+            : 'rounded-[26px] border-white/60',
       )}
       data-app-id={app.id}
       data-genie-effect-hidden={genieHidden ? 'true' : undefined}
@@ -339,7 +343,14 @@ export function AppWindowContainer({
         windowId={descriptor.id}
         windowTitle={descriptor.title}
       />
-      <div className="relative min-h-0 flex-1 overflow-hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.70),rgba(246,250,255,0.48))]">
+      <div
+        className={cn(
+          'relative min-h-0 flex-1 overflow-hidden',
+          isTopLayer
+            ? 'bg-[rgba(7,9,12,0.74)]'
+            : 'bg-[linear-gradient(180deg,rgba(255,255,255,0.70),rgba(246,250,255,0.48))]',
+        )}
+      >
         <div className="h-full overflow-auto">{children}</div>
       </div>
       {!isFullscreen
@@ -396,11 +407,12 @@ function resolveWindowStyle(
   isTopLayer: boolean,
 ): CSSProperties {
   return {
-    background:
-      'linear-gradient(180deg, rgba(255,255,255,0.76), rgba(245,249,252,0.56)), radial-gradient(120% 160% at 12% -18%, rgba(255,255,255,0.72), rgba(255,255,255,0) 58%), radial-gradient(100% 120% at 82% 112%, rgba(107,147,178,0.18), rgba(107,147,178,0) 64%)',
+    background: isTopLayer
+      ? 'linear-gradient(180deg, rgba(9,11,14,0.78), rgba(5,7,10,0.72)), radial-gradient(120% 160% at 12% -18%, rgba(255,255,255,0.12), rgba(255,255,255,0) 58%), radial-gradient(100% 120% at 82% 112%, rgba(120,150,168,0.12), rgba(120,150,168,0) 64%)'
+      : 'linear-gradient(180deg, rgba(255,255,255,0.76), rgba(245,249,252,0.56)), radial-gradient(120% 160% at 12% -18%, rgba(255,255,255,0.72), rgba(255,255,255,0) 58%), radial-gradient(100% 120% at 82% 112%, rgba(107,147,178,0.18), rgba(107,147,178,0) 64%)',
     borderRadius:
       visualFrame.mode === 'fullscreen' ? FULLSCREEN_CHROME_RADIUS : WINDOW_CHROME_RADIUS,
-    boxShadow: resolveWindowShadow(descriptor, visualFrame.mode),
+    boxShadow: resolveWindowShadow(descriptor, visualFrame.mode, isTopLayer),
     height: visualFrame.bounds.height,
     left: visualFrame.bounds.x,
     minHeight: descriptor.mode === 'fullscreen' ? 0 : MIN_WINDOW_HEIGHT,
@@ -426,9 +438,19 @@ function resolveWindowVisualFrame(
   };
 }
 
-function resolveWindowShadow(descriptor: WindowDescriptor, visualMode: WindowVisualMode): string {
+function resolveWindowShadow(
+  descriptor: WindowDescriptor,
+  visualMode: WindowVisualMode,
+  isTopLayer: boolean,
+): string {
   if (visualMode === 'fullscreen') {
     return 'none';
+  }
+
+  if (isTopLayer) {
+    return descriptor.status === 'active'
+      ? 'inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(255,255,255,0.06), 0 34px 92px rgba(0,0,0,0.42)'
+      : 'inset 0 1px 0 rgba(255,255,255,0.10), 0 24px 64px rgba(0,0,0,0.34)';
   }
 
   return descriptor.status === 'active'
