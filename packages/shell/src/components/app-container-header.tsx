@@ -59,18 +59,20 @@ export function AppContainerHeader({
   return (
     <header
       className={cn(
-        'relative shrink-0 overflow-hidden',
         topLayer
-          ? 'border-transparent bg-transparent shadow-none backdrop-blur-0'
-          : 'border-b border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface)] shadow-[var(--ko-app-header-inset-shadow)] backdrop-blur-[22px]',
-        density === 'comfortable' ? 'min-h-[56px]' : 'min-h-11',
+          ? 'absolute inset-x-0 top-0 z-[120] h-[68px] min-h-[68px] shrink-0 overflow-visible border-0 bg-transparent shadow-none backdrop-blur-0'
+          : 'relative shrink-0 overflow-hidden border-b border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface)] shadow-[var(--ko-app-header-inset-shadow)] backdrop-blur-[22px]',
+        topLayer ? '' : density === 'comfortable' ? 'min-h-[56px]' : 'min-h-11',
       )}
       data-app-header-mode={mode}
       data-app-header-preset={preset}
       data-testid={`kernelon-app-header-${windowId}`}
     >
       <div
-        className="group absolute left-4 top-[22px] z-20 flex -translate-y-1/2 items-center gap-2.5"
+        className={cn(
+          'group absolute z-20 flex -translate-y-1/2 items-center',
+          topLayer ? 'left-6 top-[31px] gap-2.5' : 'left-4 top-[22px] gap-2.5',
+        )}
         data-testid={`kernelon-app-window-traffic-lights-${windowId}`}
         onDoubleClick={(event) => event.stopPropagation()}
         onPointerDown={(event) => event.stopPropagation()}
@@ -105,6 +107,7 @@ export function AppContainerHeader({
           className={cn(
             'flex min-h-11 min-w-0 cursor-default select-none items-center gap-3 pl-28 pr-4',
             hasStructuredHeader ? 'justify-between' : 'justify-center px-28',
+            topLayer ? 'min-h-[68px] gap-2.5 px-6 pl-[86px]' : '',
           )}
           onDoubleClick={onToggleFullscreen}
           onPointerDown={onBeginMove}
@@ -112,10 +115,14 @@ export function AppContainerHeader({
           {hasStructuredHeader ? (
             <>
               <div
-                className="flex min-w-0 flex-1 items-center gap-2"
+                className={cn(
+                  'flex min-w-0 flex-1 items-center gap-2',
+                  topLayer ? 'justify-end pr-0' : '',
+                )}
                 data-testid={`kernelon-app-header-leading-${windowId}`}
               >
                 <AppHeaderItems
+                  chromeVariant={topLayer ? 'top-layer' : 'standard'}
                   items={header?.leading ?? []}
                   onCommand={onCommand}
                   section="leading"
@@ -130,10 +137,14 @@ export function AppContainerHeader({
                 </div>
               </div>
               <div
-                className="flex min-w-0 flex-[1.2] items-center justify-center gap-2"
+                className={cn(
+                  'flex min-w-0 flex-[1.2] items-center justify-center gap-2',
+                  topLayer ? 'flex-none' : '',
+                )}
                 data-testid={`kernelon-app-header-center-${windowId}`}
               >
                 <AppHeaderItems
+                  chromeVariant={topLayer ? 'top-layer' : 'standard'}
                   items={header?.center ?? []}
                   onCommand={onCommand}
                   section="center"
@@ -142,10 +153,14 @@ export function AppContainerHeader({
                 />
               </div>
               <div
-                className="flex min-w-0 flex-1 items-center justify-end gap-2"
+                className={cn(
+                  'flex min-w-0 flex-1 items-center justify-end gap-2',
+                  topLayer ? 'gap-2.5' : '',
+                )}
                 data-testid={`kernelon-app-header-trailing-${windowId}`}
               >
                 <AppHeaderItems
+                  chromeVariant={topLayer ? 'top-layer' : 'standard'}
                   items={header?.trailing ?? []}
                   onCommand={onCommand}
                   section="trailing"
@@ -170,6 +185,7 @@ export function AppContainerHeader({
           data-testid={`kernelon-app-header-subbar-${windowId}`}
         >
           <AppHeaderItems
+            chromeVariant={topLayer ? 'top-layer' : 'standard'}
             items={header.subbar}
             onCommand={onCommand}
             section="subbar"

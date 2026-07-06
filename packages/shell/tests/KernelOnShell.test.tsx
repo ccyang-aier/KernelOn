@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -852,6 +852,83 @@ describe('KernelOnShell', () => {
     expect(appContainer).toHaveAttribute('data-window-layer', 'top');
     expect(Number(appContainer.style.zIndex)).toBeGreaterThan(70);
     expect(dock).toHaveClass('z-[70]');
+  });
+
+  it('waits for the Wallpaper module before mounting the top-layer window shell', async () => {
+    let resolveWallpaperWindow:
+      ((module: Awaited<ReturnType<ShellRuntimeRegistry['loadAppWindow']>>) => void) | undefined;
+    const wallpaperWindowModule = new Promise<
+      Awaited<ReturnType<ShellRuntimeRegistry['loadAppWindow']>>
+    >((resolve) => {
+      resolveWallpaperWindow = resolve;
+    });
+    const runtime: ShellRuntimeRegistry = {
+      loadAppWindow: vi.fn(() => wallpaperWindowModule),
+      loadWidget: vi.fn(async () => ({
+        default: function TestWidget() {
+          return <div>Lazy onboarding widget</div>;
+        },
+      })),
+    };
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            ...initialState.apps,
+            {
+              id: 'wallpaper',
+              name: 'Wallpaper',
+              description: 'Wallpaper system app',
+              priority: 'P2',
+              category: 'system',
+              icon: 'Image',
+              dockedByDefault: false,
+              runtime: {
+                window: {
+                  loaderKey: 'app:wallpaper-window',
+                },
+              },
+              defaultWindow: {
+                title: 'KernelOn WallPaper',
+                bounds: { x: 24, y: 14, width: 1240, height: 760 },
+              },
+            },
+          ],
+          windows: [
+            {
+              id: 'window:wallpaper',
+              appId: 'wallpaper',
+              title: 'KernelOn WallPaper',
+              bounds: { x: 24, y: 14, width: 1240, height: 760 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    expect(runtime.loadAppWindow).toHaveBeenCalledWith('app:wallpaper-window');
+    expect(screen.queryByTestId('kernelon-app-container-window:wallpaper')).not.toBeInTheDocument();
+
+    await act(async () => {
+      resolveWallpaperWindow?.({
+        default: function TestWallpaperWindow() {
+          return <div>Wallpaper ready</div>;
+        },
+      });
+      await wallpaperWindowModule;
+    });
+
+    expect(await screen.findByTestId('kernelon-app-container-window:wallpaper')).toHaveAttribute(
+      'data-window-layer',
+      'top',
+    );
+    expect(screen.getByText('Wallpaper ready')).toBeInTheDocument();
   });
 
   it('reconstrains app windows after the client viewport size changes', async () => {
