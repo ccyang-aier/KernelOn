@@ -56,3 +56,9 @@ export interface RecommendedWallpaper {
   image: string;
   sourceWallpaperId: string;
 }
+
+export interface RecommendedWallpaperSection {
+  id: string;
+  title: string;
+  items: RecommendedWallpaper[];
+}

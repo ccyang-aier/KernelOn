@@ -14,7 +14,7 @@ import {
   categories,
   heroSlides,
   popularTags,
-  recommendedWallpapers,
+  recommendationSections,
   wallpaperLibrary,
 } from './data';
 import { createWallpaperHeader, isWallpaperView } from './header';
@@ -199,7 +199,7 @@ export default function WallpaperWindow() {
             setToast(`${assetById.get(wallpaperId)?.title ?? 'Wallpaper'} is selected.`);
           }}
           onRecommendationSelect={selectWallpaper}
-          recommended={recommendedWallpapers}
+          recommendationSections={recommendationSections}
           selectedRecommendedId={selectedWallpaperId}
           slides={heroSlides}
         />

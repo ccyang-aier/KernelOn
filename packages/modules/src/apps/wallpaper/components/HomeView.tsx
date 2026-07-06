@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, Heart, Play } from 'lucide-react';
 import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 
-import type { HeroSlide, RecommendedWallpaper } from '../types';
+import type { HeroSlide, RecommendedWallpaperSection } from '../types';
 
 export function HomeView({
   heroIndex,
@@ -13,7 +13,7 @@ export function HomeView({
   onLike,
   onPreview,
   onRecommendationSelect,
-  recommended,
+  recommendationSections,
   selectedRecommendedId,
   slides,
 }: Readonly<{
@@ -24,7 +24,7 @@ export function HomeView({
   onLike(id: string): void;
   onPreview(id: string): void;
   onRecommendationSelect(wallpaperId: string): void;
-  recommended: RecommendedWallpaper[];
+  recommendationSections: RecommendedWallpaperSection[];
   selectedRecommendedId: string;
   slides: HeroSlide[];
 }>) {
@@ -130,38 +130,47 @@ export function HomeView({
       </div>
 
       <section className="wallpaper-recommendations" aria-label="Recommended wallpapers">
-        <div className="wallpaper-recommendations__title-row">
-          <h2>
-            Recommended For You
-            <ChevronRight aria-hidden="true" />
-          </h2>
-        </div>
-        <div className="wallpaper-carousel">
-          {recommended.map((item, index) => (
-            <button
-              aria-pressed={selectedRecommendedId === item.sourceWallpaperId}
-              className={
-                selectedRecommendedId === item.sourceWallpaperId
-                  ? 'wallpaper-carousel-card has-overlay is-selected'
-                  : 'wallpaper-carousel-card'
-              }
-              key={item.id}
-              onClick={() => onRecommendationSelect(item.sourceWallpaperId)}
-              type="button"
-            >
-              <img alt="" draggable={false} src={item.image} />
-              {index === 1 || selectedRecommendedId === item.sourceWallpaperId ? (
-                <div className="wallpaper-card-glass-label">
-                  <strong>{item.title}</strong>
-                  <span>
-                    <i />
-                    {item.device}
-                  </span>
-                </div>
-              ) : null}
-            </button>
-          ))}
-        </div>
+        {recommendationSections.map((section) => (
+          <div className="wallpaper-recommendation-row" key={section.id}>
+            <div className="wallpaper-recommendations__title-row">
+              <h2>
+                {section.title}
+                <ChevronRight aria-hidden="true" />
+              </h2>
+            </div>
+            <div className="wallpaper-carousel">
+              {section.items.map((item, index) => {
+                const selected = selectedRecommendedId === item.sourceWallpaperId;
+                const featured = index === 0;
+
+                return (
+                  <button
+                    aria-pressed={selected}
+                    className={[
+                      'wallpaper-carousel-card',
+                      featured ? 'has-overlay' : '',
+                      selected ? 'is-selected' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    key={item.id}
+                    onClick={() => onRecommendationSelect(item.sourceWallpaperId)}
+                    type="button"
+                  >
+                    <img alt="" draggable={false} src={item.image} />
+                    <div className="wallpaper-card-glass-label">
+                      <strong>{item.title}</strong>
+                      <span>
+                        <i />
+                        {item.device}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </section>
     </section>
   );

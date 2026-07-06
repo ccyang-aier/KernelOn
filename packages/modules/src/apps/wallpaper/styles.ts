@@ -74,6 +74,8 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-tra
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"] button,
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] button {
+  position: relative;
+  overflow: hidden;
   width: 42px;
   min-width: 42px;
   height: 42px;
@@ -86,6 +88,51 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-tra
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
     0 14px 30px rgba(0, 0, 0, 0.22) !important;
   backdrop-filter: blur(22px) saturate(1.24);
+  transition:
+    transform 200ms ease,
+    background 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease;
+}
+
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"] button::before,
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] button::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.30),
+    rgba(255, 255, 255, 0) 44%,
+    rgba(125, 211, 252, 0.20)
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"] button:hover,
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.30) !important;
+  background: rgba(42, 45, 48, 0.64) !important;
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 18px 38px rgba(0, 0, 0, 0.30),
+    0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"] button:hover::before,
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] button:hover::before {
+  opacity: 1;
+}
+
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"] button:active,
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] button:active {
+  transform: translateY(0) scale(0.96);
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"] button span,
@@ -95,12 +142,16 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-tra
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"] svg,
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] svg {
+  position: relative;
+  z-index: 1;
   width: 21px;
   height: 21px;
   stroke-width: 2.25;
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] [role="group"] {
+  position: relative;
+  overflow: hidden;
   height: 42px;
   gap: 0;
   padding: 4px;
@@ -111,9 +162,43 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 14px 30px rgba(0, 0, 0, 0.18) !important;
   backdrop-filter: blur(24px) saturate(1.25);
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] [role="group"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0) 38%,
+    rgba(125, 211, 252, 0.10)
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] [role="group"]:hover {
+  border-color: rgba(255, 255, 255, 0.24) !important;
+  background: rgba(46, 49, 52, 0.56) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    0 18px 38px rgba(0, 0, 0, 0.24) !important;
+}
+
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] [role="group"]:hover::before {
+  opacity: 1;
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] button {
+  position: relative;
+  z-index: 1;
   height: 34px;
   min-width: 94px;
   padding: 0 20px;
@@ -124,11 +209,28 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   box-shadow: none !important;
   font-size: 14px;
   font-weight: 700;
+  transition:
+    transform 200ms ease,
+    background 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease;
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] button[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.22) !important;
   color: #fff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 6px 16px rgba(0, 0, 0, 0.16) !important;
+}
+
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] button:not([aria-pressed="true"]):hover {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #fff !important;
+}
+
+section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] button:active {
+  transform: scale(0.98);
 }
 
 .wallpaper-ux {
@@ -421,7 +523,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 .wallpaper-recommendations {
   position: relative;
   z-index: 3;
-  min-height: 360px;
+  min-height: 920px;
   padding: 34px clamp(48px, 5.8vw, 86px) 124px;
   background:
     radial-gradient(circle at 22% 8%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 30%),
@@ -429,12 +531,16 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   box-shadow: 0 -42px 76px rgba(10, 5, 7, 0.50);
 }
 
+.wallpaper-recommendation-row + .wallpaper-recommendation-row {
+  margin-top: 38px;
+}
+
 .wallpaper-recommendations__title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin: 0 0 24px;
+  margin: 0 0 18px;
 }
 
 .wallpaper-recommendations h2 {
@@ -475,8 +581,8 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 
 .wallpaper-carousel {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-  gap: 23px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
   overflow: visible;
   padding-bottom: 0;
 }
@@ -493,7 +599,10 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   color: #fff;
   text-align: left;
   cursor: pointer;
-  transition: transform 240ms ease, box-shadow 240ms ease;
+  transition:
+    transform 240ms ease,
+    box-shadow 240ms ease,
+    outline-color 240ms ease;
 }
 
 .wallpaper-carousel-card:hover,
@@ -513,12 +622,26 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   bottom: 16px;
   left: 30px;
   min-width: 226px;
+  max-width: calc(100% - 52px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
   background: rgba(56, 34, 52, 0.48);
   padding: 12px 24px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 16px 34px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(22px);
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition:
+    opacity 210ms ease,
+    transform 210ms ease;
+}
+
+.wallpaper-carousel-card.has-overlay .wallpaper-card-glass-label,
+.wallpaper-carousel-card.is-selected .wallpaper-card-glass-label,
+.wallpaper-carousel-card:hover .wallpaper-card-glass-label,
+.wallpaper-carousel-card:focus-visible .wallpaper-card-glass-label {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .wallpaper-card-glass-label strong {
@@ -1016,6 +1139,10 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   .wallpaper-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .wallpaper-carousel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -1045,6 +1172,10 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   .wallpaper-recommendations {
     padding-left: 28px;
     padding-right: 28px;
+  }
+
+  .wallpaper-carousel {
+    grid-template-columns: 1fr;
   }
 
   .wallpaper-grid {

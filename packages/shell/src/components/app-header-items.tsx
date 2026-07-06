@@ -97,7 +97,7 @@ export function AppHeaderItems({
         >
           <Icon
             aria-hidden="true"
-            className={isTopLayerChrome ? 'size-[21px]' : 'size-3.5'}
+            className={isTopLayerChrome ? 'relative z-10 size-[21px]' : 'size-3.5'}
             strokeWidth={isTopLayerChrome ? 2.25 : undefined}
           />
           <span className={cn('truncate', isTopLayerChrome ? 'hidden' : '')}>{item.label}</span>
@@ -204,12 +204,13 @@ function stopHeaderControlDrag(event: ReactPointerEvent<HTMLElement>) {
 }
 
 const topLayerIconButtonClassName =
-  'h-[42px] w-[42px] min-w-[42px] gap-0 rounded-full border-white/15 bg-[rgba(25,27,30,0.50)] px-0 text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_14px_30px_rgba(0,0,0,0.22)] backdrop-blur-[22px] hover:border-white/20 hover:bg-[rgba(35,37,40,0.58)] hover:text-white focus-visible:ring-white/70';
+  'relative h-[42px] w-[42px] min-w-[42px] gap-0 overflow-hidden rounded-full border-white/15 bg-[rgba(25,27,30,0.50)] px-0 text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_14px_30px_rgba(0,0,0,0.22)] backdrop-blur-[22px] transition-[transform,background-color,border-color,box-shadow,color] duration-200 ease-out before:pointer-events-none before:absolute before:inset-px before:rounded-full before:bg-[linear-gradient(135deg,rgba(255,255,255,0.30),rgba(255,255,255,0)_44%,rgba(125,211,252,0.20))] before:opacity-0 before:transition-opacity before:duration-200 hover:-translate-y-0.5 hover:border-white/30 hover:bg-[rgba(42,45,48,0.64)] hover:text-white hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_18px_38px_rgba(0,0,0,0.30),0_0_0_1px_rgba(255,255,255,0.05)] hover:before:opacity-100 active:translate-y-0 active:scale-[0.96] focus-visible:ring-white/70';
 
 const topLayerSegmentGroupClassName =
-  'h-[42px] gap-0 rounded-full border-white/15 bg-[rgba(38,41,43,0.50)] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_14px_30px_rgba(0,0,0,0.18)] backdrop-blur-[24px]';
+  'relative h-[42px] gap-0 overflow-hidden rounded-full border-white/15 bg-[rgba(38,41,43,0.50)] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_14px_30px_rgba(0,0,0,0.18)] backdrop-blur-[24px] transition-[border-color,box-shadow,background-color] duration-200 ease-out before:pointer-events-none before:absolute before:inset-0 before:rounded-full before:bg-[linear-gradient(120deg,rgba(255,255,255,0.18),rgba(255,255,255,0)_38%,rgba(125,211,252,0.10))] before:opacity-0 before:transition-opacity before:duration-200 hover:border-white/[0.24] hover:bg-[rgba(46,49,52,0.56)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.20),0_18px_38px_rgba(0,0,0,0.24)] hover:before:opacity-100';
 
 const topLayerSegmentButtonClassName =
-  'h-[34px] min-w-[94px] rounded-full border-0 bg-transparent px-5 text-[14px] font-bold text-white/75 shadow-none hover:bg-transparent hover:text-white';
+  'relative z-10 h-[34px] min-w-[94px] rounded-full border-0 bg-transparent px-5 text-[14px] font-bold text-white/75 shadow-none transition-[transform,background-color,box-shadow,color] duration-200 ease-out hover:bg-white/[0.10] hover:text-white active:scale-[0.98] focus-visible:ring-white/[0.65]';
 
-const topLayerSegmentButtonActiveClassName = 'bg-white/20 text-white hover:bg-white/20';
+const topLayerSegmentButtonActiveClassName =
+  'bg-white/[0.22] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_6px_16px_rgba(0,0,0,0.16)] hover:bg-white/[0.24]';

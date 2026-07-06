@@ -1,4 +1,10 @@
-import type { CategoryOption, HeroSlide, RecommendedWallpaper, WallpaperAsset } from './types';
+import type {
+  CategoryOption,
+  HeroSlide,
+  RecommendedWallpaper,
+  RecommendedWallpaperSection,
+  WallpaperAsset,
+} from './types';
 
 export const viewLabels = {
   explore: 'Explore',
@@ -411,53 +417,75 @@ export const heroSlides: HeroSlide[] = wallpaperLibrary.slice(0, 8).map((wallpap
   ],
 }));
 
-export const recommendedWallpapers: RecommendedWallpaper[] = [
+const recommendationFallbackImage =
+  'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=900&auto=format&fit=crop';
+
+const recommendationTitles = new Map<string, string>([
+  ['bloodlight-face', 'Arcade Heat'],
+  ['blue-panel', 'Blue Riot'],
+  ['overgrown-cathedral', 'Cathedral Bloom'],
+  ['silver-surfer', 'Silver Drift'],
+  ['motorcycle', 'Forest Sprint'],
+  ['dark-sky', 'Night Signal'],
+  ['zelda-forest-temple', 'Temple Green'],
+  ['snowy-village', 'Snow Drift'],
+  ['boat-floats', 'Lake Pulse'],
+  ['red-runner', 'Red Runner'],
+  ['jelly-blue', 'Jelly Blue'],
+  ['shirt-blue', 'Shirt Blue!'],
+  ['lone-wanderer', 'Lone Wanderer'],
+  ['abi-toads', 'Abi Toads'],
+]);
+
+const wallpaperById = new Map(wallpaperLibrary.map((wallpaper) => [wallpaper.id, wallpaper]));
+
+export const recommendationSections: RecommendedWallpaperSection[] = [
   {
-    id: 'rec-retrowaves',
-    title: 'Retrowaves',
-    device: 'SAMSUNG',
-    image:
-      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=900&auto=format&fit=crop',
-    sourceWallpaperId: 'retrowaves',
+    id: 'recommended',
+    title: 'Recommended For You',
+    items: createRecommendedWallpapers([
+      'retrowaves',
+      'bloodlight-face',
+      'blue-panel',
+      'ocean-school',
+    ]),
   },
   {
-    id: 'rec-arcade-heat',
-    title: 'Arcade Heat',
-    device: 'ASUS PROART',
-    image:
-      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=900&auto=format&fit=crop',
-    sourceWallpaperId: 'bloodlight-face',
+    id: 'fresh-4k-loops',
+    title: 'Fresh 4K Loops',
+    items: createRecommendedWallpapers([
+      'overgrown-cathedral',
+      'silver-surfer',
+      'motorcycle',
+      'dark-sky',
+    ]),
   },
   {
-    id: 'rec-blue-riot',
-    title: 'Blue Riot',
-    device: 'LG ULTRAFINE',
-    image:
-      'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=900&auto=format&fit=crop',
-    sourceWallpaperId: 'blue-panel',
+    id: 'cinematic-worlds',
+    title: 'Cinematic Worlds',
+    items: createRecommendedWallpapers([
+      'zelda-forest-temple',
+      'snowy-village',
+      'boat-floats',
+      'red-runner',
+    ]),
   },
   {
-    id: 'rec-carbon-heart',
-    title: 'Carbon Heart',
-    device: 'BENQ',
-    image:
-      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=900&auto=format&fit=crop',
-    sourceWallpaperId: 'bloodlight-face',
-  },
-  {
-    id: 'rec-sky-panel',
-    title: 'Sky Panel',
-    device: 'STUDIO',
-    image:
-      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=900&auto=format&fit=crop',
-    sourceWallpaperId: 'ocean-school',
-  },
-  {
-    id: 'rec-red-runner',
-    title: 'Red Runner',
-    device: 'ALIENWARE',
-    image:
-      'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=900&auto=format&fit=crop',
-    sourceWallpaperId: 'red-runner',
+    id: 'ultrawide-moods',
+    title: 'Ultrawide Moods',
+    items: createRecommendedWallpapers(['jelly-blue', 'shirt-blue', 'lone-wanderer', 'abi-toads']),
   },
 ];
+
+function createRecommendedWallpapers(wallpaperIds: string[]): RecommendedWallpaper[] {
+  return wallpaperIds
+    .map((wallpaperId) => wallpaperById.get(wallpaperId))
+    .filter((wallpaper): wallpaper is WallpaperAsset => Boolean(wallpaper))
+    .map((wallpaper) => ({
+      id: `rec-${wallpaper.id}`,
+      title: recommendationTitles.get(wallpaper.id) ?? wallpaper.title,
+      device: wallpaper.device,
+      image: wallpaper.image || recommendationFallbackImage,
+      sourceWallpaperId: wallpaper.id,
+    }));
+}
