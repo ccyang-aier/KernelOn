@@ -47,6 +47,7 @@ interface WindowVisualFrameInput {
   bounds: WindowBounds;
   constrainToWorkspace?: boolean;
   mode?: WindowDescriptor['mode'];
+  reserveDockArea?: boolean;
 }
 
 interface ViewportSize {
@@ -78,6 +79,7 @@ export interface AppWindowContainerProps {
   onMinimize(windowId: string, sourceElement: HTMLElement | null): void;
   onResize(windowId: string, bounds: WindowBounds): void;
   onToggleFullscreen(windowId: string, bounds: WindowBounds): void;
+  topLayer?: boolean;
 }
 
 export function AppWindowContainer({
@@ -93,15 +95,23 @@ export function AppWindowContainer({
   onMinimize,
   onResize,
   onToggleFullscreen,
+  topLayer = false,
   window: descriptor,
 }: AppWindowContainerProps) {
   const interactionRef = useRef<WindowInteractionState | null>(null);
   const frameRef = useRef<HTMLElement | null>(null);
+  const isTopLayer = topLayer;
   const previousFrameRef = useRef<WindowVisualFrame>(
-    resolveWindowVisualFrame({ ...descriptor, constrainToWorkspace }, HYDRATION_VIEWPORT_SIZE),
+    resolveWindowVisualFrame(
+      { ...descriptor, constrainToWorkspace, reserveDockArea: !isTopLayer },
+      HYDRATION_VIEWPORT_SIZE,
+    ),
   );
   const [visualFrame, setVisualFrame] = useState<WindowVisualFrame>(() =>
-    resolveWindowVisualFrame({ ...descriptor, constrainToWorkspace }, HYDRATION_VIEWPORT_SIZE),
+    resolveWindowVisualFrame(
+      { ...descriptor, constrainToWorkspace, reserveDockArea: !isTopLayer },
+      HYDRATION_VIEWPORT_SIZE,
+    ),
   );
   const [isFrameTransitioning, setIsFrameTransitioning] = useState(false);
   const {
@@ -123,6 +133,7 @@ export function AppWindowContainer({
       },
       constrainToWorkspace,
       mode: descriptorMode,
+      reserveDockArea: !isTopLayer,
     });
     const previousFrame = previousFrameRef.current;
     const modeChanged = previousFrame.mode !== nextFrame.mode;
@@ -154,6 +165,7 @@ export function AppWindowContainer({
     descriptorX,
     descriptorY,
     constrainToWorkspace,
+    isTopLayer,
   ]);
 
   useEffect(() => {
@@ -164,14 +176,15 @@ export function AppWindowContainer({
     const syncWindowFrameToViewport = () => {
       const nextFrame = resolveWindowVisualFrame({
         bounds: {
-          height: descriptorHeight,
-          width: descriptorWidth,
-          x: descriptorX,
-          y: descriptorY,
-        },
-        constrainToWorkspace,
-        mode: descriptorMode,
-      });
+        height: descriptorHeight,
+        width: descriptorWidth,
+        x: descriptorX,
+        y: descriptorY,
+      },
+      constrainToWorkspace,
+      mode: descriptorMode,
+      reserveDockArea: !isTopLayer,
+    });
 
       previousFrameRef.current = nextFrame;
       setVisualFrame(nextFrame);
@@ -190,6 +203,7 @@ export function AppWindowContainer({
     descriptorX,
     descriptorY,
     constrainToWorkspace,
+    isTopLayer,
   ]);
 
   const beginMove = useCallback(
@@ -289,6 +303,7 @@ export function AppWindowContainer({
       data-genie-effect-hidden={genieHidden ? 'true' : undefined}
       data-genie-effect-source={descriptor.id}
       data-testid={`kernelon-app-container-${descriptor.id}`}
+      data-window-layer={isTopLayer ? 'top' : 'workspace'}
       data-window-mode={descriptor.mode ?? 'windowed'}
       data-window-status={descriptor.status}
       data-window-transition-mode="genie-managed"
@@ -301,7 +316,7 @@ export function AppWindowContainer({
       onPointerUp={endInteraction}
       ref={frameRef}
       style={{
-        ...resolveWindowStyle(descriptor, visualFrame),
+        ...resolveWindowStyle(descriptor, visualFrame, isTopLayer),
         pointerEvents: genieHidden ? 'none' : undefined,
       }}
       transition={{
@@ -354,7 +369,11 @@ export function resolveFullscreenWindowBounds(viewport = getViewportSize()): Win
 export function resolveWindowDisplayBounds(
   bounds: WindowBounds,
   mode?: WindowDescriptor['mode'],
-  options: { constrainToWorkspace?: boolean; viewport?: ViewportSize } = {},
+  options: {
+    constrainToWorkspace?: boolean;
+    reserveDockArea?: boolean;
+    viewport?: ViewportSize;
+  } = {},
 ): WindowBounds {
   if (mode === 'fullscreen') {
     return resolveFullscreenWindowBounds(options.viewport);
@@ -364,12 +383,17 @@ export function resolveWindowDisplayBounds(
     return bounds;
   }
 
+  if (options.reserveDockArea === false) {
+    return fitWindowBoundsInsideTopLayer(bounds, options.viewport);
+  }
+
   return fitWindowBoundsInsideWorkspace(bounds, options.viewport);
 }
 
 function resolveWindowStyle(
   descriptor: WindowDescriptor,
   visualFrame: WindowVisualFrame,
+  isTopLayer: boolean,
 ): CSSProperties {
   return {
     background:
@@ -384,16 +408,20 @@ function resolveWindowStyle(
     top: visualFrame.bounds.y,
     transformOrigin: '50% calc(100% + 148px)',
     width: visualFrame.bounds.width,
-    zIndex: 40 + descriptor.zIndex,
+    zIndex: (isTopLayer ? 90 : 40) + descriptor.zIndex,
   };
 }
 
 function resolveWindowVisualFrame(
-  { bounds, constrainToWorkspace, mode }: WindowVisualFrameInput,
+  { bounds, constrainToWorkspace, mode, reserveDockArea }: WindowVisualFrameInput,
   viewport?: ViewportSize,
 ): WindowVisualFrame {
   return {
-    bounds: resolveWindowDisplayBounds(bounds, mode, { constrainToWorkspace, viewport }),
+    bounds: resolveWindowDisplayBounds(bounds, mode, {
+      constrainToWorkspace,
+      reserveDockArea,
+      viewport,
+    }),
     mode: mode ?? 'windowed',
   };
 }
@@ -484,6 +512,26 @@ function fitWindowBoundsInsideWorkspace(
   const maxY = Math.max(STATUS_BAR_CLEARANCE, viewport.height - height - DOCK_SAFE_AREA_CLEARANCE);
   const x = clamp(bounds.x, DESKTOP_MARGIN, maxX);
   const y = clamp(bounds.y, STATUS_BAR_CLEARANCE, maxY);
+
+  return { height, width, x, y };
+}
+
+function fitWindowBoundsInsideTopLayer(
+  bounds: WindowBounds,
+  viewport = getViewportSize(),
+): WindowBounds {
+  const width = Math.min(
+    bounds.width,
+    Math.max(MIN_WINDOW_WIDTH, viewport.width - DESKTOP_MARGIN * 2),
+  );
+  const height = Math.min(
+    bounds.height,
+    Math.max(MIN_WINDOW_HEIGHT, viewport.height - DESKTOP_MARGIN * 2),
+  );
+  const maxX = Math.max(DESKTOP_MARGIN, viewport.width - width - DESKTOP_MARGIN);
+  const maxY = Math.max(DESKTOP_MARGIN, viewport.height - height - DESKTOP_MARGIN);
+  const x = clamp(bounds.x, DESKTOP_MARGIN, maxX);
+  const y = clamp(bounds.y, DESKTOP_MARGIN, maxY);
 
   return { height, width, x, y };
 }

@@ -791,6 +791,69 @@ describe('KernelOnShell', () => {
     });
   });
 
+  it('places Wallpaper windows in the top layer above the Dock', async () => {
+    const runtime = createRuntime();
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1280 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 720 });
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            ...initialState.apps,
+            {
+              id: 'wallpaper',
+              name: 'Wallpaper',
+              description: 'Wallpaper system app',
+              priority: 'P2',
+              category: 'system',
+              icon: 'Image',
+              dockedByDefault: false,
+              runtime: {
+                window: {
+                  loaderKey: 'app:wallpaper-window',
+                },
+              },
+              defaultWindow: {
+                title: 'KernelOn WallPaper',
+                bounds: { x: 24, y: 14, width: 1240, height: 760 },
+              },
+            },
+          ],
+          windows: [
+            {
+              id: 'window:wallpaper',
+              appId: 'wallpaper',
+              title: 'KernelOn WallPaper',
+              bounds: { x: 24, y: 14, width: 1240, height: 760 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:wallpaper');
+    const dock = screen.getByTestId('kernelon-dock');
+
+    await waitFor(() =>
+      expect(appContainer).toHaveStyle({
+        height: '696px',
+        top: '12px',
+        width: '1240px',
+        zIndex: '91',
+      }),
+    );
+    expect(appContainer).toHaveAttribute('data-window-layer', 'top');
+    expect(Number(appContainer.style.zIndex)).toBeGreaterThan(70);
+    expect(dock).toHaveClass('z-[70]');
+  });
+
   it('reconstrains app windows after the client viewport size changes', async () => {
     const runtime = createRuntime();
 

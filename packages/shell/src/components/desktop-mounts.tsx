@@ -84,6 +84,7 @@ export function AppWindowMount({
   const [runtimeHeader, setRuntimeHeader] = useState<AppHeaderDescriptor | undefined>();
   const [headerSlots, setHeaderSlots] = useState<Record<string, ReactNode>>({});
   const effectiveHeader = runtimeHeader ?? window.header ?? app.defaultWindow.header;
+  const isTopLayerWindow = app.id === 'wallpaper';
 
   const clearHeader = useCallback(() => {
     setRuntimeHeader(undefined);
@@ -151,6 +152,7 @@ export function AppWindowMount({
       onMinimize={onMinimize}
       onResize={onResize}
       onToggleFullscreen={onToggleFullscreen}
+      topLayer={isTopLayerWindow}
       window={window}
     >
       <AppHeaderContext.Provider value={headerController}>

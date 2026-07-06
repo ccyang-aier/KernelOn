@@ -1,0 +1,71 @@
+export type WallpaperView = 'home' | 'explore' | 'media';
+
+export type CategoryId =
+  | 'All'
+  | 'Animals'
+  | 'Anime'
+  | 'Cars'
+  | 'Games'
+  | 'Graphics'
+  | 'Minimalist'
+  | 'Movies'
+  | 'Nature'
+  | 'Other'
+  | 'People'
+  | 'PixelArt'
+  | 'SciFi'
+  | 'Space'
+  | 'Winter';
+
+export type MediaFilter = 'all' | 'local' | 'liked';
+
+export type ExploreSort = 'newest' | 'liked' | 'duration';
+
+export type PlaybackSpeed = '1x' | '1.5x' | '2x';
+
+export interface CategoryOption {
+  id: CategoryId;
+  image?: string;
+}
+
+export interface WallpaperAsset {
+  id: string;
+  title: string;
+  category: CategoryId;
+  author: string;
+  authorInitial: string;
+  image: string;
+  thumb?: string;
+  device: string;
+  duration: string;
+  durationSeconds: number;
+  resolution: string;
+  size: string;
+  likes: number;
+  tags: string[];
+  uploadedAt: string;
+  local: boolean;
+  liked: boolean;
+  placeholder?: 'pink';
+}
+
+export interface HeroSlide extends WallpaperAsset {
+  categoryLabel: string;
+  meta: string[];
+}
+
+export interface RecommendedWallpaper {
+  id: string;
+  title: string;
+  device: string;
+  image: string;
+  sourceWallpaperId: string;
+}
+
+export interface PlayerTrack {
+  id: string;
+  title: string;
+  device: string;
+  image: string;
+  durationSeconds: number;
+}

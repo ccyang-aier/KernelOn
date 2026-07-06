@@ -142,7 +142,7 @@ export const kernelApps: KernelAppManifest[] = [
     },
     defaultWindow: {
       title: 'KernelOn WallPaper',
-      bounds: { x: 48, y: 52, width: 1680, height: 980 },
+      bounds: { x: 24, y: 14, width: 1736, height: 1088 },
       header: {
         mode: 'standard',
         preset: 'editor',
