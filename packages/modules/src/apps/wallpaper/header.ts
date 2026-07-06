@@ -6,7 +6,7 @@ import type { WallpaperView } from './types';
 const headerOptions = [
   { label: viewLabels.home, value: 'home' },
   { label: viewLabels.explore, value: 'explore' },
-  { label: viewLabels.media, value: 'media' },
+  { label: viewLabels.settings, value: 'settings' },
 ];
 
 export function createWallpaperHeader(activeView: WallpaperView): AppHeaderDescriptor {
@@ -47,17 +47,10 @@ export function createWallpaperHeader(activeView: WallpaperView): AppHeaderDescr
         label: 'Share',
         type: 'button',
       },
-      {
-        commandId: 'wallpaper.settings',
-        icon: 'Settings',
-        id: 'wallpaper-settings',
-        label: 'Settings',
-        type: 'button',
-      },
     ],
   };
 }
 
 export function isWallpaperView(value: string | undefined): value is WallpaperView {
-  return value === 'home' || value === 'explore' || value === 'media';
+  return value === 'home' || value === 'explore' || value === 'settings';
 }

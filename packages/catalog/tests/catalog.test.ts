@@ -33,6 +33,26 @@ describe('KernelOn built-in catalog', () => {
     );
   });
 
+  it('keeps Wallpaper default navigation aligned with the glass app shell', () => {
+    const wallpaperApp = kernelApps.find((app) => app.id === 'wallpaper');
+    const tabs = wallpaperApp?.defaultWindow.header?.center?.find(
+      (item) => item.type === 'segment' && item.id === 'wallpaper-tabs',
+    );
+
+    expect(tabs).toMatchObject({
+      options: [
+        { label: 'Home', value: 'home' },
+        { label: 'Explore', value: 'explore' },
+        { label: 'Settings', value: 'settings' },
+      ],
+    });
+    expect(
+      wallpaperApp?.defaultWindow.header?.trailing
+        ?.filter((item) => item.type === 'button')
+        .map((item) => item.id),
+    ).toEqual(['wallpaper-license', 'wallpaper-share']);
+  });
+
   it('exposes a shared default shell state for web and desktop mounts', () => {
     expect(defaultShellInitialState.apps).toBe(kernelApps);
     expect(defaultShellInitialState.widgets).toBe(kernelWidgets);

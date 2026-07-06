@@ -26,6 +26,7 @@ import {
   type AppHeaderCommandPayload,
 } from '../app-header';
 import type { AppWindowSurfaceProps, ShellRuntimeRegistry, WidgetSurfaceProps } from '../runtime';
+import { kernelOnDesktopWallpaper } from '../visual-assets';
 import { AppWindowContainer } from './app-window-container';
 
 interface DesktopItemMountProps {
@@ -85,6 +86,7 @@ export function AppWindowMount({
   const [headerSlots, setHeaderSlots] = useState<Record<string, ReactNode>>({});
   const effectiveHeader = runtimeHeader ?? window.header ?? app.defaultWindow.header;
   const isTopLayerWindow = app.id === 'wallpaper';
+  const appFallback = isTopLayerWindow ? <WallpaperWindowFallback /> : null;
 
   const clearHeader = useCallback(() => {
     setRuntimeHeader(undefined);
@@ -111,18 +113,15 @@ export function AppWindowMount({
     });
   }, []);
 
-  const registerCommand = useCallback(
-    (commandId: string, handler: AppHeaderCommandHandler) => {
-      commandHandlersRef.current.set(commandId, handler);
+  const registerCommand = useCallback((commandId: string, handler: AppHeaderCommandHandler) => {
+    commandHandlersRef.current.set(commandId, handler);
 
-      return () => {
-        if (commandHandlersRef.current.get(commandId) === handler) {
-          commandHandlersRef.current.delete(commandId);
-        }
-      };
-    },
-    [],
-  );
+    return () => {
+      if (commandHandlersRef.current.get(commandId) === handler) {
+        commandHandlersRef.current.delete(commandId);
+      }
+    };
+  }, []);
 
   const handleHeaderCommand = useCallback((payload: AppHeaderCommandPayload) => {
     commandHandlersRef.current.get(payload.commandId)?.(payload);
@@ -156,9 +155,30 @@ export function AppWindowMount({
       window={window}
     >
       <AppHeaderContext.Provider value={headerController}>
-        <Suspense fallback={null}>{createElement(AppWindowComponent, { app, window })}</Suspense>
+        <Suspense fallback={appFallback}>
+          {createElement(AppWindowComponent, { app, window })}
+        </Suspense>
       </AppHeaderContext.Provider>
     </AppWindowContainer>
+  );
+}
+
+function WallpaperWindowFallback() {
+  return (
+    <div
+      className="relative h-full overflow-hidden bg-[#07090c]"
+      data-testid="kernelon-wallpaper-window-fallback"
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 scale-110 bg-cover bg-center opacity-70 blur-3xl"
+        style={{ backgroundImage: `url(${kernelOnDesktopWallpaper})` }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(255,255,255,0.16),transparent_34%),radial-gradient(circle_at_78%_86%,rgba(90,180,205,0.18),transparent_36%),linear-gradient(180deg,rgba(7,10,14,0.60),rgba(2,4,7,0.84))]"
+      />
+    </div>
   );
 }
 

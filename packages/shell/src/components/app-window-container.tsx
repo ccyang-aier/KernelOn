@@ -340,6 +340,7 @@ export function AppWindowContainer({
         onMinimize={(sourceElement) => onMinimize(descriptor.id, sourceElement)}
         onToggleFullscreen={handleFullscreenToggle}
         slots={headerSlots}
+        topLayer={isTopLayer}
         windowId={descriptor.id}
         windowTitle={descriptor.title}
       />

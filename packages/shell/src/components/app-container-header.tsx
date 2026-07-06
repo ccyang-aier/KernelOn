@@ -1,21 +1,10 @@
 'use client';
 
-import {
-  Maximize2,
-  Minus,
-  X,
-  type LucideIcon,
-} from 'lucide-react';
-import type {
-  PointerEvent as ReactPointerEvent,
-  ReactNode,
-} from 'react';
+import { Maximize2, Minus, X, type LucideIcon } from 'lucide-react';
+import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
 
 import type { AppHeaderDescriptor } from '@kernelon/core';
-import {
-  AppHeaderTitleBlock,
-  cn,
-} from '@kernelon/ui';
+import { AppHeaderTitleBlock, cn } from '@kernelon/ui';
 
 import type { AppHeaderCommandPayload } from '../app-header';
 import { AppHeaderItems } from './app-header-items';
@@ -24,6 +13,7 @@ interface AppContainerHeaderProps {
   header?: AppHeaderDescriptor;
   isFullscreen: boolean;
   slots?: Readonly<Record<string, ReactNode>>;
+  topLayer?: boolean;
   windowId: string;
   windowTitle: string;
   getSourceElement(): HTMLElement | null;
@@ -44,6 +34,7 @@ export function AppContainerHeader({
   onMinimize,
   onToggleFullscreen,
   slots = {},
+  topLayer = false,
   windowId,
   windowTitle,
 }: AppContainerHeaderProps) {
@@ -52,21 +43,26 @@ export function AppContainerHeader({
   const density = header?.density ?? 'compact';
   const title = header?.identity?.title ?? windowTitle;
   const subtitle = header?.identity?.subtitle;
-  const status = header?.identity?.status ? appHeaderStatusLabels[header.identity.status] : undefined;
+  const status = header?.identity?.status
+    ? appHeaderStatusLabels[header.identity.status]
+    : undefined;
   const hasStructuredHeader = Boolean(
     header?.leading?.length ||
-      header?.center?.length ||
-      header?.trailing?.length ||
-      header?.subbar?.length ||
-      subtitle ||
-      status ||
-      header?.identity?.title,
+    header?.center?.length ||
+    header?.trailing?.length ||
+    header?.subbar?.length ||
+    subtitle ||
+    status ||
+    header?.identity?.title,
   );
 
   return (
     <header
       className={cn(
-        'relative shrink-0 overflow-hidden border-b border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface)] shadow-[var(--ko-app-header-inset-shadow)] backdrop-blur-[22px]',
+        'relative shrink-0 overflow-hidden',
+        topLayer
+          ? 'border-transparent bg-transparent shadow-none backdrop-blur-0'
+          : 'border-b border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface)] shadow-[var(--ko-app-header-inset-shadow)] backdrop-blur-[22px]',
         density === 'comfortable' ? 'min-h-[56px]' : 'min-h-11',
       )}
       data-app-header-mode={mode}
@@ -127,7 +123,7 @@ export function AppContainerHeader({
                   windowId={windowId}
                 />
                 <div
-                  className="min-w-[120px] max-w-[260px] flex-1"
+                  className={cn('min-w-[120px] max-w-[260px] flex-1', topLayer ? 'hidden' : '')}
                   data-testid={`kernelon-app-header-identity-${windowId}`}
                 >
                   <AppHeaderTitleBlock status={status} subtitle={subtitle} title={title} />

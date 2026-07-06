@@ -1,4 +1,4 @@
-export type WallpaperView = 'home' | 'explore' | 'media';
+export type WallpaperView = 'home' | 'explore' | 'settings';
 
 export type CategoryId =
   | 'All'
@@ -17,11 +17,7 @@ export type CategoryId =
   | 'Space'
   | 'Winter';
 
-export type MediaFilter = 'all' | 'local' | 'liked';
-
 export type ExploreSort = 'newest' | 'liked' | 'duration';
-
-export type PlaybackSpeed = '1x' | '1.5x' | '2x';
 
 export interface CategoryOption {
   id: CategoryId;
@@ -44,7 +40,6 @@ export interface WallpaperAsset {
   likes: number;
   tags: string[];
   uploadedAt: string;
-  local: boolean;
   liked: boolean;
   placeholder?: 'pink';
 }
@@ -60,12 +55,4 @@ export interface RecommendedWallpaper {
   device: string;
   image: string;
   sourceWallpaperId: string;
-}
-
-export interface PlayerTrack {
-  id: string;
-  title: string;
-  device: string;
-  image: string;
-  durationSeconds: number;
 }

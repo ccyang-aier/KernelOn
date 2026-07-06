@@ -12,6 +12,9 @@ coverage/
 # External source snapshots
 open_source/
 
+# Local agent scratch worktrees
+.agent-mesh/
+
 # Vite
 .vite/
 

@@ -1,14 +1,9 @@
-import type {
-  CategoryOption,
-  HeroSlide,
-  RecommendedWallpaper,
-  WallpaperAsset,
-} from './types';
+import type { CategoryOption, HeroSlide, RecommendedWallpaper, WallpaperAsset } from './types';
 
 export const viewLabels = {
   explore: 'Explore',
   home: 'Home',
-  media: 'My Media',
+  settings: 'Settings',
 } as const;
 
 export const popularTags = [
@@ -113,7 +108,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 53,
     tags: ['4K', '16:9', 'Loop', 'Aesthetic'],
     uploadedAt: '2026-07-05T16:30:00.000Z',
-    local: false,
     liked: false,
   },
   {
@@ -132,7 +126,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 89,
     tags: ['4K', 'Ultrawide', 'Loop', 'Aesthetic'],
     uploadedAt: '2026-07-05T10:00:00.000Z',
-    local: true,
     liked: true,
   },
   {
@@ -151,7 +144,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 3,
     tags: ['4K', '16:9', 'Anime', 'Loop'],
     uploadedAt: '2026-07-04T20:00:00.000Z',
-    local: false,
     liked: false,
   },
   {
@@ -170,7 +162,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 3,
     tags: ['4K', '21:9', 'DesktopHut'],
     uploadedAt: '2026-07-04T18:00:00.000Z',
-    local: false,
     liked: false,
   },
   {
@@ -189,7 +180,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 1,
     tags: ['4K', '16:9', 'Loop'],
     uploadedAt: '2026-07-04T15:00:00.000Z',
-    local: false,
     liked: false,
   },
   {
@@ -208,7 +198,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 18,
     tags: ['4K', 'Ultrawide', '21:9', 'Loop'],
     uploadedAt: '2026-07-04T09:15:00.000Z',
-    local: true,
     liked: true,
   },
   {
@@ -227,7 +216,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 42,
     tags: ['4K', '16:9', 'Aesthetic'],
     uploadedAt: '2026-07-03T22:00:00.000Z',
-    local: true,
     liked: true,
   },
   {
@@ -246,7 +234,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 7,
     tags: ['Ultrawide', '21:9', 'DesktopHut', 'Loop'],
     uploadedAt: '2026-07-03T18:20:00.000Z',
-    local: false,
     liked: false,
   },
   {
@@ -265,7 +252,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 336,
     tags: ['4K', '16:9', 'Aesthetic'],
     uploadedAt: '2026-07-02T08:00:00.000Z',
-    local: true,
     liked: true,
   },
   {
@@ -284,7 +270,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 157,
     tags: ['4K', '16:9', 'Loop'],
     uploadedAt: '2026-07-01T12:00:00.000Z',
-    local: true,
     liked: true,
   },
   {
@@ -303,7 +288,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 54,
     tags: ['4K', 'Anime', 'Aesthetic'],
     uploadedAt: '2026-06-30T22:10:00.000Z',
-    local: false,
     liked: true,
   },
   {
@@ -322,7 +306,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 102,
     tags: ['4K', '16:9', 'Loop'],
     uploadedAt: '2026-06-29T11:40:00.000Z',
-    local: true,
     liked: true,
   },
   {
@@ -341,7 +324,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 91,
     tags: ['16:9', 'Loop', 'Winter'],
     uploadedAt: '2026-06-28T21:05:00.000Z',
-    local: false,
     liked: true,
   },
   {
@@ -359,7 +341,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 186,
     tags: ['16:9', 'Minimalist', 'Loop'],
     uploadedAt: '2026-06-27T19:15:00.000Z',
-    local: true,
     liked: true,
     placeholder: 'pink',
   },
@@ -379,7 +360,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 329,
     tags: ['4K', '16:9', 'DesktopHut'],
     uploadedAt: '2026-06-26T14:00:00.000Z',
-    local: false,
     liked: true,
   },
   {
@@ -398,7 +378,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 74,
     tags: ['Ultrawide', '21:9', 'Aesthetic'],
     uploadedAt: '2026-06-25T09:30:00.000Z',
-    local: false,
     liked: false,
   },
   {
@@ -417,7 +396,6 @@ export const wallpaperLibrary: WallpaperAsset[] = [
     likes: 221,
     tags: ['32:9', 'Loop', 'Aesthetic'],
     uploadedAt: '2026-06-24T10:10:00.000Z',
-    local: true,
     liked: false,
   },
 ];
@@ -425,7 +403,12 @@ export const wallpaperLibrary: WallpaperAsset[] = [
 export const heroSlides: HeroSlide[] = wallpaperLibrary.slice(0, 8).map((wallpaper) => ({
   ...wallpaper,
   categoryLabel: wallpaper.category.toUpperCase(),
-  meta: [wallpaper.resolution, wallpaper.author, wallpaper.size, wallpaper.duration.replace('0:', '') + 's'],
+  meta: [
+    wallpaper.resolution,
+    wallpaper.author,
+    wallpaper.size,
+    wallpaper.duration.replace('0:', '') + 's',
+  ],
 }));
 
 export const recommendedWallpapers: RecommendedWallpaper[] = [
@@ -478,5 +461,3 @@ export const recommendedWallpapers: RecommendedWallpaper[] = [
     sourceWallpaperId: 'red-runner',
   },
 ];
-
-export const mediaCollectionBaseCount = 42;

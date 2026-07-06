@@ -68,7 +68,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] {
   flex: 1 1 0;
-  gap: 0;
+  gap: 10px;
   justify-content: flex-end;
 }
 
@@ -86,19 +86,6 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-tra
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
     0 14px 30px rgba(0, 0, 0, 0.22) !important;
   backdrop-filter: blur(22px) saturate(1.24);
-}
-
-section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] button {
-  margin-left: -1px;
-  border-radius: 0;
-}
-
-section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] button:first-child {
-  border-radius: 999px 0 0 999px;
-}
-
-section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] button:last-child {
-  border-radius: 0 999px 999px 0;
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"] button span,
@@ -189,17 +176,26 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   opacity: 0;
 }
 
-.wallpaper-ux--media::after {
+.wallpaper-ux--settings::after {
   background:
-    radial-gradient(circle at 82% 18%, rgba(233, 18, 33, 0.36), rgba(233, 18, 33, 0) 42%),
-    radial-gradient(circle at 16% 62%, rgba(136, 22, 38, 0.34), rgba(136, 22, 38, 0) 48%),
-    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0) 31%),
-    linear-gradient(106deg, rgba(104, 14, 24, 0.44), rgba(25, 30, 32, 0.62), rgba(148, 10, 21, 0.42));
+    radial-gradient(circle at 76% 18%, rgba(112, 196, 218, 0.26), rgba(112, 196, 218, 0) 38%),
+    radial-gradient(circle at 18% 68%, rgba(194, 69, 104, 0.28), rgba(194, 69, 104, 0) 46%),
+    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 31%),
+    linear-gradient(112deg, rgba(18, 42, 48, 0.62), rgba(24, 27, 30, 0.68), rgba(80, 24, 42, 0.48));
 }
 
-.wallpaper-ux--media::before {
+.wallpaper-ux--settings::before {
   filter: blur(42px) saturate(1.22) brightness(0.66);
   opacity: 0.98;
+}
+
+.wallpaper-ux[data-wallpaper-glass-depth="soft"]:not(.wallpaper-ux--home)::before {
+  filter: blur(32px) saturate(1.04) brightness(0.70);
+  opacity: 0.80;
+}
+
+.wallpaper-ux[data-wallpaper-glass-depth="soft"]:not(.wallpaper-ux--home)::after {
+  opacity: 0.82;
 }
 
 .wallpaper-ux button {
@@ -223,12 +219,13 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   overflow-x: hidden;
   overflow-y: auto;
   background: #0b0d10;
-  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
 .wallpaper-home::-webkit-scrollbar {
-  width: 9px;
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .wallpaper-home::-webkit-scrollbar-track {
@@ -272,6 +269,11 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   object-fit: cover;
   transform: scale(1.01);
   user-select: none;
+}
+
+.wallpaper-ux[data-wallpaper-preview-fit="fit"] .wallpaper-home__image {
+  object-fit: contain;
+  background: #05070a;
 }
 
 .wallpaper-home__shade {
@@ -526,8 +528,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   line-height: 1;
 }
 
-.wallpaper-card-glass-label span,
-.wallpaper-player__info span {
+.wallpaper-card-glass-label span {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -537,8 +538,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   font-weight: 900;
 }
 
-.wallpaper-card-glass-label i,
-.wallpaper-player__info i {
+.wallpaper-card-glass-label i {
   display: block;
   width: 8px;
   height: 8px;
@@ -551,32 +551,24 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   z-index: 1;
   height: 100%;
   overflow: auto;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
 .wallpaper-page::-webkit-scrollbar {
-  width: 9px;
-}
-
-.wallpaper-page::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.wallpaper-page::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.28);
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .wallpaper-page--explore {
   padding: 136px clamp(56px, 6.5vw, 90px) 140px;
 }
 
-.wallpaper-page--media {
+.wallpaper-page--settings {
   padding: 112px clamp(52px, 5vw, 72px) 126px;
   background:
-    radial-gradient(circle at 42% 12%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 34%),
-    linear-gradient(112deg, rgba(120, 14, 27, 0.24), rgba(16, 21, 24, 0.22), rgba(173, 11, 25, 0.22));
+    radial-gradient(circle at 48% 12%, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 34%),
+    linear-gradient(112deg, rgba(20, 82, 93, 0.24), rgba(16, 21, 24, 0.24), rgba(130, 18, 54, 0.20));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     inset 0 0 120px rgba(255, 255, 255, 0.04);
@@ -591,7 +583,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 }
 
 .wallpaper-page__intro h1,
-.wallpaper-media-heading h1 {
+.wallpaper-settings-heading h1 {
   margin: 0;
   color: #fff;
   font-family: var(--wallpaper-display);
@@ -879,325 +871,124 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   backdrop-filter: blur(18px);
 }
 
-.wallpaper-media-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-}
-
-.wallpaper-media-heading h1 {
-  font-size: 42px;
-}
-
-.wallpaper-media-heading p {
-  margin: 10px 0 0;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.wallpaper-add-video {
-  display: flex;
-  height: 41px;
-  align-items: center;
-  gap: 8px;
-  margin-right: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  background: rgba(78, 15, 22, 0.42);
-  color: #fff;
-  padding: 0 17px;
-  font-size: 14px;
+.wallpaper-settings-heading p {
+  margin: 0 0 14px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 18px;
   font-weight: 900;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 26px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(18px) saturate(1.22);
-  cursor: pointer;
 }
 
-.wallpaper-add-video svg {
-  width: 17px;
-  height: 17px;
-  fill: none;
+.wallpaper-settings-heading h1 {
+  font-size: clamp(42px, 4vw, 60px);
 }
 
-.wallpaper-media-tabs {
-  display: flex;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.wallpaper-media-tabs button {
-  display: flex;
-  height: 28px;
-  align-items: center;
-  gap: 7px;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.78);
-  padding: 0 13px;
-  font-size: 12px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.wallpaper-media-tabs button.is-active {
-  background: rgba(255, 255, 255, 0.98);
-  color: #111;
-}
-
-.wallpaper-media-tabs svg {
-  width: 14px;
-  height: 14px;
-}
-
-.wallpaper-media-table-wrap {
-  overflow-x: auto;
-  padding-bottom: 24px;
-}
-
-.wallpaper-media-table {
-  min-width: 980px;
-  margin-top: 20px;
-  color: rgba(255, 255, 255, 0.68);
-}
-
-.wallpaper-media-row {
+.wallpaper-settings-grid {
   display: grid;
-  grid-template-columns: 34px 72px minmax(260px, 1.35fr) 96px 120px 96px 116px 84px 86px;
-  min-height: 70px;
-  align-items: center;
-  gap: 14px;
-  border: 0;
-  border-radius: 16px;
-  background: transparent;
-  color: inherit;
-  padding: 0 10px 0 0;
-  text-align: left;
-  font-size: 13px;
-  font-weight: 700;
-  transition: background 180ms ease;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 42px;
 }
 
-.wallpaper-media-row:not(.wallpaper-media-row--head) {
-  cursor: pointer;
-}
-
-.wallpaper-media-row:not(.wallpaper-media-row--head):hover,
-.wallpaper-media-row.is-selected {
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px) saturate(1.18);
-}
-
-.wallpaper-media-row--head {
-  min-height: 32px;
-  color: rgba(255, 255, 255, 0.42);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0;
-}
-
-.wallpaper-media-row strong {
-  color: #fff;
-  font-family: var(--wallpaper-display);
-  font-size: 14px;
-}
-
-.wallpaper-media-preview {
-  display: block;
-  width: 58px;
-  height: 58px;
-  border-radius: 999px;
-  object-fit: cover;
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.wallpaper-media-preview--pink {
-  position: relative;
-  background: #ff696e;
-}
-
-.wallpaper-media-preview--pink::after {
-  content: "";
-  position: absolute;
-  left: 28px;
-  top: 26px;
-  width: 12px;
-  height: 2px;
-  border-radius: 99px;
-  background: #141414;
-  box-shadow: -4px -2px 0 -1px #141414;
-}
-
-.wallpaper-media-row .wallpaper-media-like {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 28px;
-  border: 0;
-  background: transparent;
-  color: #fff;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.wallpaper-media-row .wallpaper-media-like svg {
-  width: 16px;
-  height: 16px;
-  color: #ff494d;
-  fill: currentColor;
-}
-
-.wallpaper-player {
-  position: absolute;
-  left: 50%;
-  bottom: 24px;
-  z-index: 130;
-  display: flex;
-  width: min(730px, calc(100% - 280px));
-  min-width: 490px;
-  height: 78px;
-  align-items: center;
-  justify-content: space-between;
-  transform: translateX(-50%);
+.wallpaper-settings-tile {
+  display: grid;
+  min-height: 178px;
+  align-content: space-between;
   border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 42%),
+    rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 22px;
+  text-align: left;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 22px 44px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(22px) saturate(1.24);
+  cursor: pointer;
+}
+
+.wallpaper-settings-tile__icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
   border-radius: 999px;
-  background:
-    linear-gradient(90deg, rgba(62, 66, 70, 0.70), rgba(104, 106, 104, 0.44)),
-    rgba(75, 76, 78, 0.56);
-  padding: 8px 30px 8px 24px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 26px 60px rgba(0, 0, 0, 0.42);
-  backdrop-filter: blur(28px) saturate(1.34);
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
 }
 
-.wallpaper-player--home {
-  bottom: 20px;
-  width: min(640px, calc(100% - 340px));
-  min-width: 560px;
-  background:
-    linear-gradient(90deg, rgba(82, 74, 78, 0.70), rgba(102, 101, 98, 0.45)),
-    rgba(74, 73, 72, 0.62);
+.wallpaper-settings-tile__icon svg {
+  width: 24px;
+  height: 24px;
 }
 
-.wallpaper-player--media {
-  bottom: 16px;
-  width: min(490px, calc(100% - 360px));
-  min-width: 480px;
-  height: 56px;
-  background:
-    linear-gradient(90deg, rgba(111, 20, 28, 0.60), rgba(56, 40, 42, 0.48)),
-    rgba(49, 28, 30, 0.58);
-  padding: 6px 22px;
+.wallpaper-settings-tile > span:not(.wallpaper-settings-tile__icon) {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  font-weight: 900;
 }
 
-.wallpaper-player__info {
-  display: flex;
-  min-width: 190px;
-  align-items: center;
-  gap: 12px;
-}
-
-.wallpaper-player__info img,
-.wallpaper-player__fallback-thumb {
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
-  object-fit: cover;
-}
-
-.wallpaper-player__fallback-thumb {
-  display: block;
-  background: #ff696e;
-}
-
-.wallpaper-player--media .wallpaper-player__info img,
-.wallpaper-player--media .wallpaper-player__fallback-thumb {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-}
-
-.wallpaper-player__info strong {
-  display: block;
+.wallpaper-settings-tile strong {
   font-family: var(--wallpaper-display);
-  font-size: 19px;
+  font-size: 28px;
   line-height: 1;
 }
 
-.wallpaper-player--media .wallpaper-player__info strong {
-  font-size: 14px;
+.wallpaper-settings-tile[data-wallpaper-settings-tone="cyan"] {
+  background:
+    radial-gradient(circle at 24% 16%, rgba(84, 205, 225, 0.24), rgba(84, 205, 225, 0) 44%),
+    rgba(255, 255, 255, 0.08);
 }
 
-.wallpaper-player__controls {
+.wallpaper-settings-tile[data-wallpaper-settings-tone="green"] {
+  background:
+    radial-gradient(circle at 24% 16%, rgba(33, 230, 106, 0.20), rgba(33, 230, 106, 0) 44%),
+    rgba(255, 255, 255, 0.08);
+}
+
+.wallpaper-settings-tile[data-wallpaper-settings-tone="amber"] {
+  background:
+    radial-gradient(circle at 24% 16%, rgba(255, 182, 70, 0.22), rgba(255, 182, 70, 0) 44%),
+    rgba(255, 255, 255, 0.08);
+}
+
+.wallpaper-settings-panel {
+  display: flex;
+  min-height: 96px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 24px 28px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 24px 54px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(24px) saturate(1.24);
+}
+
+.wallpaper-settings-panel div {
   display: flex;
   align-items: center;
-  gap: 24px;
-}
-
-.wallpaper-player--media .wallpaper-player__controls {
-  gap: 18px;
-}
-
-.wallpaper-player__controls button {
-  display: grid;
-  min-width: 0;
-  place-items: center;
-  border: 0;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.92);
-  padding: 0;
-  cursor: pointer;
-}
-
-.wallpaper-player__controls svg {
-  width: 24px;
-  height: 24px;
-  stroke-width: 2.4;
-}
-
-.wallpaper-player--media .wallpaper-player__controls svg {
-  width: 18px;
-  height: 18px;
-}
-
-.wallpaper-player__controls button[data-player-active="true"] svg {
-  fill: currentColor;
-}
-
-.wallpaper-player__speed {
-  color: #fff !important;
-  font-size: 16px;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.70);
+  font-size: 14px;
   font-weight: 900;
 }
 
-.wallpaper-player--media .wallpaper-player__speed {
-  font-size: 11px;
+.wallpaper-settings-panel svg {
+  width: 22px;
+  height: 22px;
 }
 
-.wallpaper-player__progress {
-  position: absolute;
-  left: 28px;
-  right: 28px;
-  bottom: 4px;
-  height: 2px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.10);
-}
-
-.wallpaper-player__progress i {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0.58);
+.wallpaper-settings-panel strong {
+  color: #fff;
+  font-size: 18px;
 }
 
 .wallpaper-toast {
   position: absolute;
   right: 28px;
-  bottom: 104px;
+  bottom: 28px;
   z-index: 150;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
@@ -1217,17 +1008,13 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   }
 
   .wallpaper-page--explore,
-  .wallpaper-page--media {
+  .wallpaper-page--settings {
     padding-left: 34px;
     padding-right: 34px;
   }
 
   .wallpaper-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .wallpaper-player {
-    width: calc(100% - 90px);
   }
 }
 
@@ -1262,19 +1049,6 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
 
   .wallpaper-grid {
     grid-template-columns: 1fr;
-  }
-
-  .wallpaper-player,
-  .wallpaper-player--home,
-  .wallpaper-player--media {
-    width: calc(100% - 32px);
-    min-width: 0;
-    gap: 18px;
-    padding: 8px 18px;
-  }
-
-  .wallpaper-player__controls {
-    gap: 14px;
   }
 }
 `;

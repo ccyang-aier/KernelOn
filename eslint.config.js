@@ -10,6 +10,8 @@ export default tseslint.config(
       '**/dist/**',
       '**/coverage/**',
       '**/node_modules/**',
+      '.agent-mesh/**',
+      '.gemini/**',
       'open_source/**',
       'tmp/**',
       'packages/ui/src/components/liquid-glass-studio/**',
