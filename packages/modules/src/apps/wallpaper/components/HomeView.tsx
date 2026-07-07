@@ -209,7 +209,7 @@ function HeroGlassAction({
         aberrationIntensity={1.35}
         blurAmount={0.24}
         className="wallpaper-home__liquid-action-glass"
-        containerBorderMode="built-in"
+        containerBorderMode="external"
         cornerRadius={999}
         displacementScale={54}
         elasticity={0.09}

@@ -2,9 +2,6 @@
 
 import { ArrowLeft, ArrowRight, Search } from 'lucide-react';
 import {
-  useCallback,
-  useEffect,
-  useRef,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
@@ -200,12 +197,6 @@ interface AppHeaderTimeline {
   kill(): void;
 }
 
-interface SegmentIndicatorTargets {
-  indicator: HTMLElement;
-  width: number;
-  x: number;
-}
-
 interface SegmentPressTargets {
   button: HTMLElement;
   pulse: HTMLElement | null;
@@ -236,7 +227,7 @@ function TopLayerIconGlassButton({
         aberrationIntensity={1.35}
         blurAmount={0.24}
         className={topLayerIconGlassClassName}
-        containerBorderMode="built-in"
+        containerBorderMode="external"
         cornerRadius={999}
         displacementScale={56}
         elasticity={0.08}
@@ -272,11 +263,6 @@ function TopLayerSegmentedControl({
   onCommand(payload: AppHeaderCommandPayload): void;
   windowId: string;
 }>) {
-  const groupRef = useRef<HTMLDivElement>(null);
-  const indicatorRef = useRef<HTMLSpanElement>(null);
-  const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const timelineRef = useRef<AppHeaderTimeline | null>(null);
-  const disposedRef = useRef(false);
   const segmentWidth =
     item.options.length * TOP_LAYER_SEGMENT_BUTTON_WIDTH + TOP_LAYER_SEGMENT_GROUP_PADDING * 2;
   const segmentHostStyle = {
@@ -287,73 +273,6 @@ function TopLayerSegmentedControl({
     left: segmentWidth / 2,
     top: TOP_LAYER_CONTROL_SIZE / 2,
   } as const;
-
-  const syncIndicator = useCallback(
-    (animate: boolean) => {
-      const group = groupRef.current;
-      const indicator = indicatorRef.current;
-      const activeButton = buttonRefs.current.get(item.value);
-
-      if (!group || !indicator || !activeButton) {
-        return;
-      }
-
-      const groupRect = group.getBoundingClientRect();
-      const activeRect = activeButton.getBoundingClientRect();
-      const x = activeRect.left - groupRect.left;
-      const width = activeRect.width;
-
-      timelineRef.current?.kill();
-      timelineRef.current = null;
-
-      if (!animate || prefersReducedMotion()) {
-        indicator.style.opacity = '1';
-        indicator.style.transform = `translate3d(${x}px, 0, 0)`;
-        indicator.style.width = `${width}px`;
-        return;
-      }
-
-      void animateTopLayerSegmentIndicator({ indicator, width, x })
-        .then((timeline) => {
-          if (disposedRef.current) {
-            timeline.kill();
-            return;
-          }
-
-          timelineRef.current = timeline;
-        })
-        .catch(() => {
-          indicator.style.opacity = '1';
-          indicator.style.transform = `translate3d(${x}px, 0, 0)`;
-          indicator.style.width = `${width}px`;
-        });
-    },
-    [item.value],
-  );
-
-  useEffect(() => {
-    disposedRef.current = false;
-    void loadAppHeaderGsap();
-    syncIndicator(false);
-
-    return () => {
-      disposedRef.current = true;
-      timelineRef.current?.kill();
-      timelineRef.current = null;
-    };
-  }, [syncIndicator]);
-
-  useEffect(() => {
-    syncIndicator(true);
-  }, [item.options.length, syncIndicator]);
-
-  useEffect(() => {
-    const handleResize = () => syncIndicator(false);
-
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [syncIndicator]);
 
   return (
     <div
@@ -366,7 +285,7 @@ function TopLayerSegmentedControl({
         aberrationIntensity={1.18}
         blurAmount={0.22}
         className={topLayerSegmentGlassClassName}
-        containerBorderMode="built-in"
+        containerBorderMode="external"
         cornerRadius={999}
         displacementScale={50}
         elasticity={0.06}
@@ -378,16 +297,9 @@ function TopLayerSegmentedControl({
         <div
           className={topLayerSegmentGroupClassName}
           data-kernelon-app-header-segment-group="true"
-          ref={groupRef}
           role="group"
           style={segmentHostStyle}
         >
-          <span
-            aria-hidden="true"
-            className={topLayerSegmentIndicatorClassName}
-            data-kernelon-app-header-segment-indicator="true"
-            ref={indicatorRef}
-          />
           {item.options.map((option) => {
             const selected = option.value === item.value;
 
@@ -409,13 +321,6 @@ function TopLayerSegmentedControl({
                     value: option.value,
                     windowId,
                   });
-                }}
-                ref={(node) => {
-                  if (node) {
-                    buttonRefs.current.set(option.value, node);
-                  } else {
-                    buttonRefs.current.delete(option.value);
-                  }
                 }}
                 type="button"
               >
@@ -441,44 +346,6 @@ function playTopLayerSegmentPress(event: ReactMouseEvent<HTMLButtonElement>) {
   );
 
   void animateTopLayerSegmentPress({ button, pulse }).catch(() => undefined);
-}
-
-function animateTopLayerSegmentIndicator({
-  indicator,
-  width,
-  x,
-}: SegmentIndicatorTargets): Promise<AppHeaderTimeline> {
-  return loadAppHeaderGsap().then((gsap) => {
-    const timeline = gsap.timeline({
-      defaults: { ease: 'expo.out' },
-      onComplete: () => {
-        gsap.set(indicator, { clearProps: 'filter' });
-      },
-    });
-
-    gsap.set(indicator, {
-      autoAlpha: 1,
-      force3D: true,
-      transformOrigin: '50% 50%',
-      width,
-    });
-
-    timeline
-      .to(indicator, { duration: 0.34, x, width }, 0)
-      .fromTo(
-        indicator,
-        { filter: 'brightness(1.32) saturate(1.22)' },
-        { duration: 0.5, ease: 'sine.out', filter: 'brightness(1) saturate(1)' },
-        0,
-      );
-
-    return {
-      kill() {
-        timeline.kill();
-        gsap.set(indicator, { clearProps: 'filter' });
-      },
-    };
-  });
 }
 
 function animateTopLayerSegmentPress({
@@ -572,9 +439,6 @@ const topLayerSegmentGlassClassName = 'z-10 text-white';
 
 const topLayerSegmentGroupClassName =
   'relative inline-flex h-[42px] shrink-0 items-center gap-0 overflow-hidden rounded-full border-0 bg-transparent p-1 shadow-none';
-
-const topLayerSegmentIndicatorClassName =
-  'pointer-events-none absolute top-1 bottom-1 left-0 z-0 w-[94px] rounded-full bg-[linear-gradient(145deg,rgba(255,255,255,0.34),rgba(255,255,255,0.14)_48%,rgba(255,255,255,0.05)),rgba(255,255,255,0.11)] opacity-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.46),inset_0_-12px_24px_rgba(255,255,255,0.07),0_8px_22px_rgba(0,0,0,0.22),0_0_18px_rgba(255,255,255,0.10)] backdrop-blur-[16px] will-change-[transform,width,filter]';
 
 const topLayerSegmentButtonClassName =
   'relative z-10 inline-flex h-[34px] min-w-[94px] items-center justify-center overflow-hidden rounded-full border-0 bg-transparent px-5 text-[14px] font-bold text-white/70 shadow-none outline-none transition-[color,text-shadow] duration-200 ease-out hover:text-white focus-visible:ring-2 focus-visible:ring-white/[0.65]';
