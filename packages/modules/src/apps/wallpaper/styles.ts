@@ -1,14 +1,13 @@
 export const wallpaperStyles = `
 section[data-app-id="wallpaper"] {
-  background: rgba(7, 9, 12, 0.78) !important;
-  border-color: rgba(255, 255, 255, 0.07) !important;
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 section[data-app-id="wallpaper"][data-window-layer="top"] {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 34px 92px rgba(0, 0, 0, 0.30) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 30px 84px rgba(0, 0, 0, 0.24) !important;
 }
 
 section[data-app-id="wallpaper"] > header {
@@ -27,7 +26,7 @@ section[data-app-id="wallpaper"] > header {
 section[data-app-id="wallpaper"] > header + div {
   height: 100%;
   flex: 1 1 auto;
-  background: rgba(7, 9, 12, 0.64) !important;
+  background: transparent !important;
 }
 
 section[data-app-id="wallpaper"] > header + div > div {
@@ -261,7 +260,7 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  background: #0b0d10;
+  background: transparent;
   scrollbar-width: none;
 }
 
@@ -380,7 +379,7 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
 .wallpaper-home__actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 24px;
   margin-top: 16px;
 }
 
