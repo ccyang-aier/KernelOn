@@ -22,6 +22,9 @@ uniform int u_bgType;
 uniform sampler2D u_bgTexture;
 uniform float u_bgTextureRatio;
 uniform int u_bgTextureReady;
+uniform vec2 u_bgSampleOffset;
+uniform vec2 u_bgSampleScale;
+uniform vec2 u_bgHostResolution;
 uniform int u_showShape1;
 
 float chessboard(vec2 uv, float size, int mode) {
@@ -91,7 +94,9 @@ void main() {
       // chessboard
       bgColor = vec3(1.0 - chessboard(gl_FragCoord.xy / u_dpr, 20.0, 2) / 4.0);
     } else {
-      vec2 uv = getCoverUV(v_uv, u_resolution.x / u_resolution.y, u_bgTextureRatio);
+      vec2 hostUv = u_bgSampleOffset + v_uv * u_bgSampleScale;
+      vec2 hostResolution = max(u_bgHostResolution, vec2(1.0));
+      vec2 uv = getCoverUV(hostUv, hostResolution.x / hostResolution.y, u_bgTextureRatio);
 
       // 不需要判断越界，CLAMP_TO_EDGE 会自动处理
       bgColor = texture(u_bgTexture, uv).rgb;

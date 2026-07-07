@@ -11,6 +11,10 @@
     "./liquid-glass-studio": {
       "types": "./src/components/liquid-glass-studio/index.ts",
       "import": "./src/components/liquid-glass-studio/index.ts"
+    },
+    "./liquid-glass-studio-surface": {
+      "types": "./src/components/liquid-glass-studio/LiquidGlassStudioSurface.tsx",
+      "import": "./src/components/liquid-glass-studio/LiquidGlassStudioSurface.tsx"
     }
   },
   "dependencies": {

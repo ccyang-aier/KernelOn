@@ -469,53 +469,127 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   width: 80px;
 }
 
-.wallpaper-home__glass-action .glass {
-  height: 42px;
-}
-
-.wallpaper-home__glass-action .glass > div {
-  height: 100%;
-}
-
-.wallpaper-home__glass-button {
+.wallpaper-studio-glass-button {
   position: relative;
+  box-sizing: border-box;
   display: inline-flex;
-  width: auto;
-  height: 42px;
+  width: 100%;
+  height: 100%;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--ko-studio-glass-radius);
   background: transparent;
   color: rgba(255, 255, 255, 0.94);
   padding: 0;
   font-size: 15px;
   font-weight: 800;
+  outline: none;
+  text-shadow: 0 1px 15px rgba(0, 0, 0, 0.34);
   white-space: nowrap;
   cursor: pointer;
+  transition:
+    color 180ms ease,
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    text-shadow 180ms ease;
 }
 
-.wallpaper-home__glass-button::before {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.08) 52%, rgba(255, 255, 255, 0.15)),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 0 20px rgba(255, 255, 255, 0.075);
-  content: "";
-  mix-blend-mode: screen;
-  pointer-events: none;
+.wallpaper-studio-glass-button:hover {
+  color: #fff;
+  text-shadow: 0 1px 18px rgba(255, 255, 255, 0.28);
 }
 
-.wallpaper-home__glass-button > svg,
-.wallpaper-home__glass-button > span {
+.wallpaper-studio-glass-button:active {
+  transform: scale(0.98);
+}
+
+.wallpaper-studio-glass-button:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.68);
+}
+
+.wallpaper-studio-glass-button > svg,
+.wallpaper-studio-glass-button > span {
   position: relative;
   z-index: 2;
+}
+
+.wallpaper-studio-glass-icon-surface {
+  width: 42px;
+  height: 42px;
+  animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.wallpaper-studio-glass-icon-surface .wallpaper-studio-glass-button {
+  gap: 0;
+}
+
+.wallpaper-studio-glass-icon-surface svg {
+  width: 21px;
+  height: 21px;
+  stroke-width: 2.25;
+}
+
+.wallpaper-studio-glass-segment-surface {
+  animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.wallpaper-studio-glass-segment {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  gap: 0;
+  padding: 4px;
+}
+
+.wallpaper-studio-glass-segment__indicator {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 96px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -10px 22px rgba(255, 255, 255, 0.07),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.13);
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wallpaper-studio-glass-segment button {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  width: 96px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.74);
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 800;
+  outline: none;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    text-shadow 180ms ease;
+}
+
+.wallpaper-studio-glass-segment button[aria-pressed="true"] {
+  color: #fff;
+  text-shadow: 0 1px 14px rgba(255, 255, 255, 0.34);
+}
+
+.wallpaper-studio-glass-segment button:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.62);
 }
 
 .wallpaper-home__arrow {

@@ -18,6 +18,7 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).not.toContain('[data-kernelon-app-header-liquid-segment="true"] .glass__warp');
     expect(wallpaperStyles).not.toContain('[data-kernelon-app-header-liquid-button="true"] .glass__warp');
     expect(wallpaperStyles).not.toContain('.wallpaper-home__glass-action .glass__warp');
+    expect(wallpaperStyles).not.toContain('.wallpaper-home__glass-button::before');
   });
 
   it('defines preview header placement and preview entrance motion', () => {
