@@ -1,39 +1,262 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Activity,
-  Award,
-  ChevronRight,
-  Clock,
+  Calendar,
+  CheckSquare,
+  Cloud,
+  DollarSign,
   Grid2X2,
-  Layers3,
-  Plus,
+  Heart,
+  Image,
+  Music,
   Search,
   Sparkles,
-  Users,
   type LucideIcon,
 } from 'lucide-react';
-import { motion } from 'motion/react';
 
-import type { WidgetManifest } from '@kernelon/core';
 import { useShellSelector, type AppWindowSurfaceProps } from '@kernelon/shell';
 
-type WidgetCategoryId = 'all' | 'operations' | 'mentor' | 'growth';
+type DemoWidgetCategory =
+  | 'all'
+  | 'featured'
+  | 'added'
+  | 'weather'
+  | 'calendar'
+  | 'music'
+  | 'health'
+  | 'productivity'
+  | 'finance'
+  | 'photos';
+type DemoWidgetSize = 'small' | 'medium' | 'large';
+type DemoWidgetSizeFilter = 'all' | DemoWidgetSize;
+type DemoWidgetTemplate =
+  | 'weather-small'
+  | 'weather-large'
+  | 'calendar-small'
+  | 'calendar-week'
+  | 'calendar-month'
+  | 'music'
+  | 'music-large'
+  | 'rings'
+  | 'sleep'
+  | 'todo'
+  | 'timer'
+  | 'stock'
+  | 'fx'
+  | 'photo-large'
+  | 'photo-medium';
 
-const widgetCategories = [
-  { id: 'all', name: '全部小组件', Icon: Grid2X2 },
-  { id: 'operations', name: '流程跟踪', Icon: Activity },
-  { id: 'mentor', name: '导师带教', Icon: Users },
-  { id: 'growth', name: '成长打卡', Icon: Award },
-] satisfies Array<{ id: WidgetCategoryId; name: string; Icon: LucideIcon }>;
+interface DemoWidget {
+  id: string;
+  name: string;
+  category: Exclude<DemoWidgetCategory, 'all' | 'featured' | 'added'>;
+  size: DemoWidgetSize;
+  height: number;
+  gradient: string;
+  template: DemoWidgetTemplate;
+  widgetId: string;
+}
 
-const widgetCategoryById: Record<string, Exclude<WidgetCategoryId, 'all'>> = {
-  'growth-milestone': 'growth',
-  'mentor-load': 'mentor',
-  'onboarding-progress': 'operations',
-  'training-task': 'growth',
-};
+const sidebarSections = [
+  {
+    label: '浏览',
+    items: [
+      { id: 'all', name: '全部小组件', Icon: Grid2X2 },
+      { id: 'featured', name: '精选推荐', Icon: Sparkles },
+      { id: 'added', name: '已添加', Icon: Heart },
+    ],
+  },
+  {
+    label: '分类',
+    items: [
+      { id: 'weather', name: '天气', Icon: Cloud },
+      { id: 'calendar', name: '日历', Icon: Calendar },
+      { id: 'music', name: '音乐', Icon: Music },
+      { id: 'health', name: '健康', Icon: Activity },
+      { id: 'productivity', name: '效率', Icon: CheckSquare },
+      { id: 'finance', name: '财务', Icon: DollarSign },
+    ],
+  },
+] satisfies Array<{
+  label: string;
+  items: Array<{ id: DemoWidgetCategory; name: string; Icon: LucideIcon }>;
+}>;
+
+const categoryChips = [
+  { id: 'all', name: '全部' },
+  { id: 'weather', name: '天气' },
+  { id: 'calendar', name: '日历' },
+  { id: 'music', name: '音乐' },
+  { id: 'health', name: '健康' },
+  { id: 'productivity', name: '效率' },
+  { id: 'finance', name: '财务' },
+  { id: 'photos', name: '照片' },
+] satisfies Array<{ id: DemoWidgetCategory; name: string }>;
+
+const sizeFilters = [
+  { id: 'all', name: '全部尺寸' },
+  { id: 'small', name: '小' },
+  { id: 'medium', name: '中' },
+  { id: 'large', name: '大' },
+] satisfies Array<{ id: DemoWidgetSizeFilter; name: string }>;
+
+const demoWidgets: DemoWidget[] = [
+  {
+    id: 'weather-small',
+    name: '天气',
+    category: 'weather',
+    size: 'small',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#4facfe,#0072ff)',
+    template: 'weather-small',
+    widgetId: 'onboarding-progress',
+  },
+  {
+    id: 'weather-large',
+    name: '天气·大',
+    category: 'weather',
+    size: 'medium',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#2980b9,#6dd5fa)',
+    template: 'weather-large',
+    widgetId: 'mentor-load',
+  },
+  {
+    id: 'calendar-small',
+    name: '日历',
+    category: 'calendar',
+    size: 'small',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#ff5858,#f857a6)',
+    template: 'calendar-small',
+    widgetId: 'growth-milestone',
+  },
+  {
+    id: 'calendar-week',
+    name: '日历·周视图',
+    category: 'calendar',
+    size: 'medium',
+    height: 180,
+    gradient: 'linear-gradient(135deg,#ff9966,#ff5e62)',
+    template: 'calendar-week',
+    widgetId: 'growth-milestone',
+  },
+  {
+    id: 'music',
+    name: '音乐播放',
+    category: 'music',
+    size: 'medium',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#834d9b,#3b1c53)',
+    template: 'music',
+    widgetId: 'training-task',
+  },
+  {
+    id: 'music-large',
+    name: '歌单精选',
+    category: 'music',
+    size: 'large',
+    height: 220,
+    gradient: 'linear-gradient(135deg,#8e2de2,#4a00e0)',
+    template: 'music-large',
+    widgetId: 'training-task',
+  },
+  {
+    id: 'rings',
+    name: '健身圆环',
+    category: 'health',
+    size: 'small',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#0f2027,#2c5364)',
+    template: 'rings',
+    widgetId: 'onboarding-progress',
+  },
+  {
+    id: 'sleep',
+    name: '睡眠分析',
+    category: 'health',
+    size: 'medium',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#5f2c82,#1a1a40)',
+    template: 'sleep',
+    widgetId: 'mentor-load',
+  },
+  {
+    id: 'todo',
+    name: '备忘清单',
+    category: 'productivity',
+    size: 'small',
+    height: 170,
+    gradient: 'linear-gradient(135deg,#ffb347,#e07a1f)',
+    template: 'todo',
+    widgetId: 'training-task',
+  },
+  {
+    id: 'timer',
+    name: '番茄钟',
+    category: 'productivity',
+    size: 'small',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#ff6a00,#ee0979)',
+    template: 'timer',
+    widgetId: 'training-task',
+  },
+  {
+    id: 'stock',
+    name: '股票行情',
+    category: 'finance',
+    size: 'medium',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#11998e,#0c5c50)',
+    template: 'stock',
+    widgetId: 'mentor-load',
+  },
+  {
+    id: 'fx',
+    name: '汇率换算',
+    category: 'finance',
+    size: 'small',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#0f2027,#203a43)',
+    template: 'fx',
+    widgetId: 'onboarding-progress',
+  },
+  {
+    id: 'photo-large',
+    name: '照片回忆',
+    category: 'photos',
+    size: 'large',
+    height: 260,
+    gradient: 'linear-gradient(135deg,#fc5c7d,#6a82fb)',
+    template: 'photo-large',
+    widgetId: 'growth-milestone',
+  },
+  {
+    id: 'photo-medium',
+    name: '照片精选',
+    category: 'photos',
+    size: 'medium',
+    height: 150,
+    gradient: 'linear-gradient(135deg,#f7971e,#c96b06)',
+    template: 'photo-medium',
+    widgetId: 'growth-milestone',
+  },
+  {
+    id: 'calendar-month',
+    name: '日历·月视图',
+    category: 'calendar',
+    size: 'large',
+    height: 220,
+    gradient: 'linear-gradient(135deg,#7f00ff,#4b0f8f)',
+    template: 'calendar-month',
+    widgetId: 'growth-milestone',
+  },
+];
+
+const featuredWidgetIds = new Set(['weather-small', 'calendar-small', 'music']);
+const weekDays = ['一', '二', '三', '四', '五', '六', '日'];
 
 export default function WidgetManagerWindow({ window: windowDescriptor }: AppWindowSurfaceProps) {
   const widgets = useShellSelector((state) => state.widgets);
@@ -41,10 +264,10 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
   const currentScreenId = useShellSelector((state) => state.currentScreenId);
   const addWidgetToScreen = useShellSelector((state) => state.addWidgetToScreen);
   const minimizeWindow = useShellSelector((state) => state.minimizeWindow);
-  const setPendingWidgetPlacement = useShellSelector((state) => state.setPendingWidgetPlacement);
-  const [activeCategory, setActiveCategory] = useState<WidgetCategoryId>('all');
+  const [activeCategory, setActiveCategory] = useState<DemoWidgetCategory>('all');
+  const [activeSize, setActiveSize] = useState<DemoWidgetSizeFilter>('all');
   const [query, setQuery] = useState('');
-  const [recentlyAddedWidgetId, setRecentlyAddedWidgetId] = useState<string | null>(null);
+  const [recentlyAddedId, setRecentlyAddedId] = useState<string | null>(null);
   const normalizedQuery = query.trim().toLowerCase();
   const currentScreen = screens.find((screen) => screen.id === currentScreenId);
   const existingWidgetCounts = useMemo(
@@ -58,121 +281,159 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
       }, {}),
     [currentScreen?.items],
   );
+  const availableWidgetIds = useMemo(() => new Set(widgets.map((widget) => widget.id)), [widgets]);
   const filteredWidgets = useMemo(
     () =>
-      widgets.filter((widget) => {
-        const category = widgetCategoryById[widget.id] ?? 'operations';
-        const matchesCategory = activeCategory === 'all' || category === activeCategory;
-        const searchableText = `${widget.name} ${widget.description}`.toLowerCase();
+      demoWidgets.filter((widget) => {
+        const isAdded = (existingWidgetCounts[widget.widgetId] ?? 0) > 0;
+        const matchesCategory =
+          activeCategory === 'all' ||
+          (activeCategory === 'featured' && featuredWidgetIds.has(widget.id)) ||
+          (activeCategory === 'added' && isAdded) ||
+          widget.category === activeCategory;
+        const matchesSize = activeSize === 'all' || widget.size === activeSize;
+        const matchesSearch =
+          !normalizedQuery || widget.name.toLowerCase().includes(normalizedQuery);
 
-        return matchesCategory && (!normalizedQuery || searchableText.includes(normalizedQuery));
+        return (
+          matchesCategory && matchesSize && matchesSearch && availableWidgetIds.has(widget.widgetId)
+        );
       }),
-    [activeCategory, normalizedQuery, widgets],
+    [activeCategory, activeSize, availableWidgetIds, existingWidgetCounts, normalizedQuery],
   );
 
-  useEffect(() => {
-    if (!recentlyAddedWidgetId) {
-      return undefined;
-    }
+  const handleAddWidget = useCallback(
+    (demoWidget: DemoWidget) => {
+      const widget = widgets.find((candidate) => candidate.id === demoWidget.widgetId);
 
-    const timer = globalThis.setTimeout(() => setRecentlyAddedWidgetId(null), 1400);
+      if (!widget) {
+        return;
+      }
 
-    return () => globalThis.clearTimeout(timer);
-  }, [recentlyAddedWidgetId]);
-
-  const handlePlaceOnDesktop = useCallback(
-    (widget: WidgetManifest) => {
-      setPendingWidgetPlacement({
-        height: widget.defaultGrid.height,
-        widgetId: widget.id,
-        width: widget.defaultGrid.width,
-      });
+      addWidgetToScreen(currentScreenId, widget.id, widget.defaultGrid);
+      setRecentlyAddedId(demoWidget.id);
+      globalThis.setTimeout(() => setRecentlyAddedId(null), 1400);
       minimizeWindow(windowDescriptor.id);
     },
-    [minimizeWindow, setPendingWidgetPlacement, windowDescriptor.id],
-  );
-
-  const handleQuickAdd = useCallback(
-    (widget: WidgetManifest) => {
-      addWidgetToScreen(currentScreenId, widget.id, widget.defaultGrid);
-      setRecentlyAddedWidgetId(widget.id);
-    },
-    [addWidgetToScreen, currentScreenId],
+    [addWidgetToScreen, currentScreenId, minimizeWindow, widgets, windowDescriptor.id],
   );
 
   return (
-    <div className="flex h-full w-full select-none bg-transparent font-sans text-ko-ink">
-      <aside className="flex w-52 shrink-0 flex-col gap-4 border-r border-white/40 bg-white/28 p-4 backdrop-blur-md">
-        <div className="flex items-center gap-2 px-1">
-          <Sparkles className="size-5 text-ko-accent" />
-          <span className="text-sm font-bold tracking-wide">小组件分类</span>
-        </div>
-        <nav className="flex flex-col gap-1" aria-label="小组件分类">
-          {widgetCategories.map(({ Icon, id, name }) => {
-            const isActive = activeCategory === id;
+    <div className="relative flex h-full w-full select-none overflow-hidden bg-[#eef0f3] font-sans text-[#1d1d1f]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_8%,rgba(120,150,255,0.14),transparent_42%),radial-gradient(circle_at_85%_92%,rgba(255,150,200,0.11),transparent_42%),radial-gradient(circle_at_90%_10%,rgba(150,255,220,0.08),transparent_40%)]" />
+      <aside className="relative z-10 flex w-[190px] shrink-0 flex-col gap-5 border-r border-black/10 bg-white/50 px-5 py-6 backdrop-blur-2xl">
+        {sidebarSections.map((section) => (
+          <nav className="flex flex-col gap-1" key={section.label} aria-label={section.label}>
+            <div className="mb-1 px-1 text-[11px] font-semibold text-[#6e6e73]">
+              {section.label}
+            </div>
+            {section.items.map(({ Icon, id, name }) => {
+              const isActive = activeCategory === id;
 
-            return (
-              <button
-                className={`relative flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-semibold outline-none transition-all duration-200 ${
-                  isActive
-                    ? 'border border-white/40 bg-white/50 text-ko-accent-strong shadow-sm'
-                    : 'text-ko-ink/70 hover:bg-white/20'
-                }`}
-                key={id}
-                onClick={() => setActiveCategory(id)}
-                type="button"
-              >
-                <span className="flex items-center gap-2.5">
-                  <Icon className={`size-4 ${isActive ? 'text-ko-accent' : 'text-ko-ink/60'}`} />
-                  <span>{name}</span>
-                </span>
-                <ChevronRight className="size-3.5 opacity-40" />
-              </button>
-            );
-          })}
-        </nav>
-        <div className="mt-auto rounded-xl border border-white/30 bg-white/20 p-3 text-[10px] leading-relaxed text-ko-muted">
-          <p className="mb-1 font-semibold text-ko-ink/70">放置方式</p>
-          <p>桌面放置会收起窗口，移动鼠标到桌面后点击确认落点。</p>
-          <p className="mt-1">快速添加会直接使用该小组件的默认网格位置。</p>
-        </div>
+              return (
+                <button
+                  className={cx(
+                    'flex h-[38px] w-full items-center justify-between rounded-[9px] px-3 text-left text-[13.5px] font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                    isActive
+                      ? 'bg-[#0a84ff] text-white shadow-lg shadow-[#0a84ff]/18'
+                      : 'text-[#6e6e73] hover:bg-black/5 hover:text-[#1d1d1f]',
+                  )}
+                  key={id}
+                  onClick={() => setActiveCategory(id)}
+                  type="button"
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <Icon className="size-4 shrink-0" />
+                    <span className="truncate">{name}</span>
+                  </span>
+                  <span
+                    className={cx('text-xl leading-none', isActive ? 'opacity-90' : 'opacity-35')}
+                  >
+                    ›
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+        ))}
       </aside>
-      <main className="flex min-w-0 flex-1 flex-col bg-transparent">
-        <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-white/30 px-6">
-          <div className="relative max-w-sm flex-1">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ko-ink/40" />
-            <input
-              className="h-9 w-full rounded-xl border border-white/40 bg-white/30 pl-9 pr-4 text-xs text-ko-ink/90 outline-none transition-all placeholder:text-ko-ink/40 focus:border-ko-accent/40 focus:bg-white/50 focus:ring-1 focus:ring-ko-accent/20"
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="搜索可用小组件..."
-              type="search"
-              value={query}
-            />
+      <main className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="shrink-0 px-5 pb-3 pt-5">
+          <div className="flex items-center gap-4">
+            <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl bg-black/7 px-3 text-[#6e6e73]">
+              <Search className="size-4 shrink-0" />
+              <input
+                className="min-w-0 flex-1 bg-transparent text-[13.5px] text-[#1d1d1f] outline-none placeholder:text-[#8d9199]"
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="搜索小组件"
+                type="search"
+                value={query}
+              />
+            </label>
+            <div className="flex shrink-0 items-center gap-1 rounded-lg bg-black/7 p-1">
+              {sizeFilters.map((filter) => {
+                const isActive = activeSize === filter.id;
+
+                return (
+                  <button
+                    className={cx(
+                      'h-8 rounded-md px-3 text-xs font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                      isActive
+                        ? 'bg-[#1d1d1f] text-[#eef0f3]'
+                        : 'text-[#6e6e73] hover:bg-white/65 hover:text-[#1d1d1f]',
+                    )}
+                    key={filter.id}
+                    onClick={() => setActiveSize(filter.id)}
+                    type="button"
+                  >
+                    {filter.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div className="shrink-0 rounded-xl border border-white/40 bg-white/30 px-3 py-1 text-[11px] font-semibold text-ko-muted">
-            共 {filteredWidgets.length} 个小组件
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {categoryChips.map((chip) => {
+              const isActive = activeCategory === chip.id;
+
+              return (
+                <button
+                  className={cx(
+                    'h-8 shrink-0 rounded-full border px-4 text-[12.5px] font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                    isActive
+                      ? 'border-[#1d1d1f] bg-[#1d1d1f] text-[#eef0f3]'
+                      : 'border-black/10 text-[#6e6e73] hover:border-black/20 hover:bg-white/55 hover:text-[#1d1d1f]',
+                  )}
+                  key={chip.id}
+                  onClick={() => setActiveCategory(chip.id)}
+                  type="button"
+                >
+                  {chip.name}
+                </button>
+              );
+            })}
           </div>
         </header>
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-2 gap-5">
-            {filteredWidgets.map((widget) => (
-              <WidgetCard
-                countOnDesktop={existingWidgetCounts[widget.id] ?? 0}
-                isRecentlyAdded={recentlyAddedWidgetId === widget.id}
-                key={widget.id}
-                onPlaceOnDesktop={handlePlaceOnDesktop}
-                onQuickAdd={handleQuickAdd}
-                widget={widget}
-              />
-            ))}
-          </div>
-          {filteredWidgets.length === 0 ? (
-            <div className="flex h-48 flex-col items-center justify-center gap-2 text-ko-muted">
-              <Layers3 className="size-8 opacity-40" />
-              <span className="text-xs font-medium">没有找到符合条件的小组件</span>
+        <section className="min-h-0 flex-1 overflow-y-auto px-5 pb-6 [scrollbar-width:thin] [scrollbar-color:rgba(0,0,0,0.15)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/15">
+          {filteredWidgets.length > 0 ? (
+            <div className="[column-count:1] [column-gap:14px] md:[column-count:2] xl:[column-count:3]">
+              {filteredWidgets.map((widget) => (
+                <WidgetCard
+                  countOnDesktop={existingWidgetCounts[widget.widgetId] ?? 0}
+                  isRecentlyAdded={recentlyAddedId === widget.id}
+                  key={widget.id}
+                  onAdd={handleAddWidget}
+                  widget={widget}
+                />
+              ))}
             </div>
-          ) : null}
-        </div>
+          ) : (
+            <div className="flex h-full min-h-72 flex-col items-center justify-center gap-3 text-[#6e6e73]">
+              <Search className="size-9 opacity-45" />
+              <span className="text-sm font-medium">没有找到匹配的小组件</span>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );
@@ -181,162 +442,336 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
 function WidgetCard({
   countOnDesktop,
   isRecentlyAdded,
-  onPlaceOnDesktop,
-  onQuickAdd,
+  onAdd,
   widget,
 }: Readonly<{
   countOnDesktop: number;
   isRecentlyAdded: boolean;
-  onPlaceOnDesktop(widget: WidgetManifest): void;
-  onQuickAdd(widget: WidgetManifest): void;
-  widget: WidgetManifest;
+  onAdd(widget: DemoWidget): void;
+  widget: DemoWidget;
 }>) {
-  const isWide = widget.defaultGrid.width >= 4;
+  const added = countOnDesktop > 0 || isRecentlyAdded;
 
   return (
-    <motion.article
-      className={`group relative flex flex-col justify-between gap-3 overflow-hidden rounded-3xl border border-white/55 bg-white/34 p-4 shadow-[0_4px_12px_rgba(0,0,0,0.02)] backdrop-blur-[12px] ${
-        isWide ? 'col-span-2' : 'col-span-1'
-      }`}
-      transition={{ damping: 22, stiffness: 260, type: 'spring' }}
-      whileHover={{
-        boxShadow: '0 16px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.4)',
-        scale: 1.018,
-        y: -4,
-      }}
+    <button
+      className={cx(
+        'group relative mb-[14px] block w-full break-inside-avoid overflow-hidden rounded-[20px] border text-left shadow-[0_1px_2px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.24)] outline-none transition-all duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:shadow-[0_16px_30px_rgba(0,0,0,0.16),inset_0_1px_0_rgba(255,255,255,0.25)] active:scale-[0.965] focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+        added
+          ? 'border-[#0a84ff] shadow-[0_0_0_2px_rgba(10,132,255,0.28),0_12px_26px_rgba(0,0,0,0.14)]'
+          : 'border-white/55',
+      )}
+      onClick={() => onAdd(widget)}
+      title={widget.name}
+      type="button"
     >
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-      {countOnDesktop > 0 ? (
-        <div className="absolute right-3 top-3 z-10 rounded-full bg-ko-accent/90 px-2 py-0.5 text-[9px] font-bold text-white shadow">
-          已在桌面 x{countOnDesktop}
-        </div>
+      {added ? (
+        <span className="absolute right-2.5 top-2.5 z-20 size-2.5 rounded-full bg-[#0a84ff] shadow-[0_0_0_3px_rgba(10,132,255,0.25)]" />
       ) : null}
-      <div className="relative h-28 overflow-hidden rounded-2xl border border-white/30 bg-white/20 shadow-[inset_0_1px_3px_rgba(255,255,255,0.2)]">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(0,0,0,0.08)_1px,transparent_1px)] opacity-40 [background-size:12px_12px]" />
-        <div className="relative h-full w-full">
-          <WidgetPreview widgetId={widget.id} />
-        </div>
-      </div>
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-xs font-bold text-ko-ink">{widget.name}</h3>
-          <span className="rounded-full border border-ko-accent/10 bg-ko-accent-soft px-2 py-0.5 text-[9px] font-bold text-ko-accent">
-            {widget.defaultGrid.width} x {widget.defaultGrid.height} 网格
-          </span>
-        </div>
-        <p className="line-clamp-2 text-[10px] leading-relaxed text-ko-muted">
-          {widget.description}
-        </p>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          className="flex h-8 items-center justify-center gap-1.5 rounded-xl border border-white/50 bg-white/44 text-[10px] font-bold text-ko-ink/80 shadow-sm transition-all duration-300 hover:bg-white/70"
-          onClick={() => onPlaceOnDesktop(widget)}
-          type="button"
-        >
-          <Grid2X2 className="size-3.5" />
-          <span>桌面放置</span>
-        </button>
-        <button
-          className={`flex h-8 items-center justify-center gap-1.5 rounded-xl border text-[10px] font-bold shadow-sm transition-all duration-300 ${
-            isRecentlyAdded
-              ? 'border-emerald-400/40 bg-emerald-500/80 text-white'
-              : 'border-white/50 bg-ko-accent text-white hover:bg-ko-accent-strong'
-          }`}
-          onClick={() => onQuickAdd(widget)}
-          type="button"
-        >
-          <Plus className="size-3.5" />
-          <span>{isRecentlyAdded ? '已添加' : '快速添加'}</span>
-        </button>
-      </div>
-    </motion.article>
+      <WidgetFace widget={widget} />
+    </button>
   );
 }
 
-function WidgetPreview({ widgetId }: Readonly<{ widgetId: string }>) {
-  if (widgetId === 'onboarding-progress') {
+function WidgetFace({ widget }: Readonly<{ widget: DemoWidget }>) {
+  return (
+    <div
+      className="relative overflow-hidden p-4 text-white"
+      style={{ background: widget.gradient, height: widget.height }}
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.84)_1px,transparent_1px)] opacity-[0.05] [background-size:5px_5px]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(160deg,rgba(255,255,255,0.22),rgba(255,255,255,0)_40%)]" />
+      <div className="relative z-10 h-full">{renderWidgetFace(widget.template)}</div>
+    </div>
+  );
+}
+
+function renderWidgetFace(template: DemoWidgetTemplate) {
+  if (template === 'weather-small') {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2">
-        <div className="relative flex size-16 items-center justify-center">
-          <svg className="size-full -rotate-90">
-            <circle cx="32" cy="32" fill="transparent" r="28" stroke="rgba(255,255,255,0.15)" strokeWidth="6" />
-            <circle
-              cx="32"
-              cy="32"
-              fill="transparent"
-              r="28"
-              stroke="#54b399"
-              strokeDasharray="175"
-              strokeDashoffset="52"
-              strokeLinecap="round"
-              strokeWidth="6"
+      <div>
+        <div className="text-[12px] font-semibold text-white/92">☀️ 晴朗</div>
+        <div className="mt-4 text-[36px] font-bold leading-none tracking-normal">24°</div>
+        <div className="mt-3 text-[11px] font-semibold text-white/76">最高 27° 最低 18°</div>
+      </div>
+    );
+  }
+
+  if (template === 'weather-large') {
+    return (
+      <div className="flex h-full items-center justify-between">
+        <div>
+          <div className="text-[12px] font-semibold text-white/92">☁️ 多云</div>
+          <div className="mt-3 text-[36px] font-bold leading-none tracking-normal">21°</div>
+          <div className="mt-3 text-[11px] font-semibold text-white/76">体感 20° · 湿度 62%</div>
+        </div>
+        <div className="text-[42px] drop-shadow-[0_4px_8px_rgba(0,0,0,0.25)]">⛅</div>
+      </div>
+    );
+  }
+
+  if (template === 'calendar-small') {
+    return (
+      <div>
+        <div className="text-[12px] font-semibold text-white/92">7月</div>
+        <div className="mt-2 text-[46px] font-bold leading-none tracking-normal">7</div>
+        <div className="mt-3 text-[11px] font-semibold text-white/76">周二 · 2个日程</div>
+      </div>
+    );
+  }
+
+  if (template === 'calendar-week') {
+    return (
+      <div>
+        <div className="text-[12px] font-semibold text-white/92">本周</div>
+        <WeekRow />
+        <div className="mt-3 text-[11px] font-semibold text-white/78">10:00 产品评审会</div>
+      </div>
+    );
+  }
+
+  if (template === 'calendar-month') {
+    return (
+      <div>
+        <div className="text-[12px] font-semibold text-white/92">2026年7月</div>
+        <div className="mt-3 grid grid-cols-7 gap-1.5">
+          {Array.from({ length: 28 }).map((_, index) => (
+            <span
+              className={cx(
+                'rounded-[4px] py-0.5 text-center text-[8px] text-white/70',
+                index === 6 ? 'bg-white text-[#1d1d1f]' : '',
+              )}
+              key={index}
+            >
+              {index + 1}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (template === 'music') {
+    return (
+      <div className="flex h-full items-center gap-3">
+        <div className="size-[42px] shrink-0 rounded-lg bg-gradient-to-br from-white/35 to-black/25 shadow-[0_4px_10px_rgba(0,0,0,0.35)]" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[12.5px] font-semibold">夜航星辰</div>
+          <div className="mt-1 truncate text-[11px] text-white/74">Moonlight · 陈某某</div>
+          <ProgressBar value={46} />
+        </div>
+      </div>
+    );
+  }
+
+  if (template === 'music-large') {
+    return (
+      <div>
+        <div className="text-[12px] font-semibold text-white/92">每日推荐</div>
+        <div className="mt-6 flex h-[70px] items-end justify-center gap-2">
+          {[40, 65, 30, 80, 55, 25, 70].map((height, index) => (
+            <span
+              className="w-2 rounded-full bg-white/85"
+              key={index}
+              style={{ height: `${height}%` }}
             />
-          </svg>
-          <span className="absolute text-[12px] font-bold text-ko-ink/80">70%</span>
+          ))}
         </div>
-        <span className="text-[10px] font-medium text-ko-muted">第二阶段：导师匹配</span>
-      </div>
-    );
-  }
-
-  if (widgetId === 'mentor-load') {
-    return (
-      <div className="flex h-full flex-col justify-center gap-2 px-3">
-        {[
-          ['李四 (P0 导师)', '2 / 3', '66%', 'bg-ko-accent', 'text-ko-accent'],
-          ['王五 (高级导师)', '3 / 3 满载', '100%', 'bg-amber-500', 'text-amber-600'],
-        ].map(([name, value, width, barClassName, valueClassName]) => (
-          <div className="flex flex-col gap-1.5" key={name}>
-            <div className="flex justify-between text-[10px] font-medium text-ko-ink/80">
-              <span>{name}</span>
-              <span className={`${valueClassName} font-bold`}>{value}</span>
-            </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/20">
-              <div className={`h-full rounded-full ${barClassName}`} style={{ width }} />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (widgetId === 'growth-milestone') {
-    return (
-      <div className="flex h-full flex-col items-center justify-center gap-2">
-        <div className="flex size-12 items-center justify-center rounded-2xl border border-amber-300/40 bg-gradient-to-tr from-amber-400 to-amber-200 shadow-lg">
-          <Award className="size-6 text-amber-900 drop-shadow-md" />
+        <div className="mt-3 text-center text-[11px] font-semibold text-white/72">
+          30首 · 2小时18分
         </div>
-        <span className="text-[11px] font-bold text-ko-ink/85">内核开发者勋章</span>
-        <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600">
-          已解锁
-        </span>
       </div>
     );
   }
 
-  if (widgetId === 'training-task') {
+  if (template === 'rings') {
     return (
-      <div className="flex h-full w-full items-center justify-between px-6">
-        <div className="flex max-w-[55%] flex-col gap-1.5">
-          {['新员工带教计划安排.pdf', 'KernelOn OS 技术架构分享'].map((task, index) => (
-            <div className="flex items-center gap-1.5" key={task}>
-              <span className={`size-1.5 rounded-full ${index === 0 ? 'bg-ko-accent' : 'bg-amber-500'}`} />
-              <span className="truncate text-[11px] font-semibold text-ko-ink/80">{task}</span>
+      <div className="flex h-full items-center justify-center">
+        <ProgressRing color="#ff375f" size={72} stroke={7} value={72} />
+      </div>
+    );
+  }
+
+  if (template === 'sleep') {
+    return (
+      <div>
+        <div className="text-[12px] font-semibold text-white/92">🌙 睡眠</div>
+        <div className="mt-2 text-[28px] font-bold tracking-normal">7小时42分</div>
+        <ProgressBar value={78} />
+        <div className="mt-2 text-[11px] text-white/72">昨晚 23:10 - 06:52</div>
+      </div>
+    );
+  }
+
+  if (template === 'todo') {
+    return (
+      <div>
+        <div className="text-[12px] font-semibold text-white/92">待办事项</div>
+        <div className="mt-4 flex flex-col gap-2">
+          {['完成设计稿', '回复邮件', '买咖啡豆'].map((task, index) => (
+            <div className="flex items-center gap-2 text-[11px] font-semibold" key={task}>
+              <span
+                className={cx(
+                  'size-[13px] rounded-full border-2 border-white/80',
+                  index === 0 ? 'bg-white' : '',
+                )}
+              />
+              <span className={index === 0 ? 'text-white/55 line-through' : ''}>{task}</span>
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-1 rounded-xl border border-white/20 bg-gradient-to-r from-ko-accent to-ko-accent-strong px-3 py-1.5 text-[10px] font-bold text-white shadow-md">
-          <Clock className="size-3" />
-          <span>一键签到</span>
+      </div>
+    );
+  }
+
+  if (template === 'timer') {
+    return (
+      <div className="flex h-full flex-col items-center justify-center">
+        <ProgressRing color="#ffffff" size={70} stroke={6} value={60} />
+        <div className="-mt-[47px] text-[22px] font-bold tabular-nums">18:24</div>
+      </div>
+    );
+  }
+
+  if (template === 'stock') {
+    return (
+      <div>
+        <div className="flex items-center justify-between">
+          <div className="text-[12px] font-semibold text-white/92">AAPL</div>
+          <div className="text-[11px] font-semibold text-[#7cffb2]">+2.34%</div>
+        </div>
+        <div className="mt-2 text-[26px] font-bold tracking-normal">$213.48</div>
+        <svg className="mt-1 h-9 w-full" preserveAspectRatio="none" viewBox="0 0 100 36">
+          <polyline
+            fill="rgba(255,255,255,0.18)"
+            points="0,30 15,24 30,27 45,15 60,20 75,8 90,12 100,4 100,36 0,36"
+          />
+          <polyline
+            fill="none"
+            points="0,30 15,24 30,27 45,15 60,20 75,8 90,12 100,4"
+            stroke="#fff"
+            strokeWidth="2"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  if (template === 'fx') {
+    return (
+      <div>
+        <div className="text-[12px] font-semibold text-white/92">USD → CNY</div>
+        <div className="mt-3 text-[28px] font-bold tracking-normal">7.15</div>
+        <div className="mt-2 text-[11px] text-white/72">↑ 0.02 今日</div>
+      </div>
+    );
+  }
+
+  if (template === 'photo-large') {
+    return (
+      <div>
+        <div className="text-[12px] font-semibold text-white/92">这一天 · 2024</div>
+        <div className="mt-3 grid h-[194px] grid-cols-2 gap-1 overflow-hidden rounded-[10px]">
+          {[
+            'linear-gradient(135deg,rgba(255,255,255,0.35),rgba(0,0,0,0.2))',
+            'linear-gradient(135deg,rgba(255,255,255,0.15),rgba(0,0,0,0.35))',
+            'linear-gradient(135deg,rgba(255,255,255,0.3),rgba(0,0,0,0.3))',
+            'linear-gradient(135deg,rgba(255,255,255,0.2),rgba(0,0,0,0.15))',
+          ].map((gradient) => (
+            <span key={gradient} style={{ background: gradient }} />
+          ))}
         </div>
       </div>
     );
   }
 
+  if (template === 'photo-medium') {
+    return (
+      <div className="relative -m-4 h-[150px] overflow-hidden p-4">
+        <Image className="absolute right-4 top-4 size-9 text-white/60" />
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent p-4">
+          <div className="text-[12px] font-semibold text-white/92">每日精选</div>
+          <div className="mt-1 text-[11px] text-white/72">拍摄于 昆明</div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function WeekRow() {
   return (
-    <div className="flex h-full items-center justify-center text-[10px] text-ko-muted">
-      预览不可用
+    <div className="mt-3 grid grid-cols-7 gap-1">
+      {weekDays.map((day, index) => (
+        <span
+          className={cx(
+            'rounded-[4px] py-1 text-center text-[9px] text-white/70',
+            index === 1 ? 'bg-white font-bold text-[#1d1d1f]' : '',
+          )}
+          key={day}
+        >
+          {day}
+        </span>
+      ))}
     </div>
   );
+}
+
+function ProgressBar({ value }: Readonly<{ value: number }>) {
+  return (
+    <div className="mt-2 h-[5px] overflow-hidden rounded-full bg-white/25">
+      <div className="h-full rounded-full bg-white" style={{ width: `${value}%` }} />
+    </div>
+  );
+}
+
+function ProgressRing({
+  color,
+  size,
+  stroke,
+  value,
+}: Readonly<{
+  color: string;
+  size: number;
+  stroke: number;
+  value: number;
+}>) {
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference - (circumference * value) / 100;
+  const center = size / 2;
+
+  return (
+    <svg
+      aria-hidden
+      className="-rotate-90 drop-shadow"
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      width={size}
+    >
+      <circle
+        cx={center}
+        cy={center}
+        fill="transparent"
+        r={radius}
+        stroke="rgba(255,255,255,0.24)"
+        strokeWidth={stroke}
+      />
+      <circle
+        cx={center}
+        cy={center}
+        fill="transparent"
+        r={radius}
+        stroke={color}
+        strokeDasharray={circumference}
+        strokeDashoffset={dashOffset}
+        strokeLinecap="round"
+        strokeWidth={stroke}
+      />
+    </svg>
+  );
+}
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
 }

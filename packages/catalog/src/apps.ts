@@ -141,8 +141,8 @@ export const kernelApps: KernelAppManifest[] = [
       },
     },
     defaultWindow: {
-      title: '小组件管理',
-      bounds: { x: 300, y: 116, width: 760, height: 540 },
+      title: 'Widgets 管理',
+      bounds: { x: 128, y: 96, width: 960, height: 660 },
     },
   },
   {

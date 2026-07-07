@@ -18,11 +18,13 @@ export function HeroGlassAction({
       data-wallpaper-hero-action-glass={variant}
     >
       <LiquidGlassSvgFilter
-        blurAmount={0.38}
+        appearanceClassName={wallpaperGlassAppearanceClassName}
+        blurAmount={0.5}
         className="wallpaper-home__liquid-action-glass"
-        displacementScale={82}
-        padding="0px"
-        saturation={165}
+        displacementScale={104}
+        elasticity={0}
+        padding={heroActionGlassPadding[variant]}
+        saturation={140}
         style={heroActionGlassPlacements[variant]}
       >
         {children}
@@ -43,3 +45,11 @@ const heroActionGlassPlacements = {
     top: 21,
   },
 } as const;
+
+const heroActionGlassPadding = {
+  preview: '0px 20px',
+  like: '0px 16px',
+} as const;
+
+const wallpaperGlassAppearanceClassName =
+  '[--ko-liquid-glass-border-strong:rgba(255,255,255,0.24)] [--ko-liquid-glass-border-soft:rgba(255,255,255,0.09)]';

@@ -59,16 +59,49 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-lea
   flex: 1 1 0;
   justify-content: flex-end;
   padding-right: 0;
+  transition:
+    opacity 260ms ease,
+    transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] {
   flex: 0 0 auto;
+  transition:
+    opacity 260ms ease,
+    transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] {
   flex: 1 1 0;
   gap: 10px;
   justify-content: flex-end;
+  transition:
+    opacity 260ms ease,
+    transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-leading-"] {
+  position: absolute;
+  left: 112px;
+  top: 13px;
+  flex: none;
+  justify-content: flex-start;
+}
+
+section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-center-"] {
+  position: absolute;
+  left: 50%;
+  top: 13px;
+  flex: none;
+  transform: translateX(-50%);
+}
+
+section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-trailing-"] {
+  position: absolute;
+  right: 24px;
+  top: 13px;
+  flex: none;
+  gap: 10px;
 }
 
 section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] {
@@ -76,6 +109,10 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-butto
   width: 42px;
   height: 42px;
   overflow: visible;
+}
+
+section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-kernelon-app-header-liquid-button="true"] {
+  animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-segment="true"] .glass {
@@ -89,6 +126,7 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-butto
 }
 
 section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] button {
+  position: relative;
   width: 42px;
   min-width: 42px;
   height: 42px;
@@ -97,6 +135,22 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-butto
   box-shadow: none !important;
   backdrop-filter: none !important;
   color: rgba(255, 255, 255, 0.9) !important;
+}
+
+section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] button::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.08) 52%, rgba(255, 255, 255, 0.15)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 20px rgba(255, 255, 255, 0.075);
+  content: "";
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] svg {
@@ -126,6 +180,22 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-grou
   background: transparent !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
+}
+
+section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-group="true"]::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.065) 52%, rgba(255, 255, 255, 0.13)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 20px rgba(255, 255, 255, 0.06);
+  content: "";
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-active-indicator="true"] {
@@ -399,24 +469,18 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   width: 80px;
 }
 
-.wallpaper-home__liquid-action-glass--preview .glass {
-  width: 190px;
+.wallpaper-home__glass-action .glass {
   height: 42px;
 }
 
-.wallpaper-home__liquid-action-glass--like .glass {
-  width: 80px;
-  height: 42px;
-}
-
-.wallpaper-home__liquid-action-glass .glass > div {
-  width: 100%;
+.wallpaper-home__glass-action .glass > div {
+  height: 100%;
 }
 
 .wallpaper-home__glass-button {
   position: relative;
   display: inline-flex;
-  width: 100%;
+  width: auto;
   height: 42px;
   align-items: center;
   justify-content: center;
@@ -425,15 +489,27 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   border-radius: 999px;
   background: transparent;
   color: rgba(255, 255, 255, 0.94);
-  padding: 0 20px;
+  padding: 0;
   font-size: 15px;
   font-weight: 800;
   white-space: nowrap;
   cursor: pointer;
 }
 
-.wallpaper-home__glass-button--like {
-  padding: 0 16px;
+.wallpaper-home__glass-button::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.08) 52%, rgba(255, 255, 255, 0.15)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 20px rgba(255, 255, 255, 0.075);
+  content: "";
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 .wallpaper-home__glass-button > svg,
@@ -505,6 +581,7 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   min-height: 620px;
   overflow: hidden;
   background: #07090b;
+  animation: wallpaperPreviewShellIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .wallpaper-preview__image,
@@ -514,6 +591,8 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   object-fit: cover;
   transform: scale(1.01);
   user-select: none;
+  animation: wallpaperPreviewImageIn 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: filter, opacity, transform;
 }
 
 .wallpaper-preview__placeholder {
@@ -530,30 +609,7 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
     radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 28%),
     linear-gradient(180deg, rgba(7, 9, 12, 0.28) 0%, rgba(7, 9, 12, 0.18) 42%, rgba(7, 9, 12, 0.72) 100%),
     linear-gradient(90deg, rgba(7, 9, 12, 0.34), rgba(7, 9, 12, 0.03) 44%, rgba(7, 9, 12, 0.32));
-}
-
-.wallpaper-preview__back {
-  position: absolute;
-  top: 82px;
-  left: 30px;
-  z-index: 4;
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 999px;
-  background: rgba(16, 19, 22, 0.42);
-  color: rgba(255, 255, 255, 0.92);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 12px 28px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(18px) saturate(1.18);
-  cursor: pointer;
-}
-
-.wallpaper-preview__back svg {
-  width: 23px;
-  height: 23px;
-  stroke-width: 2.5;
+  animation: wallpaperPreviewShadeIn 620ms ease both;
 }
 
 .wallpaper-preview__content {
@@ -566,6 +622,8 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   color: #fff;
   text-align: center;
   text-shadow: 0 3px 18px rgba(0, 0, 0, 0.62);
+  animation: wallpaperPreviewContentIn 640ms 90ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
 }
 
 .wallpaper-preview__content h1 {
@@ -1281,6 +1339,64 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   backdrop-filter: blur(22px);
 }
 
+@keyframes wallpaperHeaderControlIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes wallpaperPreviewShellIn {
+  from {
+    opacity: 0.72;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wallpaperPreviewImageIn {
+  from {
+    filter: blur(10px) saturate(0.9) brightness(0.78);
+    opacity: 0.62;
+    transform: scale(1.075);
+  }
+
+  to {
+    filter: blur(0) saturate(1) brightness(1);
+    opacity: 1;
+    transform: scale(1.01);
+  }
+}
+
+@keyframes wallpaperPreviewShadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes wallpaperPreviewContentIn {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, 24px, 0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+}
+
 @media (max-width: 1080px) {
   .wallpaper-page--explore,
   .wallpaper-page--settings {
@@ -1303,9 +1419,22 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
     display: none;
   }
 
+  section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-leading-"],
+  section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-trailing-"] {
+    display: flex;
+  }
+
   section[data-app-id="wallpaper"] > header > div:nth-of-type(2) {
     justify-content: center;
     padding: 0 12px 0 80px;
+  }
+
+  section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-leading-"] {
+    left: 78px;
+  }
+
+  section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-trailing-"] {
+    display: none;
   }
 
   .wallpaper-home__hero {

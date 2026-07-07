@@ -19,4 +19,11 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).not.toContain('[data-kernelon-app-header-liquid-button="true"] .glass__warp');
     expect(wallpaperStyles).not.toContain('.wallpaper-home__glass-action .glass__warp');
   });
+
+  it('defines preview header placement and preview entrance motion', () => {
+    expect(wallpaperStyles).toContain('header[data-app-header-preset="browser"]');
+    expect(wallpaperStyles).toContain('@keyframes wallpaperPreviewImageIn');
+    expect(wallpaperStyles).toContain('@keyframes wallpaperPreviewContentIn');
+    expect(wallpaperStyles).not.toContain('.wallpaper-preview__back');
+  });
 });

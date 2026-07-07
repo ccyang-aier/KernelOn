@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ChevronLeft, Heart, Play } from 'lucide-react';
+import { Check, Heart, Play } from 'lucide-react';
 
 import type { WallpaperAsset } from '../types';
 
@@ -8,7 +8,6 @@ export function PreviewView({
   isApplied,
   isLiked,
   onApply,
-  onBack,
   onLike,
   wallpaper,
   wallpaperImage,
@@ -16,7 +15,6 @@ export function PreviewView({
   isApplied: boolean;
   isLiked: boolean;
   onApply(id: string): void;
-  onBack(): void;
   onLike(id: string): void;
   wallpaper: WallpaperAsset;
   wallpaperImage: string;
@@ -29,15 +27,6 @@ export function PreviewView({
         <img alt="" className="wallpaper-preview__image" draggable={false} src={wallpaperImage} />
       )}
       <div className="wallpaper-preview__shade" />
-
-      <button
-        aria-label="Back to wallpaper library"
-        className="wallpaper-preview__back"
-        onClick={onBack}
-        type="button"
-      >
-        <ChevronLeft aria-hidden="true" />
-      </button>
 
       <div className="wallpaper-preview__content">
         <h1>{wallpaper.title}</h1>

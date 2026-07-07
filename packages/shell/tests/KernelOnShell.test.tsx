@@ -424,6 +424,66 @@ describe('KernelOnShell', () => {
     expect(within(appHeader).queryByText('Fallback title')).not.toBeInTheDocument();
   });
 
+  it('renders top-layer navigation as a single liquid back button', async () => {
+    const runtime = createRuntime();
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            {
+              ...initialState.apps[0],
+              id: 'wallpaper',
+              defaultWindow: {
+                ...initialState.apps[0].defaultWindow,
+                header: {
+                  center: [
+                    {
+                      commandId: 'wallpaper.focus-search',
+                      icon: 'Search',
+                      id: 'wallpaper-preview-search',
+                      label: 'Search',
+                      type: 'button',
+                    },
+                  ],
+                  leading: [{ type: 'navigation', backCommandId: 'wallpaper.back' }],
+                  preset: 'browser',
+                  trailing: [],
+                },
+              },
+              runtime: {
+                window: {
+                  loaderKey: 'app:wallpaper-window',
+                },
+              },
+            },
+          ],
+          windows: [
+            {
+              id: 'window:wallpaper',
+              appId: 'wallpaper',
+              title: 'Wallpaper',
+              bounds: { x: 96, y: 72, width: 960, height: 640 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:wallpaper');
+    const appHeader = within(appContainer).getByTestId('kernelon-app-header-window:wallpaper');
+    const leading = within(appHeader).getByTestId('kernelon-app-header-leading-window:wallpaper');
+    const backButton = within(leading).getByRole('button', { name: 'Back' });
+
+    expect(within(leading).queryByRole('button', { name: 'Forward' })).not.toBeInTheDocument();
+    expect(backButton.closest('[data-kernelon-app-header-liquid-button="true"]')).toBeTruthy();
+  });
+
   it('keeps App Header controls from starting window drag interactions', async () => {
     const runtime = createRuntime();
 

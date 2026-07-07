@@ -39,6 +39,24 @@ export function AppHeaderItems({
 
   return items.map((item, index) => {
     if (item.type === 'navigation') {
+      if (isTopLayerChrome) {
+        return item.backCommandId ? (
+          <TopLayerIconGlassButton
+            Icon={ArrowLeft}
+            key={`${section}:navigation:${index}:back`}
+            label="Back"
+            onClick={() =>
+              onCommand({
+                commandId: item.backCommandId!,
+                itemId: `${section}:back`,
+                type: 'navigation',
+                windowId,
+              })
+            }
+          />
+        ) : null;
+      }
+
       return (
         <AppHeaderGroup
           key={`${section}:navigation:${index}`}
@@ -211,11 +229,13 @@ function TopLayerIconGlassButton({
       onPointerDown={stopHeaderControlDrag}
     >
       <LiquidGlassSvgFilter
-        blurAmount={0.32}
+        appearanceClassName={topLayerGlassAppearanceClassName}
+        blurAmount={0.5}
         className={topLayerIconGlassClassName}
-        displacementScale={76}
+        displacementScale={104}
+        elasticity={0}
         padding="0px"
-        saturation={165}
+        saturation={140}
         style={topLayerIconGlassPlacement}
       >
         <AppHeaderButton
@@ -272,11 +292,13 @@ function TopLayerSegmentedControl({
       style={segmentHostStyle}
     >
       <LiquidGlassSvgFilter
-        blurAmount={0.32}
+        appearanceClassName={topLayerGlassAppearanceClassName}
+        blurAmount={0.5}
         className={topLayerSegmentGlassClassName}
-        displacementScale={76}
+        displacementScale={104}
+        elasticity={0}
         padding="0px"
-        saturation={165}
+        saturation={140}
         style={segmentGlassPlacement}
       >
         <div
@@ -339,6 +361,9 @@ const topLayerIconButtonHostClassName =
   'relative h-[42px] w-[42px] shrink-0 overflow-visible';
 
 const topLayerIconGlassClassName = 'z-10 text-white';
+
+const topLayerGlassAppearanceClassName =
+  '[--ko-liquid-glass-border-strong:rgba(255,255,255,0.24)] [--ko-liquid-glass-border-soft:rgba(255,255,255,0.09)]';
 
 const topLayerIconButtonClassName =
   'relative h-[42px] w-[42px] min-w-[42px] gap-0 overflow-hidden rounded-full border-0 bg-transparent px-0 text-white/90 shadow-none outline-none focus-visible:ring-2 focus-visible:ring-white/70';

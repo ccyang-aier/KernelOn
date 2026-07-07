@@ -71,9 +71,13 @@ export default function WallpaperWindow() {
     window.setTimeout(() => searchInputRef.current?.focus(), 90);
   }, [switchView]);
 
+  const closePreview = useCallback(() => {
+    setPreviewWallpaperId(null);
+  }, []);
+
   useEffect(() => {
-    header.setHeader(createWallpaperHeader(activeView));
-  }, [activeView, header]);
+    header.setHeader(createWallpaperHeader(displayedView));
+  }, [displayedView, header]);
 
   useEffect(() => () => header.clearHeader(), [header]);
 
@@ -86,6 +90,7 @@ export default function WallpaperWindow() {
         }
       },
     );
+    const unregisterBack = header.registerCommand('wallpaper.back', closePreview);
     const unregisterSearch = header.registerCommand('wallpaper.focus-search', focusExploreSearch);
     const unregisterLicense = header.registerCommand('wallpaper.license', () =>
       setToast('Wallpaper license key is active.'),
@@ -93,14 +98,19 @@ export default function WallpaperWindow() {
     const unregisterShare = header.registerCommand('wallpaper.share', () =>
       setToast(`Share link copied for ${selectedWallpaper.title}.`),
     );
+    const unregisterSettings = header.registerCommand('wallpaper.settings', () =>
+      switchView('settings'),
+    );
 
     return () => {
+      unregisterBack();
       unregisterView();
       unregisterSearch();
       unregisterLicense();
       unregisterShare();
+      unregisterSettings();
     };
-  }, [focusExploreSearch, header, selectedWallpaper.title, switchView]);
+  }, [closePreview, focusExploreSearch, header, selectedWallpaper.title, switchView]);
 
   useEffect(() => {
     if (!toast) {
@@ -168,10 +178,6 @@ export default function WallpaperWindow() {
     setPreviewWallpaperId(wallpaperId);
   }, []);
 
-  const closePreview = useCallback(() => {
-    setPreviewWallpaperId(null);
-  }, []);
-
   const applyWallpaper = useCallback(
     (wallpaperId: string) => {
       const wallpaper = assetById.get(wallpaperId);
@@ -226,7 +232,6 @@ export default function WallpaperWindow() {
           isApplied={desktopWallpaper === resolveWallpaperImage(previewWallpaper)}
           isLiked={likedIds.has(previewWallpaper.id)}
           onApply={applyWallpaper}
-          onBack={closePreview}
           onLike={toggleLike}
           wallpaper={previewWallpaper}
           wallpaperImage={resolveWallpaperImage(previewWallpaper)}
