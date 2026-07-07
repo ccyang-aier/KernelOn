@@ -150,10 +150,12 @@ function WidgetMount({
       const dy = event.clientY - dragStartRef.current.pointerY;
       const nextLeft = dragStartRef.current.elementX + dx;
       const nextTop = dragStartRef.current.elementY + dy;
+      const bounds = event.currentTarget.parentElement?.getBoundingClientRect();
 
       setDragOffset({ x: dx, y: dy });
       setSnapGrid(
         snapPointerToDesktopGrid({
+          bounds: bounds ? { height: bounds.height, width: bounds.width } : undefined,
           pointer: { x: nextLeft + width / 2, y: nextTop + height / 2 },
           size: item.grid,
         }),
@@ -185,12 +187,14 @@ function WidgetMount({
             ? '0 24px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.4)'
             : '0 8px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.2)',
           left: currentLeft,
+          opacity: 1,
           scale: isDragging ? 1.03 : 1,
           top: currentTop,
           zIndex: isDragging ? 50 : 20,
         }}
         className="group absolute cursor-grab select-none rounded-[24px] active:cursor-grabbing"
         data-testid={`kernelon-desktop-widget-${item.id}`}
+        initial={{ left: currentLeft, opacity: 0, scale: 0.9, top: currentTop }}
         onPointerCancel={(event) => finishDragging(event, false)}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

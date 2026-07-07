@@ -5,6 +5,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -26,7 +27,7 @@ import {
 import { DesktopDock } from './components/desktop-dock';
 import { AppWindowMount, DesktopItemMount } from './components/desktop-mounts';
 import {
-  desktopGridCells,
+  createDesktopGridCells,
   resolveDesktopGridAreaStyle,
   snapPointerToDesktopGrid,
 } from './components/desktop-grid';
@@ -83,6 +84,7 @@ export function KernelOnShell({ initialState, runtime }: KernelOnShellProps) {
 
 function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry }>) {
   const liquidGlassContextContainerRef = useRef<HTMLElement>(null);
+  const desktopSurfaceRef = useRef<HTMLElement>(null);
   const genieEffectLayerRef = useRef<GenieEffectLayerHandle>(null);
   const genieSnapshotsRef = useRef<Map<string, HTMLCanvasElement>>(new Map());
   const genieTransitioningAppIdRef = useRef<string | null>(null);
@@ -122,11 +124,47 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     x: number;
     y: number;
   } | null>(null);
+  const [desktopSurfaceSize, setDesktopSurfaceSize] = useState({ height: 0, width: 0 });
   const [genieHiddenWindowIds, setGenieHiddenWindowIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
   const closeDesktopContextMenu = useCallback(() => {
     setDesktopContextMenu(null);
+  }, []);
+
+  useEffect(() => {
+    const element = desktopSurfaceRef.current;
+
+    if (!element) {
+      return undefined;
+    }
+
+    const updateSize = () => {
+      const rect = element.getBoundingClientRect();
+      const width = element.clientWidth || rect.width || window.innerWidth;
+      const height = element.clientHeight || rect.height || window.innerHeight;
+
+      setDesktopSurfaceSize((currentSize) =>
+        currentSize.width === width && currentSize.height === height
+          ? currentSize
+          : { height, width },
+      );
+    };
+
+    updateSize();
+    window.addEventListener('resize', updateSize);
+
+    if (typeof ResizeObserver === 'undefined') {
+      return () => window.removeEventListener('resize', updateSize);
+    }
+
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateSize);
+    };
   }, []);
 
   const handleDesktopContextMenu = useCallback((event: ReactMouseEvent<HTMLElement>) => {
@@ -143,6 +181,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
           y: event.clientY - bounds.top,
         };
         const grid = snapPointerToDesktopGrid({
+          bounds: { height: bounds.height, width: bounds.width },
           pointer,
           size: pendingWidgetPlacement,
         });
@@ -337,6 +376,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const pendingPlacementGrid =
     pendingWidgetPlacement && pendingPlacementPointer
       ? snapPointerToDesktopGrid({
+          bounds: desktopSurfaceSize,
           pointer: pendingPlacementPointer,
           size: pendingWidgetPlacement,
         })
@@ -344,6 +384,10 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const pendingPlacementStyle = pendingPlacementGrid
     ? resolveDesktopGridAreaStyle(pendingPlacementGrid)
     : null;
+  const desktopGridCells = useMemo(
+    () => createDesktopGridCells(desktopSurfaceSize),
+    [desktopSurfaceSize],
+  );
 
   return (
     <main
@@ -367,6 +411,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       />
       <KernelOnStatusBar onToggleSpotlight={toggleSpotlight} spotlightOpen={spotlightOpen} />
       <section
+        ref={desktopSurfaceRef}
         aria-label="KernelOn desktop"
         className="relative min-h-screen"
         data-testid="kernelon-desktop-surface"
@@ -384,7 +429,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
             >
               {desktopGridCells.map((cell) => (
                 <div
-                  className="absolute rounded-[24px] border border-dashed border-white/20 bg-white/3 shadow-[inset_0_0_8px_rgba(255,255,255,0.02)]"
+                  className="absolute rounded-[18px] border border-dashed border-white/18 bg-white/[0.035] shadow-[inset_0_0_8px_rgba(255,255,255,0.03)]"
                   key={`${cell.x}-${cell.y}`}
                   style={resolveDesktopGridAreaStyle({
                     height: 1,
@@ -411,13 +456,13 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         ))}
         {pendingWidgetPlacement && pendingPlacementStyle ? (
           <div
-            className="pointer-events-none absolute z-10 rounded-[24px] border-2 border-dashed border-ko-ring bg-ko-ring/10 shadow-[0_0_20px_rgba(84,179,153,0.15)]"
+            className="pointer-events-none absolute z-10 rounded-[22px] border-2 border-dashed border-ko-ring bg-ko-ring/10 shadow-[0_0_20px_rgba(84,179,153,0.15)]"
             style={pendingPlacementStyle}
           />
         ) : null}
         {pendingWidgetPlacement && pendingPlacementPointer ? (
           <div
-            className="pointer-events-none absolute z-50 flex items-center justify-center rounded-[24px] border border-white/60 bg-white/40 font-semibold text-ko-ink/90 shadow-[0_12px_28px_rgba(0,0,0,0.15)] backdrop-blur-[8px]"
+            className="pointer-events-none absolute z-50 flex items-center justify-center rounded-[22px] border border-white/60 bg-white/40 font-semibold text-ko-ink/90 shadow-[0_12px_28px_rgba(0,0,0,0.15)] backdrop-blur-[8px]"
             style={{
               height: pendingPlacementStyle?.height,
               left: pendingPlacementPointer.x - Number(pendingPlacementStyle?.width ?? 0) / 2,

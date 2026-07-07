@@ -262,7 +262,7 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
   const widgets = useShellSelector((state) => state.widgets);
   const screens = useShellSelector((state) => state.screens);
   const currentScreenId = useShellSelector((state) => state.currentScreenId);
-  const addWidgetToScreen = useShellSelector((state) => state.addWidgetToScreen);
+  const setPendingWidgetPlacement = useShellSelector((state) => state.setPendingWidgetPlacement);
   const minimizeWindow = useShellSelector((state) => state.minimizeWindow);
   const [activeCategory, setActiveCategory] = useState<DemoWidgetCategory>('all');
   const [activeSize, setActiveSize] = useState<DemoWidgetSizeFilter>('all');
@@ -310,21 +310,26 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
         return;
       }
 
-      addWidgetToScreen(currentScreenId, widget.id, widget.defaultGrid);
+      setPendingWidgetPlacement({
+        height: widget.defaultGrid.height,
+        widgetId: widget.id,
+        width: widget.defaultGrid.width,
+      });
       setRecentlyAddedId(demoWidget.id);
       globalThis.setTimeout(() => setRecentlyAddedId(null), 1400);
       minimizeWindow(windowDescriptor.id);
     },
-    [addWidgetToScreen, currentScreenId, minimizeWindow, widgets, windowDescriptor.id],
+    [minimizeWindow, setPendingWidgetPlacement, widgets, windowDescriptor.id],
   );
 
   return (
-    <div className="relative flex h-full w-full select-none overflow-hidden bg-[#eef0f3] font-sans text-[#1d1d1f]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_8%,rgba(120,150,255,0.14),transparent_42%),radial-gradient(circle_at_85%_92%,rgba(255,150,200,0.11),transparent_42%),radial-gradient(circle_at_90%_10%,rgba(150,255,220,0.08),transparent_40%)]" />
-      <aside className="relative z-10 flex w-[190px] shrink-0 flex-col gap-5 border-r border-black/10 bg-white/50 px-5 py-6 backdrop-blur-2xl">
+    <div className="relative flex h-full w-full select-none overflow-hidden bg-[linear-gradient(135deg,rgba(255,255,255,0.66),rgba(232,244,246,0.36)_46%,rgba(255,255,255,0.50))] font-sans text-[#1b2228] backdrop-blur-[30px]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(255,255,255,0.72),transparent_36%),radial-gradient(circle_at_82%_14%,rgba(126,189,208,0.24),transparent_34%),radial-gradient(circle_at_68%_92%,rgba(238,184,218,0.22),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.28),rgba(255,255,255,0.08))]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.16] [background-image:linear-gradient(rgba(255,255,255,0.20)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:42px_42px]" />
+      <aside className="relative z-10 flex w-[190px] shrink-0 flex-col gap-5 border-r border-white/45 bg-white/[0.24] px-5 py-6 shadow-[inset_-1px_0_0_rgba(255,255,255,0.34)] backdrop-blur-[28px]">
         {sidebarSections.map((section) => (
           <nav className="flex flex-col gap-1" key={section.label} aria-label={section.label}>
-            <div className="mb-1 px-1 text-[11px] font-semibold text-[#6e6e73]">
+            <div className="mb-1 px-1 text-[11px] font-semibold text-[#596168]">
               {section.label}
             </div>
             {section.items.map(({ Icon, id, name }) => {
@@ -333,10 +338,10 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
               return (
                 <button
                   className={cx(
-                    'flex h-[38px] w-full items-center justify-between rounded-[9px] px-3 text-left text-[13.5px] font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                    'flex h-10 w-full items-center justify-between rounded-xl border px-3 text-left text-[13.5px] font-semibold outline-none backdrop-blur-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
                     isActive
-                      ? 'bg-[#0a84ff] text-white shadow-lg shadow-[#0a84ff]/18'
-                      : 'text-[#6e6e73] hover:bg-black/5 hover:text-[#1d1d1f]',
+                      ? 'border-white/50 bg-[#0a84ff]/85 text-white shadow-[0_14px_28px_rgba(10,132,255,0.24),inset_0_1px_0_rgba(255,255,255,0.34)]'
+                      : 'border-transparent text-[#626970] hover:border-white/45 hover:bg-white/[0.34] hover:text-[#1b2228] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.42)]',
                   )}
                   key={id}
                   onClick={() => setActiveCategory(id)}
@@ -358,29 +363,29 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
         ))}
       </aside>
       <main className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="shrink-0 px-5 pb-3 pt-5">
+        <header className="shrink-0 px-6 pb-3 pt-6">
           <div className="flex items-center gap-4">
-            <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl bg-black/7 px-3 text-[#6e6e73]">
+            <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/45 bg-white/[0.32] px-3 text-[#606871] shadow-[0_10px_28px_rgba(35,48,58,0.08),inset_0_1px_0_rgba(255,255,255,0.56)] backdrop-blur-2xl">
               <Search className="size-4 shrink-0" />
               <input
-                className="min-w-0 flex-1 bg-transparent text-[13.5px] text-[#1d1d1f] outline-none placeholder:text-[#8d9199]"
+                className="min-w-0 flex-1 bg-transparent text-[13.5px] text-[#1b2228] outline-none placeholder:text-[#8d9199]"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="搜索小组件"
                 type="search"
                 value={query}
               />
             </label>
-            <div className="flex shrink-0 items-center gap-1 rounded-lg bg-black/7 p-1">
+            <div className="flex shrink-0 items-center gap-1 rounded-xl border border-white/45 bg-white/[0.28] p-1 shadow-[0_10px_28px_rgba(35,48,58,0.08),inset_0_1px_0_rgba(255,255,255,0.48)] backdrop-blur-2xl">
               {sizeFilters.map((filter) => {
                 const isActive = activeSize === filter.id;
 
                 return (
                   <button
                     className={cx(
-                      'h-8 rounded-md px-3 text-xs font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                      'h-8 rounded-lg px-3 text-xs font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
                       isActive
-                        ? 'bg-[#1d1d1f] text-[#eef0f3]'
-                        : 'text-[#6e6e73] hover:bg-white/65 hover:text-[#1d1d1f]',
+                        ? 'bg-[#15181c]/90 text-white shadow-[0_8px_18px_rgba(20,24,28,0.18),inset_0_1px_0_rgba(255,255,255,0.16)]'
+                        : 'text-[#626970] hover:bg-white/[0.46] hover:text-[#1b2228]',
                     )}
                     key={filter.id}
                     onClick={() => setActiveSize(filter.id)}
@@ -399,10 +404,10 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
               return (
                 <button
                   className={cx(
-                    'h-8 shrink-0 rounded-full border px-4 text-[12.5px] font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                    'h-8 shrink-0 rounded-full border px-4 text-[12.5px] font-semibold outline-none backdrop-blur-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
                     isActive
-                      ? 'border-[#1d1d1f] bg-[#1d1d1f] text-[#eef0f3]'
-                      : 'border-black/10 text-[#6e6e73] hover:border-black/20 hover:bg-white/55 hover:text-[#1d1d1f]',
+                      ? 'border-[#15181c]/90 bg-[#15181c]/90 text-white shadow-[0_10px_22px_rgba(20,24,28,0.18),inset_0_1px_0_rgba(255,255,255,0.16)]'
+                      : 'border-white/45 bg-white/[0.18] text-[#626970] shadow-[inset_0_1px_0_rgba(255,255,255,0.34)] hover:bg-white/[0.38] hover:text-[#1b2228]',
                   )}
                   key={chip.id}
                   onClick={() => setActiveCategory(chip.id)}
@@ -414,9 +419,9 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
             })}
           </div>
         </header>
-        <section className="min-h-0 flex-1 overflow-y-auto px-5 pb-6 [scrollbar-width:thin] [scrollbar-color:rgba(0,0,0,0.15)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/15">
+        <section className="min-h-0 flex-1 overflow-y-auto px-6 pb-7 pt-3 [scrollbar-width:thin] [scrollbar-color:rgba(0,0,0,0.15)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/15">
           {filteredWidgets.length > 0 ? (
-            <div className="[column-count:1] [column-gap:14px] md:[column-count:2] xl:[column-count:3]">
+            <div className="[column-count:1] [column-gap:18px] md:[column-count:2] xl:[column-count:3]">
               {filteredWidgets.map((widget) => (
                 <WidgetCard
                   countOnDesktop={existingWidgetCounts[widget.widgetId] ?? 0}
@@ -455,7 +460,7 @@ function WidgetCard({
   return (
     <button
       className={cx(
-        'group relative mb-[14px] block w-full break-inside-avoid overflow-hidden rounded-[20px] border text-left shadow-[0_1px_2px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.24)] outline-none transition-all duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:shadow-[0_16px_30px_rgba(0,0,0,0.16),inset_0_1px_0_rgba(255,255,255,0.25)] active:scale-[0.965] focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+        'group relative mb-4 block w-full break-inside-avoid overflow-hidden rounded-[22px] border text-left shadow-[0_12px_30px_rgba(30,42,50,0.10),inset_0_1px_0_rgba(255,255,255,0.38)] outline-none transition-all duration-300 will-change-transform hover:-translate-y-0.5 hover:scale-[1.012] hover:shadow-[0_18px_38px_rgba(30,42,50,0.16),inset_0_1px_0_rgba(255,255,255,0.42)] active:scale-[0.975] focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
         added
           ? 'border-[#0a84ff] shadow-[0_0_0_2px_rgba(10,132,255,0.28),0_12px_26px_rgba(0,0,0,0.14)]'
           : 'border-white/55',
