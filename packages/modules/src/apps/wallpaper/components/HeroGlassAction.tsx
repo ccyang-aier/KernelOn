@@ -18,16 +18,16 @@ export function HeroGlassAction({
       data-wallpaper-hero-action-glass={variant}
     >
       <LiquidGlassSvgFilter
-        aberrationIntensity={variant === 'preview' ? 1.72 : 1.62}
-        blurAmount={0.34}
+        aberrationIntensity={variant === 'preview' ? 2.08 : 1.92}
+        blurAmount={0.04}
         className="wallpaper-home__liquid-action-glass"
         containerBorderMode="external"
         cornerRadius={999}
-        displacementScale={variant === 'preview' ? 70 : 64}
-        elasticity={0.12}
+        displacementScale={variant === 'preview' ? 98 : 88}
+        elasticity={0.09}
         mode="prominent"
         padding="0px"
-        saturation={180}
+        saturation={224}
         style={heroActionGlassPlacements[variant]}
       >
         {children}
