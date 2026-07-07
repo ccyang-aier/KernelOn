@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@kernelon/shell": "workspace:*",
+    "@kernelon/ui": "workspace:*",
     "lucide-react": "^1.21.0"
   },
   "peerDependencies": {

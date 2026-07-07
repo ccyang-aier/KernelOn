@@ -1,7 +1,13 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Heart, Play } from 'lucide-react';
-import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import {
+  type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from 'react';
+
+import { LiquidGlassSvgFilter } from '@kernelon/ui';
 
 import type { HeroSlide, RecommendedWallpaperSection } from '../types';
 
@@ -75,25 +81,34 @@ export function HomeView({
             <span className="wallpaper-home__badge">4K</span>
           </div>
           <div className="wallpaper-home__actions">
-            <button onClick={() => onPreview(activeHero.id)} type="button">
-              <Play aria-hidden="true" className="wallpaper-icon wallpaper-icon--fill" />
-              View Wallper
-            </button>
-            <button
-              aria-pressed={likedIds.has(activeHero.id)}
-              onClick={() => onLike(activeHero.id)}
-              type="button"
-            >
-              <Heart
-                aria-hidden="true"
-                className={
-                  likedIds.has(activeHero.id)
-                    ? 'wallpaper-icon wallpaper-icon--fill'
-                    : 'wallpaper-icon'
-                }
-              />
-              {likedIds.has(activeHero.id) ? activeHero.likes + 1 : activeHero.likes}
-            </button>
+            <HeroGlassAction variant="preview">
+              <button
+                className="wallpaper-home__glass-button wallpaper-home__glass-button--preview"
+                onClick={() => onPreview(activeHero.id)}
+                type="button"
+              >
+                <Play aria-hidden="true" className="wallpaper-icon wallpaper-icon--fill" />
+                View Wallper
+              </button>
+            </HeroGlassAction>
+            <HeroGlassAction variant="like">
+              <button
+                aria-pressed={likedIds.has(activeHero.id)}
+                className="wallpaper-home__glass-button wallpaper-home__glass-button--like"
+                onClick={() => onLike(activeHero.id)}
+                type="button"
+              >
+                <Heart
+                  aria-hidden="true"
+                  className={
+                    likedIds.has(activeHero.id)
+                      ? 'wallpaper-icon wallpaper-icon--fill'
+                      : 'wallpaper-icon'
+                  }
+                />
+                {likedIds.has(activeHero.id) ? activeHero.likes + 1 : activeHero.likes}
+              </button>
+            </HeroGlassAction>
           </div>
         </div>
 
@@ -175,3 +190,49 @@ export function HomeView({
     </section>
   );
 }
+
+type HeroGlassActionVariant = 'preview' | 'like';
+
+function HeroGlassAction({
+  children,
+  variant,
+}: Readonly<{
+  children: ReactNode;
+  variant: HeroGlassActionVariant;
+}>) {
+  return (
+    <span
+      className={`wallpaper-home__glass-action wallpaper-home__glass-action--${variant}`}
+      data-wallpaper-hero-action-glass={variant}
+    >
+      <LiquidGlassSvgFilter
+        aberrationIntensity={1.35}
+        blurAmount={0.24}
+        className="wallpaper-home__liquid-action-glass"
+        containerBorderMode="built-in"
+        cornerRadius={999}
+        displacementScale={54}
+        elasticity={0.09}
+        mode="standard"
+        padding="0px"
+        saturation={162}
+        style={heroActionGlassPlacements[variant]}
+      >
+        {children}
+      </LiquidGlassSvgFilter>
+    </span>
+  );
+}
+
+const heroActionGlassPlacements = {
+  preview: {
+    position: 'absolute',
+    left: 95,
+    top: 21,
+  },
+  like: {
+    position: 'absolute',
+    left: 40,
+    top: 21,
+  },
+} as const;
