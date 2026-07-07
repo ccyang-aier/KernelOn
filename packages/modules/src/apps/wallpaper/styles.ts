@@ -152,6 +152,8 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-tra
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] [role="group"] {
   position: relative;
   overflow: hidden;
+  display: inline-flex;
+  align-items: center;
   height: 42px;
   gap: 0;
   padding: 4px;
@@ -196,11 +198,36 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   opacity: 1;
 }
 
+section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-indicator="true"] {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  z-index: 0;
+  width: 94px;
+  border-radius: 999px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.18) 42%, rgba(125, 211, 252, 0.16)),
+    rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.44),
+    inset 0 -10px 24px rgba(255, 255, 255, 0.08),
+    0 8px 22px rgba(0, 0, 0, 0.24),
+    0 0 18px rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, width, filter;
+}
+
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] button {
   position: relative;
   z-index: 1;
+  overflow: hidden;
+  display: inline-flex;
   height: 34px;
   min-width: 94px;
+  align-items: center;
+  justify-content: center;
   padding: 0 20px;
   border: 0 !important;
   border-radius: 999px;
@@ -211,26 +238,39 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   font-weight: 700;
   transition:
     transform 200ms ease,
-    background 200ms ease,
-    box-shadow 200ms ease,
     color 200ms ease;
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] button[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.22) !important;
+  background: transparent !important;
   color: #fff !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 6px 16px rgba(0, 0, 0, 0.16) !important;
+  box-shadow: none !important;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.36);
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] button:not([aria-pressed="true"]):hover {
-  background: rgba(255, 255, 255, 0.10) !important;
+  background: transparent !important;
   color: #fff !important;
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] button:active {
   transform: scale(0.98);
+}
+
+section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-pulse="true"] {
+  position: absolute;
+  inset: -8px;
+  z-index: 10;
+  border-radius: 999px;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.16) 42%, rgba(125, 211, 252, 0) 70%);
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-button="true"] > span:last-child {
+  position: relative;
+  z-index: 20;
 }
 
 .wallpaper-ux {
