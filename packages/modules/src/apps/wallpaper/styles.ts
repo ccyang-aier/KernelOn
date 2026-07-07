@@ -340,8 +340,8 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.08) 48%, rgba(0, 0, 0, 0.38) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.18) 50%, rgba(11, 5, 8, 0.86) 82%, rgba(7, 6, 8, 1) 100%);
+    linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.06) 48%, rgba(0, 0, 0, 0.26) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.08) 48%, rgba(12, 8, 11, 0.34) 84%, rgba(13, 9, 12, 0.48) 100%);
 }
 
 .wallpaper-home__content {
