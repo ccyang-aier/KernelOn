@@ -1,14 +1,9 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Heart, Play } from 'lucide-react';
-import {
-  type CSSProperties,
-  type KeyboardEvent as ReactKeyboardEvent,
-  type ReactNode,
-} from 'react';
+import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 
-import { LiquidGlassSvgFilter } from '@kernelon/ui';
-
+import { HeroGlassAction } from './HeroGlassAction';
 import type { HeroSlide, RecommendedWallpaperSection } from '../types';
 
 export function HomeView({
@@ -88,7 +83,7 @@ export function HomeView({
                 type="button"
               >
                 <Play aria-hidden="true" className="wallpaper-icon wallpaper-icon--fill" />
-                View Wallper
+                <span>View Wallper</span>
               </button>
             </HeroGlassAction>
             <HeroGlassAction variant="like">
@@ -106,7 +101,7 @@ export function HomeView({
                       : 'wallpaper-icon'
                   }
                 />
-                {likedIds.has(activeHero.id) ? activeHero.likes + 1 : activeHero.likes}
+                <span>{likedIds.has(activeHero.id) ? activeHero.likes + 1 : activeHero.likes}</span>
               </button>
             </HeroGlassAction>
           </div>
@@ -190,49 +185,3 @@ export function HomeView({
     </section>
   );
 }
-
-type HeroGlassActionVariant = 'preview' | 'like';
-
-function HeroGlassAction({
-  children,
-  variant,
-}: Readonly<{
-  children: ReactNode;
-  variant: HeroGlassActionVariant;
-}>) {
-  return (
-    <span
-      className={`wallpaper-home__glass-action wallpaper-home__glass-action--${variant}`}
-      data-wallpaper-hero-action-glass={variant}
-    >
-      <LiquidGlassSvgFilter
-        aberrationIntensity={1.35}
-        blurAmount={0.24}
-        className="wallpaper-home__liquid-action-glass"
-        containerBorderMode="external"
-        cornerRadius={999}
-        displacementScale={54}
-        elasticity={0.09}
-        mode="standard"
-        padding="0px"
-        saturation={162}
-        style={heroActionGlassPlacements[variant]}
-      >
-        {children}
-      </LiquidGlassSvgFilter>
-    </span>
-  );
-}
-
-const heroActionGlassPlacements = {
-  preview: {
-    position: 'absolute',
-    left: 95,
-    top: 21,
-  },
-  like: {
-    position: 'absolute',
-    left: 40,
-    top: 21,
-  },
-} as const;

@@ -191,6 +191,7 @@ export function AppHeaderItems({
 
 type AppHeaderChromeVariant = 'standard' | 'top-layer';
 type AppHeaderSegmentItem = Extract<AppHeaderItem, { type: 'segment' }>;
+type AppHeaderSegmentOption = AppHeaderSegmentItem['options'][number];
 type AppHeaderGsap = (typeof import('gsap'))['gsap'];
 
 interface AppHeaderTimeline {
@@ -224,16 +225,16 @@ function TopLayerIconGlassButton({
       onPointerDown={stopHeaderControlDrag}
     >
       <LiquidGlassSvgFilter
-        aberrationIntensity={1.35}
-        blurAmount={0.24}
+        aberrationIntensity={1.7}
+        blurAmount={0.31}
         className={topLayerIconGlassClassName}
         containerBorderMode="external"
         cornerRadius={999}
-        displacementScale={56}
-        elasticity={0.08}
-        mode="standard"
+        displacementScale={64}
+        elasticity={0.1}
+        mode="prominent"
         padding="0px"
-        saturation={162}
+        saturation={180}
         style={topLayerIconGlassPlacement}
       >
         <AppHeaderButton
@@ -264,78 +265,95 @@ function TopLayerSegmentedControl({
   windowId: string;
 }>) {
   const segmentWidth =
-    item.options.length * TOP_LAYER_SEGMENT_BUTTON_WIDTH + TOP_LAYER_SEGMENT_GROUP_PADDING * 2;
+    item.options.length * TOP_LAYER_SEGMENT_BUTTON_WIDTH +
+    Math.max(0, item.options.length - 1) * TOP_LAYER_SEGMENT_BUTTON_GAP;
   const segmentHostStyle = {
     width: segmentWidth,
   } satisfies CSSProperties;
-  const segmentGlassPlacement = {
-    position: 'absolute',
-    left: segmentWidth / 2,
-    top: TOP_LAYER_CONTROL_SIZE / 2,
-  } as const;
 
   return (
     <div
-      className={topLayerSegmentHostClassName}
-      data-kernelon-app-header-liquid-segment="true"
+      className={topLayerSegmentGroupHostClassName}
       onPointerDown={stopHeaderControlDrag}
+      role="group"
       style={segmentHostStyle}
     >
+      <div className={topLayerSegmentGroupClassName} data-kernelon-app-header-segment-group="true">
+        {item.options.map((option) => (
+          <TopLayerSegmentButton
+            item={item}
+            key={option.value}
+            onCommand={onCommand}
+            option={option}
+            selected={option.value === item.value}
+            windowId={windowId}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TopLayerSegmentButton({
+  item,
+  onCommand,
+  option,
+  selected,
+  windowId,
+}: Readonly<{
+  item: AppHeaderSegmentItem;
+  onCommand(payload: AppHeaderCommandPayload): void;
+  option: AppHeaderSegmentOption;
+  selected: boolean;
+  windowId: string;
+}>) {
+  return (
+    <span
+      className={topLayerSegmentOptionHostClassName}
+      data-kernelon-app-header-segment-option="true"
+      data-selected={selected ? 'true' : 'false'}
+    >
       <LiquidGlassSvgFilter
-        aberrationIntensity={1.18}
-        blurAmount={0.22}
+        aberrationIntensity={selected ? 1.68 : 1.36}
+        blurAmount={selected ? 0.32 : 0.28}
         className={topLayerSegmentGlassClassName}
         containerBorderMode="external"
         cornerRadius={999}
-        displacementScale={50}
-        elasticity={0.06}
-        mode="standard"
+        displacementScale={selected ? 64 : 54}
+        elasticity={0.09}
+        mode={selected ? 'prominent' : 'standard'}
         padding="0px"
-        saturation={158}
-        style={segmentGlassPlacement}
+        saturation={selected ? 184 : 172}
+        style={topLayerSegmentGlassPlacement}
       >
-        <div
-          className={topLayerSegmentGroupClassName}
-          data-kernelon-app-header-segment-group="true"
-          role="group"
-          style={segmentHostStyle}
+        <button
+          aria-pressed={selected}
+          className={cn(
+            topLayerSegmentButtonClassName,
+            selected ? topLayerSegmentButtonActiveClassName : '',
+          )}
+          data-kernelon-app-header-segment-button="true"
+          onClick={(event) => {
+            playTopLayerSegmentPress(event);
+            onCommand({
+              commandId: item.commandId ?? `${item.id}.change`,
+              itemId: item.id,
+              type: 'segment',
+              value: option.value,
+              windowId,
+            });
+          }}
+          type="button"
         >
-          {item.options.map((option) => {
-            const selected = option.value === item.value;
-
-            return (
-              <button
-                aria-pressed={selected}
-                className={cn(
-                  topLayerSegmentButtonClassName,
-                  selected ? topLayerSegmentButtonActiveClassName : '',
-                )}
-                data-kernelon-app-header-segment-button="true"
-                key={option.value}
-                onClick={(event) => {
-                  playTopLayerSegmentPress(event);
-                  onCommand({
-                    commandId: item.commandId ?? `${item.id}.change`,
-                    itemId: item.id,
-                    type: 'segment',
-                    value: option.value,
-                    windowId,
-                  });
-                }}
-                type="button"
-              >
-                <span
-                  aria-hidden="true"
-                  className={topLayerSegmentPulseClassName}
-                  data-kernelon-app-header-segment-pulse="true"
-                />
-                <span className="relative z-20">{option.label}</span>
-              </button>
-            );
-          })}
-        </div>
+          <span
+            aria-hidden="true"
+            className={topLayerSegmentPulseClassName}
+            data-kernelon-app-header-segment-pulse="true"
+          />
+          <span className="relative z-20">{option.label}</span>
+        </button>
       </LiquidGlassSvgFilter>
-    </div>
+    </span>
   );
 }
 
@@ -372,7 +390,7 @@ function animateTopLayerSegmentPress({
           .fromTo(
             pulse,
             { autoAlpha: 0, scale: 0.84 },
-            { autoAlpha: 0.32, duration: 0.1, scale: 1 },
+            { autoAlpha: 0.18, duration: 0.1, scale: 1 },
             0,
           )
           .to(pulse, { autoAlpha: 0, duration: 0.2 }, 0.1);
@@ -383,16 +401,16 @@ function animateTopLayerSegmentPress({
           .fromTo(
             pulse,
             { autoAlpha: 0, scale: 0.38 },
-            { autoAlpha: 0.72, duration: 0.14, ease: 'sine.out', scale: 1.04 },
+            { autoAlpha: 0.38, duration: 0.16, ease: 'sine.out', scale: 1.12 },
             0,
           )
-          .to(pulse, { autoAlpha: 0, duration: 0.34, ease: 'power2.out', scale: 1.72 }, 0.08);
+          .to(pulse, { autoAlpha: 0, duration: 0.36, ease: 'power2.out', scale: 1.64 }, 0.08);
       }
 
       timeline
-        .to(button, { duration: 0.08, ease: 'power2.out', scale: 0.94, y: 0.5 }, 0)
-        .to(button, { duration: 0.15, ease: 'back.out(2.4)', scale: 1.05, y: -0.45 }, 0.08)
-        .to(button, { duration: 0.28, ease: 'elastic.out(1.05, 0.62)', scale: 1, y: 0 }, 0.18);
+        .to(button, { duration: 0.1, ease: 'power2.out', scale: 0.97, y: 0.25 }, 0)
+        .to(button, { duration: 0.2, ease: 'back.out(1.7)', scale: 1.025, y: -0.25 }, 0.1)
+        .to(button, { duration: 0.32, ease: 'elastic.out(1, 0.74)', scale: 1, y: 0 }, 0.24);
     }
 
     return {
@@ -415,8 +433,8 @@ function loadAppHeaderGsap(): Promise<AppHeaderGsap> {
 }
 
 const TOP_LAYER_CONTROL_SIZE = 42;
-const TOP_LAYER_SEGMENT_BUTTON_WIDTH = 94;
-const TOP_LAYER_SEGMENT_GROUP_PADDING = 4;
+const TOP_LAYER_SEGMENT_BUTTON_WIDTH = 96;
+const TOP_LAYER_SEGMENT_BUTTON_GAP = 8;
 
 const topLayerIconGlassPlacement = {
   position: 'absolute',
@@ -432,19 +450,28 @@ const topLayerIconGlassClassName = 'z-10 text-white';
 const topLayerIconButtonClassName =
   'relative h-[42px] w-[42px] min-w-[42px] gap-0 overflow-hidden rounded-full border-0 bg-transparent px-0 text-white/92 shadow-none outline-none transition-[transform,color,text-shadow] duration-200 ease-out [text-shadow:0_1px_8px_rgba(0,0,0,0.36)] hover:-translate-y-0.5 hover:text-white hover:[text-shadow:0_0_12px_rgba(255,255,255,0.50),0_1px_8px_rgba(0,0,0,0.34)] active:translate-y-0 active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-white/75';
 
-const topLayerSegmentHostClassName =
+const topLayerSegmentGlassPlacement = {
+  position: 'absolute',
+  left: TOP_LAYER_SEGMENT_BUTTON_WIDTH / 2,
+  top: TOP_LAYER_CONTROL_SIZE / 2,
+} as const;
+
+const topLayerSegmentGroupHostClassName =
   'relative h-[42px] shrink-0 overflow-visible';
 
 const topLayerSegmentGlassClassName = 'z-10 text-white';
 
 const topLayerSegmentGroupClassName =
-  'relative inline-flex h-[42px] shrink-0 items-center gap-0 overflow-hidden rounded-full border-0 bg-transparent p-1 shadow-none';
+  'relative inline-flex h-[42px] shrink-0 items-center gap-2 overflow-visible rounded-full border-0 bg-transparent p-0 shadow-none';
+
+const topLayerSegmentOptionHostClassName =
+  'relative h-[42px] w-[96px] shrink-0 overflow-visible';
 
 const topLayerSegmentButtonClassName =
-  'relative z-10 inline-flex h-[34px] min-w-[94px] items-center justify-center overflow-hidden rounded-full border-0 bg-transparent px-5 text-[14px] font-bold text-white/70 shadow-none outline-none transition-[color,text-shadow] duration-200 ease-out hover:text-white focus-visible:ring-2 focus-visible:ring-white/[0.65]';
+  'relative z-10 inline-flex h-[42px] min-w-[96px] items-center justify-center overflow-hidden rounded-full border-0 bg-transparent px-5 text-[14px] font-bold text-white/72 shadow-none outline-none transition-[color,text-shadow,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[1px] hover:text-white focus-visible:ring-2 focus-visible:ring-white/[0.65]';
 
 const topLayerSegmentButtonActiveClassName =
-  'text-white [text-shadow:0_0_12px_rgba(255,255,255,0.36)]';
+  'text-white [text-shadow:0_0_13px_rgba(255,255,255,0.42),0_1px_10px_rgba(0,0,0,0.32)]';
 
 const topLayerSegmentPulseClassName =
-  'pointer-events-none absolute inset-[-8px] z-10 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.58),rgba(255,255,255,0.16)_42%,rgba(125,211,252,0)_70%)] opacity-0 mix-blend-screen';
+  'pointer-events-none absolute inset-[-10px] z-10 rounded-full bg-[radial-gradient(circle_at_center,rgba(232,247,255,0.34),rgba(125,211,252,0.16)_40%,rgba(125,211,252,0)_72%)] opacity-0 mix-blend-screen';
