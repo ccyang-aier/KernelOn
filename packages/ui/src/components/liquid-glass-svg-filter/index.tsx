@@ -195,7 +195,7 @@ const GlassContainer = forwardRef<
       padding = "24px 32px",
       glassSize = { width: 270, height: 69 },
       mode = "standard",
-      containerBorderMode = "built-in",
+      containerBorderMode = "external",
     },
     ref,
   ) => {
@@ -312,7 +312,7 @@ export default function LiquidGlassSvgFilter({
   overLight = false,
   style = {},
   mode = "standard",
-  containerBorderMode = "built-in",
+  containerBorderMode = "external",
 }: LiquidGlassSvgFilterProps) {
   const glassRef = useRef<HTMLDivElement>(null)
   const [glassSize, setGlassSize] = useState({ width: 270, height: 69 })

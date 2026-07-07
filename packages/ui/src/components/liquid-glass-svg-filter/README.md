@@ -48,6 +48,7 @@ export function Example() {
 | `style` | `Pick<CSSProperties, "position" \| "top" \| "left">` | `{}` | 仅用于浮层定位；会忽略 `transform`、`opacity`、`filter`、`overflow`、`isolation` 等可能破坏玻璃材质的样式。 |
 | `overLight` | `boolean` | `false` | 是否位于浅色背景上；开启后会调整阴影、遮罩和位移强度。 |
 | `mode` | `"standard" \| "polar" \| "prominent" \| "shader"` | `"standard"` | 折射模式；前三种使用内置 displacement map，`shader` 使用 Canvas 生成位移图。 |
+| `containerBorderMode` | `"external" \| "built-in"` | `"external"` | 容器边框归属；默认只输出玻璃材质，外框、投影和边界由调用方负责。需要组件自带边框/高光层时显式传入 `"built-in"`。 |
 
 > `LiquidGlassSvgFilter` 只作为视觉 surface 使用，不作为按钮 primitive；需要交互时请在 `children` 内组合真实 `<button>`，或单独封装基于 `<button>` 的 `GlassButton`。
 

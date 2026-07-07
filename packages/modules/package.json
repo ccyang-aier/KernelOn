@@ -36,6 +36,10 @@
       "types": "./src/apps/wallpaper/WallpaperWindow.tsx",
       "import": "./src/apps/wallpaper/WallpaperWindow.tsx"
     },
+    "./widget-manager-window": {
+      "types": "./src/apps/widget-manager/WidgetManagerWindow.tsx",
+      "import": "./src/apps/widget-manager/WidgetManagerWindow.tsx"
+    },
     "./onboarding-progress-widget": {
       "types": "./src/widgets/OnboardingProgressWidget.tsx",
       "import": "./src/widgets/OnboardingProgressWidget.tsx"
@@ -43,6 +47,14 @@
     "./mentor-load-widget": {
       "types": "./src/widgets/MentorLoadWidget.tsx",
       "import": "./src/widgets/MentorLoadWidget.tsx"
+    },
+    "./growth-milestone-widget": {
+      "types": "./src/widgets/GrowthMilestoneWidget.tsx",
+      "import": "./src/widgets/GrowthMilestoneWidget.tsx"
+    },
+    "./training-task-widget": {
+      "types": "./src/widgets/TrainingTaskWidget.tsx",
+      "import": "./src/widgets/TrainingTaskWidget.tsx"
     },
     "./runtime": {
       "types": "./src/runtime.tsx",
@@ -52,7 +64,8 @@
   "dependencies": {
     "@kernelon/shell": "workspace:*",
     "@kernelon/ui": "workspace:*",
-    "lucide-react": "^1.21.0"
+    "lucide-react": "^1.21.0",
+    "motion": "12.42.0"
   },
   "peerDependencies": {
     "react": "^19.0.0",

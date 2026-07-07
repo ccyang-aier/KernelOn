@@ -7,7 +7,9 @@ import {
   createDefaultDesktopScreen,
   doGridAreasOverlap,
   findOverlappingDesktopItems,
+  addDesktopWidgetItem,
   moveDesktopItem,
+  removeDesktopItem,
   type KernelAppManifest,
   type WidgetManifest,
 } from '../src';
@@ -96,6 +98,44 @@ describe('desktop layout helpers', () => {
 
     expect(moved).not.toBe(screen.items);
     expect(moved.find((item) => item.id === 'desktop-item:mentor')?.grid.x).toBe(2);
+  });
+
+  it('adds multiple instances of the same widget with stable unique item ids', () => {
+    const widget: WidgetManifest = {
+      id: 'training-task',
+      name: '培训与打卡',
+      description: '培训任务状态与一键签到签退快速入口',
+      defaultGrid: { x: 0, y: 3, width: 4, height: 2 },
+      runtime: {
+        widget: {
+          loaderKey: 'widget:training-task',
+        },
+      },
+    };
+
+    const firstAdd = addDesktopWidgetItem([], widget, 'screen-home');
+    const secondAdd = addDesktopWidgetItem(firstAdd, widget, 'screen-home', {
+      x: 1,
+      y: 4,
+      width: 4,
+      height: 2,
+    });
+
+    expect(firstAdd).toHaveLength(1);
+    expect(secondAdd).toHaveLength(2);
+    expect(secondAdd.map((item) => item.id)).toEqual([
+      'desktop-item:training-task',
+      'desktop-item:training-task:2',
+    ]);
+    expect(secondAdd[1]?.grid).toEqual({ x: 1, y: 4, width: 4, height: 2 });
+  });
+
+  it('removes desktop items immutably', () => {
+    const screen = createDefaultDesktopScreen(apps);
+    const removed = removeDesktopItem(screen.items, 'desktop-item:onboarding');
+
+    expect(removed).not.toBe(screen.items);
+    expect(removed.map((item) => item.id)).toEqual(['desktop-item:mentor']);
   });
 
   it('finds overlapping grid areas', () => {

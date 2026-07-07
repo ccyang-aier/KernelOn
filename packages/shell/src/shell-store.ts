@@ -1,13 +1,16 @@
 'use client';
 
 import {
+  addDesktopWidgetItem,
   closeWindow,
   createAppRegistry,
   createAppOpenCommands,
   createDefaultDesktopScreen,
   focusWindow,
   minimizeWindow,
+  moveDesktopItem as moveDesktopLayoutItem,
   openWindow,
+  removeDesktopItem as removeDesktopLayoutItem,
   resizeWindow,
   restoreWindow,
   toggleWindowFullscreen,
@@ -16,6 +19,7 @@ import {
 import type {
   AppOpenIntent,
   CommandDefinition,
+  DesktopGridArea,
   DesktopScreen,
   KernelAppManifest,
   WidgetManifest,
@@ -37,6 +41,12 @@ export interface ShellInitialState {
   screens?: DesktopScreen[];
 }
 
+export interface PendingWidgetPlacement {
+  widgetId: string;
+  width: number;
+  height: number;
+}
+
 export interface ShellState {
   currentScreenId: string;
   windows: WindowDescriptor[];
@@ -47,6 +57,13 @@ export interface ShellState {
   widgets: WidgetManifest[];
   commands: CommandDefinition[];
   screens: DesktopScreen[];
+  activeDraggedDesktopItemId: string | null;
+  pendingWidgetPlacement: PendingWidgetPlacement | null;
+  addWidgetToScreen(screenId: string, widgetId: string, grid: DesktopGridArea): void;
+  moveDesktopItem(screenId: string, itemId: string, grid: DesktopGridArea): void;
+  removeDesktopItem(screenId: string, itemId: string): void;
+  setActiveDraggedDesktopItemId(itemId: string | null): void;
+  setPendingWidgetPlacement(item: PendingWidgetPlacement | null): void;
   openApp(appId: string, options?: OpenShellAppOptions): void;
   openAppIntent(intent: AppOpenIntent): void;
   focusWindow(windowId: string): void;
@@ -86,6 +103,52 @@ export function createShellStore(initialState: ShellInitialState) {
         screenName: '新员工工作台',
       }),
     ],
+    activeDraggedDesktopItemId: null,
+    pendingWidgetPlacement: null,
+    addWidgetToScreen: (screenId, widgetId, grid) => {
+      set((state) => {
+        const widget = state.widgets.find((candidate) => candidate.id === widgetId);
+
+        if (!widget) {
+          return {};
+        }
+
+        return {
+          screens: state.screens.map((screen) =>
+            screen.id === screenId
+              ? {
+                  ...screen,
+                  items: addDesktopWidgetItem(screen.items, widget, screenId, grid),
+                }
+              : screen,
+          ),
+        };
+      });
+    },
+    moveDesktopItem: (screenId, itemId, grid) => {
+      set((state) => ({
+        screens: state.screens.map((screen) =>
+          screen.id === screenId
+            ? { ...screen, items: moveDesktopLayoutItem(screen.items, itemId, grid) }
+            : screen,
+        ),
+      }));
+    },
+    removeDesktopItem: (screenId, itemId) => {
+      set((state) => ({
+        screens: state.screens.map((screen) =>
+          screen.id === screenId
+            ? { ...screen, items: removeDesktopLayoutItem(screen.items, itemId) }
+            : screen,
+        ),
+      }));
+    },
+    setActiveDraggedDesktopItemId: (itemId) => {
+      set({ activeDraggedDesktopItemId: itemId });
+    },
+    setPendingWidgetPlacement: (item) => {
+      set({ pendingWidgetPlacement: item });
+    },
     openApp: (appId, options = {}) => {
       const app = appRegistry.require(appId);
 

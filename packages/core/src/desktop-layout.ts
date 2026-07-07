@@ -61,6 +61,28 @@ export function createDesktopWidgetItem(
   };
 }
 
+export function addDesktopWidgetItem(
+  items: DesktopItem[],
+  widget: WidgetManifest,
+  screenId: string,
+  grid: DesktopGridArea = widget.defaultGrid,
+): DesktopItem[] {
+  return [
+    ...items,
+    {
+      id: resolveNextDesktopItemId(`desktop-item:${widget.id}`, items),
+      kind: 'widget',
+      targetId: widget.id,
+      screenId,
+      grid,
+    },
+  ];
+}
+
+export function removeDesktopItem(items: DesktopItem[], itemId: string): DesktopItem[] {
+  return items.filter((item) => item.id !== itemId);
+}
+
 export function createDefaultDesktopScreen(
   apps: KernelAppManifest[],
   options: CreateDesktopLayoutOptions = {},
@@ -104,4 +126,20 @@ export function findOverlappingDesktopItems(
   grid: DesktopGridArea,
 ): DesktopItem[] {
   return items.filter((item) => doGridAreasOverlap(item.grid, grid));
+}
+
+function resolveNextDesktopItemId(baseId: string, items: DesktopItem[]): string {
+  const existingIds = new Set(items.map((item) => item.id));
+
+  if (!existingIds.has(baseId)) {
+    return baseId;
+  }
+
+  for (let index = 2; ; index += 1) {
+    const candidateId = `${baseId}:${index}`;
+
+    if (!existingIds.has(candidateId)) {
+      return candidateId;
+    }
+  }
 }

@@ -23,6 +23,7 @@ export const dockIconAssets = {
   resources: `${ASSET_ROOT}/dock-icons/resources.png`,
   training: `${ASSET_ROOT}/dock-icons/training.png`,
   trash: `${ASSET_ROOT}/dock-icons/trash.png`,
+  'widget-manager': `${ASSET_ROOT}/dock-icons/widget-manager.png`,
 } as const;
 
 export type DockIconAssetKey = keyof typeof dockIconAssets;

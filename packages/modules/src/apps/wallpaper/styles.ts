@@ -129,6 +129,14 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-grou
   backdrop-filter: none !important;
 }
 
+section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-active-indicator="true"] {
+  background: rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -10px 22px rgba(255, 255, 255, 0.07),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.13) !important;
+}
+
 section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-button="true"] {
   position: relative;
   z-index: 1;
@@ -148,10 +156,15 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   font-weight: 700;
 }
 
+section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-button="true"]:hover {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
 section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-button="true"][aria-pressed="true"] {
   background: transparent !important;
   color: #fff !important;
   box-shadow: none !important;
+  text-shadow: 0 1px 14px rgba(255, 255, 255, 0.34);
 }
 
 section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-button="true"] > span:last-child {

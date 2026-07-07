@@ -128,6 +128,24 @@ export const kernelApps: KernelAppManifest[] = [
     },
   },
   {
+    id: 'widget-manager',
+    name: '小组件管理',
+    description: 'KernelOn 小组件管理中心，预览、搜索并放置桌面小组件',
+    priority: 'P2',
+    category: 'system',
+    icon: 'Grid2X2',
+    dockedByDefault: true,
+    runtime: {
+      window: {
+        loaderKey: 'app:widget-manager-window',
+      },
+    },
+    defaultWindow: {
+      title: '小组件管理',
+      bounds: { x: 300, y: 116, width: 760, height: 540 },
+    },
+  },
+  {
     id: 'wallpaper',
     name: '壁纸管理',
     description: '发现、预览、收藏、上传并应用 KernelOn 桌面壁纸',

@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   createContext,
   useCallback,
@@ -25,6 +25,11 @@ import {
 } from './components/desktop-context-menu';
 import { DesktopDock } from './components/desktop-dock';
 import { AppWindowMount, DesktopItemMount } from './components/desktop-mounts';
+import {
+  desktopGridCells,
+  resolveDesktopGridAreaStyle,
+  snapPointerToDesktopGrid,
+} from './components/desktop-grid';
 import { resolveWindowDisplayBounds } from './components/app-window-container';
 import {
   GenieEffectLayer,
@@ -59,7 +64,7 @@ function ShellStoreProvider({
   return <ShellStoreContext.Provider value={store}>{children}</ShellStoreContext.Provider>;
 }
 
-function useShellSelector<T>(selector: (state: ShellState) => T): T {
+export function useShellSelector<T>(selector: (state: ShellState) => T): T {
   const store = useContext(ShellStoreContext);
 
   if (!store) {
@@ -91,11 +96,20 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const windows = useShellSelector((state) => state.windows);
   const dockAppIds = useShellSelector((state) => state.dockAppIds);
   const spotlightOpen = useShellSelector((state) => state.spotlightOpen);
+  const activeDraggedDesktopItemId = useShellSelector((state) => state.activeDraggedDesktopItemId);
+  const pendingWidgetPlacement = useShellSelector((state) => state.pendingWidgetPlacement);
+  const addWidgetToScreen = useShellSelector((state) => state.addWidgetToScreen);
   const closeWindow = useShellSelector((state) => state.closeWindow);
   const focusWindow = useShellSelector((state) => state.focusWindow);
   const minimizeWindow = useShellSelector((state) => state.minimizeWindow);
+  const moveDesktopItem = useShellSelector((state) => state.moveDesktopItem);
   const openApp = useShellSelector((state) => state.openApp);
+  const removeDesktopItem = useShellSelector((state) => state.removeDesktopItem);
   const resizeWindow = useShellSelector((state) => state.resizeWindow);
+  const setActiveDraggedDesktopItemId = useShellSelector(
+    (state) => state.setActiveDraggedDesktopItemId,
+  );
+  const setPendingWidgetPlacement = useShellSelector((state) => state.setPendingWidgetPlacement);
   const toggleWindowFullscreen = useShellSelector((state) => state.toggleWindowFullscreen);
   const toggleLauncher = useShellSelector((state) => state.toggleLauncher);
   const toggleSpotlight = useShellSelector((state) => state.toggleSpotlight);
@@ -104,6 +118,10 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const [desktopContextMenu, setDesktopContextMenu] = useState<DesktopContextMenuPosition | null>(
     null,
   );
+  const [pendingPlacementPointer, setPendingPlacementPointer] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [genieHiddenWindowIds, setGenieHiddenWindowIds] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -118,6 +136,24 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
 
   const handleDesktopPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
+      if (pendingWidgetPlacement && event.button === 0 && event.target === event.currentTarget) {
+        const bounds = event.currentTarget.getBoundingClientRect();
+        const pointer = {
+          x: event.clientX - bounds.left,
+          y: event.clientY - bounds.top,
+        };
+        const grid = snapPointerToDesktopGrid({
+          pointer,
+          size: pendingWidgetPlacement,
+        });
+
+        addWidgetToScreen(currentScreenId, pendingWidgetPlacement.widgetId, grid);
+        setPendingWidgetPlacement(null);
+        setPendingPlacementPointer(null);
+        setDesktopContextMenu(null);
+        return;
+      }
+
       if (event.button !== 0 || event.target !== event.currentTarget) {
         return;
       }
@@ -129,7 +165,29 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
       });
       setDesktopContextMenu(null);
     },
-    [playDesktopClickRipple],
+    [
+      addWidgetToScreen,
+      currentScreenId,
+      pendingWidgetPlacement,
+      playDesktopClickRipple,
+      setPendingWidgetPlacement,
+    ],
+  );
+
+  const handleDesktopPointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      if (!pendingWidgetPlacement) {
+        return;
+      }
+
+      const bounds = event.currentTarget.getBoundingClientRect();
+
+      setPendingPlacementPointer({
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+      });
+    },
+    [pendingWidgetPlacement],
   );
 
   const handleGenieSnapshotReady = useCallback((appId: string, snapshot: HTMLCanvasElement) => {
@@ -276,6 +334,17 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     [beginGenieTransition, endGenieTransition, findDockTarget, minimizeWindow, windows],
   );
 
+  const pendingPlacementGrid =
+    pendingWidgetPlacement && pendingPlacementPointer
+      ? snapPointerToDesktopGrid({
+          pointer: pendingPlacementPointer,
+          size: pendingWidgetPlacement,
+        })
+      : null;
+  const pendingPlacementStyle = pendingPlacementGrid
+    ? resolveDesktopGridAreaStyle(pendingPlacementGrid)
+    : null;
+
   return (
     <main
       ref={liquidGlassContextContainerRef}
@@ -303,11 +372,65 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         data-testid="kernelon-desktop-surface"
         onContextMenu={handleDesktopContextMenu}
         onPointerDown={handleDesktopPointerDown}
+        onPointerMove={handleDesktopPointerMove}
       >
+        <AnimatePresence>
+          {pendingWidgetPlacement || activeDraggedDesktopItemId ? (
+            <motion.div
+              animate={{ opacity: 1 }}
+              className="pointer-events-none absolute inset-0 z-0"
+              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+            >
+              {desktopGridCells.map((cell) => (
+                <div
+                  className="absolute rounded-[24px] border border-dashed border-white/20 bg-white/3 shadow-[inset_0_0_8px_rgba(255,255,255,0.02)]"
+                  key={`${cell.x}-${cell.y}`}
+                  style={resolveDesktopGridAreaStyle({
+                    height: 1,
+                    width: 1,
+                    x: cell.x,
+                    y: cell.y,
+                  })}
+                />
+              ))}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
         <DesktopClickRippleLayer layerRef={desktopClickRippleLayerRef} />
         {desktopItems.map((item) => (
-          <DesktopItemMount item={item} key={item.id} runtime={runtime} widgets={widgets} />
+          <DesktopItemMount
+            item={item}
+            key={item.id}
+            onDragStateChange={setActiveDraggedDesktopItemId}
+            onMoveItem={(itemId, grid) => moveDesktopItem(currentScreenId, itemId, grid)}
+            onRemoveItem={(itemId) => removeDesktopItem(currentScreenId, itemId)}
+            runtime={runtime}
+            widgets={widgets}
+          />
         ))}
+        {pendingWidgetPlacement && pendingPlacementStyle ? (
+          <div
+            className="pointer-events-none absolute z-10 rounded-[24px] border-2 border-dashed border-ko-ring bg-ko-ring/10 shadow-[0_0_20px_rgba(84,179,153,0.15)]"
+            style={pendingPlacementStyle}
+          />
+        ) : null}
+        {pendingWidgetPlacement && pendingPlacementPointer ? (
+          <div
+            className="pointer-events-none absolute z-50 flex items-center justify-center rounded-[24px] border border-white/60 bg-white/40 font-semibold text-ko-ink/90 shadow-[0_12px_28px_rgba(0,0,0,0.15)] backdrop-blur-[8px]"
+            style={{
+              height: pendingPlacementStyle?.height,
+              left: pendingPlacementPointer.x - Number(pendingPlacementStyle?.width ?? 0) / 2,
+              top: pendingPlacementPointer.y - Number(pendingPlacementStyle?.height ?? 0) / 2,
+              width: pendingPlacementStyle?.width,
+            }}
+          >
+            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-white/20 bg-black/48 px-4 py-2.5 text-white shadow-lg backdrop-blur-md">
+              <span className="text-[12px] font-bold">放置小组件</span>
+              <span className="text-[10px] text-white/70">点击桌面确认位置</span>
+            </div>
+          </div>
+        ) : null}
         <AnimatePresence>
           {windows
             .filter((window) => window.status !== 'minimized')
@@ -338,6 +461,10 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
             mouseContainer={liquidGlassContextContainerRef}
             onClose={closeDesktopContextMenu}
             onOpenWallpaper={() => openApp('wallpaper')}
+            onOpenWidgetManager={() => {
+              openApp('widget-manager');
+              closeDesktopContextMenu();
+            }}
             onOpenSpotlight={toggleSpotlight}
             position={desktopContextMenu}
           />

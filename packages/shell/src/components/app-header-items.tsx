@@ -212,6 +212,7 @@ function TopLayerIconGlassButton({
     >
       <LiquidGlassSvgFilter
         className={topLayerIconGlassClassName}
+        containerBorderMode="built-in"
         padding="0px"
         style={topLayerIconGlassPlacement}
       >
@@ -252,6 +253,14 @@ function TopLayerSegmentedControl({
     left: segmentWidth / 2,
     top: TOP_LAYER_CONTROL_SIZE / 2,
   } as const;
+  const selectedIndex = Math.max(
+    0,
+    item.options.findIndex((option) => option.value === item.value),
+  );
+  const segmentIndicatorStyle = {
+    transform: `translate3d(${selectedIndex * TOP_LAYER_SEGMENT_BUTTON_WIDTH}px, 0, 0)`,
+    width: TOP_LAYER_SEGMENT_BUTTON_WIDTH,
+  } satisfies CSSProperties;
 
   return (
     <div
@@ -262,6 +271,7 @@ function TopLayerSegmentedControl({
     >
       <LiquidGlassSvgFilter
         className={topLayerSegmentGlassClassName}
+        containerBorderMode="built-in"
         padding="0px"
         style={segmentGlassPlacement}
       >
@@ -271,11 +281,18 @@ function TopLayerSegmentedControl({
           role="group"
           style={segmentHostStyle}
         >
+          <span
+            aria-hidden="true"
+            className={topLayerSegmentActiveIndicatorClassName}
+            data-kernelon-app-header-segment-active-indicator="true"
+            style={segmentIndicatorStyle}
+          />
           {item.options.map((option) => {
             const selected = option.value === item.value;
 
             return (
               <button
+                aria-current={selected ? 'page' : undefined}
                 aria-pressed={selected}
                 className={cn(
                   topLayerSegmentButtonClassName,
@@ -330,8 +347,11 @@ const topLayerSegmentGlassClassName = 'z-10 text-white';
 const topLayerSegmentGroupClassName =
   'relative inline-flex h-[42px] shrink-0 items-center gap-0 overflow-hidden rounded-full border-0 bg-transparent p-1 shadow-none';
 
+const topLayerSegmentActiveIndicatorClassName =
+  'pointer-events-none absolute left-1 top-1 h-[34px] rounded-full bg-white/[0.13] shadow-[inset_0_1px_0_rgba(255,255,255,0.34),inset_0_-10px_22px_rgba(255,255,255,0.07),inset_0_0_0_1px_rgba(255,255,255,0.13)] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]';
+
 const topLayerSegmentButtonClassName =
-  'relative z-10 inline-flex h-[34px] min-w-[96px] items-center justify-center rounded-full border-0 bg-transparent px-5 text-[14px] font-bold text-white/72 shadow-none outline-none focus-visible:ring-2 focus-visible:ring-white/[0.65]';
+  'relative z-10 inline-flex h-[34px] min-w-[96px] items-center justify-center rounded-full border-0 bg-transparent px-5 text-[14px] font-bold text-white/72 shadow-none outline-none transition-[color,text-shadow] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] after:pointer-events-none after:absolute after:right-0 after:top-2 after:h-5 after:w-px after:bg-white/[0.14] after:opacity-60 last:after:hidden hover:text-white/90 focus-visible:ring-2 focus-visible:ring-white/[0.65]';
 
 const topLayerSegmentButtonActiveClassName =
-  'text-white';
+  'text-white [text-shadow:0_1px_14px_rgba(255,255,255,0.34)]';

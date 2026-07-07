@@ -162,6 +162,7 @@ interface KernelOnDesktopContextMenuProps {
   mouseContainer: RefObject<HTMLElement | null>;
   onClose(): void;
   onOpenWallpaper(): void;
+  onOpenWidgetManager(): void;
   onOpenSpotlight(): void;
 }
 
@@ -170,6 +171,7 @@ export function KernelOnDesktopContextMenu({
   mouseContainer,
   onClose,
   onOpenWallpaper,
+  onOpenWidgetManager,
   onOpenSpotlight,
 }: KernelOnDesktopContextMenuProps) {
   const [hoveredMenuItem, setHoveredMenuItem] = useState<string | null>(null);
@@ -203,6 +205,10 @@ export function KernelOnDesktopContextMenu({
   function handleSubmenuItemClick(itemKey: string) {
     if (itemKey === 'wallpaper') {
       onOpenWallpaper();
+    }
+
+    if (itemKey === 'widgets') {
+      onOpenWidgetManager();
     }
 
     onClose();

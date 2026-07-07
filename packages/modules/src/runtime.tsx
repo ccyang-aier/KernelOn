@@ -19,11 +19,14 @@ const appWindowLoaders = {
   'app:dashboard-window': () => import('./apps/dashboard/DashboardWindow'),
   'app:resources-window': () => import('./apps/resources/ResourcesWindow'),
   'app:wallpaper-window': () => import('./apps/wallpaper/WallpaperWindow'),
+  'app:widget-manager-window': () => import('./apps/widget-manager/WidgetManagerWindow'),
 } satisfies Record<string, () => Promise<AppWindowModule>>;
 
 const widgetLoaders = {
   'widget:onboarding-progress': () => import('./widgets/OnboardingProgressWidget'),
   'widget:mentor-load': () => import('./widgets/MentorLoadWidget'),
+  'widget:growth-milestone': () => import('./widgets/GrowthMilestoneWidget'),
+  'widget:training-task': () => import('./widgets/TrainingTaskWidget'),
 } satisfies Record<string, () => Promise<WidgetModule>>;
 
 export const kernelModuleRuntime: ShellRuntimeRegistry = {

@@ -19,6 +19,7 @@ export function HeroGlassAction({
     >
       <LiquidGlassSvgFilter
         className="wallpaper-home__liquid-action-glass"
+        containerBorderMode="built-in"
         padding="0px"
         style={heroActionGlassPlacements[variant]}
       >
