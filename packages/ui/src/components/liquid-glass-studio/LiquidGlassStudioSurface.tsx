@@ -57,67 +57,79 @@ const tonePresets: Record<
     shadowExpand: number;
     shadowFactor: number;
     shadowPosition: [number, number];
+    shaderOpacity: number;
+    shaderStep: number;
+    shapeInset: number;
     shapeRoundness: number;
   }
 > = {
   header: {
-    blurRadius: 7,
-    tint: [0.98, 1, 1, 0.1],
-    refThickness: 18,
-    refFactor: 1.36,
-    refDispersion: 8,
-    refFresnelRange: 34,
-    refFresnelHardness: 0.18,
-    refFresnelFactor: 0.28,
-    glareRange: 34,
-    glareHardness: 0.2,
-    glareConvergence: 0.48,
-    glareOppositeFactor: 0.74,
-    glareFactor: 0.78,
+    blurRadius: 3,
+    tint: [1, 1, 1, 0.024],
+    refThickness: 8,
+    refFactor: 1.12,
+    refDispersion: 1.2,
+    refFresnelRange: 62,
+    refFresnelHardness: 0.04,
+    refFresnelFactor: 0.055,
+    glareRange: 68,
+    glareHardness: 0.045,
+    glareConvergence: 0.28,
+    glareOppositeFactor: 0.35,
+    glareFactor: 0.11,
     glareAngle: -0.82,
-    shadowExpand: 26,
-    shadowFactor: 0.13,
-    shadowPosition: [0, -6],
+    shadowExpand: 18,
+    shadowFactor: 0,
+    shadowPosition: [0, 0],
+    shaderOpacity: 0.52,
+    shaderStep: 6,
+    shapeInset: 1.5,
     shapeRoundness: 5.2,
   },
   hero: {
-    blurRadius: 9,
-    tint: [0.88, 0.98, 1, 0.13],
-    refThickness: 22,
-    refFactor: 1.42,
-    refDispersion: 10,
-    refFresnelRange: 30,
-    refFresnelHardness: 0.16,
-    refFresnelFactor: 0.34,
-    glareRange: 36,
-    glareHardness: 0.18,
-    glareConvergence: 0.52,
-    glareOppositeFactor: 0.8,
-    glareFactor: 0.84,
+    blurRadius: 4,
+    tint: [0.96, 1, 1, 0.032],
+    refThickness: 9,
+    refFactor: 1.14,
+    refDispersion: 1.5,
+    refFresnelRange: 58,
+    refFresnelHardness: 0.045,
+    refFresnelFactor: 0.07,
+    glareRange: 64,
+    glareHardness: 0.05,
+    glareConvergence: 0.3,
+    glareOppositeFactor: 0.38,
+    glareFactor: 0.14,
     glareAngle: -0.74,
-    shadowExpand: 30,
-    shadowFactor: 0.15,
-    shadowPosition: [0, -7],
+    shadowExpand: 20,
+    shadowFactor: 0,
+    shadowPosition: [0, 0],
+    shaderOpacity: 0.56,
+    shaderStep: 6,
+    shapeInset: 1.5,
     shapeRoundness: 5.4,
   },
   subtle: {
-    blurRadius: 5,
-    tint: [1, 1, 1, 0.07],
-    refThickness: 14,
-    refFactor: 1.28,
-    refDispersion: 5,
-    refFresnelRange: 42,
-    refFresnelHardness: 0.2,
-    refFresnelFactor: 0.2,
-    glareRange: 42,
-    glareHardness: 0.24,
-    glareConvergence: 0.42,
-    glareOppositeFactor: 0.64,
-    glareFactor: 0.58,
+    blurRadius: 2,
+    tint: [1, 1, 1, 0.018],
+    refThickness: 7,
+    refFactor: 1.1,
+    refDispersion: 0.8,
+    refFresnelRange: 70,
+    refFresnelHardness: 0.035,
+    refFresnelFactor: 0.04,
+    glareRange: 76,
+    glareHardness: 0.04,
+    glareConvergence: 0.24,
+    glareOppositeFactor: 0.3,
+    glareFactor: 0.08,
     glareAngle: -0.72,
-    shadowExpand: 22,
-    shadowFactor: 0.09,
-    shadowPosition: [0, -4],
+    shadowExpand: 16,
+    shadowFactor: 0,
+    shadowPosition: [0, 0],
+    shaderOpacity: 0.46,
+    shaderStep: 6,
+    shapeInset: 1.5,
     shapeRoundness: 5,
   },
 };
@@ -186,6 +198,8 @@ export function LiquidGlassStudioSurface({
       const sample = getBackgroundSample(surface, backgroundHostRef.current);
       const blurWeights = computeGaussianKernelByRadius(preset.blurRadius);
       const center: [number, number] = [pixelWidth / 2, pixelHeight / 2];
+      const shapeWidth = Math.max(1, width - preset.shapeInset * 2);
+      const shapeHeight = Math.max(1, height - preset.shapeInset * 2);
 
       renderer.setUniforms({
         u_resolution: [pixelWidth, pixelHeight],
@@ -194,9 +208,9 @@ export function LiquidGlassStudioSurface({
         u_blurWeights: blurWeights,
         u_mouse: center,
         u_mouseSpring: center,
-        u_shapeWidth: width,
-        u_shapeHeight: height,
-        u_shapeRadius: Math.min(radius, Math.min(width, height) / 2),
+        u_shapeWidth: shapeWidth,
+        u_shapeHeight: shapeHeight,
+        u_shapeRadius: Math.min(radius, Math.min(shapeWidth, shapeHeight) / 2),
         u_shapeRoundness: preset.shapeRoundness,
         u_mergeRate: 0,
         u_showShape1: 0,
@@ -230,7 +244,7 @@ export function LiquidGlassStudioSurface({
           u_glareFactor: preset.glareFactor,
           u_glareAngle: preset.glareAngle,
           u_blurEdge: 1,
-          STEP: 9,
+          STEP: preset.shaderStep,
         },
       });
     };
@@ -297,6 +311,7 @@ export function LiquidGlassStudioSurface({
       data-interactive={interactive ? 'true' : undefined}
       data-render-mode={renderMode}
       data-slot="liquid-glass-studio-surface"
+      data-tone={tone}
       ref={surfaceRef}
       style={rootStyle}
     >
@@ -305,12 +320,12 @@ export function LiquidGlassStudioSurface({
         className="ko-liquid-glass-studio-surface__canvas"
         data-slot="liquid-glass-studio-surface-canvas"
         ref={canvasRef}
-        style={canvasStyle}
+        style={{ ...canvasStyle, opacity: renderMode === 'shader' ? preset.shaderOpacity : 0 }}
       />
       <span
         aria-hidden="true"
         data-slot="liquid-glass-studio-surface-fallback"
-        style={fallbackStyle}
+        style={renderMode === 'shader' ? shaderBaseStyle : fallbackStyle}
       />
       <span
         aria-hidden="true"
@@ -370,20 +385,32 @@ function clamp01(value: number) {
 const canvasStyle: CSSProperties = {
   height: '100%',
   inset: 0,
-  opacity: 0.9,
   pointerEvents: 'none',
   position: 'absolute',
   width: '100%',
   zIndex: 1,
 };
 
-const fallbackStyle: CSSProperties = {
+const shaderBaseStyle: CSSProperties = {
   background:
-    'linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0.07) 54%, rgba(255,255,255,0.14))',
-  backdropFilter: 'blur(18px) saturate(1.22)',
+    'linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.045) 56%, rgba(255,255,255,0.105))',
+  backdropFilter: 'blur(10px) saturate(1.08)',
   borderRadius: 'var(--ko-studio-glass-radius)',
   boxShadow:
-    'inset 0 1px 0 rgba(255,255,255,0.34), inset 0 -1px 0 rgba(255,255,255,0.16), inset 0 0 22px rgba(255,255,255,0.08)',
+    'inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -1px 0 rgba(255,255,255,0.12), inset 0 0 16px rgba(255,255,255,0.055), 0 7px 16px rgba(0,0,0,0.12)',
+  inset: 0,
+  pointerEvents: 'none',
+  position: 'absolute',
+  zIndex: 0,
+};
+
+const fallbackStyle: CSSProperties = {
+  background:
+    'linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06) 54%, rgba(255,255,255,0.12))',
+  backdropFilter: 'blur(16px) saturate(1.14)',
+  borderRadius: 'var(--ko-studio-glass-radius)',
+  boxShadow:
+    'inset 0 1px 0 rgba(255,255,255,0.34), inset 0 -1px 0 rgba(255,255,255,0.12), inset 0 0 18px rgba(255,255,255,0.06), 0 7px 16px rgba(0,0,0,0.12)',
   inset: 0,
   pointerEvents: 'none',
   position: 'absolute',
@@ -391,9 +418,9 @@ const fallbackStyle: CSSProperties = {
 };
 
 const rimStyle: CSSProperties = {
-  border: '1px solid rgba(255,255,255,0.22)',
+  border: '1px solid rgba(255,255,255,0.28)',
   borderRadius: 'var(--ko-studio-glass-radius)',
-  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.07)',
+  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)',
   inset: 0,
   pointerEvents: 'none',
   position: 'absolute',

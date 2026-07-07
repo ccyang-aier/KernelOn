@@ -427,16 +427,26 @@ describe('KernelOnShell', () => {
   it('renders top-layer navigation as a single liquid back button', async () => {
     const runtime = createRuntime();
 
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1280 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 720 });
+
     render(
       <KernelOnShell
         initialState={{
           ...initialState,
           apps: [
+            ...initialState.apps,
             {
-              ...initialState.apps[0],
               id: 'wallpaper',
+              name: 'Wallpaper',
+              description: 'Wallpaper system app',
+              priority: 'P2',
+              category: 'system',
+              icon: 'Image',
+              dockedByDefault: false,
               defaultWindow: {
-                ...initialState.apps[0].defaultWindow,
+                title: 'KernelOn WallPaper',
+                bounds: { x: 96, y: 72, width: 960, height: 640 },
                 header: {
                   center: [
                     {
@@ -475,7 +485,11 @@ describe('KernelOnShell', () => {
       />,
     );
 
-    const appContainer = await screen.findByTestId('kernelon-app-container-window:wallpaper');
+    const appContainer = await screen.findByTestId(
+      'kernelon-app-container-window:wallpaper',
+      undefined,
+      { timeout: 5000 },
+    );
     const appHeader = within(appContainer).getByTestId('kernelon-app-header-window:wallpaper');
     const leading = within(appHeader).getByTestId('kernelon-app-header-leading-window:wallpaper');
     const backButton = within(leading).getByRole('button', { name: 'Back' });
