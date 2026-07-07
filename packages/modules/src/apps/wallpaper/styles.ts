@@ -88,6 +88,14 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-butto
   height: 42px;
 }
 
+section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-segment="true"] .glass__warp,
+section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] .glass__warp {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.055) 46%, rgba(255, 255, 255, 0.13) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.018) 52%, rgba(255, 255, 255, 0.07));
+  background-clip: padding-box;
+}
+
 section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] button {
   width: 42px;
   min-width: 42px;
@@ -402,6 +410,13 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
 .wallpaper-home__glass-action .glass {
   width: 100%;
   height: 42px;
+}
+
+.wallpaper-home__glass-action .glass__warp {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06) 45%, rgba(255, 255, 255, 0.14) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.018) 50%, rgba(255, 255, 255, 0.08));
+  background-clip: padding-box;
 }
 
 .wallpaper-home__glass-action .glass > div {
