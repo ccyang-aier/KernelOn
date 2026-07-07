@@ -531,6 +531,16 @@ export default function LiquidGlassSvgFilter({
     left: baseStyle.left || "50%",
   }
 
+  const builtInBorderStyle: CSSProperties = {
+    ...positionStyles,
+    height: glassSize.height,
+    width: glassSize.width,
+    borderRadius: `${cornerRadius}px`,
+    transform: baseStyle.transform,
+    pointerEvents: "none",
+    boxSizing: "border-box",
+  }
+
   return (
     <div data-slot="liquid-glass-svg-filter" style={hostStyle}>
       {/* Over light effect */}
@@ -578,54 +588,19 @@ export default function LiquidGlassSvgFilter({
 
       {containerBorderMode === "built-in" ? (
         <>
-          {/* Border layer 1 - extracted from glass container */}
           <span
             data-liquid-glass-container-border="screen"
             style={{
-              ...positionStyles,
-              height: glassSize.height,
-              width: glassSize.width,
-              borderRadius: `${cornerRadius}px`,
-              transform: baseStyle.transform,
-              pointerEvents: "none",
-              mixBlendMode: "screen",
-              opacity: 0.2,
-              padding: "1.5px",
-              WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-              WebkitMaskComposite: "xor",
-              maskComposite: "exclude",
-              background: `linear-gradient(
-              ${135 + mouseOffset.x * 1.2}deg,
-              rgba(255, 255, 255, 0.0) 0%,
-              rgba(255, 255, 255, ${0.12 + Math.abs(mouseOffset.x) * 0.008}) ${Math.max(10, 33 + mouseOffset.y * 0.3)}%,
-              rgba(255, 255, 255, ${0.4 + Math.abs(mouseOffset.x) * 0.012}) ${Math.min(90, 66 + mouseOffset.y * 0.4)}%,
-              rgba(255, 255, 255, 0.0) 100%
-            )`,
+              ...builtInBorderStyle,
+              border: "1px solid rgba(255, 255, 255, 0.48)",
             }}
           />
 
-          {/* Border layer 2 - duplicate with mix-blend-overlay */}
           <span
             data-liquid-glass-container-border="overlay"
             style={{
-              ...positionStyles,
-              height: glassSize.height,
-              width: glassSize.width,
-              borderRadius: `${cornerRadius}px`,
-              transform: baseStyle.transform,
-              pointerEvents: "none",
-              mixBlendMode: "overlay",
-              padding: "1.5px",
-              WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-              WebkitMaskComposite: "xor",
-              maskComposite: "exclude",
-              background: `linear-gradient(
-              ${135 + mouseOffset.x * 1.2}deg,
-              rgba(255, 255, 255, 0.0) 0%,
-              rgba(255, 255, 255, ${0.32 + Math.abs(mouseOffset.x) * 0.008}) ${Math.max(10, 33 + mouseOffset.y * 0.3)}%,
-              rgba(255, 255, 255, ${0.6 + Math.abs(mouseOffset.x) * 0.012}) ${Math.min(90, 66 + mouseOffset.y * 0.4)}%,
-              rgba(255, 255, 255, 0.0) 100%
-            )`,
+              ...builtInBorderStyle,
+              border: "1px solid rgba(255, 255, 255, 0.18)",
             }}
           />
         </>
