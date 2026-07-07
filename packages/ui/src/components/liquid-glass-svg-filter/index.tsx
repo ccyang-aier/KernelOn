@@ -222,6 +222,7 @@ const GlassContainer = forwardRef<
           style={{
             borderRadius: `${cornerRadius}px`,
             position: "relative",
+            zIndex: 1,
             display: "inline-flex",
             alignItems: "center",
             gap: "24px",
@@ -258,6 +259,36 @@ const GlassContainer = forwardRef<
             {children}
           </div>
         </div>
+
+        {containerBorderMode === "built-in" ? (
+          <>
+            <span
+              data-liquid-glass-container-border="screen"
+              style={{
+                position: "absolute",
+                inset: 0,
+                zIndex: 2,
+                borderRadius: `${cornerRadius}px`,
+                border: "1px solid rgba(255, 255, 255, 0.48)",
+                boxSizing: "border-box",
+                pointerEvents: "none",
+              }}
+            />
+
+            <span
+              data-liquid-glass-container-border="overlay"
+              style={{
+                position: "absolute",
+                inset: 0,
+                zIndex: 3,
+                borderRadius: `${cornerRadius}px`,
+                border: "1px solid rgba(255, 255, 255, 0.18)",
+                boxSizing: "border-box",
+                pointerEvents: "none",
+              }}
+            />
+          </>
+        ) : null}
       </div>
     )
   },
@@ -531,16 +562,6 @@ export default function LiquidGlassSvgFilter({
     left: baseStyle.left || "50%",
   }
 
-  const builtInBorderStyle: CSSProperties = {
-    ...positionStyles,
-    height: glassSize.height,
-    width: glassSize.width,
-    borderRadius: `${cornerRadius}px`,
-    transform: baseStyle.transform,
-    pointerEvents: "none",
-    boxSizing: "border-box",
-  }
-
   return (
     <div data-slot="liquid-glass-svg-filter" style={hostStyle}>
       {/* Over light effect */}
@@ -585,26 +606,6 @@ export default function LiquidGlassSvgFilter({
       >
         {children}
       </GlassContainer>
-
-      {containerBorderMode === "built-in" ? (
-        <>
-          <span
-            data-liquid-glass-container-border="screen"
-            style={{
-              ...builtInBorderStyle,
-              border: "1px solid rgba(255, 255, 255, 0.48)",
-            }}
-          />
-
-          <span
-            data-liquid-glass-container-border="overlay"
-            style={{
-              ...builtInBorderStyle,
-              border: "1px solid rgba(255, 255, 255, 0.18)",
-            }}
-          />
-        </>
-      ) : null}
 
     </div>
   )
