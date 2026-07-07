@@ -29,8 +29,11 @@ import type {
 } from '@kernelon/core';
 import { createStore } from 'zustand/vanilla';
 
+import { kernelOnDesktopWallpaper } from './visual-assets';
+
 export interface ShellInitialState {
   currentScreenId?: string;
+  desktopWallpaper?: string;
   windows?: WindowDescriptor[];
   launcherOpen?: boolean;
   spotlightOpen?: boolean;
@@ -57,12 +60,14 @@ export interface ShellState {
   widgets: WidgetManifest[];
   commands: CommandDefinition[];
   screens: DesktopScreen[];
+  desktopWallpaper: string;
   activeDraggedDesktopItemId: string | null;
   pendingWidgetPlacement: PendingWidgetPlacement | null;
   addWidgetToScreen(screenId: string, widgetId: string, grid: DesktopGridArea): void;
   moveDesktopItem(screenId: string, itemId: string, grid: DesktopGridArea): void;
   removeDesktopItem(screenId: string, itemId: string): void;
   setActiveDraggedDesktopItemId(itemId: string | null): void;
+  setDesktopWallpaper(wallpaper: string): void;
   setPendingWidgetPlacement(item: PendingWidgetPlacement | null): void;
   openApp(appId: string, options?: OpenShellAppOptions): void;
   openAppIntent(intent: AppOpenIntent): void;
@@ -97,6 +102,7 @@ export function createShellStore(initialState: ShellInitialState) {
     apps: appRegistry.all(),
     widgets: initialState.widgets ?? [],
     commands: initialState.commands ?? createAppOpenCommands(appRegistry.all()),
+    desktopWallpaper: initialState.desktopWallpaper ?? kernelOnDesktopWallpaper,
     screens: initialState.screens ?? [
       createDefaultDesktopScreen([], {
         screenId: currentScreenId,
@@ -145,6 +151,9 @@ export function createShellStore(initialState: ShellInitialState) {
     },
     setActiveDraggedDesktopItemId: (itemId) => {
       set({ activeDraggedDesktopItemId: itemId });
+    },
+    setDesktopWallpaper: (wallpaper) => {
+      set({ desktopWallpaper: wallpaper });
     },
     setPendingWidgetPlacement: (item) => {
       set({ pendingWidgetPlacement: item });

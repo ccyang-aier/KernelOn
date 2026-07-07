@@ -10,6 +10,7 @@ import {
   type ShellInitialState,
   type ShellRuntimeRegistry,
   useAppHeader,
+  useShellSelector,
 } from '../src';
 
 const initialState: ShellInitialState = {
@@ -983,6 +984,82 @@ describe('KernelOnShell', () => {
         top: '46px',
         width: '1156px',
       }),
+    );
+  });
+
+  it('lets a runtime app apply a desktop wallpaper through shell state', async () => {
+    const user = userEvent.setup();
+    const nextWallpaper = '/kernelon-assets/wallpapers/custom-aurora.png';
+    const runtime: ShellRuntimeRegistry = {
+      loadAppWindow: vi.fn(async () => ({
+        default: function TestWallpaperWindow() {
+          const setDesktopWallpaper = useShellSelector((state) => state.setDesktopWallpaper);
+
+          return (
+            <button onClick={() => setDesktopWallpaper(nextWallpaper)} type="button">
+              Apply Aurora
+            </button>
+          );
+        },
+      })),
+      loadWidget: vi.fn(async () => ({
+        default: function TestWidget() {
+          return <div>Lazy onboarding widget</div>;
+        },
+      })),
+    };
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            ...initialState.apps,
+            {
+              id: 'wallpaper',
+              name: 'Wallpaper',
+              description: 'Wallpaper system app',
+              priority: 'P2',
+              category: 'system',
+              icon: 'Image',
+              dockedByDefault: false,
+              runtime: {
+                window: {
+                  loaderKey: 'app:wallpaper-window',
+                },
+              },
+              defaultWindow: {
+                title: 'KernelOn Wallpaper',
+                bounds: { x: 24, y: 14, width: 1240, height: 760 },
+              },
+            },
+          ],
+          windows: [
+            {
+              id: 'window:wallpaper',
+              appId: 'wallpaper',
+              title: 'KernelOn Wallpaper',
+              bounds: { x: 24, y: 14, width: 1240, height: 760 },
+              zIndex: 1,
+              status: 'active',
+              createdAt: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    expect(screen.getByTestId('kernelon-desktop-wallpaper')).toHaveAttribute(
+      'src',
+      '/kernelon-assets/wallpapers/kernelon-flower-wallpaper.png',
+    );
+
+    await user.click(await screen.findByRole('button', { name: 'Apply Aurora' }));
+
+    expect(screen.getByTestId('kernelon-desktop-wallpaper')).toHaveAttribute(
+      'src',
+      nextWallpaper,
     );
   });
 

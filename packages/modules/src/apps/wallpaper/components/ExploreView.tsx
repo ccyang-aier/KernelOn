@@ -65,7 +65,7 @@ export function ExploreView({
         <p>
           Good Night <span aria-hidden="true">{'\u{1F44B}'}</span>
         </p>
-        <h1>Explore Wallper Library</h1>
+        <h1>Explore Wallpaper Library</h1>
         <span>Discover 2.523 stunning live wallpapers curated for your desktop</span>
       </div>
 
@@ -173,6 +173,7 @@ function ExploreCard({
       ) : (
         <img alt="" draggable={false} src={wallpaper.image} />
       )}
+      <span className="wallpaper-explore-card__view">View Wallpaper</span>
       <div className="wallpaper-explore-card__info">
         <h2>{wallpaper.title}</h2>
         <div className="wallpaper-explore-card__meta">

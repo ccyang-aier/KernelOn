@@ -1,14 +1,14 @@
 export const wallpaperStyles = `
 section[data-app-id="wallpaper"] {
-  background: rgba(7, 9, 12, 0.86) !important;
-  border-color: rgba(255, 255, 255, 0.13) !important;
+  background: rgba(7, 9, 12, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
 }
 
 section[data-app-id="wallpaper"][data-window-layer="top"] {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.10),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
-    0 34px 92px rgba(0, 0, 0, 0.42) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 34px 92px rgba(0, 0, 0, 0.30) !important;
 }
 
 section[data-app-id="wallpaper"] > header {
@@ -213,7 +213,9 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
 }
 
 .wallpaper-ux--home::before,
-.wallpaper-ux--home::after {
+.wallpaper-ux--home::after,
+.wallpaper-ux--preview::before,
+.wallpaper-ux--preview::after {
   opacity: 0;
 }
 
@@ -492,6 +494,174 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   background: rgba(255, 255, 255, 0.96);
 }
 
+.wallpaper-preview {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-height: 620px;
+  overflow: hidden;
+  background: #07090b;
+}
+
+.wallpaper-preview__image,
+.wallpaper-preview__placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.01);
+  user-select: none;
+}
+
+.wallpaper-preview__placeholder {
+  display: block;
+  background:
+    radial-gradient(circle at 56% 45%, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0) 18%),
+    #ff696e;
+}
+
+.wallpaper-preview__shade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 28%),
+    linear-gradient(180deg, rgba(7, 9, 12, 0.28) 0%, rgba(7, 9, 12, 0.18) 42%, rgba(7, 9, 12, 0.72) 100%),
+    linear-gradient(90deg, rgba(7, 9, 12, 0.34), rgba(7, 9, 12, 0.03) 44%, rgba(7, 9, 12, 0.32));
+}
+
+.wallpaper-preview__back {
+  position: absolute;
+  top: 82px;
+  left: 30px;
+  z-index: 4;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  background: rgba(16, 19, 22, 0.42);
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 12px 28px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px) saturate(1.18);
+  cursor: pointer;
+}
+
+.wallpaper-preview__back svg {
+  width: 23px;
+  height: 23px;
+  stroke-width: 2.5;
+}
+
+.wallpaper-preview__content {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(66px, 11vh, 112px);
+  z-index: 3;
+  width: min(760px, calc(100% - 72px));
+  transform: translateX(-50%);
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.62);
+}
+
+.wallpaper-preview__content h1 {
+  margin: 0;
+  font-family: var(--wallpaper-display);
+  font-size: clamp(46px, 5.4vw, 76px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.wallpaper-preview__content p {
+  margin: 10px 0 0;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.wallpaper-preview__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 24px;
+}
+
+.wallpaper-preview__meta span {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  background: rgba(18, 22, 26, 0.58);
+  color: rgba(255, 255, 255, 0.86);
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.wallpaper-preview__actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 34px;
+}
+
+.wallpaper-preview__actions::before,
+.wallpaper-preview__actions::after {
+  content: "";
+  display: block;
+  width: min(220px, 24vw);
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.25));
+}
+
+.wallpaper-preview__actions::after {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
+}
+
+.wallpaper-preview__icon-button,
+.wallpaper-preview__apply-button {
+  display: inline-flex;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(14, 18, 22, 0.50);
+  color: rgba(255, 255, 255, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 16px 34px rgba(0, 0, 0, 0.30);
+  backdrop-filter: blur(20px) saturate(1.24);
+  cursor: pointer;
+}
+
+.wallpaper-preview__icon-button {
+  width: 48px;
+  flex: 0 0 48px;
+  padding: 0;
+}
+
+.wallpaper-preview__icon-button svg,
+.wallpaper-preview__apply-button svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 2.35;
+}
+
+.wallpaper-preview__apply-button {
+  gap: 10px;
+  min-width: 230px;
+  padding: 0 22px;
+  font-size: 15px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
 .wallpaper-recommendations {
   position: relative;
   z-index: 3;
@@ -591,54 +761,33 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
 
 .wallpaper-card-glass-label {
   position: absolute;
-  bottom: 16px;
-  left: 30px;
-  min-width: 226px;
-  max-width: calc(100% - 52px);
+  bottom: 14px;
+  left: 50%;
+  min-width: 154px;
+  max-width: calc(100% - 36px);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
   background: rgba(56, 34, 52, 0.48);
-  padding: 12px 24px;
+  padding: 11px 20px;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 16px 34px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(22px);
   opacity: 0;
-  transform: translateY(8px) scale(0.98);
+  transform: translate(-50%, 8px) scale(0.98);
   transition:
     opacity 210ms ease,
     transform 210ms ease;
 }
 
-.wallpaper-carousel-card.has-overlay .wallpaper-card-glass-label,
 .wallpaper-carousel-card.is-selected .wallpaper-card-glass-label,
 .wallpaper-carousel-card:hover .wallpaper-card-glass-label,
 .wallpaper-carousel-card:focus-visible .wallpaper-card-glass-label {
   opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.wallpaper-card-glass-label strong {
-  display: block;
-  font-family: var(--wallpaper-display);
-  font-size: 15px;
-  line-height: 1;
-}
-
-.wallpaper-card-glass-label span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 5px;
-  color: rgba(255, 255, 255, 0.74);
-  font-size: 10px;
-  font-weight: 900;
-}
-
-.wallpaper-card-glass-label i {
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-radius: 99px;
-  background: #21e66a;
+  transform: translate(-50%, 0) scale(1);
 }
 
 .wallpaper-page {
@@ -869,6 +1018,38 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   background:
     radial-gradient(circle at 56% 45%, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0) 18%),
     #ff696e;
+}
+
+.wallpaper-explore-card__view {
+  position: absolute;
+  left: 50%;
+  bottom: 112px;
+  z-index: 2;
+  min-width: 164px;
+  max-width: calc(100% - 38px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(18, 20, 22, 0.54);
+  color: rgba(255, 255, 255, 0.94);
+  padding: 12px 22px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 16px 34px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(22px) saturate(1.2);
+  opacity: 0;
+  transform: translate(-50%, 8px) scale(0.98);
+  transition:
+    opacity 210ms ease,
+    transform 210ms ease;
+}
+
+.wallpaper-explore-card:hover .wallpaper-explore-card__view,
+.wallpaper-explore-card:focus-visible .wallpaper-explore-card__view,
+.wallpaper-explore-card.is-selected .wallpaper-explore-card__view {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
 }
 
 .wallpaper-explore-card__info {

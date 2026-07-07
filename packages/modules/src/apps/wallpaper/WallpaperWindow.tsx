@@ -3,12 +3,14 @@
 import {
   kernelOnDesktopWallpaper,
   useAppHeader,
+  useShellSelector,
   type AppHeaderCommandPayload,
 } from '@kernelon/shell';
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
 import { ExploreView } from './components/ExploreView';
 import { HomeView } from './components/HomeView';
+import { PreviewView } from './components/PreviewView';
 import { SettingsView } from './components/SettingsView';
 import {
   categories,
@@ -22,14 +24,14 @@ import { wallpaperStyles } from './styles';
 import type { CategoryId, ExploreSort, WallpaperAsset, WallpaperView } from './types';
 
 const sortSequence: ExploreSort[] = ['newest', 'liked', 'duration'];
-const wallpaperRootStyle = {
-  '--wallpaper-desktop-bg': `url(${kernelOnDesktopWallpaper})`,
-} as CSSProperties & Record<'--wallpaper-desktop-bg', string>;
 
 export default function WallpaperWindow() {
   const header = useAppHeader();
+  const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
+  const setDesktopWallpaper = useShellSelector((state) => state.setDesktopWallpaper);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [activeView, setActiveView] = useState<WallpaperView>('home');
+  const [previewWallpaperId, setPreviewWallpaperId] = useState<string | null>(null);
   const [heroIndex, setHeroIndex] = useState(0);
   const [query, setQuery] = useState('');
   const [selectedPopularTag, setSelectedPopularTag] = useState('4K');
@@ -49,8 +51,18 @@ export default function WallpaperWindow() {
     [],
   );
   const selectedWallpaper = assetById.get(selectedWallpaperId) ?? wallpaperLibrary[0]!;
+  const previewWallpaper = previewWallpaperId ? assetById.get(previewWallpaperId) : null;
+  const displayedView = previewWallpaper ? 'preview' : activeView;
+  const wallpaperRootStyle = useMemo(
+    () =>
+      ({
+        '--wallpaper-desktop-bg': `url(${desktopWallpaper})`,
+      }) as CSSProperties & Record<'--wallpaper-desktop-bg', string>,
+    [desktopWallpaper],
+  );
 
   const switchView = useCallback((nextView: WallpaperView) => {
+    setPreviewWallpaperId(null);
     setActiveView(nextView);
   }, []);
 
@@ -151,9 +163,31 @@ export default function WallpaperWindow() {
     return () => window.clearInterval(timer);
   }, [activeView, isHeroAutoplayEnabled, selectHeroByDirection]);
 
-  const selectWallpaper = useCallback((wallpaperId: string) => {
+  const previewWallpaperById = useCallback((wallpaperId: string) => {
     setSelectedWallpaperId(wallpaperId);
+    setPreviewWallpaperId(wallpaperId);
   }, []);
+
+  const closePreview = useCallback(() => {
+    setPreviewWallpaperId(null);
+  }, []);
+
+  const applyWallpaper = useCallback(
+    (wallpaperId: string) => {
+      const wallpaper = assetById.get(wallpaperId);
+
+      if (!wallpaper) {
+        return;
+      }
+
+      const nextWallpaper = resolveWallpaperImage(wallpaper);
+
+      setDesktopWallpaper(nextWallpaper);
+      setSelectedWallpaperId(wallpaper.id);
+      setToast(`${wallpaper.title} applied to KernelOn desktop.`);
+    },
+    [assetById, setDesktopWallpaper],
+  );
 
   const toggleLike = useCallback((wallpaperId: string) => {
     setLikedIds((currentIds) => {
@@ -179,32 +213,40 @@ export default function WallpaperWindow() {
 
   return (
     <div
-      className={`wallpaper-ux wallpaper-ux--${activeView}`}
-      data-wallpaper-active-view={activeView}
+      className={`wallpaper-ux wallpaper-ux--${displayedView}`}
+      data-wallpaper-active-view={displayedView}
       data-wallpaper-app="true"
       data-wallpaper-glass-depth={glassDepth}
       data-wallpaper-preview-fit={previewFitMode}
       style={wallpaperRootStyle}
     >
       <style>{wallpaperStyles}</style>
-      {activeView === 'home' ? (
+      {previewWallpaper ? (
+        <PreviewView
+          isApplied={desktopWallpaper === resolveWallpaperImage(previewWallpaper)}
+          isLiked={likedIds.has(previewWallpaper.id)}
+          onApply={applyWallpaper}
+          onBack={closePreview}
+          onLike={toggleLike}
+          wallpaper={previewWallpaper}
+          wallpaperImage={resolveWallpaperImage(previewWallpaper)}
+        />
+      ) : null}
+      {!previewWallpaper && activeView === 'home' ? (
         <HomeView
           heroIndex={heroIndex}
           likedIds={likedIds}
           onHeroDotSelect={selectHeroByIndex}
           onHeroNav={selectHeroByDirection}
           onLike={toggleLike}
-          onPreview={(wallpaperId) => {
-            selectWallpaper(wallpaperId);
-            setToast(`${assetById.get(wallpaperId)?.title ?? 'Wallpaper'} is selected.`);
-          }}
-          onRecommendationSelect={selectWallpaper}
+          onPreview={previewWallpaperById}
+          onRecommendationPreview={previewWallpaperById}
           recommendationSections={recommendationSections}
           selectedRecommendedId={selectedWallpaperId}
           slides={heroSlides}
         />
       ) : null}
-      {activeView === 'explore' ? (
+      {!previewWallpaper && activeView === 'explore' ? (
         <ExploreView
           categories={categories}
           likedIds={likedIds}
@@ -212,7 +254,7 @@ export default function WallpaperWindow() {
           onLike={toggleLike}
           onPopularTagChange={setSelectedPopularTag}
           onQueryChange={setQuery}
-          onSelectWallpaper={selectWallpaper}
+          onSelectWallpaper={previewWallpaperById}
           onSortCycle={cycleSort}
           popularTags={popularTags}
           query={query}
@@ -225,7 +267,7 @@ export default function WallpaperWindow() {
           wallpapers={visibleExploreWallpapers}
         />
       ) : null}
-      {activeView === 'settings' ? (
+      {!previewWallpaper && activeView === 'settings' ? (
         <SettingsView
           glassDepth={glassDepth}
           isHeroAutoplayEnabled={isHeroAutoplayEnabled}
@@ -263,4 +305,8 @@ function normalizeIndex(index: number, total: number): number {
   }
 
   return (index + total) % total;
+}
+
+function resolveWallpaperImage(wallpaper: WallpaperAsset): string {
+  return wallpaper.image || kernelOnDesktopWallpaper;
 }

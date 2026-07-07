@@ -13,7 +13,7 @@ export function HomeView({
   onHeroNav,
   onLike,
   onPreview,
-  onRecommendationSelect,
+  onRecommendationPreview,
   recommendationSections,
   selectedRecommendedId,
   slides,
@@ -24,7 +24,7 @@ export function HomeView({
   onHeroNav(direction: 1 | -1): void;
   onLike(id: string): void;
   onPreview(id: string): void;
-  onRecommendationSelect(wallpaperId: string): void;
+  onRecommendationPreview(wallpaperId: string): void;
   recommendationSections: RecommendedWallpaperSection[];
   selectedRecommendedId: string;
   slides: HeroSlide[];
@@ -83,7 +83,7 @@ export function HomeView({
                 type="button"
               >
                 <Play aria-hidden="true" className="wallpaper-icon wallpaper-icon--fill" />
-                <span>View Wallper</span>
+                <span>View Wallpaper</span>
               </button>
             </HeroGlassAction>
             <HeroGlassAction variant="like">
@@ -149,32 +149,24 @@ export function HomeView({
               </h2>
             </div>
             <div className="wallpaper-carousel">
-              {section.items.map((item, index) => {
+              {section.items.map((item) => {
                 const selected = selectedRecommendedId === item.sourceWallpaperId;
-                const featured = index === 0;
 
                 return (
                   <button
                     aria-pressed={selected}
                     className={[
                       'wallpaper-carousel-card',
-                      featured ? 'has-overlay' : '',
                       selected ? 'is-selected' : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
                     key={item.id}
-                    onClick={() => onRecommendationSelect(item.sourceWallpaperId)}
+                    onClick={() => onRecommendationPreview(item.sourceWallpaperId)}
                     type="button"
                   >
                     <img alt="" draggable={false} src={item.image} />
-                    <div className="wallpaper-card-glass-label">
-                      <strong>{item.title}</strong>
-                      <span>
-                        <i />
-                        {item.device}
-                      </span>
-                    </div>
+                    <span className="wallpaper-card-glass-label">View Wallpaper</span>
                   </button>
                 );
               })}

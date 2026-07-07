@@ -46,7 +46,6 @@ import {
   type ShellState,
   type ShellStore,
 } from './shell-store';
-import { kernelOnDesktopWallpaper } from './visual-assets';
 
 export interface KernelOnShellProps {
   initialState: ShellInitialState;
@@ -94,6 +93,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const currentScreenId = useShellSelector((state) => state.currentScreenId);
   const screens = useShellSelector((state) => state.screens);
   const windows = useShellSelector((state) => state.windows);
+  const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
   const dockAppIds = useShellSelector((state) => state.dockAppIds);
   const spotlightOpen = useShellSelector((state) => state.spotlightOpen);
   const activeDraggedDesktopItemId = useShellSelector((state) => state.activeDraggedDesktopItemId);
@@ -359,7 +359,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
         data-testid="kernelon-desktop-wallpaper"
         draggable={false}
-        src={kernelOnDesktopWallpaper}
+        src={desktopWallpaper}
       />
       <div
         aria-hidden="true"
