@@ -14,12 +14,9 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).toContain('gap: 24px;');
   });
 
-  it('adds wallpaper-only material tint to liquid glass warp layers', () => {
-    expect(wallpaperStyles).toContain(
-      'section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-segment="true"] .glass__warp,'
-    );
-    expect(wallpaperStyles).toContain('.wallpaper-home__glass-action .glass__warp {');
-    expect(wallpaperStyles).toContain('linear-gradient(135deg, rgba(255, 255, 255, 0.2)');
-    expect(wallpaperStyles).toContain('background-clip: padding-box;');
+  it('does not paint custom material backgrounds onto liquid glass warp layers', () => {
+    expect(wallpaperStyles).not.toContain('[data-kernelon-app-header-liquid-segment="true"] .glass__warp');
+    expect(wallpaperStyles).not.toContain('[data-kernelon-app-header-liquid-button="true"] .glass__warp');
+    expect(wallpaperStyles).not.toContain('.wallpaper-home__glass-action .glass__warp');
   });
 });
