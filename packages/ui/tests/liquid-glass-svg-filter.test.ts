@@ -62,13 +62,14 @@ describe('LiquidGlassSvgFilter', () => {
     );
 
     expect(markup).toContain('data-liquid-glass-container-border-mode="external"');
-    expect(markup).toContain('box-shadow:none');
+    expect(markup).not.toContain('box-shadow');
+    expect(markup).not.toContain('text-shadow');
     expect(markup).not.toContain('data-liquid-glass-container-border="screen"');
     expect(markup).not.toContain('data-liquid-glass-container-border="overlay"');
     expect(markup).not.toContain('0 1px 4px rgba(0, 0, 0, 0.35)');
   });
 
-  it('can render built-in container border when requested', () => {
+  it('can render built-in container border without shadow styles when requested', () => {
     const markup = renderToStaticMarkup(
       createElement(LiquidGlassSvgFilter, {
         children: 'content',
@@ -77,7 +78,8 @@ describe('LiquidGlassSvgFilter', () => {
     );
 
     expect(markup).toContain('data-liquid-glass-container-border-mode="built-in"');
-    expect(markup).toContain('box-shadow:0px 12px 40px rgba(0, 0, 0, 0.25)');
+    expect(markup).not.toContain('box-shadow');
+    expect(markup).not.toContain('text-shadow');
     expect(markup).toContain('data-liquid-glass-container-border="screen"');
     expect(markup).toContain('data-liquid-glass-container-border="overlay"');
   });

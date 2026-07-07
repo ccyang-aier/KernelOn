@@ -58,14 +58,6 @@ const getLiquidGlassRenderMode = (): LiquidGlassRenderMode => {
   return "full"
 }
 
-const getGlassContainerBoxShadow = (containerBorderMode: LiquidGlassContainerBorderMode, overLight: boolean): string => {
-  if (containerBorderMode === "external") {
-    return "none"
-  }
-
-  return overLight ? "0px 16px 70px rgba(0, 0, 0, 0.75)" : "0px 12px 40px rgba(0, 0, 0, 0.25)"
-}
-
 /* ---------- SVG filter (edge-only displacement) ---------- */
 const GlassFilter: React.FC<{ id: string; displacementScale: number; aberrationIntensity: number; width: number; height: number; mode: "standard" | "polar" | "prominent" | "shader"; shaderMapUrl?: string }> = ({
   id,
@@ -236,7 +228,6 @@ const GlassContainer = forwardRef<
             padding,
             overflow: "hidden",
             transition: "all 0.2s ease-in-out",
-            boxShadow: getGlassContainerBoxShadow(containerBorderMode, overLight),
           }}
         >
           {/* backdrop layer that gets wiggly */}
@@ -262,7 +253,6 @@ const GlassContainer = forwardRef<
               position: "relative",
               zIndex: 1,
               font: "500 20px/1 system-ui",
-              textShadow: overLight ? "0px 2px 12px rgba(0, 0, 0, 0)" : "0px 2px 12px rgba(0, 0, 0, 0.4)",
             }}
           >
             {children}
@@ -597,7 +587,6 @@ export default function LiquidGlassSvgFilter({
               width: glassSize.width,
               borderRadius: `${cornerRadius}px`,
               transform: baseStyle.transform,
-              transition: baseStyle.transition,
               pointerEvents: "none",
               mixBlendMode: "screen",
               opacity: 0.2,
@@ -605,7 +594,6 @@ export default function LiquidGlassSvgFilter({
               WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
               WebkitMaskComposite: "xor",
               maskComposite: "exclude",
-              boxShadow: "0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)",
               background: `linear-gradient(
               ${135 + mouseOffset.x * 1.2}deg,
               rgba(255, 255, 255, 0.0) 0%,
@@ -625,14 +613,12 @@ export default function LiquidGlassSvgFilter({
               width: glassSize.width,
               borderRadius: `${cornerRadius}px`,
               transform: baseStyle.transform,
-              transition: baseStyle.transition,
               pointerEvents: "none",
               mixBlendMode: "overlay",
               padding: "1.5px",
               WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
               WebkitMaskComposite: "xor",
               maskComposite: "exclude",
-              boxShadow: "0 0 0 0.5px rgba(255, 255, 255, 0.5) inset, 0 1px 3px rgba(255, 255, 255, 0.25) inset, 0 1px 4px rgba(0, 0, 0, 0.35)",
               background: `linear-gradient(
               ${135 + mouseOffset.x * 1.2}deg,
               rgba(255, 255, 255, 0.0) 0%,
