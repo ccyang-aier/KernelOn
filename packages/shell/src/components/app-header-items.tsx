@@ -3,7 +3,6 @@
 import { ArrowLeft, ArrowRight, Search } from 'lucide-react';
 import {
   type CSSProperties,
-  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
@@ -191,18 +190,6 @@ export function AppHeaderItems({
 
 type AppHeaderChromeVariant = 'standard' | 'top-layer';
 type AppHeaderSegmentItem = Extract<AppHeaderItem, { type: 'segment' }>;
-type AppHeaderGsap = (typeof import('gsap'))['gsap'];
-
-interface AppHeaderTimeline {
-  kill(): void;
-}
-
-interface SegmentPressTargets {
-  button: HTMLElement;
-  pulse: HTMLElement | null;
-}
-
-let appHeaderGsapPromise: Promise<AppHeaderGsap> | null = null;
 
 function stopHeaderControlDrag(event: ReactPointerEvent<HTMLElement>) {
   event.stopPropagation();
@@ -224,16 +211,8 @@ function TopLayerIconGlassButton({
       onPointerDown={stopHeaderControlDrag}
     >
       <LiquidGlassSvgFilter
-        aberrationIntensity={1.7}
-        blurAmount={0.04}
         className={topLayerIconGlassClassName}
-        containerBorderMode="external"
-        cornerRadius={999}
-        displacementScale={72}
-        elasticity={0.1}
-        mode="prominent"
         padding="0px"
-        saturation={218}
         style={topLayerIconGlassPlacement}
       >
         <AppHeaderButton
@@ -282,16 +261,8 @@ function TopLayerSegmentedControl({
       style={segmentHostStyle}
     >
       <LiquidGlassSvgFilter
-        aberrationIntensity={2.05}
-        blurAmount={0.04}
         className={topLayerSegmentGlassClassName}
-        containerBorderMode="external"
-        cornerRadius={999}
-        displacementScale={92}
-        elasticity={0.07}
-        mode="prominent"
         padding="0px"
-        saturation={222}
         style={segmentGlassPlacement}
       >
         <div
@@ -312,8 +283,7 @@ function TopLayerSegmentedControl({
                 )}
                 data-kernelon-app-header-segment-button="true"
                 key={option.value}
-                onClick={(event) => {
-                  playTopLayerSegmentPress(event);
+                onClick={() => {
                   onCommand({
                     commandId: item.commandId ?? `${item.id}.change`,
                     itemId: item.id,
@@ -324,11 +294,6 @@ function TopLayerSegmentedControl({
                 }}
                 type="button"
               >
-                <span
-                  aria-hidden="true"
-                  className={topLayerSegmentPulseClassName}
-                  data-kernelon-app-header-segment-pulse="true"
-                />
                 <span className="relative z-20">{option.label}</span>
               </button>
             );
@@ -337,81 +302,6 @@ function TopLayerSegmentedControl({
       </LiquidGlassSvgFilter>
     </div>
   );
-}
-
-function playTopLayerSegmentPress(event: ReactMouseEvent<HTMLButtonElement>) {
-  const button = event.currentTarget;
-  const pulse = button.querySelector<HTMLElement>(
-    '[data-kernelon-app-header-segment-pulse="true"]',
-  );
-
-  void animateTopLayerSegmentPress({ button, pulse }).catch(() => undefined);
-}
-
-function animateTopLayerSegmentPress({
-  button,
-  pulse,
-}: SegmentPressTargets): Promise<AppHeaderTimeline> {
-  return loadAppHeaderGsap().then((gsap) => {
-    const targets = pulse ? [button, pulse] : [button];
-    const timeline = gsap.timeline({
-      defaults: { ease: 'power3.out' },
-      onComplete: () => {
-        gsap.set(targets, { clearProps: 'opacity,visibility,transform,filter' });
-      },
-    });
-
-    gsap.set(targets, {
-      force3D: true,
-      transformOrigin: '50% 50%',
-    });
-
-    if (prefersReducedMotion()) {
-      if (pulse) {
-        timeline
-          .fromTo(
-            pulse,
-            { autoAlpha: 0, scale: 0.84 },
-            { autoAlpha: 0.18, duration: 0.1, scale: 1 },
-            0,
-          )
-          .to(pulse, { autoAlpha: 0, duration: 0.2 }, 0.1);
-      }
-    } else {
-      if (pulse) {
-        timeline
-          .fromTo(
-            pulse,
-            { autoAlpha: 0, scale: 0.38 },
-            { autoAlpha: 0.38, duration: 0.16, ease: 'sine.out', scale: 1.12 },
-            0,
-          )
-          .to(pulse, { autoAlpha: 0, duration: 0.36, ease: 'power2.out', scale: 1.64 }, 0.08);
-      }
-
-      timeline
-        .to(button, { duration: 0.1, ease: 'power2.out', scale: 0.97, y: 0.25 }, 0)
-        .to(button, { duration: 0.2, ease: 'back.out(1.7)', scale: 1.025, y: -0.25 }, 0.1)
-        .to(button, { duration: 0.32, ease: 'elastic.out(1, 0.74)', scale: 1, y: 0 }, 0.24);
-    }
-
-    return {
-      kill() {
-        timeline.kill();
-        gsap.set(targets, { clearProps: 'opacity,visibility,transform,filter' });
-      },
-    };
-  });
-}
-
-function prefersReducedMotion(): boolean {
-  return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-}
-
-function loadAppHeaderGsap(): Promise<AppHeaderGsap> {
-  appHeaderGsapPromise ??= import('gsap').then((module) => module.gsap);
-
-  return appHeaderGsapPromise;
 }
 
 const TOP_LAYER_CONTROL_SIZE = 42;
@@ -430,7 +320,7 @@ const topLayerIconButtonHostClassName =
 const topLayerIconGlassClassName = 'z-10 text-white';
 
 const topLayerIconButtonClassName =
-  'relative h-[42px] w-[42px] min-w-[42px] gap-0 overflow-hidden rounded-full border-0 bg-transparent px-0 text-white/92 shadow-none outline-none transition-[transform,color,text-shadow] duration-200 ease-out [text-shadow:0_1px_8px_rgba(0,0,0,0.36)] hover:-translate-y-0.5 hover:text-white hover:[text-shadow:0_0_12px_rgba(255,255,255,0.50),0_1px_8px_rgba(0,0,0,0.34)] active:translate-y-0 active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-white/75';
+  'relative h-[42px] w-[42px] min-w-[42px] gap-0 overflow-hidden rounded-full border-0 bg-transparent px-0 text-white/90 shadow-none outline-none focus-visible:ring-2 focus-visible:ring-white/70';
 
 const topLayerSegmentHostClassName =
   'relative h-[42px] shrink-0 overflow-visible';
@@ -441,10 +331,7 @@ const topLayerSegmentGroupClassName =
   'relative inline-flex h-[42px] shrink-0 items-center gap-0 overflow-hidden rounded-full border-0 bg-transparent p-1 shadow-none';
 
 const topLayerSegmentButtonClassName =
-  'relative z-10 inline-flex h-[42px] min-w-[96px] items-center justify-center overflow-hidden rounded-full border-0 bg-transparent px-5 text-[14px] font-bold text-white/72 shadow-none outline-none transition-[color,text-shadow,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[1px] hover:text-white focus-visible:ring-2 focus-visible:ring-white/[0.65]';
+  'relative z-10 inline-flex h-[34px] min-w-[96px] items-center justify-center rounded-full border-0 bg-transparent px-5 text-[14px] font-bold text-white/72 shadow-none outline-none focus-visible:ring-2 focus-visible:ring-white/[0.65]';
 
 const topLayerSegmentButtonActiveClassName =
-  'text-white [text-shadow:0_0_13px_rgba(255,255,255,0.42),0_1px_10px_rgba(0,0,0,0.32)]';
-
-const topLayerSegmentPulseClassName =
-  'pointer-events-none absolute inset-[-10px] z-10 rounded-full bg-[radial-gradient(circle_at_center,rgba(232,247,255,0.34),rgba(125,211,252,0.16)_40%,rgba(125,211,252,0)_72%)] opacity-0 mix-blend-screen';
+  'text-white';
