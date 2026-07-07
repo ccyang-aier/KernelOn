@@ -146,6 +146,7 @@ describe('KernelOnShell', () => {
     const statusBrandLogo = screen.getByTestId('kernelon-status-brand-logo');
     const statusBrandWordmark = screen.getByTestId('kernelon-status-brand-wordmark');
     const statusSurface = statusGlass.closest('.glass');
+    const statusChrome = statusSurface?.parentElement;
     const statusWarp = statusSurface?.querySelector('.glass__warp');
 
     expect(statusBar).toHaveClass('fixed', 'inset-x-0', 'top-0');
@@ -170,11 +171,14 @@ describe('KernelOnShell', () => {
     expect(statusGlass).toHaveStyle({
       boxShadow: 'inset 0 -1px 0 rgba(232,248,250,0.16), inset 0 1px 0 rgba(255,255,255,0.06)',
     });
-    expect(statusSurface).toHaveAttribute('data-liquid-glass-container-border-mode', 'external');
-    expect(statusSurface).toHaveStyle({ borderRadius: '0px', boxShadow: 'none', padding: '0px' });
+    expect(statusSurface).toHaveStyle({ borderRadius: '0px', padding: '0px' });
+    expect(statusChrome).toHaveClass(
+      '[--ko-liquid-glass-border-strong:transparent]',
+      '[--ko-liquid-glass-border-soft:transparent]',
+    );
     expect(
-      statusFrame?.querySelector('[data-liquid-glass-container-border]'),
-    ).not.toBeInTheDocument();
+      statusFrame?.querySelectorAll('[data-liquid-glass-container-border]'),
+    ).toHaveLength(2);
     expect(statusWarp).toHaveAttribute('data-liquid-glass-render-mode', 'full');
     expect(statusWarp?.getAttribute('style')).toContain('filter: url(');
     expect(statusWarp?.getAttribute('style')).toContain('backdrop-filter: blur(');

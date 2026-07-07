@@ -54,32 +54,34 @@ describe('LiquidGlassSvgFilter', () => {
     expect(markup).toContain('transform:translate(calc(-50% + 0px), calc(-50% + 0px)) scale(1)');
   });
 
-  it('delegates container border to the caller by default', () => {
+  it('renders a built-in border surface by default without shadow styles', () => {
     const markup = renderToStaticMarkup(
       createElement(LiquidGlassSvgFilter, {
         children: 'content',
       }),
     );
 
-    expect(markup).toContain('data-liquid-glass-container-border-mode="external"');
     expect(markup).not.toContain('box-shadow');
     expect(markup).not.toContain('text-shadow');
-    expect(markup).not.toContain('data-liquid-glass-container-border="screen"');
-    expect(markup).not.toContain('data-liquid-glass-container-border="overlay"');
+    expect(markup).toContain('data-liquid-glass-container-border="screen"');
+    expect(markup).toContain('data-liquid-glass-container-border="overlay"');
+    expect(markup).toContain('rgba(255, 255, 255, 0.34)');
+    expect(markup).toContain('rgba(255, 255, 255, 0.13)');
     expect(markup).not.toContain('0 1px 4px rgba(0, 0, 0, 0.35)');
   });
 
-  it('can render built-in container border without shadow styles when requested', () => {
+  it('accepts appearance classes for non-material chrome tuning', () => {
     const markup = renderToStaticMarkup(
       createElement(LiquidGlassSvgFilter, {
+        appearanceClassName: '[--ko-liquid-glass-border-strong:transparent] glass-pop-in',
         children: 'content',
-        containerBorderMode: 'built-in',
       }),
     );
 
-    expect(markup).toContain('data-liquid-glass-container-border-mode="built-in"');
-    expect(markup).not.toContain('box-shadow');
-    expect(markup).not.toContain('text-shadow');
+    const glassContainerOpenTag = markup.match(/<div class="relative[^"]*" style="[^"]*">/)?.[0] ?? '';
+
+    expect(glassContainerOpenTag).toContain('[--ko-liquid-glass-border-strong:transparent]');
+    expect(glassContainerOpenTag).toContain('glass-pop-in');
     expect(markup).toContain('data-liquid-glass-container-border="screen"');
     expect(markup).toContain('data-liquid-glass-container-border="overlay"');
   });
@@ -135,6 +137,15 @@ describe('LiquidGlassSvgFilter', () => {
   });
 
   it('treats the glass filter as a non-interactive visual surface', () => {
+    createElement(
+      LiquidGlassSvgFilter,
+      {
+        children: 'content',
+        // @ts-expect-error containerBorderMode has been replaced by appearanceClassName.
+        containerBorderMode: 'external',
+      },
+    );
+
     createElement(
       LiquidGlassSvgFilter,
       {

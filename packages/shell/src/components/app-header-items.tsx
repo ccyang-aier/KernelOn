@@ -211,9 +211,11 @@ function TopLayerIconGlassButton({
       onPointerDown={stopHeaderControlDrag}
     >
       <LiquidGlassSvgFilter
+        blurAmount={0.32}
         className={topLayerIconGlassClassName}
-        containerBorderMode="built-in"
+        displacementScale={76}
         padding="0px"
+        saturation={165}
         style={topLayerIconGlassPlacement}
       >
         <AppHeaderButton
@@ -270,9 +272,11 @@ function TopLayerSegmentedControl({
       style={segmentHostStyle}
     >
       <LiquidGlassSvgFilter
+        blurAmount={0.32}
         className={topLayerSegmentGlassClassName}
-        containerBorderMode="built-in"
+        displacementScale={76}
         padding="0px"
+        saturation={165}
         style={segmentGlassPlacement}
       >
         <div

@@ -39,8 +39,8 @@ export function KernelOnStatusBar({
         aberrationIntensity={1.25}
         elasticity={0}
         cornerRadius={0}
+        appearanceClassName="[--ko-liquid-glass-border-strong:transparent] [--ko-liquid-glass-border-soft:transparent]"
         className="pointer-events-auto h-[40px] w-screen text-white"
-        containerBorderMode="external"
         mode="standard"
         padding="0px"
         style={{ position: 'absolute', left: '50vw', top: 20 }}

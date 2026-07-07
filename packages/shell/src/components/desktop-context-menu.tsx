@@ -247,7 +247,6 @@ export function KernelOnDesktopContextMenu({
     <>
       <LiquidGlassSvgFilter
         className="z-[80]"
-        containerBorderMode="built-in"
         displacementScale={100}
         blurAmount={0.5}
         saturation={140}
@@ -342,7 +341,6 @@ export function KernelOnDesktopContextMenu({
       {submenuConfig && submenuPosition ? (
         <LiquidGlassSvgFilter
           className="z-[81]"
-          containerBorderMode="built-in"
           displacementScale={100}
           blurAmount={0.5}
           saturation={140}

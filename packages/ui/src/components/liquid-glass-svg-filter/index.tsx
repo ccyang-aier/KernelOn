@@ -34,7 +34,6 @@ const getMap = (mode: "standard" | "polar" | "prominent" | "shader", shaderMapUr
 }
 
 type LiquidGlassRenderMode = "full" | "reduced" | "flat"
-type LiquidGlassContainerBorderMode = "built-in" | "external"
 
 const supportsBackdropFilter = (): boolean => {
   if (typeof CSS === "undefined" || typeof CSS.supports !== "function") {
@@ -170,7 +169,7 @@ const GlassContainer = forwardRef<
     padding?: string
     glassSize?: { width: number; height: number }
     mode?: "standard" | "polar" | "prominent" | "shader"
-    containerBorderMode?: LiquidGlassContainerBorderMode
+    appearanceClassName?: string
   }>
 >(
   (
@@ -187,7 +186,7 @@ const GlassContainer = forwardRef<
       padding = "24px 32px",
       glassSize = { width: 270, height: 69 },
       mode = "standard",
-      containerBorderMode = "external",
+      appearanceClassName = "",
     },
     ref,
   ) => {
@@ -213,12 +212,11 @@ const GlassContainer = forwardRef<
     }
 
     return (
-      <div ref={ref} className={`relative ${className}`} style={style}>
+      <div ref={ref} className={`relative ${className} ${appearanceClassName}`} style={style}>
         <GlassFilter mode={mode} id={filterId} displacementScale={displacementScale} aberrationIntensity={aberrationIntensity} width={glassSize.width} height={glassSize.height} shaderMapUrl={shaderMapUrl} />
 
         <div
           className="glass"
-          data-liquid-glass-container-border-mode={containerBorderMode}
           style={{
             borderRadius: `${cornerRadius}px`,
             position: "relative",
@@ -260,35 +258,31 @@ const GlassContainer = forwardRef<
           </div>
         </div>
 
-        {containerBorderMode === "built-in" ? (
-          <>
-            <span
-              data-liquid-glass-container-border="screen"
-              style={{
-                position: "absolute",
-                inset: 0,
-                zIndex: 2,
-                borderRadius: `${cornerRadius}px`,
-                border: "1px solid rgba(255, 255, 255, 0.48)",
-                boxSizing: "border-box",
-                pointerEvents: "none",
-              }}
-            />
+        <span
+          data-liquid-glass-container-border="screen"
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 2,
+            borderRadius: `${cornerRadius}px`,
+            border: "1px solid var(--ko-liquid-glass-border-strong, rgba(255, 255, 255, 0.34))",
+            boxSizing: "border-box",
+            pointerEvents: "none",
+          }}
+        />
 
-            <span
-              data-liquid-glass-container-border="overlay"
-              style={{
-                position: "absolute",
-                inset: 0,
-                zIndex: 3,
-                borderRadius: `${cornerRadius}px`,
-                border: "1px solid rgba(255, 255, 255, 0.18)",
-                boxSizing: "border-box",
-                pointerEvents: "none",
-              }}
-            />
-          </>
-        ) : null}
+        <span
+          data-liquid-glass-container-border="overlay"
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 3,
+            borderRadius: `${cornerRadius}px`,
+            border: "1px solid var(--ko-liquid-glass-border-soft, rgba(255, 255, 255, 0.13))",
+            boxSizing: "border-box",
+            pointerEvents: "none",
+          }}
+        />
       </div>
     )
   },
@@ -310,11 +304,11 @@ interface LiquidGlassSvgFilterProps {
   mouseOffset?: { x: number; y: number }
   mouseContainer?: React.RefObject<HTMLElement | null> | null
   className?: string
+  appearanceClassName?: string
   padding?: string
   style?: LiquidGlassPlacementStyle
   overLight?: boolean
   mode?: "standard" | "polar" | "prominent" | "shader"
-  containerBorderMode?: LiquidGlassContainerBorderMode
 }
 
 export default function LiquidGlassSvgFilter({
@@ -329,11 +323,11 @@ export default function LiquidGlassSvgFilter({
   mouseOffset: externalMouseOffset,
   mouseContainer = null,
   className = "",
+  appearanceClassName = "",
   padding = "24px 32px",
   overLight = false,
   style = {},
   mode = "standard",
-  containerBorderMode = "external",
 }: LiquidGlassSvgFilterProps) {
   const glassRef = useRef<HTMLDivElement>(null)
   const [glassSize, setGlassSize] = useState({ width: 270, height: 69 })
@@ -591,6 +585,7 @@ export default function LiquidGlassSvgFilter({
       <GlassContainer
         ref={glassRef}
         className={className}
+        appearanceClassName={appearanceClassName}
         style={baseStyle}
         cornerRadius={cornerRadius}
         displacementScale={overLight ? displacementScale * 0.5 : displacementScale}
@@ -602,7 +597,6 @@ export default function LiquidGlassSvgFilter({
         mouseOffset={mouseOffset}
         overLight={overLight}
         mode={mode}
-        containerBorderMode={containerBorderMode}
       >
         {children}
       </GlassContainer>
