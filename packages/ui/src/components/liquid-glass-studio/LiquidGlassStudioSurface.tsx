@@ -11,6 +11,7 @@ import {
 } from 'react';
 
 import { cn } from '../../class-names';
+import { liquidGlassStudioDefaultControls } from './studio/defaultControls';
 import { loadTextureFromURL, MultiPassRenderer } from './studio/rendering/GLUtils';
 import {
   FragmentBgHblurShader,
@@ -37,103 +38,6 @@ export interface LiquidGlassStudioSurfaceProps {
 
 type RenderMode = 'fallback' | 'shader';
 
-const tonePresets: Record<
-  LiquidGlassStudioSurfaceTone,
-  {
-    blurRadius: number;
-    tint: [number, number, number, number];
-    refThickness: number;
-    refFactor: number;
-    refDispersion: number;
-    refFresnelRange: number;
-    refFresnelHardness: number;
-    refFresnelFactor: number;
-    glareRange: number;
-    glareHardness: number;
-    glareConvergence: number;
-    glareOppositeFactor: number;
-    glareFactor: number;
-    glareAngle: number;
-    shadowExpand: number;
-    shadowFactor: number;
-    shadowPosition: [number, number];
-    shaderOpacity: number;
-    shaderStep: number;
-    shapeInset: number;
-    shapeRoundness: number;
-  }
-> = {
-  header: {
-    blurRadius: 5,
-    tint: [1, 1, 1, 0.018],
-    refThickness: 10,
-    refFactor: 1.18,
-    refDispersion: 0.8,
-    refFresnelRange: 62,
-    refFresnelHardness: 0.032,
-    refFresnelFactor: 0.042,
-    glareRange: 68,
-    glareHardness: 0.045,
-    glareConvergence: 0.28,
-    glareOppositeFactor: 0.35,
-    glareFactor: 0.11,
-    glareAngle: -0.82,
-    shadowExpand: 18,
-    shadowFactor: 0,
-    shadowPosition: [0, 0],
-    shaderOpacity: 0.68,
-    shaderStep: 7,
-    shapeInset: 0.5,
-    shapeRoundness: 5.2,
-  },
-  hero: {
-    blurRadius: 5,
-    tint: [0.96, 1, 1, 0.024],
-    refThickness: 8,
-    refFactor: 1.12,
-    refDispersion: 0.9,
-    refFresnelRange: 58,
-    refFresnelHardness: 0.045,
-    refFresnelFactor: 0.07,
-    glareRange: 64,
-    glareHardness: 0.05,
-    glareConvergence: 0.3,
-    glareOppositeFactor: 0.38,
-    glareFactor: 0.14,
-    glareAngle: -0.74,
-    shadowExpand: 20,
-    shadowFactor: 0,
-    shadowPosition: [0, 0],
-    shaderOpacity: 0.5,
-    shaderStep: 6,
-    shapeInset: 0.5,
-    shapeRoundness: 5.4,
-  },
-  subtle: {
-    blurRadius: 2,
-    tint: [1, 1, 1, 0.018],
-    refThickness: 7,
-    refFactor: 1.1,
-    refDispersion: 0.8,
-    refFresnelRange: 70,
-    refFresnelHardness: 0.035,
-    refFresnelFactor: 0.04,
-    glareRange: 76,
-    glareHardness: 0.04,
-    glareConvergence: 0.24,
-    glareOppositeFactor: 0.3,
-    glareFactor: 0.08,
-    glareAngle: -0.72,
-    shadowExpand: 16,
-    shadowFactor: 0,
-    shadowPosition: [0, 0],
-    shaderOpacity: 0.46,
-    shaderStep: 6,
-    shapeInset: 0.5,
-    shapeRoundness: 5,
-  },
-};
-
 export function LiquidGlassStudioSurface({
   backgroundHostRef,
   backgroundImage,
@@ -148,7 +52,6 @@ export function LiquidGlassStudioSurface({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const [renderMode, setRenderMode] = useState<RenderMode>('fallback');
-  const preset = tonePresets[tone];
   const rootStyle = useMemo(
     () =>
       ({
@@ -180,14 +83,18 @@ export function LiquidGlassStudioSurface({
     let textureRatio = 1;
     let frame = 0;
 
+    setRenderMode('fallback');
+    clearCanvas(canvas);
+
     const renderSurface = () => {
       if (disposed || !renderer || !texture) {
         return;
       }
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const pixelWidth = Math.max(1, Math.round(width * dpr));
-      const pixelHeight = Math.max(1, Math.round(height * dpr));
+      const studioScale = getStudioCoordinateScale(height);
+      const pixelWidth = Math.max(1, Math.round(width * dpr * studioScale));
+      const pixelHeight = Math.max(1, Math.round(height * dpr * studioScale));
       const gl = canvas.getContext('webgl2');
 
       canvas.width = pixelWidth;
@@ -196,23 +103,29 @@ export function LiquidGlassStudioSurface({
       renderer.resize(pixelWidth, pixelHeight);
 
       const sample = getBackgroundSample(surface, backgroundHostRef.current);
-      const blurWeights = computeGaussianKernelByRadius(preset.blurRadius);
+      const blurWeights = computeGaussianKernelByRadius(
+        liquidGlassStudioDefaultControls.blurRadius,
+      );
       const center: [number, number] = [pixelWidth / 2, pixelHeight / 2];
-      const shapeWidth = Math.max(1, width - preset.shapeInset * 2);
-      const shapeHeight = Math.max(1, height - preset.shapeInset * 2);
+      const shapeWidth = Math.max(1, width * studioScale);
+      const shapeHeight = Math.max(1, height * studioScale);
+      const shapeRadius = Math.min(
+        radius * studioScale,
+        Math.min(shapeWidth, shapeHeight) / 2,
+      );
 
       renderer.setUniforms({
         u_resolution: [pixelWidth, pixelHeight],
         u_dpr: dpr,
-        u_blurRadius: preset.blurRadius,
+        u_blurRadius: liquidGlassStudioDefaultControls.blurRadius,
         u_blurWeights: blurWeights,
         u_mouse: center,
         u_mouseSpring: center,
         u_shapeWidth: shapeWidth,
         u_shapeHeight: shapeHeight,
-        u_shapeRadius: Math.min(radius, Math.min(shapeWidth, shapeHeight) / 2),
-        u_shapeRoundness: preset.shapeRoundness,
-        u_mergeRate: 0,
+        u_shapeRadius: shapeRadius,
+        u_shapeRoundness: liquidGlassStudioDefaultControls.shapeRoundness,
+        u_mergeRate: liquidGlassStudioDefaultControls.mergeRate,
         u_showShape1: 0,
       });
 
@@ -225,26 +138,38 @@ export function LiquidGlassStudioSurface({
           u_bgSampleOffset: sample.offset,
           u_bgSampleScale: sample.scale,
           u_bgHostResolution: sample.hostResolution,
-          u_shadowExpand: preset.shadowExpand,
-          u_shadowFactor: preset.shadowFactor,
-          u_shadowPosition: preset.shadowPosition,
+          u_shadowExpand: liquidGlassStudioDefaultControls.shadowExpand,
+          u_shadowFactor: liquidGlassStudioDefaultControls.shadowFactor / 100,
+          u_shadowPosition: [
+            -liquidGlassStudioDefaultControls.shadowPosition.x,
+            -liquidGlassStudioDefaultControls.shadowPosition.y,
+          ],
         },
         mainPass: {
-          u_tint: preset.tint,
-          u_refThickness: preset.refThickness,
-          u_refFactor: preset.refFactor,
-          u_refDispersion: preset.refDispersion,
-          u_refFresnelRange: preset.refFresnelRange,
-          u_refFresnelHardness: preset.refFresnelHardness,
-          u_refFresnelFactor: preset.refFresnelFactor,
-          u_glareRange: preset.glareRange,
-          u_glareHardness: preset.glareHardness,
-          u_glareConvergence: preset.glareConvergence,
-          u_glareOppositeFactor: preset.glareOppositeFactor,
-          u_glareFactor: preset.glareFactor,
-          u_glareAngle: preset.glareAngle,
-          u_blurEdge: 1,
-          STEP: preset.shaderStep,
+          u_tint: [
+            liquidGlassStudioDefaultControls.tint.r / 255,
+            liquidGlassStudioDefaultControls.tint.g / 255,
+            liquidGlassStudioDefaultControls.tint.b / 255,
+            liquidGlassStudioDefaultControls.tint.a,
+          ],
+          u_refThickness: liquidGlassStudioDefaultControls.refThickness,
+          u_refFactor: liquidGlassStudioDefaultControls.refFactor,
+          u_refDispersion: liquidGlassStudioDefaultControls.refDispersion,
+          u_refFresnelRange: liquidGlassStudioDefaultControls.refFresnelRange,
+          u_refFresnelHardness:
+            liquidGlassStudioDefaultControls.refFresnelHardness / 100,
+          u_refFresnelFactor:
+            liquidGlassStudioDefaultControls.refFresnelFactor / 100,
+          u_glareRange: liquidGlassStudioDefaultControls.glareRange,
+          u_glareHardness: liquidGlassStudioDefaultControls.glareHardness / 100,
+          u_glareConvergence:
+            liquidGlassStudioDefaultControls.glareConvergence / 100,
+          u_glareOppositeFactor:
+            liquidGlassStudioDefaultControls.glareOppositeFactor / 100,
+          u_glareFactor: liquidGlassStudioDefaultControls.glareFactor / 100,
+          u_glareAngle: (liquidGlassStudioDefaultControls.glareAngle * Math.PI) / 180,
+          u_blurEdge: liquidGlassStudioDefaultControls.blurEdge ? 1 : 0,
+          STEP: liquidGlassStudioDefaultControls.step,
         },
       });
     };
@@ -303,7 +228,7 @@ export function LiquidGlassStudioSurface({
       }
       renderer?.dispose();
     };
-  }, [backgroundHostRef, backgroundImage, height, preset, radius, width]);
+  }, [backgroundHostRef, backgroundImage, height, radius, width]);
 
   return (
     <div
@@ -320,18 +245,15 @@ export function LiquidGlassStudioSurface({
         className="ko-liquid-glass-studio-surface__canvas"
         data-slot="liquid-glass-studio-surface-canvas"
         ref={canvasRef}
-        style={{ ...canvasStyle, opacity: renderMode === 'shader' ? preset.shaderOpacity : 0 }}
+        style={{ ...canvasStyle, opacity: renderMode === 'shader' ? 1 : 0 }}
       />
-      <span
-        aria-hidden="true"
-        data-slot="liquid-glass-studio-surface-fallback"
-        style={renderMode === 'shader' ? shaderBaseStyle : fallbackStyle}
-      />
-      <span
-        aria-hidden="true"
-        data-slot="liquid-glass-studio-surface-rim"
-        style={rimStyle}
-      />
+      {renderMode === 'fallback' ? (
+        <span
+          aria-hidden="true"
+          data-slot="liquid-glass-studio-surface-fallback"
+          style={fallbackStyle}
+        />
+      ) : null}
       <span data-slot="liquid-glass-studio-surface-content" style={contentStyle}>
         {children}
       </span>
@@ -382,6 +304,21 @@ function clamp01(value: number) {
   return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
 }
 
+function getStudioCoordinateScale(height: number) {
+  return Math.max(1, liquidGlassStudioDefaultControls.shapeHeight / Math.max(height, 1));
+}
+
+function clearCanvas(canvas: HTMLCanvasElement) {
+  const gl = canvas.getContext('webgl2');
+
+  if (!gl) {
+    return;
+  }
+
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+}
+
 const canvasStyle: CSSProperties = {
   height: '100%',
   inset: 0,
@@ -391,41 +328,12 @@ const canvasStyle: CSSProperties = {
   zIndex: 1,
 };
 
-const shaderBaseStyle: CSSProperties = {
-  background:
-    'linear-gradient(180deg, rgba(255,255,255,0.115), rgba(255,255,255,0.038) 54%, rgba(255,255,255,0.085))',
-  backdropFilter: 'blur(14px) saturate(1.16) contrast(1.03)',
-  borderRadius: 'var(--ko-studio-glass-radius)',
-  boxShadow:
-    'inset 0 10px 18px rgba(255,255,255,0.075), inset 0 -16px 24px rgba(255,255,255,0.045), inset 0 0 18px rgba(255,255,255,0.045), 0 8px 18px rgba(0,0,0,0.11)',
-  inset: 0,
-  pointerEvents: 'none',
-  position: 'absolute',
-  zIndex: 0,
-};
-
 const fallbackStyle: CSSProperties = {
-  background:
-    'linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06) 54%, rgba(255,255,255,0.12))',
-  backdropFilter: 'blur(16px) saturate(1.14)',
-  borderRadius: 'var(--ko-studio-glass-radius)',
-  boxShadow:
-    'inset 0 1px 0 rgba(255,255,255,0.34), inset 0 -1px 0 rgba(255,255,255,0.12), inset 0 0 18px rgba(255,255,255,0.06), 0 7px 16px rgba(0,0,0,0.12)',
+  background: 'transparent',
   inset: 0,
   pointerEvents: 'none',
   position: 'absolute',
   zIndex: 0,
-};
-
-const rimStyle: CSSProperties = {
-  border: 0,
-  borderRadius: 'var(--ko-studio-glass-radius)',
-  boxShadow:
-    'inset 0 0 0 1px rgba(255,255,255,0.2), inset 0 1px 10px rgba(255,255,255,0.14)',
-  inset: 0,
-  pointerEvents: 'none',
-  position: 'absolute',
-  zIndex: 3,
 };
 
 const contentStyle: CSSProperties = {

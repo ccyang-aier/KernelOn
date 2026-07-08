@@ -29,8 +29,8 @@ describe('LiquidGlassStudioSurface', () => {
     expect(markup).toContain('border-radius:999px');
     expect(markup).toContain('data-slot="liquid-glass-studio-surface-canvas"');
     expect(markup).toContain('data-slot="liquid-glass-studio-surface-fallback"');
-    expect(markup).toContain('data-slot="liquid-glass-studio-surface-rim"');
-    expect(markup).toContain('border:0');
+    expect(markup).not.toContain('data-slot="liquid-glass-studio-surface-rim"');
+    expect(markup).not.toContain('backdrop-filter');
     expect(markup).toContain('data-slot="liquid-glass-studio-surface-content"');
     expect(markup).toContain('<button type="button">View Wallpaper</button>');
   });

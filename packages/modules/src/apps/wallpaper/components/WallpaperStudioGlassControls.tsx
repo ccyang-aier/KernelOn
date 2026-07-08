@@ -18,6 +18,7 @@ interface WallpaperStudioGlassButtonProps {
   radius?: number;
   tone?: 'hero' | 'header' | 'subtle';
   width: number;
+  ariaCurrent?: 'page';
   ariaLabel?: string;
   ariaPressed?: boolean;
   className?: string;
@@ -25,6 +26,7 @@ interface WallpaperStudioGlassButtonProps {
 }
 
 export function WallpaperStudioGlassButton({
+  ariaCurrent,
   ariaLabel,
   ariaPressed,
   backgroundHostRef,
@@ -49,6 +51,7 @@ export function WallpaperStudioGlassButton({
       width={width}
     >
       <button
+        aria-current={ariaCurrent}
         aria-label={ariaLabel}
         aria-pressed={ariaPressed}
         className="wallpaper-studio-glass-button"
@@ -72,47 +75,29 @@ export function WallpaperStudioGlassSegment({
   onChange(view: WallpaperView): void;
   value: WallpaperView;
 }>) {
-  const selectedIndex = Math.max(
-    0,
-    wallpaperViewOptions.findIndex((option) => option.value === value),
-  );
-
   return (
-    <LiquidGlassStudioSurface
-      backgroundHostRef={backgroundHostRef}
-      backgroundImage={backgroundImage}
-      className="wallpaper-studio-glass-segment-surface"
-      height={42}
-      interactive
-      radius={999}
-      tone="header"
-      width={WALLPAPER_SEGMENT_WIDTH}
+    <div
+      aria-label="Wallpaper views"
+      className="wallpaper-studio-glass-segment"
+      role="group"
     >
-      <div
-        aria-label="Wallpaper views"
-        className="wallpaper-studio-glass-segment"
-        role="group"
-      >
-        <span
-          aria-hidden="true"
-          className="wallpaper-studio-glass-segment__indicator"
-          style={{
-            transform: `translate3d(${selectedIndex * WALLPAPER_SEGMENT_BUTTON_WIDTH}px, 0, 0)`,
-          }}
-        />
-        {wallpaperViewOptions.map((option) => (
-          <button
-            aria-current={option.value === value ? 'page' : undefined}
-            aria-pressed={option.value === value}
-            key={option.value}
-            onClick={() => onChange(option.value)}
-            type="button"
-          >
-            <span>{option.label}</span>
-          </button>
-        ))}
-      </div>
-    </LiquidGlassStudioSurface>
+      {wallpaperViewOptions.map((option) => (
+        <WallpaperStudioGlassButton
+          ariaCurrent={option.value === value ? 'page' : undefined}
+          ariaPressed={option.value === value}
+          backgroundHostRef={backgroundHostRef}
+          backgroundImage={backgroundImage}
+          className="wallpaper-studio-glass-segment-button-surface"
+          height={42}
+          key={option.value}
+          onClick={() => onChange(option.value)}
+          tone="header"
+          width={WALLPAPER_SEGMENT_BUTTON_WIDTH}
+        >
+          <span>{option.label}</span>
+        </WallpaperStudioGlassButton>
+      ))}
+    </div>
   );
 }
 
@@ -233,7 +218,6 @@ export function WallpaperHeaderGlassSlots({
 }
 
 const WALLPAPER_SEGMENT_BUTTON_WIDTH = 96;
-const WALLPAPER_SEGMENT_WIDTH = WALLPAPER_SEGMENT_BUTTON_WIDTH * 3 + 8;
 
 const wallpaperViewOptions: Array<{ label: string; value: WallpaperView }> = [
   { label: viewLabels.home, value: 'home' },
