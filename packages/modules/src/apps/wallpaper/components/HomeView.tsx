@@ -1,7 +1,11 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Heart, Play } from 'lucide-react';
-import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, useRef } from 'react';
+import {
+  type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type RefObject,
+} from 'react';
 
 import { WallpaperStudioGlassButton } from './WallpaperStudioGlassControls';
 import type { HeroSlide, RecommendedWallpaperSection } from '../types';
@@ -14,22 +18,25 @@ export function HomeView({
   onLike,
   onPreview,
   onRecommendationPreview,
+  scrollContainerRef,
   recommendationSections,
   selectedRecommendedId,
+  heroHostRef,
   slides,
 }: Readonly<{
   heroIndex: number;
+  heroHostRef: RefObject<HTMLDivElement | null>;
   likedIds: ReadonlySet<string>;
   onHeroDotSelect(index: number): void;
   onHeroNav(direction: 1 | -1): void;
   onLike(id: string): void;
   onPreview(id: string): void;
   onRecommendationPreview(wallpaperId: string): void;
+  scrollContainerRef: RefObject<HTMLElement | null>;
   recommendationSections: RecommendedWallpaperSection[];
   selectedRecommendedId: string;
   slides: HeroSlide[];
 }>) {
-  const heroRef = useRef<HTMLDivElement | null>(null);
   const activeHero = slides[heroIndex] ?? slides[0];
   const trackStyle = {
     transform: `translateX(-${heroIndex * 100}%)`,
@@ -50,9 +57,10 @@ export function HomeView({
       aria-label="Wallpaper Home"
       className="wallpaper-home"
       onKeyDown={handleKeyDown}
+      ref={scrollContainerRef}
       tabIndex={0}
     >
-      <div className="wallpaper-home__hero" ref={heroRef}>
+      <div className="wallpaper-home__hero" ref={heroHostRef}>
         <div
           aria-live="polite"
           className="wallpaper-home__track"
@@ -78,7 +86,7 @@ export function HomeView({
           </div>
           <div className="wallpaper-home__actions">
             <WallpaperStudioGlassButton
-              backgroundHostRef={heroRef}
+              backgroundHostRef={heroHostRef}
               backgroundImage={activeHero.image}
               className="wallpaper-home__glass-action wallpaper-home__glass-action--preview"
               onClick={() => onPreview(activeHero.id)}
@@ -90,7 +98,7 @@ export function HomeView({
             <WallpaperStudioGlassButton
               ariaLabel={`${likedIds.has(activeHero.id) ? 'Unlike' : 'Like'} ${activeHero.title}`}
               ariaPressed={likedIds.has(activeHero.id)}
-              backgroundHostRef={heroRef}
+              backgroundHostRef={heroHostRef}
               backgroundImage={activeHero.image}
               className="wallpaper-home__glass-action wallpaper-home__glass-action--like"
               onClick={() => onLike(activeHero.id)}

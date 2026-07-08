@@ -393,20 +393,22 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   stroke-width: 2.25;
 }
 
-.wallpaper-studio-glass-segment {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.wallpaper-studio-glass-segment-surface {
+  width: 304px;
   height: 42px;
   animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.wallpaper-studio-glass-segment-button-surface {
-  width: 96px;
-  height: 42px;
+.wallpaper-studio-glass-segment {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
 }
 
-.wallpaper-studio-glass-segment .wallpaper-studio-glass-button {
+.wallpaper-studio-glass-segment-button {
+  min-width: 0;
   font-size: 14px;
 }
 

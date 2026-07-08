@@ -31,6 +31,7 @@ export interface LiquidGlassStudioSurfaceProps {
   radius: number;
   backgroundImage: string;
   backgroundHostRef: RefObject<HTMLElement | null>;
+  backgroundScrollRef?: RefObject<HTMLElement | null>;
   tone?: LiquidGlassStudioSurfaceTone;
   interactive?: boolean;
   className?: string;
@@ -41,6 +42,7 @@ type RenderMode = 'fallback' | 'shader';
 export function LiquidGlassStudioSurface({
   backgroundHostRef,
   backgroundImage,
+  backgroundScrollRef,
   children,
   className,
   height,
@@ -209,11 +211,15 @@ export function LiquidGlassStudioSurface({
       typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(scheduleRender);
     resizeObserver?.observe(surface);
 
-    if (backgroundHostRef.current) {
-      resizeObserver?.observe(backgroundHostRef.current);
+    const host = backgroundHostRef.current;
+    const scrollHost = backgroundScrollRef?.current;
+
+    if (host) {
+      resizeObserver?.observe(host);
     }
 
     window.addEventListener('resize', scheduleRender);
+    scrollHost?.addEventListener('scroll', scheduleRender, { passive: true });
 
     return () => {
       disposed = true;
@@ -221,6 +227,7 @@ export function LiquidGlassStudioSurface({
         window.cancelAnimationFrame(frame);
       }
       window.removeEventListener('resize', scheduleRender);
+      scrollHost?.removeEventListener('scroll', scheduleRender);
       resizeObserver?.disconnect();
       const gl = canvas.getContext('webgl2');
       if (texture) {
@@ -228,7 +235,7 @@ export function LiquidGlassStudioSurface({
       }
       renderer?.dispose();
     };
-  }, [backgroundHostRef, backgroundImage, height, radius, width]);
+  }, [backgroundHostRef, backgroundImage, backgroundScrollRef, height, radius, width]);
 
   return (
     <div
@@ -286,6 +293,14 @@ function createRenderer(canvas: HTMLCanvasElement) {
 function getBackgroundSample(surface: HTMLElement, host: HTMLElement | null) {
   const surfaceRect = surface.getBoundingClientRect();
   const hostRect = host?.getBoundingClientRect() ?? surfaceRect;
+
+  return computeLiquidGlassStudioBackgroundSample(surfaceRect, hostRect);
+}
+
+export function computeLiquidGlassStudioBackgroundSample(
+  surfaceRect: Pick<DOMRectReadOnly, 'bottom' | 'height' | 'left' | 'width'>,
+  hostRect: Pick<DOMRectReadOnly, 'bottom' | 'height' | 'left' | 'width'>,
+) {
   const hostWidth = Math.max(hostRect.width, surfaceRect.width, 1);
   const hostHeight = Math.max(hostRect.height, surfaceRect.height, 1);
   const left = clamp01((surfaceRect.left - hostRect.left) / hostWidth);

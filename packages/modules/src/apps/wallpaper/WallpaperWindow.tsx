@@ -31,6 +31,8 @@ export default function WallpaperWindow() {
   const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
   const setDesktopWallpaper = useShellSelector((state) => state.setDesktopWallpaper);
   const wallpaperRootRef = useRef<HTMLDivElement | null>(null);
+  const homeHeroHostRef = useRef<HTMLDivElement | null>(null);
+  const homeScrollRef = useRef<HTMLElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [activeView, setActiveView] = useState<WallpaperView>('home');
   const [previewWallpaperId, setPreviewWallpaperId] = useState<string | null>(null);
@@ -63,6 +65,10 @@ export default function WallpaperWindow() {
     : activeView === 'home'
       ? resolveWallpaperImage(activeHeroWallpaper)
       : desktopWallpaper;
+  const headerBackgroundHostRef =
+    displayedView === 'home' ? homeHeroHostRef : wallpaperRootRef;
+  const headerBackgroundScrollRef =
+    displayedView === 'home' ? homeScrollRef : undefined;
   const wallpaperRootStyle = useMemo(
     () =>
       ({
@@ -256,8 +262,9 @@ export default function WallpaperWindow() {
       <style>{wallpaperStyles}</style>
       <WallpaperHeaderGlassSlots
         activeView={displayedView}
-        backgroundHostRef={wallpaperRootRef}
+        backgroundHostRef={headerBackgroundHostRef}
         backgroundImage={headerBackgroundImage}
+        backgroundScrollRef={headerBackgroundScrollRef}
         onFocusSearch={focusExploreSearch}
         onLicense={activateLicense}
         onSettings={openSettings}
@@ -276,6 +283,7 @@ export default function WallpaperWindow() {
       ) : null}
       {!previewWallpaper && activeView === 'home' ? (
         <HomeView
+          heroHostRef={homeHeroHostRef}
           heroIndex={heroIndex}
           likedIds={likedIds}
           onHeroDotSelect={selectHeroByIndex}
@@ -284,6 +292,7 @@ export default function WallpaperWindow() {
           onPreview={previewWallpaperById}
           onRecommendationPreview={previewWallpaperById}
           recommendationSections={recommendationSections}
+          scrollContainerRef={homeScrollRef}
           selectedRecommendedId={selectedWallpaperId}
           slides={heroSlides}
         />

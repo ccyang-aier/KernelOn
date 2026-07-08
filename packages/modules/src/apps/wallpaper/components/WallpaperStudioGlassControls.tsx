@@ -13,6 +13,7 @@ type WallpaperHeaderView = WallpaperView | 'preview';
 interface WallpaperStudioGlassButtonProps {
   backgroundHostRef: RefObject<HTMLElement | null>;
   backgroundImage: string;
+  backgroundScrollRef?: RefObject<HTMLElement | null>;
   children: ReactNode;
   height?: number;
   radius?: number;
@@ -31,6 +32,7 @@ export function WallpaperStudioGlassButton({
   ariaPressed,
   backgroundHostRef,
   backgroundImage,
+  backgroundScrollRef,
   children,
   className = '',
   height = 42,
@@ -43,6 +45,7 @@ export function WallpaperStudioGlassButton({
     <LiquidGlassStudioSurface
       backgroundHostRef={backgroundHostRef}
       backgroundImage={backgroundImage}
+      backgroundScrollRef={backgroundScrollRef}
       className={className}
       height={height}
       interactive
@@ -67,44 +70,63 @@ export function WallpaperStudioGlassButton({
 export function WallpaperStudioGlassSegment({
   backgroundHostRef,
   backgroundImage,
+  backgroundScrollRef,
   onChange,
   value,
 }: Readonly<{
   backgroundHostRef: RefObject<HTMLElement | null>;
   backgroundImage: string;
+  backgroundScrollRef?: RefObject<HTMLElement | null>;
   onChange(view: WallpaperView): void;
   value: WallpaperView;
 }>) {
   return (
-    <div
-      aria-label="Wallpaper views"
-      className="wallpaper-studio-glass-segment"
-      role="group"
+    <LiquidGlassStudioSurface
+      backgroundHostRef={backgroundHostRef}
+      backgroundImage={backgroundImage}
+      backgroundScrollRef={backgroundScrollRef}
+      className="wallpaper-studio-glass-segment-surface"
+      height={42}
+      interactive
+      radius={999}
+      tone="header"
+      width={WALLPAPER_SEGMENT_WIDTH}
     >
-      {wallpaperViewOptions.map((option) => (
-        <WallpaperStudioGlassButton
-          ariaCurrent={option.value === value ? 'page' : undefined}
-          ariaPressed={option.value === value}
-          backgroundHostRef={backgroundHostRef}
-          backgroundImage={backgroundImage}
-          className="wallpaper-studio-glass-segment-button-surface"
-          height={42}
-          key={option.value}
-          onClick={() => onChange(option.value)}
-          tone="header"
-          width={WALLPAPER_SEGMENT_BUTTON_WIDTH}
-        >
-          <span>{option.label}</span>
-        </WallpaperStudioGlassButton>
-      ))}
-    </div>
+      <div
+        aria-label="Wallpaper views"
+        className="wallpaper-studio-glass-segment"
+        role="group"
+      >
+        {wallpaperViewOptions.map((option) => (
+          <button
+            aria-current={option.value === value ? 'page' : undefined}
+            aria-pressed={option.value === value}
+            className="wallpaper-studio-glass-button wallpaper-studio-glass-segment-button"
+            key={option.value}
+            onClick={() => onChange(option.value)}
+            type="button"
+          >
+            <span>{option.label}</span>
+          </button>
+        ))}
+      </div>
+    </LiquidGlassStudioSurface>
   );
 }
+
+const WALLPAPER_SEGMENT_WIDTH = 304;
+
+const wallpaperViewOptions: Array<{ label: string; value: WallpaperView }> = [
+  { label: viewLabels.home, value: 'home' },
+  { label: viewLabels.explore, value: 'explore' },
+  { label: viewLabels.settings, value: 'settings' },
+];
 
 export function WallpaperHeaderGlassSlots({
   activeView,
   backgroundHostRef,
   backgroundImage,
+  backgroundScrollRef,
   onFocusSearch,
   onLicense,
   onSettings,
@@ -114,6 +136,7 @@ export function WallpaperHeaderGlassSlots({
   activeView: WallpaperHeaderView;
   backgroundHostRef: RefObject<HTMLElement | null>;
   backgroundImage: string;
+  backgroundScrollRef?: RefObject<HTMLElement | null>;
   onFocusSearch(): void;
   onLicense(): void;
   onSettings(): void;
@@ -127,6 +150,7 @@ export function WallpaperHeaderGlassSlots({
         ariaLabel="Search"
         backgroundHostRef={backgroundHostRef}
         backgroundImage={backgroundImage}
+        backgroundScrollRef={backgroundScrollRef}
         className="wallpaper-studio-glass-icon-surface"
         onClick={onFocusSearch}
         tone="header"
@@ -135,7 +159,7 @@ export function WallpaperHeaderGlassSlots({
         <Search aria-hidden="true" />
       </WallpaperStudioGlassButton>
     ),
-    [backgroundHostRef, backgroundImage, onFocusSearch],
+    [backgroundHostRef, backgroundImage, backgroundScrollRef, onFocusSearch],
   );
   const segmentControl = useMemo(
     () =>
@@ -143,11 +167,12 @@ export function WallpaperHeaderGlassSlots({
         <WallpaperStudioGlassSegment
           backgroundHostRef={backgroundHostRef}
           backgroundImage={backgroundImage}
+          backgroundScrollRef={backgroundScrollRef}
           onChange={onViewChange}
           value={segmentView}
         />
       ) : null,
-    [backgroundHostRef, backgroundImage, onViewChange, segmentView],
+    [backgroundHostRef, backgroundImage, backgroundScrollRef, onViewChange, segmentView],
   );
   const licenseControl = useMemo(
     () => (
@@ -155,6 +180,7 @@ export function WallpaperHeaderGlassSlots({
         ariaLabel="License"
         backgroundHostRef={backgroundHostRef}
         backgroundImage={backgroundImage}
+        backgroundScrollRef={backgroundScrollRef}
         className="wallpaper-studio-glass-icon-surface"
         onClick={onLicense}
         tone="header"
@@ -163,7 +189,7 @@ export function WallpaperHeaderGlassSlots({
         <KeyRound aria-hidden="true" />
       </WallpaperStudioGlassButton>
     ),
-    [backgroundHostRef, backgroundImage, onLicense],
+    [backgroundHostRef, backgroundImage, backgroundScrollRef, onLicense],
   );
   const shareControl = useMemo(
     () => (
@@ -171,6 +197,7 @@ export function WallpaperHeaderGlassSlots({
         ariaLabel="Share"
         backgroundHostRef={backgroundHostRef}
         backgroundImage={backgroundImage}
+        backgroundScrollRef={backgroundScrollRef}
         className="wallpaper-studio-glass-icon-surface"
         onClick={onShare}
         tone="header"
@@ -179,7 +206,7 @@ export function WallpaperHeaderGlassSlots({
         <Share2 aria-hidden="true" />
       </WallpaperStudioGlassButton>
     ),
-    [backgroundHostRef, backgroundImage, onShare],
+    [backgroundHostRef, backgroundImage, backgroundScrollRef, onShare],
   );
   const settingsControl = useMemo(
     () => (
@@ -187,6 +214,7 @@ export function WallpaperHeaderGlassSlots({
         ariaLabel="Settings"
         backgroundHostRef={backgroundHostRef}
         backgroundImage={backgroundImage}
+        backgroundScrollRef={backgroundScrollRef}
         className="wallpaper-studio-glass-icon-surface"
         onClick={onSettings}
         tone="header"
@@ -195,7 +223,7 @@ export function WallpaperHeaderGlassSlots({
         <Settings aria-hidden="true" />
       </WallpaperStudioGlassButton>
     ),
-    [backgroundHostRef, backgroundImage, onSettings],
+    [backgroundHostRef, backgroundImage, backgroundScrollRef, onSettings],
   );
 
   return (
@@ -216,11 +244,3 @@ export function WallpaperHeaderGlassSlots({
     </>
   );
 }
-
-const WALLPAPER_SEGMENT_BUTTON_WIDTH = 96;
-
-const wallpaperViewOptions: Array<{ label: string; value: WallpaperView }> = [
-  { label: viewLabels.home, value: 'home' },
-  { label: viewLabels.explore, value: 'explore' },
-  { label: viewLabels.settings, value: 'settings' },
-];
