@@ -1,11 +1,87 @@
 # Liquid Glass 前端设计与实现对比分析
 
-本文分析范围为仓库内的两个本地项目：
+本文分析范围扩展为仓库内的四个本地项目：
 
 - `open_source/liquid-glass-react`
 - `open_source/liquid-glass-studio`
+- `open_source/liquidglass`
+- `open_source/liquid-glass`
 
-分析重点不是复述 README，而是从视觉模型、渲染原理、工程边界、可复用性、性能风险和 KernelOn 后续设计系统落地角度，判断两者分别适合解决什么问题。
+分析重点不是复述 README，而是从视觉模型、渲染原理、工程边界、可复用性、性能风险和 KernelOn 后续设计系统落地角度，判断四者分别适合解决什么问题。
+
+## 0. 2026-07 四仓复评结论
+
+结论先行：如果 KernelOn 要建设“可在全局反复使用”的液态玻璃材质组件，当前最值得作为生产基座验证的是 `open_source/liquid-glass`，也就是 `@samasante/liquid-glass`。它不是视觉上最激进的实现，但它在 React 组件边界、无障碍 DOM 组合、跨浏览器降级、参数模型和真实控件复用之间取得了最均衡的工程形态。
+
+这不意味着应当让业务代码直接依赖第三方 API。更合适的做法是把它吸收进 KernelOn 的 `packages/ui` 材质层，由 KernelOn 自己暴露 `GlassSurface`、`GlassPanel`、`GlassMenuSurface`、`GlassControlSurface` 等语义组件和少量设计 token/preset，业务 App 只消费 KernelOn 封装后的稳定契约。
+
+| 项目 | 定位 | 成熟度判断 | 对 KernelOn 的结论 |
+| --- | --- | --- | --- |
+| `liquid-glass-react` | 小型 React 玻璃容器 | 社区热度最高，但组件假设较重，定位、背景、SVG filter、浏览器支持和鼠标状态耦合明显 | 只建议保留为现有轻量材质/历史参考，不适合作为新的全局基座 |
+| `liquid-glass-studio` | WebGL/WebGPU 材质实验室 | shader 模型和调参能力强，但本质是实验应用，不是 DOM 组件库 | 适合作为高保真视觉研发、预设调参和 shader 参考，不适合作为业务 UI 材质层 |
+| `liquidglass` | 命令式 WebGL + DOM capture 场景折射引擎 | 折射真实感强，有 `markChanged`、`data-dynamic`、分层 glass 合成，但结构约束和捕获成本高 | 适合专门的全屏/局部视觉场景，不适合作为 Shell/App/Widget 通用组件 |
+| `liquid-glass` | Headless React 液态玻璃 primitive | 项目很新，但 API 最接近生产 UI：零运行时依赖、可包裹 DOM、可分离 optics、提供多种渲染模式和跨浏览器降级 | 最适合作为 KernelOn 全局材质组件的候选基座 |
+
+### 0.1 为什么不再把 `liquid-glass-react` 作为主基座
+
+`liquid-glass-react` 的问题不是“不能做出漂亮效果”，而是它的工程模型太像一个带强样式假设的成品组件。它默认围绕小面积浮层、按钮、菜单这类场景组织：内部有固定的 SVG filter/overlay 层、默认居中定位倾向、实例级鼠标状态、`backdrop-filter` 与 `filter: url(...)` 的组合，以及 Safari/Firefox 下不完整的 displacement 表现。
+
+这解释了为什么它能在 KernelOn 右键菜单里成功，但换到其他系统材质场景后容易“失去液态玻璃感”：它依赖的背景采样、遮罩边界、层叠上下文、尺寸、亮度和 filter 生效条件都比较脆弱。一旦放到窗口框架、Dock、桌面小组件、应用壳层、复杂背景或嵌套滚动容器里，视觉链路就可能断掉。
+
+KernelOn 当前已经把它改造成 `packages/ui` 下的 `liquid-glass-svg-filter` 组件，这个方向可以继续保留为轻量 SVG/CSS 近似材质，但不应继续把它扩大成所有液态玻璃场景的统一答案。
+
+### 0.2 为什么 `liquid-glass-studio` 仍然更像研发工具
+
+`liquid-glass-studio` 的价值在于高保真视觉模型。它通过 SDF、法线、折射、色散、Fresnel、glare、多 pass blur、WebGL2/WebGPU 后端，把“玻璃像素”这件事拆得很完整，非常适合帮助 KernelOn 调出自己的材质审美。
+
+但它不是一个面向真实业务控件的组件库。它的输出核心是 canvas，主应用承担渲染循环和大量 shader uniform 同步，README/TODO 里也仍能看到编辑器模式、预设、UI 内容进入玻璃形状、玻璃文字渲染等未完成方向。对于 KernelOn 的业务窗口、表单、列表、菜单、导师匹配操作流来说，DOM 语义、键盘交互、布局和可访问性必须保持一等地位，不能被 canvas 材质系统接管。
+
+因此它更适合成为“材质实验室”和“预设来源”，而不是 `packages/ui` 的日常组件基座。
+
+### 0.3 `ybouane/liquidglass` 的强项与风险
+
+`open_source/liquidglass` 是四者里最像“场景级折射引擎”的实现。它通过 `LiquidGlass.init({ root, glassElements, defaults })` 接管一个 root，把非玻璃子元素捕获成 canvas，再用 WebGL 对玻璃元素做折射、模糊、阴影、色散和分层合成。它还提供 `markChanged()`、`data-dynamic`、视频/图片/canvas 直接绘制、配置变更监听等机制，工程意识比普通 demo 强很多。
+
+它的核心代价也非常清楚：
+
+- glass 元素必须是 root 的直接子元素，嵌套结构受限。
+- root 自身背景不会被捕获，背景必须成为 root 的子元素。
+- 每个实例都有自己的捕获与 WebGL 生命周期，多 root 之间不能共享折射上下文。
+- `html-to-image` / SVG `foreignObject` 捕获会受字体、跨域图片、动态 DOM、视频帧和 CORS 影响。
+- `data-dynamic` 每帧捕获成本高，复杂业务界面中很容易变成性能风险。
+- 它是命令式生命周期，不天然符合 Next.js/React 19 的组件边界和 KernelOn 的模块按需加载方式。
+
+所以它适合“某个明确场景里需要更真实折射”的增强层，例如登录/启动台/品牌展示/特殊壁纸区域，而不适合作为 Dock、窗口、菜单、Widget、业务 App 面板到处复用的默认材质组件。
+
+### 0.4 为什么 `samasante/liquid-glass` 更适合作为 KernelOn 基座
+
+`open_source/liquid-glass` 的优势是它把液态玻璃拆成了更合理的产品级抽象：一个 headless React primitive `Glass`，再围绕 optics、lens、material、refract、media surface、motion value 组织能力。它不试图替业务 UI 决定按钮长什么样，也不要求整个页面进入一个命令式 root，而是让 KernelOn 可以把“材质”附着在自己的组件语义上。
+
+对 KernelOn 特别重要的点：
+
+- React 组件边界清晰，适合沉入 `packages/ui` 的客户端叶子组件，不会污染 Server Component 装配层。
+- 零运行时依赖，peer dependency 只围绕 React/ReactDOM，接入成本和版本风险比大型视觉工具低。
+- 支持 material、`refract={node}`、`src`、`draw`、`lenses` 等不同模式，可以覆盖普通控件、复制背景折射、图片/视频/canvas 等多种场景。
+- optics 与几何尺寸分离，利于沉淀 KernelOn 自己的 `subtle`、`panel`、`menu`、`dock`、`control` 等 preset。
+- 文档明确说明 Safari/Firefox 降级策略，Chrome/Edge 下可用更强的 URL filter/backdrop 组合，跨浏览器预期比 `liquid-glass-react` 更清楚。
+- 示例组件覆盖 Context Menu、Notification、Switch、Slider、Video Controls，而且保留真实 DOM/input/ARIA 结构，说明它的作者在按真实控件思路设计，而不是只做视觉卡片。
+- motion value 设计很轻，可与后续动画系统连接，同时避免强绑定 Framer Motion 这类额外依赖。
+
+它的风险也要正视：项目版本还很新，当前 npm 版本只有 `0.1.1`；非常宽的菜单栏、Dock 背板或窗口大面板不应使用一个被横向拉伸的单 lens；大量 SVG filter 实例仍会有 GPU/合成成本；“直接折射页面背后任意内容”的能力在不同浏览器里并不等价。
+
+但这些风险可以通过 KernelOn 自己的封装策略控制：限制可用 preset、按场景选择模式、提供无折射 fallback、限制实例数量和尺寸、对宽面板拆分为分段/子 lens，而不是把第三方裸组件直接交给业务模块自由传参。
+
+### 0.5 KernelOn 推荐落地架构
+
+推荐采用 `samasante/liquid-glass` 为主、`liquid-glass-studio` 为研发参考、`liquidglass` 为特殊场景增强、`liquid-glass-react` 为历史轻量 fallback 的分层策略：
+
+1. 在 `packages/ui` 内建设 KernelOn 自有材质组件，不让 `apps/web`、`packages/shell` 或 `packages/modules` 直接散落第三方 glass API。
+2. 第一批组件只开放少量语义 preset，例如 `system`, `menu`, `popover`, `dock`, `windowChrome`, `control`, `media`，不要暴露所有底层 shader/filter 参数。
+3. 小型浮层、菜单、通知、控件优先使用 `Glass` 的 DOM/refract/material 能力；图片、视频、动态媒体再使用 `src`/`draw`/surface 能力。
+4. 对 Dock、菜单栏、窗口顶部栏这类宽面板，不使用单个巨大折射 lens；应拆成局部 glass segment，或退回更稳定的 frost/tint/edge 材质。
+5. 在 Tailwind CSS 4 的 `@theme` 中沉淀颜色、透明度、边缘、高光、阴影、模糊和降级 token，避免在 JavaScript 里维护重复主题常量。
+6. 保留 `liquid-glass-studio` 作为内部调参页面或视觉实验源，用它探索高保真参数，再把少量稳定结果转译成 UI preset。
+7. 若未来某个系统级场景确实需要更真实的整屏折射，再单独评估 `ybouane/liquidglass` 的命令式 root/capture 模型，不把它混入日常业务组件。
 
 ## 1. 什么是液态玻璃（Liquid Glass）
 
@@ -681,10 +757,14 @@ Canvas 渲染的是像素，不是语义 UI。屏幕阅读器、键盘导航、�
 
 ## 6. 小结
 
-`liquid-glass-react` 和 `liquid-glass-studio` 实际上代表了两条不同路线。
+四仓复评后，KernelOn 的推荐路径需要从“`liquid-glass-react` 近期落地、`liquid-glass-studio` 长期研发”升级为更清晰的分层策略。
 
-`liquid-glass-react` 是工程友好的组件路线。它用 CSS、SVG filter 和 DOM overlay 做出足够有辨识度的玻璃质感，能包裹真实 React children，适合按钮、Dock、浮层、工具条和小型容器。它的主要问题不是视觉不够，而是生产硬化不足：SSR、Tailwind 隐式依赖、可访问性、多实例性能和尺寸监听都需要修补。
+`liquid-glass-react` 可以继续作为历史轻量参考和局部 fallback，但它不适合作为全局材质基座。用户已经在右键菜单之外遇到“材质丢失”的问题，这与它强依赖特定层叠、背景、filter、定位和小型浮层场景的实现方式一致。
 
-`liquid-glass-studio` 是高保真的 shader 路线。它用 SDF、多 pass blur、折射、色散、Fresnel、glare、WebGL2/WebGPU 双后端构建了完整材质实验室。它非常适合研究 Liquid Glass 的真实视觉构成，也适合做特殊视觉场景，但不适合直接承担业务 UI 组件，因为 canvas 输出天然缺少 DOM 组合、语义和可访问性。
+`liquid-glass-studio` 仍然是高保真 shader 研发工具。它适合帮助 KernelOn 调出自己的玻璃审美、理解 SDF/折射/色散/Fresnel/glare 的视觉关系，但不适合直接进入业务 UI 组件体系。
 
-对 KernelOn 来说，最合理的结论是：用 `liquid-glass-react` 的组件思路做近期可落地材质，用 `liquid-glass-studio` 的 shader 模型做长期视觉研发参考。日常管理界面保持清晰、高效、明亮、克制；系统级入口和关键过渡适度使用液态玻璃，让 Web OS 隐喻成立，但不让材质喧宾夺主。
+`ybouane/liquidglass` 的场景级 DOM capture + WebGL 折射能力很有价值，真实感上限高于普通 CSS/SVG 组件，但它的 root 结构、直接子元素约束、捕获成本、CORS/字体/动态内容风险和命令式生命周期，都决定了它更适合特殊视觉场景，而不是 KernelOn 的日常系统组件。
+
+`samasante/liquid-glass` 是当前四个项目里最适合 KernelOn 作为全局材质基座验证的实现。它把玻璃做成 headless React primitive，保留真实 DOM、ARIA、input 和布局能力，同时提供 material、refract、src、draw、lenses、motion value 和跨浏览器降级。它虽然很新，但架构方向最贴近 KernelOn 的 `packages/ui` 封装模式。
+
+因此最终建议是：以 `samasante/liquid-glass` 为主引擎/参考，在 `packages/ui` 中封装 KernelOn 自有 `GlassSurface` 系列组件；以 `liquid-glass-studio` 做材质研发和 preset 来源；以 `ybouane/liquidglass` 作为少数高保真场景的备选增强；把 `liquid-glass-react` 限定在历史兼容和轻量 SVG/CSS 近似材质中。这样既能保住 Web OS 的液态玻璃识别度，也不会牺牲管理平台最重要的清晰度、性能、可访问性和长期可维护性。
