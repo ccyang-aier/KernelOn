@@ -552,11 +552,13 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   width: 96px;
   height: 34px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.13);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.065) 58%, rgba(255, 255, 255, 0.12));
+  backdrop-filter: blur(12px) saturate(1.18);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.34),
-    inset 0 -10px 22px rgba(255, 255, 255, 0.07),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.13);
+    inset 0 8px 14px rgba(255, 255, 255, 0.1),
+    inset 0 -14px 18px rgba(255, 255, 255, 0.055),
+    0 4px 14px rgba(0, 0, 0, 0.08);
   transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 

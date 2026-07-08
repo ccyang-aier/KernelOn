@@ -64,14 +64,14 @@ const tonePresets: Record<
   }
 > = {
   header: {
-    blurRadius: 3,
-    tint: [1, 1, 1, 0.024],
-    refThickness: 8,
-    refFactor: 1.12,
-    refDispersion: 1.2,
+    blurRadius: 5,
+    tint: [1, 1, 1, 0.018],
+    refThickness: 10,
+    refFactor: 1.18,
+    refDispersion: 0.8,
     refFresnelRange: 62,
-    refFresnelHardness: 0.04,
-    refFresnelFactor: 0.055,
+    refFresnelHardness: 0.032,
+    refFresnelFactor: 0.042,
     glareRange: 68,
     glareHardness: 0.045,
     glareConvergence: 0.28,
@@ -81,17 +81,17 @@ const tonePresets: Record<
     shadowExpand: 18,
     shadowFactor: 0,
     shadowPosition: [0, 0],
-    shaderOpacity: 0.52,
-    shaderStep: 6,
-    shapeInset: 1.5,
+    shaderOpacity: 0.68,
+    shaderStep: 7,
+    shapeInset: 0.5,
     shapeRoundness: 5.2,
   },
   hero: {
-    blurRadius: 4,
-    tint: [0.96, 1, 1, 0.032],
-    refThickness: 9,
-    refFactor: 1.14,
-    refDispersion: 1.5,
+    blurRadius: 5,
+    tint: [0.96, 1, 1, 0.024],
+    refThickness: 8,
+    refFactor: 1.12,
+    refDispersion: 0.9,
     refFresnelRange: 58,
     refFresnelHardness: 0.045,
     refFresnelFactor: 0.07,
@@ -104,9 +104,9 @@ const tonePresets: Record<
     shadowExpand: 20,
     shadowFactor: 0,
     shadowPosition: [0, 0],
-    shaderOpacity: 0.56,
+    shaderOpacity: 0.5,
     shaderStep: 6,
-    shapeInset: 1.5,
+    shapeInset: 0.5,
     shapeRoundness: 5.4,
   },
   subtle: {
@@ -129,7 +129,7 @@ const tonePresets: Record<
     shadowPosition: [0, 0],
     shaderOpacity: 0.46,
     shaderStep: 6,
-    shapeInset: 1.5,
+    shapeInset: 0.5,
     shapeRoundness: 5,
   },
 };
@@ -393,11 +393,11 @@ const canvasStyle: CSSProperties = {
 
 const shaderBaseStyle: CSSProperties = {
   background:
-    'linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.045) 56%, rgba(255,255,255,0.105))',
-  backdropFilter: 'blur(10px) saturate(1.08)',
+    'linear-gradient(180deg, rgba(255,255,255,0.115), rgba(255,255,255,0.038) 54%, rgba(255,255,255,0.085))',
+  backdropFilter: 'blur(14px) saturate(1.16) contrast(1.03)',
   borderRadius: 'var(--ko-studio-glass-radius)',
   boxShadow:
-    'inset 0 1px 0 rgba(255,255,255,0.38), inset 0 -1px 0 rgba(255,255,255,0.12), inset 0 0 16px rgba(255,255,255,0.055), 0 7px 16px rgba(0,0,0,0.12)',
+    'inset 0 10px 18px rgba(255,255,255,0.075), inset 0 -16px 24px rgba(255,255,255,0.045), inset 0 0 18px rgba(255,255,255,0.045), 0 8px 18px rgba(0,0,0,0.11)',
   inset: 0,
   pointerEvents: 'none',
   position: 'absolute',
@@ -418,9 +418,10 @@ const fallbackStyle: CSSProperties = {
 };
 
 const rimStyle: CSSProperties = {
-  border: '1px solid rgba(255,255,255,0.28)',
+  border: 0,
   borderRadius: 'var(--ko-studio-glass-radius)',
-  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)',
+  boxShadow:
+    'inset 0 0 0 1px rgba(255,255,255,0.2), inset 0 1px 10px rgba(255,255,255,0.14)',
   inset: 0,
   pointerEvents: 'none',
   position: 'absolute',

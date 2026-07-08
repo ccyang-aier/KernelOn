@@ -21,6 +21,17 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).not.toContain('.wallpaper-home__glass-button::before');
   });
 
+  it('keeps the studio segment active layer soft instead of drawing a hard inner border', () => {
+    expect(wallpaperStyles).toContain('.wallpaper-studio-glass-segment__indicator {');
+    const indicatorRule = wallpaperStyles.match(
+      /\.wallpaper-studio-glass-segment__indicator \{[\s\S]*?\n\}/,
+    )?.[0];
+
+    expect(indicatorRule).toContain('backdrop-filter: blur(12px) saturate(1.18);');
+    expect(indicatorRule).toContain('inset 0 8px 14px rgba(255, 255, 255, 0.1)');
+    expect(indicatorRule).not.toContain('inset 0 1px 0 rgba(255, 255, 255, 0.34)');
+  });
+
   it('defines preview header placement and preview entrance motion', () => {
     expect(wallpaperStyles).toContain('header[data-app-header-preset="browser"]');
     expect(wallpaperStyles).toContain('@keyframes wallpaperPreviewImageIn');

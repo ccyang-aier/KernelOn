@@ -3,7 +3,7 @@
 import { AppHeaderSlot } from '@kernelon/shell';
 import { LiquidGlassStudioSurface } from '@kernelon/ui/liquid-glass-studio-surface';
 import { KeyRound, Search, Settings, Share2 } from 'lucide-react';
-import type { ReactNode, RefObject } from 'react';
+import { useMemo, type ReactNode, type RefObject } from 'react';
 
 import { viewLabels } from '../data';
 import type { WallpaperView } from '../types';
@@ -136,76 +136,97 @@ export function WallpaperHeaderGlassSlots({
   onViewChange(view: WallpaperView): void;
 }>) {
   const segmentView = activeView === 'preview' ? null : activeView;
+  const searchControl = useMemo(
+    () => (
+      <WallpaperStudioGlassButton
+        ariaLabel="Search"
+        backgroundHostRef={backgroundHostRef}
+        backgroundImage={backgroundImage}
+        className="wallpaper-studio-glass-icon-surface"
+        onClick={onFocusSearch}
+        tone="header"
+        width={42}
+      >
+        <Search aria-hidden="true" />
+      </WallpaperStudioGlassButton>
+    ),
+    [backgroundHostRef, backgroundImage, onFocusSearch],
+  );
+  const segmentControl = useMemo(
+    () =>
+      segmentView ? (
+        <WallpaperStudioGlassSegment
+          backgroundHostRef={backgroundHostRef}
+          backgroundImage={backgroundImage}
+          onChange={onViewChange}
+          value={segmentView}
+        />
+      ) : null,
+    [backgroundHostRef, backgroundImage, onViewChange, segmentView],
+  );
+  const licenseControl = useMemo(
+    () => (
+      <WallpaperStudioGlassButton
+        ariaLabel="License"
+        backgroundHostRef={backgroundHostRef}
+        backgroundImage={backgroundImage}
+        className="wallpaper-studio-glass-icon-surface"
+        onClick={onLicense}
+        tone="header"
+        width={42}
+      >
+        <KeyRound aria-hidden="true" />
+      </WallpaperStudioGlassButton>
+    ),
+    [backgroundHostRef, backgroundImage, onLicense],
+  );
+  const shareControl = useMemo(
+    () => (
+      <WallpaperStudioGlassButton
+        ariaLabel="Share"
+        backgroundHostRef={backgroundHostRef}
+        backgroundImage={backgroundImage}
+        className="wallpaper-studio-glass-icon-surface"
+        onClick={onShare}
+        tone="header"
+        width={42}
+      >
+        <Share2 aria-hidden="true" />
+      </WallpaperStudioGlassButton>
+    ),
+    [backgroundHostRef, backgroundImage, onShare],
+  );
+  const settingsControl = useMemo(
+    () => (
+      <WallpaperStudioGlassButton
+        ariaLabel="Settings"
+        backgroundHostRef={backgroundHostRef}
+        backgroundImage={backgroundImage}
+        className="wallpaper-studio-glass-icon-surface"
+        onClick={onSettings}
+        tone="header"
+        width={42}
+      >
+        <Settings aria-hidden="true" />
+      </WallpaperStudioGlassButton>
+    ),
+    [backgroundHostRef, backgroundImage, onSettings],
+  );
 
   return (
     <>
-      <AppHeaderSlot id="wallpaper-search-control">
-        <WallpaperStudioGlassButton
-          ariaLabel="Search"
-          backgroundHostRef={backgroundHostRef}
-          backgroundImage={backgroundImage}
-          className="wallpaper-studio-glass-icon-surface"
-          onClick={onFocusSearch}
-          tone="header"
-          width={42}
-        >
-          <Search aria-hidden="true" />
-        </WallpaperStudioGlassButton>
-      </AppHeaderSlot>
+      <AppHeaderSlot id="wallpaper-search-control">{searchControl}</AppHeaderSlot>
 
       {segmentView ? (
-        <AppHeaderSlot id="wallpaper-view-control">
-          <WallpaperStudioGlassSegment
-            backgroundHostRef={backgroundHostRef}
-            backgroundImage={backgroundImage}
-            onChange={onViewChange}
-            value={segmentView}
-          />
-        </AppHeaderSlot>
+        <AppHeaderSlot id="wallpaper-view-control">{segmentControl}</AppHeaderSlot>
       ) : null}
 
-      <AppHeaderSlot id="wallpaper-license-control">
-        <WallpaperStudioGlassButton
-          ariaLabel="License"
-          backgroundHostRef={backgroundHostRef}
-          backgroundImage={backgroundImage}
-          className="wallpaper-studio-glass-icon-surface"
-          onClick={onLicense}
-          tone="header"
-          width={42}
-        >
-          <KeyRound aria-hidden="true" />
-        </WallpaperStudioGlassButton>
-      </AppHeaderSlot>
+      <AppHeaderSlot id="wallpaper-license-control">{licenseControl}</AppHeaderSlot>
 
-      <AppHeaderSlot id="wallpaper-share-control">
-        <WallpaperStudioGlassButton
-          ariaLabel="Share"
-          backgroundHostRef={backgroundHostRef}
-          backgroundImage={backgroundImage}
-          className="wallpaper-studio-glass-icon-surface"
-          onClick={onShare}
-          tone="header"
-          width={42}
-        >
-          <Share2 aria-hidden="true" />
-        </WallpaperStudioGlassButton>
-      </AppHeaderSlot>
+      <AppHeaderSlot id="wallpaper-share-control">{shareControl}</AppHeaderSlot>
 
       {activeView === 'preview' ? (
-        <AppHeaderSlot id="wallpaper-settings-control">
-          <WallpaperStudioGlassButton
-            ariaLabel="Settings"
-            backgroundHostRef={backgroundHostRef}
-            backgroundImage={backgroundImage}
-            className="wallpaper-studio-glass-icon-surface"
-            onClick={onSettings}
-            tone="header"
-            width={42}
-          >
-            <Settings aria-hidden="true" />
-          </WallpaperStudioGlassButton>
-        </AppHeaderSlot>
+        <AppHeaderSlot id="wallpaper-settings-control">{settingsControl}</AppHeaderSlot>
       ) : null}
     </>
   );
