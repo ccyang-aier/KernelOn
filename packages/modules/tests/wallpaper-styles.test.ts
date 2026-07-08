@@ -27,7 +27,7 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).toContain('.wallpaper-frosted-button');
     expect(wallpaperStyles).toContain('.wallpaper-frosted-segment');
     expect(wallpaperStyles).toContain('.wallpaper-home__frosted-button');
-    expect(wallpaperStyles).toContain('backdrop-filter: blur(8px) saturate(1.08);');
+    expect(wallpaperStyles).toContain('backdrop-filter: blur(2px) saturate(1.02);');
   });
 
   it('uses wallpaper-owned frosted button components', () => {

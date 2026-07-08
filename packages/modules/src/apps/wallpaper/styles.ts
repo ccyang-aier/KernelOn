@@ -109,16 +109,16 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 .wallpaper-home__frosted-button {
   position: relative;
   isolation: isolate;
-  border: 1px solid rgba(255, 255, 255, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.07)),
-    rgba(255, 255, 255, 0.10);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.012)),
+    rgba(255, 255, 255, 0.025);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.38),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
-    0 10px 24px rgba(0, 0, 0, 0.12);
-  -webkit-backdrop-filter: blur(8px) saturate(1.08);
-  backdrop-filter: blur(8px) saturate(1.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+    0 6px 14px rgba(0, 0, 0, 0.05);
+  -webkit-backdrop-filter: blur(2px) saturate(1.02);
+  backdrop-filter: blur(2px) saturate(1.02);
 }
 
 .wallpaper-frosted-button {
@@ -142,10 +142,10 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-frosted-button:hover {
-  border-color: rgba(255, 255, 255, 0.34);
+  border-color: rgba(255, 255, 255, 0.24);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.10)),
-    rgba(255, 255, 255, 0.13);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025)),
+    rgba(255, 255, 255, 0.04);
   color: #fff;
 }
 
@@ -203,11 +203,14 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-frosted-segment__button[aria-pressed="true"] {
-  background: rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.035);
   color: #fff;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.34),
-    0 8px 18px rgba(0, 0, 0, 0.10);
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 4px 10px rgba(0, 0, 0, 0.04);
 }
 
 .wallpaper-frosted-segment__button > span {
@@ -467,10 +470,10 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-home__frosted-button:hover {
-  border-color: rgba(255, 255, 255, 0.38);
+  border-color: rgba(255, 255, 255, 0.24);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.09)),
-    rgba(255, 255, 255, 0.13);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025)),
+    rgba(255, 255, 255, 0.04);
   color: #fff;
 }
 
@@ -487,7 +490,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   inset: 1px 1px auto;
   height: 42%;
   border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0));
   content: "";
   pointer-events: none;
   z-index: -1;
