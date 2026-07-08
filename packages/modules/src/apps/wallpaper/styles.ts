@@ -68,7 +68,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-cen
   flex: 0 0 auto;
   transition:
     opacity 260ms ease,
-    transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] {
@@ -104,7 +104,12 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   gap: 10px;
 }
 
+section[data-app-id="wallpaper"] > header:has(.wallpaper-frosted-search[data-wallpaper-search-open="true"]):not([data-app-header-preset="browser"]) [data-testid^="kernelon-app-header-center-"] {
+  transform: translateX(10px);
+}
+
 .wallpaper-frosted-button,
+.wallpaper-frosted-search,
 .wallpaper-frosted-segment,
 .wallpaper-home__frosted-button {
   position: relative;
@@ -170,7 +175,85 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   flex: 0 0 42px;
 }
 
+.wallpaper-frosted-search {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.92);
+  transform-origin: left center;
+  -webkit-backdrop-filter: blur(1.2px) saturate(1.02);
+  backdrop-filter: blur(1.2px) saturate(1.02);
+  transition:
+    width 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.wallpaper-frosted-search[data-wallpaper-search-open="true"] {
+  width: clamp(232px, 31vw, 392px);
+  border-color: rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01)),
+    rgba(255, 255, 255, 0.018);
+}
+
+.wallpaper-frosted-search__button {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.wallpaper-frosted-search__button svg {
+  width: 21px;
+  height: 21px;
+  stroke-width: 2.25;
+}
+
+.wallpaper-frosted-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0 16px 0 2px;
+  font-size: 14px;
+  font-weight: 720;
+  outline: none;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease 90ms,
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(-8px);
+}
+
+.wallpaper-frosted-search[data-wallpaper-search-open="true"] input {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.wallpaper-frosted-search input::placeholder {
+  color: rgba(255, 255, 255, 0.56);
+}
+
+.wallpaper-frosted-header-center {
+  display: contents;
+}
+
 .wallpaper-frosted-segment {
+  position: relative;
   display: grid;
   width: 304px;
   height: 42px;
@@ -180,9 +263,48 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   border-radius: 999px;
   padding: 4px;
   animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wallpaper-frosted-segment__indicator {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  z-index: 0;
+  width: calc((100% - 8px) / 3);
+  height: calc(100% - 8px);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.035);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 4px 10px rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.wallpaper-frosted-segment[data-wallpaper-view="home"] .wallpaper-frosted-segment__indicator {
+  transform: translateX(0);
+}
+
+.wallpaper-frosted-segment[data-wallpaper-view="explore"] .wallpaper-frosted-segment__indicator {
+  transform: translateX(100%);
+}
+
+.wallpaper-frosted-segment[data-wallpaper-view="settings"] .wallpaper-frosted-segment__indicator {
+  transform: translateX(200%);
 }
 
 .wallpaper-frosted-segment__button {
+  position: relative;
+  z-index: 1;
   min-width: 0;
   border: 0;
   border-radius: 999px;
@@ -203,14 +325,9 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-frosted-segment__button[aria-pressed="true"] {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02)),
-    rgba(255, 255, 255, 0.035);
+  background: transparent;
   color: #fff;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 4px 10px rgba(0, 0, 0, 0.04);
+  box-shadow: none;
 }
 
 .wallpaper-frosted-segment__button > span {
@@ -534,7 +651,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 .wallpaper-home__pagination {
   position: absolute;
   left: 50%;
-  bottom: clamp(98px, 15vh, 144px);
+  bottom: clamp(30px, 5vh, 56px);
   z-index: 4;
   display: flex;
   transform: translateX(-50%);
@@ -811,17 +928,23 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   left: 50%;
   min-width: 154px;
   max-width: calc(100% - 36px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
-  background: rgba(56, 34, 52, 0.48);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.012)),
+    rgba(255, 255, 255, 0.025);
   padding: 11px 20px;
   color: rgba(255, 255, 255, 0.94);
   font-size: 13px;
   font-weight: 900;
   line-height: 1;
   text-align: center;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 16px 34px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(22px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+    0 6px 14px rgba(0, 0, 0, 0.05);
+  -webkit-backdrop-filter: blur(2px) saturate(1.02);
+  backdrop-filter: blur(2px) saturate(1.02);
   opacity: 0;
   transform: translate(-50%, 8px) scale(0.98);
   transition:
@@ -829,7 +952,6 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
     transform 210ms ease;
 }
 
-.wallpaper-carousel-card.is-selected .wallpaper-card-glass-label,
 .wallpaper-carousel-card:hover .wallpaper-card-glass-label,
 .wallpaper-carousel-card:focus-visible .wallpaper-card-glass-label {
   opacity: 1;
@@ -1038,7 +1160,10 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-explore-card {
   position: relative;
-  min-height: 315px;
+  display: grid;
+  height: clamp(328px, 28vw, 430px);
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) 122px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 18px;
@@ -1054,8 +1179,10 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-explore-card > img,
 .wallpaper-explore-placeholder {
+  display: block;
   width: 100%;
-  height: 73%;
+  height: 100%;
+  min-height: 0;
   object-fit: cover;
 }
 
@@ -1069,21 +1196,27 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 .wallpaper-explore-card__view {
   position: absolute;
   left: 50%;
-  bottom: 112px;
+  bottom: 142px;
   z-index: 2;
   min-width: 164px;
   max-width: calc(100% - 38px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
-  background: rgba(18, 20, 22, 0.54);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.012)),
+    rgba(255, 255, 255, 0.025);
   color: rgba(255, 255, 255, 0.94);
   padding: 12px 22px;
   font-size: 13px;
   font-weight: 900;
   line-height: 1;
   text-align: center;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 16px 34px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(22px) saturate(1.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+    0 6px 14px rgba(0, 0, 0, 0.05);
+  -webkit-backdrop-filter: blur(2px) saturate(1.02);
+  backdrop-filter: blur(2px) saturate(1.02);
   opacity: 0;
   transform: translate(-50%, 8px) scale(0.98);
   transition:
@@ -1092,27 +1225,32 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-explore-card:hover .wallpaper-explore-card__view,
-.wallpaper-explore-card:focus-visible .wallpaper-explore-card__view,
-.wallpaper-explore-card.is-selected .wallpaper-explore-card__view {
+.wallpaper-explore-card:focus-visible .wallpaper-explore-card__view {
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
 }
 
 .wallpaper-explore-card__info {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  min-height: 88px;
+  position: relative;
+  display: flex;
+  height: 122px;
+  min-height: 0;
+  flex-direction: column;
+  justify-content: space-between;
   background: rgba(21, 25, 20, 0.88);
-  padding: 20px 19px 16px;
+  padding: 22px 19px 18px;
 }
 
 .wallpaper-explore-card__info h2 {
-  margin: 0 0 12px;
+  display: -webkit-box;
+  min-height: 42px;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-family: var(--wallpaper-display);
   font-size: 20px;
-  line-height: 1;
+  line-height: 1.04;
 }
 
 .wallpaper-explore-card__meta {
@@ -1120,6 +1258,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   min-width: 0;
   align-items: center;
   gap: 12px;
+  overflow: hidden;
   color: rgba(255, 255, 255, 0.55);
   font-size: 14px;
   font-weight: 900;
@@ -1130,6 +1269,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   min-width: 0;
   align-items: center;
   gap: 8px;
+  overflow: hidden;
 }
 
 .wallpaper-author i {
@@ -1147,6 +1287,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-tag,
 .wallpaper-stats em {
+  flex: 0 0 auto;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
   padding: 3px 8px;
@@ -1156,6 +1297,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-stats {
   display: flex;
+  flex: 0 0 auto;
   margin-left: auto;
   align-items: center;
   gap: 13px;
@@ -1307,22 +1449,6 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   font-size: 18px;
 }
 
-.wallpaper-toast {
-  position: absolute;
-  right: 28px;
-  bottom: 28px;
-  z-index: 150;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  background: rgba(18, 19, 22, 0.62);
-  color: rgba(255, 255, 255, 0.92);
-  padding: 11px 16px;
-  font-size: 12px;
-  font-weight: 800;
-  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.32);
-  backdrop-filter: blur(22px);
-}
-
 @keyframes wallpaperHeaderControlIn {
   from {
     opacity: 0;
@@ -1431,7 +1557,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   }
 
   .wallpaper-home__pagination {
-    bottom: 92px;
+    bottom: 46px;
   }
 
   .wallpaper-recommendations {

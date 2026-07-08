@@ -1,7 +1,12 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Heart, Play } from 'lucide-react';
-import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import {
+  type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+  useRef,
+} from 'react';
 
 import { HeroFrostedAction } from './HeroFrostedAction';
 import type { HeroSlide, RecommendedWallpaperSection } from '../types';
@@ -29,6 +34,7 @@ export function HomeView({
   selectedRecommendedId: string;
   slides: HeroSlide[];
 }>) {
+  const heroSwipeRef = useRef<HeroSwipeState | null>(null);
   const activeHero = slides[heroIndex] ?? slides[0];
   const trackStyle = {
     transform: `translateX(-${heroIndex * 100}%)`,
@@ -44,6 +50,64 @@ export function HomeView({
     }
   };
 
+  const handleHeroPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0 || isInteractiveSwipeTarget(event.target)) {
+      return;
+    }
+
+    heroSwipeRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleHeroPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const swipe = heroSwipeRef.current;
+
+    if (!swipe || swipe.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const offsetX = Math.abs(event.clientX - swipe.startX);
+    const offsetY = Math.abs(event.clientY - swipe.startY);
+
+    if (offsetX > 8 && offsetX > offsetY) {
+      event.preventDefault();
+    }
+  };
+
+  const handleHeroPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const swipe = heroSwipeRef.current;
+
+    if (!swipe || swipe.pointerId !== event.pointerId) {
+      return;
+    }
+
+    heroSwipeRef.current = null;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+
+    const offsetX = event.clientX - swipe.startX;
+    const offsetY = event.clientY - swipe.startY;
+
+    if (Math.abs(offsetX) < 52 || Math.abs(offsetX) < Math.abs(offsetY) * 1.3) {
+      return;
+    }
+
+    onHeroNav(offsetX < 0 ? 1 : -1);
+  };
+
+  const handleHeroPointerCancel = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const swipe = heroSwipeRef.current;
+
+    if (!swipe || swipe.pointerId !== event.pointerId) {
+      return;
+    }
+
+    heroSwipeRef.current = null;
+  };
+
   return (
     <section
       aria-label="Wallpaper Home"
@@ -51,7 +115,14 @@ export function HomeView({
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <div className="wallpaper-home__hero">
+      <div
+        className="wallpaper-home__hero"
+        data-wallpaper-hero-swipe="true"
+        onPointerCancel={handleHeroPointerCancel}
+        onPointerDown={handleHeroPointerDown}
+        onPointerMove={handleHeroPointerMove}
+        onPointerUp={handleHeroPointerUp}
+      >
         <div
           aria-live="polite"
           className="wallpaper-home__track"
@@ -175,5 +246,18 @@ export function HomeView({
         ))}
       </section>
     </section>
+  );
+}
+
+type HeroSwipeState = {
+  pointerId: number;
+  startX: number;
+  startY: number;
+};
+
+function isInteractiveSwipeTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLElement &&
+    Boolean(target.closest('button, a, input, textarea, select, [role="button"]'))
   );
 }

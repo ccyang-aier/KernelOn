@@ -32,6 +32,7 @@ export default function WallpaperWindow() {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [activeView, setActiveView] = useState<WallpaperView>('home');
   const [previewWallpaperId, setPreviewWallpaperId] = useState<string | null>(null);
+  const [isHeaderSearchOpen, setIsHeaderSearchOpen] = useState(false);
   const [heroIndex, setHeroIndex] = useState(0);
   const [query, setQuery] = useState('');
   const [selectedPopularTag, setSelectedPopularTag] = useState('4K');
@@ -44,7 +45,6 @@ export default function WallpaperWindow() {
   const [isHeroAutoplayEnabled, setIsHeroAutoplayEnabled] = useState(true);
   const [previewFitMode, setPreviewFitMode] = useState<'fill' | 'fit'>('fill');
   const [glassDepth, setGlassDepth] = useState<'deep' | 'soft'>('deep');
-  const [toast, setToast] = useState('');
 
   const assetById = useMemo(
     () => new Map(wallpaperLibrary.map((wallpaper) => [wallpaper.id, wallpaper])),
@@ -63,25 +63,14 @@ export default function WallpaperWindow() {
 
   const switchView = useCallback((nextView: WallpaperView) => {
     setPreviewWallpaperId(null);
+    setIsHeaderSearchOpen(false);
     setActiveView(nextView);
   }, []);
 
-  const focusExploreSearch = useCallback(() => {
-    switchView('explore');
-    window.setTimeout(() => searchInputRef.current?.focus(), 90);
-  }, [switchView]);
-
   const closePreview = useCallback(() => {
     setPreviewWallpaperId(null);
+    setIsHeaderSearchOpen(false);
   }, []);
-
-  const activateLicense = useCallback(() => {
-    setToast('Wallpaper license key is active.');
-  }, []);
-
-  const shareSelectedWallpaper = useCallback(() => {
-    setToast(`Share link copied for ${selectedWallpaper.title}.`);
-  }, [selectedWallpaper.title]);
 
   const openSettings = useCallback(() => {
     switchView('settings');
@@ -92,16 +81,6 @@ export default function WallpaperWindow() {
   }, [displayedView, header]);
 
   useEffect(() => () => header.clearHeader(), [header]);
-
-  useEffect(() => {
-    if (!toast) {
-      return undefined;
-    }
-
-    const timer = window.setTimeout(() => setToast(''), 2600);
-
-    return () => window.clearTimeout(timer);
-  }, [toast]);
 
   const visibleExploreWallpapers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -157,6 +136,7 @@ export default function WallpaperWindow() {
   const previewWallpaperById = useCallback((wallpaperId: string) => {
     setSelectedWallpaperId(wallpaperId);
     setPreviewWallpaperId(wallpaperId);
+    setIsHeaderSearchOpen(false);
   }, []);
 
   const applyWallpaper = useCallback(
@@ -171,7 +151,6 @@ export default function WallpaperWindow() {
 
       setDesktopWallpaper(nextWallpaper);
       setSelectedWallpaperId(wallpaper.id);
-      setToast(`${wallpaper.title} applied to KernelOn desktop.`);
     },
     [assetById, setDesktopWallpaper],
   );
@@ -210,12 +189,13 @@ export default function WallpaperWindow() {
       <style>{wallpaperStyles}</style>
       <WallpaperFrostedHeaderControls
         activeView={displayedView}
+        isSearchOpen={isHeaderSearchOpen}
         onBack={closePreview}
-        onFocusSearch={focusExploreSearch}
-        onLicense={activateLicense}
+        onSearchChange={setQuery}
+        onSearchOpenChange={setIsHeaderSearchOpen}
         onSettings={openSettings}
-        onShare={shareSelectedWallpaper}
         onViewChange={switchView}
+        searchQuery={query}
       />
       {previewWallpaper ? (
         <PreviewView
@@ -277,7 +257,6 @@ export default function WallpaperWindow() {
           selectedWallpaperTitle={selectedWallpaper.title}
         />
       ) : null}
-      {toast ? <div className="wallpaper-toast">{toast}</div> : null}
     </div>
   );
 }
