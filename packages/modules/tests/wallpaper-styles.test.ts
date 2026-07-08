@@ -60,8 +60,9 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).toContain('.wallpaper-frosted-search');
     expect(wallpaperStyles).toContain('.wallpaper-frosted-primary[data-wallpaper-search-open="true"]');
     expect(wallpaperStyles).toContain('.wallpaper-frosted-menu-button');
-    expect(wallpaperStyles).toContain('width: clamp(260px, 34vw, 440px);');
-    expect(wallpaperStyles).toContain('@keyframes wallpaperSegmentReturnIn');
+    expect(wallpaperStyles).toContain('width: clamp(250px, 30vw, 380px);');
+    expect(wallpaperStyles).toContain('.wallpaper-frosted-navigation[data-wallpaper-search-open="true"]');
+    expect(wallpaperStyles).toContain('transition: width 620ms cubic-bezier(0.22, 1, 0.36, 1);');
     expect(wallpaperStyles).not.toContain('filter: blur(8px);');
   });
 

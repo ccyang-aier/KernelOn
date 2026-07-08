@@ -48,7 +48,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-window-tra
 section[data-app-id="wallpaper"] > header > div:nth-of-type(2) {
   min-height: 68px;
   gap: 10px;
-  padding: 0 24px 0 86px;
+  padding: 0 24px;
 }
 
 section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-identity-"] {
@@ -215,7 +215,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-frosted-primary[data-wallpaper-search-open="true"] .wallpaper-frosted-search {
-  width: clamp(260px, 34vw, 440px);
+  width: clamp(250px, 30vw, 380px);
 }
 
 .wallpaper-frosted-search__button {
@@ -265,12 +265,42 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-frosted-header-center {
-  display: contents;
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 1;
+  transform: scaleX(1);
+  transform-origin: center;
+  transition:
+    opacity 280ms ease 120ms,
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wallpaper-frosted-navigation {
+  position: relative;
+  display: grid;
+  width: 304px;
+  height: 42px;
+  flex: 0 0 auto;
+  transition: width 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wallpaper-frosted-navigation[data-wallpaper-search-open="true"] {
+  width: 104px;
+}
+
+.wallpaper-frosted-navigation[data-wallpaper-search-open="true"] .wallpaper-frosted-header-center {
+  opacity: 0;
+  pointer-events: none;
+  transform: scaleX(0.58);
+  transition:
+    opacity 180ms ease,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .wallpaper-frosted-menu-button {
+  grid-area: 1 / 1;
   display: inline-flex;
-  width: 104px;
+  width: 100%;
   height: 42px;
   align-items: center;
   justify-content: center;
@@ -281,13 +311,29 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   font-size: 14px;
   font-weight: 780;
   cursor: pointer;
-  animation: wallpaperCompactNavigationIn 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(-6px, 0, 0) scale(0.98);
   transition:
+    opacity 240ms ease,
     background 180ms ease,
     border-color 180ms ease,
     box-shadow 180ms ease,
     color 180ms ease,
-    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform 340ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wallpaper-frosted-navigation[data-wallpaper-search-open="true"] .wallpaper-frosted-menu-button {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    opacity 260ms ease 130ms,
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1) 100ms;
 }
 
 .wallpaper-frosted-menu-button:hover {
@@ -312,14 +358,13 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 .wallpaper-frosted-segment {
   position: relative;
   display: grid;
-  width: 304px;
+  width: 100%;
   height: 42px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: stretch;
   overflow: hidden;
   border-radius: 999px;
   padding: 4px;
-  animation: wallpaperSegmentReturnIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
   transition:
     border-color 180ms ease,
     background 180ms ease,
@@ -1515,30 +1560,6 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes wallpaperCompactNavigationIn {
-  from {
-    opacity: 0;
-    transform: translate3d(-6px, 0, 0) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes wallpaperSegmentReturnIn {
-  from {
-    opacity: 0;
-    transform: translate3d(8px, 0, 0) scaleX(0.72);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scaleX(1);
   }
 }
 
