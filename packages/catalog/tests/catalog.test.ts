@@ -65,24 +65,19 @@ describe('KernelOn built-in catalog', () => {
     ]);
   });
 
-  it('keeps Wallpaper default navigation aligned with the glass app shell', () => {
+  it('keeps Wallpaper default chrome owned by wallpaper slots', () => {
     const wallpaperApp = kernelApps.find((app) => app.id === 'wallpaper');
-    const tabs = wallpaperApp?.defaultWindow.header?.center?.find(
-      (item) => item.type === 'segment' && item.id === 'wallpaper-tabs',
-    );
 
-    expect(tabs).toMatchObject({
-      options: [
-        { label: 'Home', value: 'home' },
-        { label: 'Explore', value: 'explore' },
-        { label: 'Settings', value: 'settings' },
-      ],
-    });
-    expect(
-      wallpaperApp?.defaultWindow.header?.trailing
-        ?.filter((item) => item.type === 'button')
-        .map((item) => item.id),
-    ).toEqual(['wallpaper-license', 'wallpaper-share']);
+    expect(wallpaperApp?.defaultWindow.header?.leading).toEqual([
+      { id: 'wallpaper-search-control', type: 'slot' },
+    ]);
+    expect(wallpaperApp?.defaultWindow.header?.center).toEqual([
+      { id: 'wallpaper-view-control', type: 'slot' },
+    ]);
+    expect(wallpaperApp?.defaultWindow.header?.trailing).toEqual([
+      { id: 'wallpaper-license-control', type: 'slot' },
+      { id: 'wallpaper-share-control', type: 'slot' },
+    ]);
   });
 
   it('exposes a shared default shell state for web and desktop mounts', () => {

@@ -4,7 +4,6 @@ import {
   kernelOnDesktopWallpaper,
   useAppHeader,
   useShellSelector,
-  type AppHeaderCommandPayload,
 } from '@kernelon/shell';
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
@@ -12,6 +11,7 @@ import { ExploreView } from './components/ExploreView';
 import { HomeView } from './components/HomeView';
 import { PreviewView } from './components/PreviewView';
 import { SettingsView } from './components/SettingsView';
+import { WallpaperFrostedHeaderControls } from './components/WallpaperFrostedHeaderControls';
 import {
   categories,
   heroSlides,
@@ -19,7 +19,7 @@ import {
   recommendationSections,
   wallpaperLibrary,
 } from './data';
-import { createWallpaperHeader, isWallpaperView } from './header';
+import { createWallpaperHeader } from './header';
 import { wallpaperStyles } from './styles';
 import type { CategoryId, ExploreSort, WallpaperAsset, WallpaperView } from './types';
 
@@ -75,42 +75,23 @@ export default function WallpaperWindow() {
     setPreviewWallpaperId(null);
   }, []);
 
+  const activateLicense = useCallback(() => {
+    setToast('Wallpaper license key is active.');
+  }, []);
+
+  const shareSelectedWallpaper = useCallback(() => {
+    setToast(`Share link copied for ${selectedWallpaper.title}.`);
+  }, [selectedWallpaper.title]);
+
+  const openSettings = useCallback(() => {
+    switchView('settings');
+  }, [switchView]);
+
   useEffect(() => {
     header.setHeader(createWallpaperHeader(displayedView));
   }, [displayedView, header]);
 
   useEffect(() => () => header.clearHeader(), [header]);
-
-  useEffect(() => {
-    const unregisterView = header.registerCommand(
-      'wallpaper.view',
-      (payload: AppHeaderCommandPayload) => {
-        if (isWallpaperView(payload.value)) {
-          switchView(payload.value);
-        }
-      },
-    );
-    const unregisterBack = header.registerCommand('wallpaper.back', closePreview);
-    const unregisterSearch = header.registerCommand('wallpaper.focus-search', focusExploreSearch);
-    const unregisterLicense = header.registerCommand('wallpaper.license', () =>
-      setToast('Wallpaper license key is active.'),
-    );
-    const unregisterShare = header.registerCommand('wallpaper.share', () =>
-      setToast(`Share link copied for ${selectedWallpaper.title}.`),
-    );
-    const unregisterSettings = header.registerCommand('wallpaper.settings', () =>
-      switchView('settings'),
-    );
-
-    return () => {
-      unregisterBack();
-      unregisterView();
-      unregisterSearch();
-      unregisterLicense();
-      unregisterShare();
-      unregisterSettings();
-    };
-  }, [closePreview, focusExploreSearch, header, selectedWallpaper.title, switchView]);
 
   useEffect(() => {
     if (!toast) {
@@ -227,6 +208,15 @@ export default function WallpaperWindow() {
       style={wallpaperRootStyle}
     >
       <style>{wallpaperStyles}</style>
+      <WallpaperFrostedHeaderControls
+        activeView={displayedView}
+        onBack={closePreview}
+        onFocusSearch={focusExploreSearch}
+        onLicense={activateLicense}
+        onSettings={openSettings}
+        onShare={shareSelectedWallpaper}
+        onViewChange={switchView}
+      />
       {previewWallpaper ? (
         <PreviewView
           isApplied={desktopWallpaper === resolveWallpaperImage(previewWallpaper)}

@@ -165,47 +165,15 @@ export const kernelApps: KernelAppManifest[] = [
         mode: 'standard',
         preset: 'editor',
         density: 'comfortable',
-        leading: [
-          {
-            type: 'button',
-            id: 'wallpaper-search',
-            icon: 'Search',
-            label: 'Search',
-            commandId: 'wallpaper.focus-search',
-          },
-        ],
-        center: [
-          {
-            type: 'segment',
-            id: 'wallpaper-tabs',
-            commandId: 'wallpaper.view',
-            value: 'home',
-            options: [
-              { label: 'Home', value: 'home' },
-              { label: 'Explore', value: 'explore' },
-              { label: 'Settings', value: 'settings' },
-            ],
-          },
-        ],
+        leading: [{ type: 'slot', id: 'wallpaper-search-control' }],
+        center: [{ type: 'slot', id: 'wallpaper-view-control' }],
         identity: {
           title: 'KernelOn WallPaper',
           subtitle: '桌面个性化与壁纸管理',
         },
         trailing: [
-          {
-            type: 'button',
-            id: 'wallpaper-license',
-            icon: 'KeyRound',
-            label: 'License',
-            commandId: 'wallpaper.license',
-          },
-          {
-            type: 'button',
-            id: 'wallpaper-share',
-            icon: 'Share2',
-            label: 'Share',
-            commandId: 'wallpaper.share',
-          },
+          { type: 'slot', id: 'wallpaper-license-control' },
+          { type: 'slot', id: 'wallpaper-share-control' },
         ],
       },
     },

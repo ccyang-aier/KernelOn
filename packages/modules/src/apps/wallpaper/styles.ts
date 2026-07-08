@@ -104,141 +104,115 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   gap: 10px;
 }
 
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] {
+.wallpaper-frosted-button,
+.wallpaper-frosted-segment,
+.wallpaper-home__frosted-button {
   position: relative;
-  width: 42px;
-  height: 42px;
-  overflow: visible;
-}
-
-section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-kernelon-app-header-liquid-button="true"] {
-  animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-segment="true"] .glass {
-  width: 100%;
-  height: 42px;
-}
-
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] .glass {
-  width: 42px;
-  height: 42px;
-}
-
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] button {
-  position: relative;
-  width: 42px;
-  min-width: 42px;
-  height: 42px;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] button::before {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  isolation: isolate;
+  border: 1px solid rgba(255, 255, 255, 0.26);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.08) 52%, rgba(255, 255, 255, 0.15)),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.07)),
+    rgba(255, 255, 255, 0.10);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 0 20px rgba(255, 255, 255, 0.075);
-  content: "";
-  mix-blend-mode: screen;
-  pointer-events: none;
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 24px rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: blur(8px) saturate(1.08);
+  backdrop-filter: blur(8px) saturate(1.08);
 }
 
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-button="true"] svg {
+.wallpaper-frosted-button {
   position: relative;
-  z-index: 1;
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.92);
+  padding: 0;
+  cursor: pointer;
+  animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wallpaper-frosted-button:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.10)),
+    rgba(255, 255, 255, 0.13);
+  color: #fff;
+}
+
+.wallpaper-frosted-button:active {
+  transform: scale(0.98);
+}
+
+.wallpaper-frosted-button:focus-visible,
+.wallpaper-frosted-segment__button:focus-visible,
+.wallpaper-home__frosted-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.74);
+  outline-offset: 2px;
+}
+
+.wallpaper-frosted-button svg {
   width: 21px;
   height: 21px;
   stroke-width: 2.25;
 }
 
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-liquid-segment="true"] {
-  position: relative;
-  height: 42px;
-  overflow: visible;
+.wallpaper-frosted-button--icon {
+  flex: 0 0 42px;
 }
 
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-group="true"] {
-  position: relative;
+.wallpaper-frosted-segment {
+  display: grid;
+  width: 304px;
+  height: 42px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
   overflow: hidden;
-  display: inline-flex;
-  align-items: center;
-  height: 42px;
-  gap: 0;
-  padding: 4px;
-  border: 0 !important;
   border-radius: 999px;
-  background: transparent !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
+  padding: 4px;
+  animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-group="true"]::before {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.065) 52%, rgba(255, 255, 255, 0.13)),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 0 20px rgba(255, 255, 255, 0.06);
-  content: "";
-  mix-blend-mode: screen;
-  pointer-events: none;
+.wallpaper-frosted-segment__button {
+  min-width: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 760;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
 }
 
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-active-indicator="true"] {
-  background: rgba(255, 255, 255, 0.12) !important;
+.wallpaper-frosted-segment__button:hover {
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.wallpaper-frosted-segment__button[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.34),
-    inset 0 -10px 22px rgba(255, 255, 255, 0.07),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.13) !important;
+    0 8px 18px rgba(0, 0, 0, 0.10);
 }
 
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-button="true"] {
+.wallpaper-frosted-segment__button > span {
   position: relative;
   z-index: 1;
-  overflow: hidden;
-  display: inline-flex;
-  height: 34px;
-  min-width: 96px;
-  align-items: center;
-  justify-content: center;
-  padding: 0 20px;
-  border: 0 !important;
-  border-radius: 999px;
-  background: transparent !important;
-  color: rgba(255, 255, 255, 0.76) !important;
-  box-shadow: none !important;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-button="true"]:hover {
-  color: rgba(255, 255, 255, 0.92) !important;
-}
-
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-button="true"][aria-pressed="true"] {
-  background: transparent !important;
-  color: #fff !important;
-  box-shadow: none !important;
-  text-shadow: 0 1px 14px rgba(255, 255, 255, 0.34);
-}
-
-section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-button="true"] > span:last-child {
-  position: relative;
-  z-index: 20;
 }
 
 .wallpaper-ux {
@@ -453,7 +427,7 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   margin-top: 16px;
 }
 
-.wallpaper-home__glass-action {
+.wallpaper-home__frosted-action {
   position: relative;
   display: block;
   height: 42px;
@@ -461,59 +435,66 @@ section[data-app-id="wallpaper"] > header [data-kernelon-app-header-segment-butt
   flex: 0 0 auto;
 }
 
-.wallpaper-home__glass-action--preview {
+.wallpaper-home__frosted-action--preview {
   width: 190px;
 }
 
-.wallpaper-home__glass-action--like {
+.wallpaper-home__frosted-action--like {
   width: 80px;
 }
 
-.wallpaper-home__glass-action .glass {
-  height: 42px;
-}
-
-.wallpaper-home__glass-action .glass > div {
-  height: 100%;
-}
-
-.wallpaper-home__glass-button {
-  position: relative;
+.wallpaper-home__frosted-button {
   display: inline-flex;
-  width: auto;
+  width: 100%;
   height: 42px;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 0;
   border-radius: 999px;
-  background: transparent;
   color: rgba(255, 255, 255, 0.94);
-  padding: 0;
+  padding: 0 18px;
   font-size: 15px;
   font-weight: 800;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.18);
   white-space: nowrap;
   cursor: pointer;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.wallpaper-home__glass-button::before {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
+.wallpaper-home__frosted-button:hover {
+  border-color: rgba(255, 255, 255, 0.38);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.08) 52%, rgba(255, 255, 255, 0.15)),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 0 20px rgba(255, 255, 255, 0.075);
-  content: "";
-  mix-blend-mode: screen;
-  pointer-events: none;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.09)),
+    rgba(255, 255, 255, 0.13);
+  color: #fff;
 }
 
-.wallpaper-home__glass-button > svg,
-.wallpaper-home__glass-button > span {
+.wallpaper-home__frosted-button:active {
+  transform: scale(0.985);
+}
+
+.wallpaper-home__frosted-button--like {
+  padding: 0 15px;
+}
+
+.wallpaper-home__frosted-button::before {
+  position: absolute;
+  inset: 1px 1px auto;
+  height: 42%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0));
+  content: "";
+  pointer-events: none;
+  z-index: -1;
+}
+
+.wallpaper-home__frosted-button > svg,
+.wallpaper-home__frosted-button > span {
   position: relative;
   z-index: 2;
 }

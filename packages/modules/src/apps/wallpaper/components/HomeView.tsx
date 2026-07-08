@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, Heart, Play } from 'lucide-react';
 import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 
-import { HeroGlassAction } from './HeroGlassAction';
+import { HeroFrostedAction } from './HeroFrostedAction';
 import type { HeroSlide, RecommendedWallpaperSection } from '../types';
 
 export function HomeView({
@@ -76,20 +76,20 @@ export function HomeView({
             <span className="wallpaper-home__badge">4K</span>
           </div>
           <div className="wallpaper-home__actions">
-            <HeroGlassAction variant="preview">
+            <HeroFrostedAction variant="preview">
               <button
-                className="wallpaper-home__glass-button wallpaper-home__glass-button--preview"
+                className="wallpaper-home__frosted-button wallpaper-home__frosted-button--preview"
                 onClick={() => onPreview(activeHero.id)}
                 type="button"
               >
                 <Play aria-hidden="true" className="wallpaper-icon wallpaper-icon--fill" />
                 <span>View Wallpaper</span>
               </button>
-            </HeroGlassAction>
-            <HeroGlassAction variant="like">
+            </HeroFrostedAction>
+            <HeroFrostedAction variant="like">
               <button
                 aria-pressed={likedIds.has(activeHero.id)}
-                className="wallpaper-home__glass-button wallpaper-home__glass-button--like"
+                className="wallpaper-home__frosted-button wallpaper-home__frosted-button--like"
                 onClick={() => onLike(activeHero.id)}
                 type="button"
               >
@@ -103,7 +103,7 @@ export function HomeView({
                 />
                 <span>{likedIds.has(activeHero.id) ? activeHero.likes + 1 : activeHero.likes}</span>
               </button>
-            </HeroGlassAction>
+            </HeroFrostedAction>
           </div>
         </div>
 
