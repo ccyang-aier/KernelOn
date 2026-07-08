@@ -19,13 +19,7 @@
       "@kernelon/catalog": ["./packages/catalog/src/index.ts"],
       "@kernelon/core": ["./packages/core/src/index.ts"],
       "@kernelon/shell": ["./packages/shell/src/index.ts"],
-      "@kernelon/ui": ["./packages/ui/src/index.ts"],
-      "@kernelon/ui/liquid-glass-studio": [
-        "./packages/ui/src/components/liquid-glass-studio/index.ts"
-      ],
-      "@kernelon/ui/liquid-glass-studio-surface": [
-        "./packages/ui/src/components/liquid-glass-studio/LiquidGlassStudioSurface.tsx"
-      ]
+      "@kernelon/ui": ["./packages/ui/src/index.ts"]
     }
   }
 }

@@ -1,13 +1,9 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Heart, Play } from 'lucide-react';
-import {
-  type CSSProperties,
-  type KeyboardEvent as ReactKeyboardEvent,
-  type RefObject,
-} from 'react';
+import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 
-import { WallpaperStudioGlassButton } from './WallpaperStudioGlassControls';
+import { HeroGlassAction } from './HeroGlassAction';
 import type { HeroSlide, RecommendedWallpaperSection } from '../types';
 
 export function HomeView({
@@ -18,21 +14,17 @@ export function HomeView({
   onLike,
   onPreview,
   onRecommendationPreview,
-  scrollContainerRef,
   recommendationSections,
   selectedRecommendedId,
-  heroHostRef,
   slides,
 }: Readonly<{
   heroIndex: number;
-  heroHostRef: RefObject<HTMLDivElement | null>;
   likedIds: ReadonlySet<string>;
   onHeroDotSelect(index: number): void;
   onHeroNav(direction: 1 | -1): void;
   onLike(id: string): void;
   onPreview(id: string): void;
   onRecommendationPreview(wallpaperId: string): void;
-  scrollContainerRef: RefObject<HTMLElement | null>;
   recommendationSections: RecommendedWallpaperSection[];
   selectedRecommendedId: string;
   slides: HeroSlide[];
@@ -57,10 +49,9 @@ export function HomeView({
       aria-label="Wallpaper Home"
       className="wallpaper-home"
       onKeyDown={handleKeyDown}
-      ref={scrollContainerRef}
       tabIndex={0}
     >
-      <div className="wallpaper-home__hero" ref={heroHostRef}>
+      <div className="wallpaper-home__hero">
         <div
           aria-live="polite"
           className="wallpaper-home__track"
@@ -85,35 +76,34 @@ export function HomeView({
             <span className="wallpaper-home__badge">4K</span>
           </div>
           <div className="wallpaper-home__actions">
-            <WallpaperStudioGlassButton
-              backgroundHostRef={heroHostRef}
-              backgroundImage={activeHero.image}
-              className="wallpaper-home__glass-action wallpaper-home__glass-action--preview"
-              onClick={() => onPreview(activeHero.id)}
-              width={190}
-            >
-              <Play aria-hidden="true" className="wallpaper-icon wallpaper-icon--fill" />
-              <span>View Wallpaper</span>
-            </WallpaperStudioGlassButton>
-            <WallpaperStudioGlassButton
-              ariaLabel={`${likedIds.has(activeHero.id) ? 'Unlike' : 'Like'} ${activeHero.title}`}
-              ariaPressed={likedIds.has(activeHero.id)}
-              backgroundHostRef={heroHostRef}
-              backgroundImage={activeHero.image}
-              className="wallpaper-home__glass-action wallpaper-home__glass-action--like"
-              onClick={() => onLike(activeHero.id)}
-              width={80}
-            >
-              <Heart
-                aria-hidden="true"
-                className={
-                  likedIds.has(activeHero.id)
-                    ? 'wallpaper-icon wallpaper-icon--fill'
-                    : 'wallpaper-icon'
-                }
-              />
-              <span>{likedIds.has(activeHero.id) ? activeHero.likes + 1 : activeHero.likes}</span>
-            </WallpaperStudioGlassButton>
+            <HeroGlassAction variant="preview">
+              <button
+                className="wallpaper-home__glass-button wallpaper-home__glass-button--preview"
+                onClick={() => onPreview(activeHero.id)}
+                type="button"
+              >
+                <Play aria-hidden="true" className="wallpaper-icon wallpaper-icon--fill" />
+                <span>View Wallpaper</span>
+              </button>
+            </HeroGlassAction>
+            <HeroGlassAction variant="like">
+              <button
+                aria-pressed={likedIds.has(activeHero.id)}
+                className="wallpaper-home__glass-button wallpaper-home__glass-button--like"
+                onClick={() => onLike(activeHero.id)}
+                type="button"
+              >
+                <Heart
+                  aria-hidden="true"
+                  className={
+                    likedIds.has(activeHero.id)
+                      ? 'wallpaper-icon wallpaper-icon--fill'
+                      : 'wallpaper-icon'
+                  }
+                />
+                <span>{likedIds.has(activeHero.id) ? activeHero.likes + 1 : activeHero.likes}</span>
+              </button>
+            </HeroGlassAction>
           </div>
         </div>
 

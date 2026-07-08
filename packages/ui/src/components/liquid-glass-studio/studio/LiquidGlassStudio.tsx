@@ -657,9 +657,6 @@ export function LiquidGlassStudio({ className, style }: LiquidGlassStudioProps =
               ? stateRef.current.bgTextureRatio
               : undefined,
           u_bgTextureReady: stateRef.current.bgTextureReady ? 1 : 0,
-          u_bgSampleOffset: [0, 0],
-          u_bgSampleScale: [1, 1],
-          u_bgHostResolution: [canvasInfo.width * canvasInfo.dpr, canvasInfo.height * canvasInfo.dpr],
           u_shadowExpand: controls.shadowExpand,
           u_shadowFactor: controls.shadowFactor / 100,
           u_shadowPosition: [-controls.shadowPosition.x, -controls.shadowPosition.y],

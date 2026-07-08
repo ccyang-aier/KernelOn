@@ -12,7 +12,6 @@ import { ExploreView } from './components/ExploreView';
 import { HomeView } from './components/HomeView';
 import { PreviewView } from './components/PreviewView';
 import { SettingsView } from './components/SettingsView';
-import { WallpaperHeaderGlassSlots } from './components/WallpaperStudioGlassControls';
 import {
   categories,
   heroSlides,
@@ -30,9 +29,6 @@ export default function WallpaperWindow() {
   const header = useAppHeader();
   const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
   const setDesktopWallpaper = useShellSelector((state) => state.setDesktopWallpaper);
-  const wallpaperRootRef = useRef<HTMLDivElement | null>(null);
-  const homeHeroHostRef = useRef<HTMLDivElement | null>(null);
-  const homeScrollRef = useRef<HTMLElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [activeView, setActiveView] = useState<WallpaperView>('home');
   const [previewWallpaperId, setPreviewWallpaperId] = useState<string | null>(null);
@@ -55,20 +51,8 @@ export default function WallpaperWindow() {
     [],
   );
   const selectedWallpaper = assetById.get(selectedWallpaperId) ?? wallpaperLibrary[0]!;
-  const selectedWallpaperTitle = selectedWallpaper.title;
   const previewWallpaper = previewWallpaperId ? assetById.get(previewWallpaperId) : null;
   const displayedView = previewWallpaper ? 'preview' : activeView;
-  const activeHeroWallpaper =
-    assetById.get(heroSlides[heroIndex]?.id ?? '') ?? heroSlides[0] ?? selectedWallpaper;
-  const headerBackgroundImage = previewWallpaper
-    ? resolveWallpaperImage(previewWallpaper)
-    : activeView === 'home'
-      ? resolveWallpaperImage(activeHeroWallpaper)
-      : desktopWallpaper;
-  const headerBackgroundHostRef =
-    displayedView === 'home' ? homeHeroHostRef : wallpaperRootRef;
-  const headerBackgroundScrollRef =
-    displayedView === 'home' ? homeScrollRef : undefined;
   const wallpaperRootStyle = useMemo(
     () =>
       ({
@@ -91,20 +75,6 @@ export default function WallpaperWindow() {
     setPreviewWallpaperId(null);
   }, []);
 
-  const activateLicense = useCallback(() => {
-    setToast('Wallpaper license key is active.');
-  }, []);
-
-  const shareSelectedWallpaper = useCallback(() => {
-    const wallpaperTitle = assetById.get(selectedWallpaperId)?.title ?? wallpaperLibrary[0]!.title;
-
-    setToast(`Share link copied for ${wallpaperTitle}.`);
-  }, [assetById, selectedWallpaperId]);
-
-  const openSettings = useCallback(() => {
-    switchView('settings');
-  }, [switchView]);
-
   useEffect(() => {
     header.setHeader(createWallpaperHeader(displayedView));
   }, [displayedView, header]);
@@ -122,9 +92,15 @@ export default function WallpaperWindow() {
     );
     const unregisterBack = header.registerCommand('wallpaper.back', closePreview);
     const unregisterSearch = header.registerCommand('wallpaper.focus-search', focusExploreSearch);
-    const unregisterLicense = header.registerCommand('wallpaper.license', activateLicense);
-    const unregisterShare = header.registerCommand('wallpaper.share', shareSelectedWallpaper);
-    const unregisterSettings = header.registerCommand('wallpaper.settings', openSettings);
+    const unregisterLicense = header.registerCommand('wallpaper.license', () =>
+      setToast('Wallpaper license key is active.'),
+    );
+    const unregisterShare = header.registerCommand('wallpaper.share', () =>
+      setToast(`Share link copied for ${selectedWallpaper.title}.`),
+    );
+    const unregisterSettings = header.registerCommand('wallpaper.settings', () =>
+      switchView('settings'),
+    );
 
     return () => {
       unregisterBack();
@@ -134,15 +110,7 @@ export default function WallpaperWindow() {
       unregisterShare();
       unregisterSettings();
     };
-  }, [
-    activateLicense,
-    closePreview,
-    focusExploreSearch,
-    header,
-    openSettings,
-    shareSelectedWallpaper,
-    switchView,
-  ]);
+  }, [closePreview, focusExploreSearch, header, selectedWallpaper.title, switchView]);
 
   useEffect(() => {
     if (!toast) {
@@ -256,21 +224,9 @@ export default function WallpaperWindow() {
       data-wallpaper-app="true"
       data-wallpaper-glass-depth={glassDepth}
       data-wallpaper-preview-fit={previewFitMode}
-      ref={wallpaperRootRef}
       style={wallpaperRootStyle}
     >
       <style>{wallpaperStyles}</style>
-      <WallpaperHeaderGlassSlots
-        activeView={displayedView}
-        backgroundHostRef={headerBackgroundHostRef}
-        backgroundImage={headerBackgroundImage}
-        backgroundScrollRef={headerBackgroundScrollRef}
-        onFocusSearch={focusExploreSearch}
-        onLicense={activateLicense}
-        onSettings={openSettings}
-        onShare={shareSelectedWallpaper}
-        onViewChange={switchView}
-      />
       {previewWallpaper ? (
         <PreviewView
           isApplied={desktopWallpaper === resolveWallpaperImage(previewWallpaper)}
@@ -283,7 +239,6 @@ export default function WallpaperWindow() {
       ) : null}
       {!previewWallpaper && activeView === 'home' ? (
         <HomeView
-          heroHostRef={homeHeroHostRef}
           heroIndex={heroIndex}
           likedIds={likedIds}
           onHeroDotSelect={selectHeroByIndex}
@@ -292,7 +247,6 @@ export default function WallpaperWindow() {
           onPreview={previewWallpaperById}
           onRecommendationPreview={previewWallpaperById}
           recommendationSections={recommendationSections}
-          scrollContainerRef={homeScrollRef}
           selectedRecommendedId={selectedWallpaperId}
           slides={heroSlides}
         />
@@ -330,7 +284,7 @@ export default function WallpaperWindow() {
             setPreviewFitMode((currentMode) => (currentMode === 'fit' ? 'fill' : 'fit'))
           }
           previewFitMode={previewFitMode}
-          selectedWallpaperTitle={selectedWallpaperTitle}
+          selectedWallpaperTitle={selectedWallpaper.title}
         />
       ) : null}
       {toast ? <div className="wallpaper-toast">{toast}</div> : null}

@@ -6,11 +6,5 @@
     "noUnusedParameters": false,
     "types": ["@webgpu/types"]
   },
-  "include": [
-    "src/components/liquid-glass-studio/LiquidGlassStudioSurface.tsx",
-    "src/components/liquid-glass-studio/studio/rendering/GLUtils.ts",
-    "src/components/liquid-glass-studio/studio/rendering/RendererInterface.ts",
-    "src/components/liquid-glass-studio/studio/shaders/glsl/index.ts",
-    "src/components/liquid-glass-studio/studio/utils/index.ts"
-  ]
+  "include": ["src/components/liquid-glass-studio"]
 }
