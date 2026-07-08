@@ -142,7 +142,13 @@ export const kernelApps: KernelAppManifest[] = [
     },
     defaultWindow: {
       title: 'Widgets 管理',
-      bounds: { x: 128, y: 96, width: 960, height: 660 },
+      bounds: { x: 48, y: 58, width: 1328, height: 760 },
+      header: {
+        density: 'comfortable',
+        identity: { title: '' },
+        mode: 'standard',
+        preset: 'editor',
+      },
     },
   },
   {

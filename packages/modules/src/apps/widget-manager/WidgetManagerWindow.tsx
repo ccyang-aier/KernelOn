@@ -365,6 +365,7 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
     appHeader.setHeader({
       center: [{ id: 'widget-manager-title-control', type: 'slot' }],
       density: 'comfortable',
+      identity: { title: '' },
       leading: [{ id: 'widget-manager-menu-control', type: 'slot' }],
       mode: 'standard',
       preset: 'editor',
@@ -398,7 +399,7 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
     <>
       {appHeader ? <WidgetManagerHeaderSlots onQueryChange={setQuery} query={query} /> : null}
       <div
-        className="relative grid h-full w-full grid-cols-[244px_minmax(0,1fr)] select-none overflow-hidden bg-[#f6f7f9] font-sans text-[#303844]"
+        className="relative grid h-full w-full grid-cols-[276px_minmax(0,1fr)] select-none overflow-hidden bg-[#f6f7f9] font-sans text-[#303844]"
         data-testid="widget-manager-window"
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_0%,rgba(202,218,230,0.22),transparent_31%),radial-gradient(circle_at_18%_100%,rgba(255,255,255,0.9),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.72),rgba(245,247,250,0.74))]" />
@@ -534,7 +535,7 @@ function WidgetManagerHeaderSlots({
     () => (
       <button
         aria-label="切换小组件侧栏"
-        className="absolute left-[198px] top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-[10px] text-[#424b58] outline-none transition-all duration-200 hover:bg-white/54 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35"
+        className="absolute left-[230px] top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-[10px] text-[#424b58] outline-none transition-all duration-200 hover:bg-white/54 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35"
         type="button"
       >
         <Menu className="size-5" strokeWidth={1.9} />

@@ -50,6 +50,23 @@ describe('KernelOn built-in catalog', () => {
     );
   });
 
+  it('opens Widget Manager with wide gallery chrome by default', () => {
+    const widgetManagerApp = kernelApps.find((app) => app.id === 'widget-manager');
+
+    expect(widgetManagerApp?.defaultWindow.bounds).toEqual({
+      height: 760,
+      width: 1328,
+      x: 48,
+      y: 58,
+    });
+    expect(widgetManagerApp?.defaultWindow.header).toEqual({
+      density: 'comfortable',
+      identity: { title: '' },
+      mode: 'standard',
+      preset: 'editor',
+    });
+  });
+
   it('declares the full built-in widget set with stable loader keys', () => {
     expect(kernelWidgets.map((widget) => widget.id)).toEqual([
       'onboarding-progress',

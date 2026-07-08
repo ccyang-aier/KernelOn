@@ -14,6 +14,7 @@ open_source/
 
 # Local agent scratch worktrees
 .agent-mesh/
+.playwright-cli/
 
 # Vite
 .vite/

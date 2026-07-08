@@ -1,5 +1,8 @@
-import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+// @vitest-environment jsdom
+
+import '@testing-library/jest-dom/vitest';
+import { cleanup, render, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import WidgetManagerWindow from '../src/apps/widget-manager/WidgetManagerWindow';
 
@@ -107,7 +110,7 @@ const widgetManagerShellState: WidgetManagerShellState = {
 
 const widgetManagerWindow = {
   appId: 'widget-manager',
-  bounds: { height: 660, width: 960, x: 128, y: 96 },
+  bounds: { height: 760, width: 1328, x: 48, y: 58 },
   createdAt: 1,
   id: 'window:widget-manager',
   status: 'active',
@@ -118,7 +121,13 @@ const widgetManagerWindow = {
 const widgetManagerApp = {
   category: 'system',
   defaultWindow: {
-    bounds: { height: 660, width: 960, x: 128, y: 96 },
+    bounds: { height: 760, width: 1328, x: 48, y: 58 },
+    header: {
+      density: 'comfortable',
+      identity: { title: '' },
+      mode: 'standard',
+      preset: 'editor',
+    },
     title: 'Widgets 管理',
   },
   description: 'KernelOn 小组件管理中心',
@@ -134,6 +143,10 @@ const widgetManagerApp = {
   },
 } as const;
 
+afterEach(() => {
+  cleanup();
+});
+
 describe('WidgetManagerWindow', () => {
   it('renders the macOS-style widget gallery chrome from the reference layout', () => {
     shellMocks.setHeader.mockClear();
@@ -144,13 +157,14 @@ describe('WidgetManagerWindow', () => {
       expect.objectContaining({
         center: [{ id: 'widget-manager-title-control', type: 'slot' }],
         density: 'comfortable',
+        identity: { title: '' },
         trailing: [{ id: 'widget-manager-search-control', type: 'slot' }],
       }),
     );
 
     expect(screen.getByTestId('widget-manager-window')).toHaveClass(
       'grid',
-      'grid-cols-[244px_minmax(0,1fr)]',
+      'grid-cols-[276px_minmax(0,1fr)]',
     );
     expect(
       screen.getByTestId('widget-manager-header-slot-widget-manager-title-control'),
