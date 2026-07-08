@@ -21,9 +21,8 @@ export function createWallpaperHeader(activeView: WallpaperHeaderView): AppHeade
   }
 
   return {
-    center: [{ id: 'wallpaper-view-control', type: 'slot' }],
+    center: [{ id: 'wallpaper-primary-control', type: 'slot' }],
     density: 'comfortable',
-    leading: [{ id: 'wallpaper-search-control', type: 'slot' }],
     mode: 'standard',
     preset: 'editor',
     trailing: [

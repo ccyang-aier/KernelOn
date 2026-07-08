@@ -3,12 +3,12 @@ import { describe, expect, it } from 'vitest';
 import { createWallpaperHeader } from '../src/apps/wallpaper/header';
 
 describe('Wallpaper header', () => {
-  it('uses wallpaper-owned slots outside preview instead of shell liquid controls', () => {
+  it('uses a combined wallpaper-owned primary slot outside preview', () => {
     const header = createWallpaperHeader('home');
 
     expect(header.preset).toBe('editor');
-    expect(header.leading).toEqual([{ id: 'wallpaper-search-control', type: 'slot' }]);
-    expect(header.center).toEqual([{ id: 'wallpaper-view-control', type: 'slot' }]);
+    expect(header.leading).toBeUndefined();
+    expect(header.center).toEqual([{ id: 'wallpaper-primary-control', type: 'slot' }]);
     expect(header.trailing).toEqual([
       { id: 'wallpaper-license-control', type: 'slot' },
       { id: 'wallpaper-share-control', type: 'slot' },

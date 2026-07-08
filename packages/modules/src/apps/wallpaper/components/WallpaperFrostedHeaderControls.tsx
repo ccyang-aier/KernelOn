@@ -2,7 +2,7 @@
 
 import { AppHeaderSlot } from '@kernelon/shell';
 import { ArrowLeft, KeyRound, Search, Settings, Share2 } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { viewLabels } from '../data';
 import type { WallpaperView } from '../types';
@@ -31,10 +31,13 @@ export function WallpaperFrostedHeaderControls({
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const segmentView = activeView === 'preview' ? null : activeView;
 
-  const handleViewChange = (view: WallpaperView) => {
-    onSearchOpenChange(false);
-    onViewChange(view);
-  };
+  const handleViewChange = useCallback(
+    (view: WallpaperView) => {
+      onSearchOpenChange(false);
+      onViewChange(view);
+    },
+    [onSearchOpenChange, onViewChange],
+  );
 
   useEffect(() => {
     if (!isSearchOpen) {
@@ -46,123 +49,187 @@ export function WallpaperFrostedHeaderControls({
     return () => window.clearTimeout(timer);
   }, [isSearchOpen]);
 
+  const backControl = useMemo(
+    () => (
+      <button
+        aria-label="Back"
+        className="wallpaper-frosted-button wallpaper-frosted-button--icon"
+        onClick={onBack}
+        type="button"
+      >
+        <ArrowLeft aria-hidden="true" />
+      </button>
+    ),
+    [onBack],
+  );
+
+  const searchControl = useMemo(
+    () => (
+      <div
+        className="wallpaper-frosted-search"
+        data-wallpaper-search-open={isSearchOpen ? 'true' : 'false'}
+      >
+        <button
+          aria-label={isSearchOpen ? 'Focus search' : 'Search'}
+          className="wallpaper-frosted-search__button"
+          onClick={() => {
+            onSearchOpenChange(true);
+            window.setTimeout(() => searchInputRef.current?.focus(), 90);
+          }}
+          type="button"
+        >
+          <Search aria-hidden="true" />
+        </button>
+        <input
+          aria-label="Search wallpapers"
+          onChange={(event) => onSearchChange(event.currentTarget.value)}
+          onFocus={() => onSearchOpenChange(true)}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              onSearchOpenChange(false);
+            }
+          }}
+          placeholder="Search wallpapers"
+          ref={searchInputRef}
+          tabIndex={isSearchOpen ? 0 : -1}
+          type="search"
+          value={searchQuery}
+        />
+      </div>
+    ),
+    [isSearchOpen, onSearchChange, onSearchOpenChange, searchQuery],
+  );
+
+  const navigationControl = useMemo(() => {
+    if (!segmentView) {
+      return null;
+    }
+
+    return (
+      <div
+        className="wallpaper-frosted-navigation"
+        data-wallpaper-search-open={isSearchOpen ? 'true' : 'false'}
+      >
+        <button
+          aria-hidden={isSearchOpen ? undefined : true}
+          aria-label="Show wallpaper navigation"
+          className="wallpaper-frosted-menu-button"
+          onClick={() => onSearchOpenChange(false)}
+          tabIndex={isSearchOpen ? 0 : -1}
+          type="button"
+        >
+          <span>{viewLabels[segmentView]}</span>
+        </button>
+        <div
+          aria-hidden={isSearchOpen ? true : undefined}
+          className="wallpaper-frosted-header-center"
+        >
+          <div
+            aria-label="Wallpaper views"
+            className="wallpaper-frosted-segment"
+            data-wallpaper-view={segmentView}
+            role="group"
+          >
+            <span aria-hidden="true" className="wallpaper-frosted-segment__indicator" />
+            {wallpaperViewOptions.map((option) => {
+              const selected = option.value === segmentView;
+
+              return (
+                <button
+                  aria-current={selected ? 'page' : undefined}
+                  aria-pressed={selected}
+                  className="wallpaper-frosted-segment__button"
+                  key={option.value}
+                  onClick={() => handleViewChange(option.value)}
+                  tabIndex={isSearchOpen ? -1 : 0}
+                  type="button"
+                >
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }, [handleViewChange, isSearchOpen, onSearchOpenChange, segmentView]);
+
+  const primaryControl = useMemo(() => {
+    if (!navigationControl) {
+      return null;
+    }
+
+    return (
+      <div
+        className="wallpaper-frosted-primary"
+        data-wallpaper-search-open={isSearchOpen ? 'true' : 'false'}
+      >
+        {searchControl}
+        {navigationControl}
+      </div>
+    );
+  }, [isSearchOpen, navigationControl, searchControl]);
+
+  const licenseControl = useMemo(
+    () => (
+      <button
+        aria-label="License"
+        className="wallpaper-frosted-button wallpaper-frosted-button--icon"
+        type="button"
+      >
+        <KeyRound aria-hidden="true" />
+      </button>
+    ),
+    [],
+  );
+
+  const shareControl = useMemo(
+    () => (
+      <button
+        aria-label="Share"
+        className="wallpaper-frosted-button wallpaper-frosted-button--icon"
+        type="button"
+      >
+        <Share2 aria-hidden="true" />
+      </button>
+    ),
+    [],
+  );
+
+  const settingsControl = useMemo(
+    () => (
+      <button
+        aria-label="Settings"
+        className="wallpaper-frosted-button wallpaper-frosted-button--icon"
+        onClick={onSettings}
+        type="button"
+      >
+        <Settings aria-hidden="true" />
+      </button>
+    ),
+    [onSettings],
+  );
+
   return (
     <>
       {activeView === 'preview' ? (
-        <AppHeaderSlot id="wallpaper-back-control">
-          <button
-            aria-label="Back"
-            className="wallpaper-frosted-button wallpaper-frosted-button--icon"
-            onClick={onBack}
-            type="button"
-          >
-            <ArrowLeft aria-hidden="true" />
-          </button>
-        </AppHeaderSlot>
+        <AppHeaderSlot id="wallpaper-back-control">{backControl}</AppHeaderSlot>
       ) : null}
-
-      <AppHeaderSlot id="wallpaper-search-control">
-        <div
-          className="wallpaper-frosted-search"
-          data-wallpaper-search-open={isSearchOpen ? 'true' : 'false'}
-        >
-          <button
-            aria-label={isSearchOpen ? 'Focus search' : 'Search'}
-            className="wallpaper-frosted-search__button"
-            onClick={() => {
-              onSearchOpenChange(true);
-              window.setTimeout(() => searchInputRef.current?.focus(), 90);
-            }}
-            type="button"
-          >
-            <Search aria-hidden="true" />
-          </button>
-          <input
-            aria-label="Search wallpapers"
-            onChange={(event) => onSearchChange(event.currentTarget.value)}
-            onFocus={() => onSearchOpenChange(true)}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') {
-                onSearchOpenChange(false);
-              }
-            }}
-            placeholder="Search wallpapers"
-            ref={searchInputRef}
-            tabIndex={isSearchOpen ? 0 : -1}
-            type="search"
-            value={searchQuery}
-          />
-        </div>
-      </AppHeaderSlot>
-
-      {segmentView ? (
-        <AppHeaderSlot id="wallpaper-view-control">
-          <div
-            className="wallpaper-frosted-header-center"
-            data-wallpaper-search-open={isSearchOpen ? 'true' : 'false'}
-          >
-            <div
-              aria-label="Wallpaper views"
-              className="wallpaper-frosted-segment"
-              data-wallpaper-view={segmentView}
-              role="group"
-            >
-              <span
-                aria-hidden="true"
-                className="wallpaper-frosted-segment__indicator"
-              />
-              {wallpaperViewOptions.map((option) => {
-                const selected = option.value === segmentView;
-
-                return (
-                  <button
-                    aria-current={selected ? 'page' : undefined}
-                    aria-pressed={selected}
-                    className="wallpaper-frosted-segment__button"
-                    key={option.value}
-                    onClick={() => handleViewChange(option.value)}
-                    type="button"
-                  >
-                    <span>{option.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </AppHeaderSlot>
-      ) : null}
-
-      <AppHeaderSlot id="wallpaper-license-control">
-        <button
-          aria-label="License"
-          className="wallpaper-frosted-button wallpaper-frosted-button--icon"
-          type="button"
-        >
-          <KeyRound aria-hidden="true" />
-        </button>
-      </AppHeaderSlot>
-
-      <AppHeaderSlot id="wallpaper-share-control">
-        <button
-          aria-label="Share"
-          className="wallpaper-frosted-button wallpaper-frosted-button--icon"
-          type="button"
-        >
-          <Share2 aria-hidden="true" />
-        </button>
-      </AppHeaderSlot>
 
       {activeView === 'preview' ? (
-        <AppHeaderSlot id="wallpaper-settings-control">
-          <button
-            aria-label="Settings"
-            className="wallpaper-frosted-button wallpaper-frosted-button--icon"
-            onClick={onSettings}
-            type="button"
-          >
-            <Settings aria-hidden="true" />
-          </button>
-        </AppHeaderSlot>
+        <AppHeaderSlot id="wallpaper-search-control">{searchControl}</AppHeaderSlot>
+      ) : null}
+
+      {primaryControl ? (
+        <AppHeaderSlot id="wallpaper-primary-control">{primaryControl}</AppHeaderSlot>
+      ) : null}
+
+      <AppHeaderSlot id="wallpaper-license-control">{licenseControl}</AppHeaderSlot>
+
+      <AppHeaderSlot id="wallpaper-share-control">{shareControl}</AppHeaderSlot>
+
+      {activeView === 'preview' ? (
+        <AppHeaderSlot id="wallpaper-settings-control">{settingsControl}</AppHeaderSlot>
       ) : null}
     </>
   );

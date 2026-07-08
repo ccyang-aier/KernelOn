@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { HeroFrostedAction } from '../src/apps/wallpaper/components/HeroFrostedAction';
 import { HomeView } from '../src/apps/wallpaper/components/HomeView';
 import { WallpaperFrostedHeaderControls } from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
+import { createWallpaperHeader } from '../src/apps/wallpaper/header';
 import { wallpaperStyles } from '../src/apps/wallpaper/styles';
 
 describe('Wallpaper styles', () => {
@@ -57,7 +58,10 @@ describe('Wallpaper styles', () => {
 
   it('defines the expanding header search state without switching views', () => {
     expect(wallpaperStyles).toContain('.wallpaper-frosted-search');
-    expect(wallpaperStyles).toContain('header:has(.wallpaper-frosted-search[data-wallpaper-search-open="true"])');
+    expect(wallpaperStyles).toContain('.wallpaper-frosted-primary[data-wallpaper-search-open="true"]');
+    expect(wallpaperStyles).toContain('.wallpaper-frosted-menu-button');
+    expect(wallpaperStyles).toContain('width: clamp(260px, 34vw, 440px);');
+    expect(wallpaperStyles).toContain('@keyframes wallpaperSegmentReturnIn');
     expect(wallpaperStyles).not.toContain('filter: blur(8px);');
   });
 
@@ -71,7 +75,13 @@ describe('Wallpaper styles', () => {
   it('renders a dedicated animated search control in the wallpaper header', () => {
     const headerSource = WallpaperFrostedHeaderControls.toString();
 
+    expect(createWallpaperHeader('home').center).toEqual([
+      { id: 'wallpaper-primary-control', type: 'slot' },
+    ]);
+    expect(createWallpaperHeader('home').leading).toBeUndefined();
     expect(headerSource).toContain('wallpaper-frosted-search');
+    expect(headerSource).toContain('wallpaper-frosted-primary');
+    expect(headerSource).toContain('wallpaper-frosted-menu-button');
     expect(headerSource).toContain('onSearchOpenChange');
   });
 
