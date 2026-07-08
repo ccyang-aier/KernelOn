@@ -1,22 +1,30 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   Activity,
   Calendar,
   CheckSquare,
+  ChevronDown,
   Cloud,
   DollarSign,
   Grid2X2,
   Heart,
   Image,
+  Menu,
   Music,
   Search,
+  Settings,
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 
-import { useShellSelector, type AppWindowSurfaceProps } from '@kernelon/shell';
+import {
+  AppHeaderContext,
+  AppHeaderSlot,
+  useShellSelector,
+  type AppWindowSurfaceProps,
+} from '@kernelon/shell';
 
 type DemoWidgetCategory =
   | 'all'
@@ -77,6 +85,7 @@ const sidebarSections = [
       { id: 'health', name: '健康', Icon: Activity },
       { id: 'productivity', name: '效率', Icon: CheckSquare },
       { id: 'finance', name: '财务', Icon: DollarSign },
+      { id: 'photos', name: '照片', Icon: Image },
     ],
   },
 ] satisfies Array<{
@@ -256,9 +265,46 @@ const demoWidgets: DemoWidget[] = [
 ];
 
 const featuredWidgetIds = new Set(['weather-small', 'calendar-small', 'music']);
+const widgetDisplayOrder = new Map(
+  [
+    'weather-small',
+    'calendar-small',
+    'stock',
+    'music',
+    'fx',
+    'sleep',
+    'rings',
+    'todo',
+    'photo-medium',
+    'weather-large',
+    'calendar-week',
+    'music-large',
+    'timer',
+    'photo-large',
+    'calendar-month',
+  ].map((id, index) => [id, index]),
+);
+const widgetLayoutClassNames = new Map([
+  ['weather-small', 'row-span-4'],
+  ['calendar-small', 'row-span-4'],
+  ['stock', 'row-span-4'],
+  ['music', 'row-span-2'],
+  ['fx', 'row-span-2'],
+  ['sleep', 'row-span-2'],
+  ['rings', 'row-span-3'],
+  ['todo', 'row-span-3'],
+  ['photo-medium', 'row-span-3'],
+  ['weather-large', 'row-span-3'],
+  ['calendar-week', 'row-span-3'],
+  ['music-large', 'row-span-4'],
+  ['timer', 'row-span-2'],
+  ['photo-large', 'row-span-4'],
+  ['calendar-month', 'row-span-4'],
+]);
 const weekDays = ['一', '二', '三', '四', '五', '六', '日'];
 
 export default function WidgetManagerWindow({ window: windowDescriptor }: AppWindowSurfaceProps) {
+  const appHeader = useContext(AppHeaderContext);
   const widgets = useShellSelector((state) => state.widgets);
   const screens = useShellSelector((state) => state.screens);
   const currentScreenId = useShellSelector((state) => state.currentScreenId);
@@ -284,23 +330,49 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
   const availableWidgetIds = useMemo(() => new Set(widgets.map((widget) => widget.id)), [widgets]);
   const filteredWidgets = useMemo(
     () =>
-      demoWidgets.filter((widget) => {
-        const isAdded = (existingWidgetCounts[widget.widgetId] ?? 0) > 0;
-        const matchesCategory =
-          activeCategory === 'all' ||
-          (activeCategory === 'featured' && featuredWidgetIds.has(widget.id)) ||
-          (activeCategory === 'added' && isAdded) ||
-          widget.category === activeCategory;
-        const matchesSize = activeSize === 'all' || widget.size === activeSize;
-        const matchesSearch =
-          !normalizedQuery || widget.name.toLowerCase().includes(normalizedQuery);
+      demoWidgets
+        .filter((widget) => {
+          const isAdded = (existingWidgetCounts[widget.widgetId] ?? 0) > 0;
+          const matchesCategory =
+            activeCategory === 'all' ||
+            (activeCategory === 'featured' && featuredWidgetIds.has(widget.id)) ||
+            (activeCategory === 'added' && isAdded) ||
+            widget.category === activeCategory;
+          const matchesSize = activeSize === 'all' || widget.size === activeSize;
+          const matchesSearch =
+            !normalizedQuery || widget.name.toLowerCase().includes(normalizedQuery);
 
-        return (
-          matchesCategory && matchesSize && matchesSearch && availableWidgetIds.has(widget.widgetId)
-        );
-      }),
+          return (
+            matchesCategory &&
+            matchesSize &&
+            matchesSearch &&
+            availableWidgetIds.has(widget.widgetId)
+          );
+        })
+        .sort(
+          (left, right) =>
+            (widgetDisplayOrder.get(left.id) ?? Number.MAX_SAFE_INTEGER) -
+            (widgetDisplayOrder.get(right.id) ?? Number.MAX_SAFE_INTEGER),
+        ),
     [activeCategory, activeSize, availableWidgetIds, existingWidgetCounts, normalizedQuery],
   );
+
+  useEffect(() => {
+    if (!appHeader) {
+      return undefined;
+    }
+
+    appHeader.setHeader({
+      center: [{ id: 'widget-manager-title-control', type: 'slot' }],
+      density: 'comfortable',
+      leading: [{ id: 'widget-manager-menu-control', type: 'slot' }],
+      mode: 'standard',
+      preset: 'editor',
+      trailing: [{ id: 'widget-manager-search-control', type: 'slot' }],
+    });
+
+    return () => appHeader.clearHeader();
+  }, [appHeader]);
 
   const handleAddWidget = useCallback(
     (demoWidget: DemoWidget) => {
@@ -323,124 +395,183 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
   );
 
   return (
-    <div className="relative flex h-full w-full select-none overflow-hidden bg-[linear-gradient(135deg,rgba(255,255,255,0.66),rgba(232,244,246,0.36)_46%,rgba(255,255,255,0.50))] font-sans text-[#1b2228] backdrop-blur-[30px]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(255,255,255,0.72),transparent_36%),radial-gradient(circle_at_82%_14%,rgba(126,189,208,0.24),transparent_34%),radial-gradient(circle_at_68%_92%,rgba(238,184,218,0.22),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.28),rgba(255,255,255,0.08))]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.16] [background-image:linear-gradient(rgba(255,255,255,0.20)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:42px_42px]" />
-      <aside className="relative z-10 flex w-[190px] shrink-0 flex-col gap-5 border-r border-white/45 bg-white/[0.24] px-5 py-6 shadow-[inset_-1px_0_0_rgba(255,255,255,0.34)] backdrop-blur-[28px]">
-        {sidebarSections.map((section) => (
-          <nav className="flex flex-col gap-1" key={section.label} aria-label={section.label}>
-            <div className="mb-1 px-1 text-[11px] font-semibold text-[#596168]">
-              {section.label}
-            </div>
-            {section.items.map(({ Icon, id, name }) => {
-              const isActive = activeCategory === id;
-
-              return (
-                <button
-                  className={cx(
-                    'flex h-10 w-full items-center justify-between rounded-xl border px-3 text-left text-[13.5px] font-semibold outline-none backdrop-blur-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
-                    isActive
-                      ? 'border-white/50 bg-[#0a84ff]/85 text-white shadow-[0_14px_28px_rgba(10,132,255,0.24),inset_0_1px_0_rgba(255,255,255,0.34)]'
-                      : 'border-transparent text-[#626970] hover:border-white/45 hover:bg-white/[0.34] hover:text-[#1b2228] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.42)]',
-                  )}
-                  key={id}
-                  onClick={() => setActiveCategory(id)}
-                  type="button"
-                >
-                  <span className="flex min-w-0 items-center gap-3">
-                    <Icon className="size-4 shrink-0" />
-                    <span className="truncate">{name}</span>
-                  </span>
-                  <span
-                    className={cx('text-xl leading-none', isActive ? 'opacity-90' : 'opacity-35')}
-                  >
-                    ›
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-        ))}
-      </aside>
-      <main className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="shrink-0 px-6 pb-3 pt-6">
-          <div className="flex items-center gap-4">
-            <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/45 bg-white/[0.32] px-3 text-[#606871] shadow-[0_10px_28px_rgba(35,48,58,0.08),inset_0_1px_0_rgba(255,255,255,0.56)] backdrop-blur-2xl">
-              <Search className="size-4 shrink-0" />
-              <input
-                className="min-w-0 flex-1 bg-transparent text-[13.5px] text-[#1b2228] outline-none placeholder:text-[#8d9199]"
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="搜索小组件"
-                type="search"
-                value={query}
-              />
-            </label>
-            <div className="flex shrink-0 items-center gap-1 rounded-xl border border-white/45 bg-white/[0.28] p-1 shadow-[0_10px_28px_rgba(35,48,58,0.08),inset_0_1px_0_rgba(255,255,255,0.48)] backdrop-blur-2xl">
-              {sizeFilters.map((filter) => {
-                const isActive = activeSize === filter.id;
+    <>
+      {appHeader ? <WidgetManagerHeaderSlots onQueryChange={setQuery} query={query} /> : null}
+      <div
+        className="relative grid h-full w-full grid-cols-[244px_minmax(0,1fr)] select-none overflow-hidden bg-[#f6f7f9] font-sans text-[#303844]"
+        data-testid="widget-manager-window"
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_0%,rgba(202,218,230,0.22),transparent_31%),radial-gradient(circle_at_18%_100%,rgba(255,255,255,0.9),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.72),rgba(245,247,250,0.74))]" />
+        <aside
+          className="relative z-10 flex h-full flex-col gap-5 border-r border-[#d8dde4]/85 bg-white/62 px-[22px] pb-[22px] pt-[16px] shadow-[inset_-1px_0_0_rgba(255,255,255,0.78)] backdrop-blur-[22px]"
+          data-testid="widget-manager-sidebar"
+        >
+          {sidebarSections.map((section) => (
+            <nav className="flex flex-col gap-2" key={section.label} aria-label={section.label}>
+              <div className="px-2 text-[12px] font-semibold text-[#4d5664]">{section.label}</div>
+              {section.items.map(({ Icon, id, name }) => {
+                const isActive = activeCategory === id;
 
                 return (
                   <button
                     className={cx(
-                      'h-8 rounded-lg px-3 text-xs font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                      'flex h-11 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[15px] font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
                       isActive
-                        ? 'bg-[#15181c]/90 text-white shadow-[0_8px_18px_rgba(20,24,28,0.18),inset_0_1px_0_rgba(255,255,255,0.16)]'
-                        : 'text-[#626970] hover:bg-white/[0.46] hover:text-[#1b2228]',
+                        ? 'bg-[#178bff] text-white shadow-[0_12px_22px_rgba(19,132,255,0.28),inset_0_1px_0_rgba(255,255,255,0.42)]'
+                        : 'text-[#5f6773] hover:bg-white/70 hover:text-[#27313f]',
                     )}
-                    key={filter.id}
-                    onClick={() => setActiveSize(filter.id)}
+                    key={id}
+                    onClick={() => setActiveCategory(id)}
                     type="button"
                   >
-                    {filter.name}
+                    <Icon className="size-[19px] shrink-0" strokeWidth={2} />
+                    <span className="truncate">{name}</span>
                   </button>
                 );
               })}
-            </div>
+            </nav>
+          ))}
+          <div className="mt-auto border-t border-[#d8dde4]/72 pt-4">
+            <button
+              className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[15px] font-semibold text-[#5f6773] outline-none transition-all duration-200 hover:bg-white/72 hover:text-[#27313f] focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35"
+              type="button"
+            >
+              <Settings className="size-[19px] shrink-0" strokeWidth={2} />
+              <span>设置</span>
+            </button>
           </div>
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {categoryChips.map((chip) => {
-              const isActive = activeCategory === chip.id;
+        </aside>
+        <main className="relative z-10 flex min-w-0 flex-col overflow-hidden">
+          <header
+            className="shrink-0 px-[26px] pb-[18px] pt-[24px]"
+            data-testid="widget-manager-toolbar"
+          >
+            <div className="flex items-center justify-between gap-5">
+              <div className="flex min-w-0 gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {categoryChips.map((chip) => {
+                  const isActive = activeCategory === chip.id;
 
-              return (
-                <button
-                  className={cx(
-                    'h-8 shrink-0 rounded-full border px-4 text-[12.5px] font-semibold outline-none backdrop-blur-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
-                    isActive
-                      ? 'border-[#15181c]/90 bg-[#15181c]/90 text-white shadow-[0_10px_22px_rgba(20,24,28,0.18),inset_0_1px_0_rgba(255,255,255,0.16)]'
-                      : 'border-white/45 bg-white/[0.18] text-[#626970] shadow-[inset_0_1px_0_rgba(255,255,255,0.34)] hover:bg-white/[0.38] hover:text-[#1b2228]',
-                  )}
-                  key={chip.id}
-                  onClick={() => setActiveCategory(chip.id)}
-                  type="button"
-                >
-                  {chip.name}
-                </button>
-              );
-            })}
-          </div>
-        </header>
-        <section className="min-h-0 flex-1 overflow-y-auto px-6 pb-7 pt-3 [scrollbar-width:thin] [scrollbar-color:rgba(0,0,0,0.15)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/15">
-          {filteredWidgets.length > 0 ? (
-            <div className="[column-count:1] [column-gap:18px] md:[column-count:2] xl:[column-count:3]">
-              {filteredWidgets.map((widget) => (
-                <WidgetCard
-                  countOnDesktop={existingWidgetCounts[widget.widgetId] ?? 0}
-                  isRecentlyAdded={recentlyAddedId === widget.id}
-                  key={widget.id}
-                  onAdd={handleAddWidget}
-                  widget={widget}
-                />
-              ))}
+                  return (
+                    <button
+                      aria-pressed={isActive}
+                      className={cx(
+                        'h-10 shrink-0 rounded-full border px-5 text-[14px] font-semibold outline-none backdrop-blur-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                        isActive
+                          ? 'border-[#111820] bg-[#111820] text-white shadow-[0_12px_22px_rgba(24,31,42,0.18),inset_0_1px_0_rgba(255,255,255,0.14)]'
+                          : 'border-[#e3e7ec] bg-white/56 text-[#384150] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] hover:bg-white/82',
+                      )}
+                      key={chip.id}
+                      onClick={() => setActiveCategory(chip.id)}
+                      type="button"
+                    >
+                      {chip.name}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex h-10 shrink-0 items-center gap-2 rounded-[13px] border border-[#e2e6eb] bg-white/50 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.88)] backdrop-blur-xl">
+                {sizeFilters.map((filter) => {
+                  const isActive = activeSize === filter.id;
+
+                  return (
+                    <button
+                      aria-pressed={isActive}
+                      className={cx(
+                        'inline-flex h-8 min-w-10 items-center justify-center gap-1 rounded-[9px] px-3 text-[13px] font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                        isActive
+                          ? 'bg-white text-[#101722] shadow-[0_6px_14px_rgba(40,50,65,0.10),inset_0_1px_0_rgba(255,255,255,0.9)]'
+                          : 'text-[#7a828d] hover:bg-white/60 hover:text-[#27313f]',
+                      )}
+                      key={filter.id}
+                      onClick={() => setActiveSize(filter.id)}
+                      type="button"
+                    >
+                      {filter.name}
+                      {filter.id === 'all' ? <ChevronDown className="size-3.5" /> : null}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          ) : (
-            <div className="flex h-full min-h-72 flex-col items-center justify-center gap-3 text-[#6e6e73]">
-              <Search className="size-9 opacity-45" />
-              <span className="text-sm font-medium">没有找到匹配的小组件</span>
-            </div>
-          )}
-        </section>
-      </main>
-    </div>
+          </header>
+          <section className="min-h-0 flex-1 overflow-y-auto px-[26px] pb-[28px] pt-[2px] [scrollbar-width:thin] [scrollbar-color:rgba(0,0,0,0.18)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/18">
+            {filteredWidgets.length > 0 ? (
+              <div
+                className="grid auto-rows-[56px] grid-cols-[minmax(0,1.12fr)_minmax(0,0.8fr)_minmax(0,0.95fr)] gap-[14px] pr-2"
+                data-testid="widget-manager-grid"
+              >
+                {filteredWidgets.map((widget) => (
+                  <WidgetCard
+                    countOnDesktop={existingWidgetCounts[widget.widgetId] ?? 0}
+                    isRecentlyAdded={recentlyAddedId === widget.id}
+                    key={widget.id}
+                    onAdd={handleAddWidget}
+                    widget={widget}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex h-full min-h-72 flex-col items-center justify-center gap-3 text-[#6e6e73]">
+                <Search className="size-9 opacity-45" />
+                <span className="text-sm font-medium">没有找到匹配的小组件</span>
+              </div>
+            )}
+          </section>
+        </main>
+      </div>
+    </>
+  );
+}
+
+function WidgetManagerHeaderSlots({
+  onQueryChange,
+  query,
+}: Readonly<{
+  onQueryChange(query: string): void;
+  query: string;
+}>) {
+  const menuControl = useMemo(
+    () => (
+      <button
+        aria-label="切换小组件侧栏"
+        className="absolute left-[198px] top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-[10px] text-[#424b58] outline-none transition-all duration-200 hover:bg-white/54 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35"
+        type="button"
+      >
+        <Menu className="size-5" strokeWidth={1.9} />
+      </button>
+    ),
+    [],
+  );
+  const titleControl = useMemo(
+    () => (
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[15px] font-bold text-[#374151]">
+        Widgets 管理
+      </div>
+    ),
+    [],
+  );
+  const searchControl = useMemo(
+    () => (
+      <label className="flex h-9 w-[196px] items-center gap-2 rounded-[15px] border border-[#dfe4ea] bg-white/50 px-3 text-[#5d6673] shadow-[inset_0_1px_0_rgba(255,255,255,0.82),0_7px_18px_rgba(48,61,74,0.05)] backdrop-blur-xl focus-within:bg-white/72 focus-within:ring-2 focus-within:ring-white/74">
+        <Search className="size-4 shrink-0" strokeWidth={2.2} />
+        <input
+          className="min-w-0 flex-1 bg-transparent text-[13px] font-medium text-[#1f2937] outline-none placeholder:text-[#808894]"
+          onChange={(event) => onQueryChange(event.currentTarget.value)}
+          placeholder="搜索"
+          type="search"
+          value={query}
+        />
+      </label>
+    ),
+    [onQueryChange, query],
+  );
+
+  return (
+    <>
+      <AppHeaderSlot id="widget-manager-menu-control">{menuControl}</AppHeaderSlot>
+      <AppHeaderSlot id="widget-manager-title-control">{titleControl}</AppHeaderSlot>
+      <AppHeaderSlot id="widget-manager-search-control">{searchControl}</AppHeaderSlot>
+    </>
   );
 }
 
@@ -460,10 +591,11 @@ function WidgetCard({
   return (
     <button
       className={cx(
-        'group relative mb-4 block w-full break-inside-avoid overflow-hidden rounded-[22px] border text-left shadow-[0_12px_30px_rgba(30,42,50,0.10),inset_0_1px_0_rgba(255,255,255,0.38)] outline-none transition-all duration-300 will-change-transform hover:-translate-y-0.5 hover:scale-[1.012] hover:shadow-[0_18px_38px_rgba(30,42,50,0.16),inset_0_1px_0_rgba(255,255,255,0.42)] active:scale-[0.975] focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+        'group relative block h-full min-h-[112px] overflow-hidden rounded-[18px] border text-left shadow-[0_10px_24px_rgba(31,42,55,0.13),inset_0_1px_0_rgba(255,255,255,0.38)] outline-none transition-all duration-300 will-change-transform hover:-translate-y-0.5 hover:scale-[1.006] hover:shadow-[0_16px_32px_rgba(31,42,55,0.17),inset_0_1px_0_rgba(255,255,255,0.42)] active:scale-[0.985] focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+        resolveWidgetLayoutClassName(widget.id),
         added
           ? 'border-[#0a84ff] shadow-[0_0_0_2px_rgba(10,132,255,0.28),0_12px_26px_rgba(0,0,0,0.14)]'
-          : 'border-white/55',
+          : 'border-white/80',
       )}
       onClick={() => onAdd(widget)}
       title={widget.name}
@@ -480,14 +612,18 @@ function WidgetCard({
 function WidgetFace({ widget }: Readonly<{ widget: DemoWidget }>) {
   return (
     <div
-      className="relative overflow-hidden p-4 text-white"
-      style={{ background: widget.gradient, height: widget.height }}
+      className="relative h-full overflow-hidden p-4 text-white"
+      style={{ background: widget.gradient }}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.84)_1px,transparent_1px)] opacity-[0.05] [background-size:5px_5px]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(160deg,rgba(255,255,255,0.22),rgba(255,255,255,0)_40%)]" />
       <div className="relative z-10 h-full">{renderWidgetFace(widget.template)}</div>
     </div>
   );
+}
+
+function resolveWidgetLayoutClassName(widgetId: string): string {
+  return widgetLayoutClassNames.get(widgetId) ?? 'row-span-3';
 }
 
 function renderWidgetFace(template: DemoWidgetTemplate) {

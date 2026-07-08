@@ -101,8 +101,8 @@ export default function WallpaperWindow() {
 
   const resultLabel =
     visibleExploreWallpapers.length === wallpaperLibrary.length
-      ? '2.523 wallpapers'
-      : `${visibleExploreWallpapers.length} of 2.523 wallpapers`;
+      ? '共 2,523 张壁纸'
+      : `${visibleExploreWallpapers.length} / 2,523 张壁纸`;
 
   const selectHeroByIndex = useCallback((index: number) => {
     const normalizedIndex = normalizeIndex(index, heroSlides.length);

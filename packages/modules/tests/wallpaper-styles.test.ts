@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { HeroFrostedAction } from '../src/apps/wallpaper/components/HeroFrostedAction';
+import { ExploreView } from '../src/apps/wallpaper/components/ExploreView';
 import { HomeView } from '../src/apps/wallpaper/components/HomeView';
 import { WallpaperFrostedHeaderControls } from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
 import { createWallpaperHeader } from '../src/apps/wallpaper/header';
@@ -91,9 +92,28 @@ describe('Wallpaper styles', () => {
   });
 
   it('locks Explore cards to consistent media and info regions', () => {
-    expect(wallpaperStyles).toContain('grid-template-rows: minmax(0, 1fr) 122px;');
-    expect(wallpaperStyles).toContain('height: clamp(328px, 28vw, 430px);');
-    expect(wallpaperStyles).toContain('height: 122px;');
+    const exploreSource = ExploreView.toString();
+
+    expect(wallpaperStyles).toContain('grid-template-rows: minmax(0, 1fr) 78px;');
+    expect(wallpaperStyles).toContain('height: clamp(248px, 21vw, 330px);');
+    expect(wallpaperStyles).toContain('height: 78px;');
+    expect(wallpaperStyles).toContain('.wallpaper-explore-card:hover > img');
+    expect(exploreSource).not.toContain('wallpaper-author');
+    expect(exploreSource).not.toContain('wallpaper-stats');
+    expect(exploreSource).not.toContain('wallpaper.duration');
+  });
+
+  it('localizes and softens the Explore filter surface', () => {
+    const exploreSource = ExploreView.toString();
+
+    expect(exploreSource).toContain('探索壁纸库');
+    expect(exploreSource).toContain('搜索壁纸...');
+    expect(exploreSource).toContain('热门：');
+    expect(exploreSource).toContain('没有匹配的壁纸');
+    expect(exploreSource).not.toContain('Explore Wallpaper Library');
+    expect(wallpaperStyles).toContain('width: min(448px, 100%);');
+    expect(wallpaperStyles).toContain('height: 30px;');
+    expect(wallpaperStyles).toContain('font-weight: 520;');
   });
 
   it('uses wallpaper-owned frosted button components', () => {

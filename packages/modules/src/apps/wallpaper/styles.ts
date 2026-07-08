@@ -1075,7 +1075,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-page--explore {
-  padding: 136px clamp(56px, 6.5vw, 90px) 140px;
+  padding: 126px clamp(46px, 5.5vw, 76px) 130px;
 }
 
 .wallpaper-page--settings {
@@ -1090,10 +1090,10 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-page__intro p {
-  margin: 0 0 16px;
+  margin: 0 0 13px;
   color: rgba(255, 255, 255, 0.62);
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .wallpaper-page__intro h1,
@@ -1107,33 +1107,38 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   letter-spacing: 0;
 }
 
+.wallpaper-page--explore .wallpaper-page__intro h1 {
+  font-size: clamp(34px, 3.4vw, 50px);
+  text-wrap: balance;
+}
+
 .wallpaper-page__intro > span {
   display: block;
-  margin-top: 24px;
+  margin-top: 18px;
   color: rgba(255, 255, 255, 0.55);
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 520;
 }
 
 .wallpaper-search {
   display: flex;
-  width: min(560px, 100%);
-  height: 48px;
+  width: min(448px, 100%);
+  height: 40px;
   align-items: center;
-  gap: 14px;
-  margin-top: 36px;
+  gap: 11px;
+  margin-top: 28px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   background: rgba(17, 19, 22, 0.36);
-  padding: 0 22px;
+  padding: 0 18px;
   color: rgba(255, 255, 255, 0.56);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(14px);
 }
 
 .wallpaper-search svg {
-  width: 21px;
-  height: 21px;
+  width: 17px;
+  height: 17px;
 }
 
 .wallpaper-search input {
@@ -1143,8 +1148,8 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   outline: 0;
   background: transparent;
   color: #fff;
-  font-size: 19px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 520;
 }
 
 .wallpaper-search input::placeholder {
@@ -1155,14 +1160,14 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin-top: 28px;
+  gap: 9px;
+  margin-top: 22px;
 }
 
 .wallpaper-popular > span {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .wallpaper-popular button,
@@ -1171,14 +1176,14 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.72);
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .wallpaper-popular button {
-  height: 37px;
-  padding: 0 17px;
+  height: 30px;
+  padding: 0 13px;
 }
 
 .wallpaper-popular button.is-selected {
@@ -1188,18 +1193,18 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-categories {
   display: flex;
-  max-width: 1120px;
+  max-width: 980px;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 42px;
+  gap: 9px;
+  margin-top: 30px;
 }
 
 .wallpaper-categories button {
   display: flex;
-  height: 42px;
+  height: 34px;
   align-items: center;
-  gap: 8px;
-  padding: 0 16px 0 5px;
+  gap: 6px;
+  padding: 0 12px 0 4px;
   background: rgba(255, 255, 255, 0.12);
 }
 
@@ -1210,8 +1215,8 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-categories img,
 .wallpaper-categories i {
-  width: 31px;
-  height: 31px;
+  width: 26px;
+  height: 26px;
   border-radius: 999px;
   object-fit: cover;
 }
@@ -1224,59 +1229,98 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 34px;
+  margin-top: 26px;
 }
 
 .wallpaper-results-bar strong {
   color: rgba(255, 255, 255, 0.55);
-  font-size: 18px;
-  font-weight: 900;
+  font-size: 15px;
+  font-weight: 620;
 }
 
 .wallpaper-results-bar button {
   display: flex;
-  height: 39px;
+  height: 34px;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   border: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.13);
   color: rgba(255, 255, 255, 0.75);
-  padding: 0 16px;
-  font-size: 16px;
-  font-weight: 900;
+  padding: 0 13px;
+  font-size: 14px;
+  font-weight: 620;
   cursor: pointer;
 }
 
 .wallpaper-results-bar svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .wallpaper-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 32px;
-  margin-top: 18px;
+  gap: 24px;
+  margin-top: 14px;
 }
 
 .wallpaper-explore-card {
   position: relative;
   display: grid;
-  height: clamp(328px, 28vw, 430px);
+  height: clamp(248px, 21vw, 330px);
   min-height: 0;
-  grid-template-rows: minmax(0, 1fr) 122px;
+  grid-template-rows: minmax(0, 1fr) 78px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 18px;
+  border-radius: 16px;
   background: rgba(12, 14, 13, 0.4);
-  box-shadow: 0 20px 36px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.16);
   cursor: pointer;
+  transition:
+    border-color 220ms ease,
+    box-shadow 260ms ease,
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wallpaper-explore-card::before {
+  position: absolute;
+  top: 0;
+  bottom: 78px;
+  left: -46%;
+  z-index: 1;
+  width: 42%;
+  background: linear-gradient(
+    105deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0)
+  );
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-120%) skewX(-14deg);
+  transition:
+    opacity 260ms ease,
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .wallpaper-explore-card.is-selected {
   border-color: rgba(255, 255, 255, 0.34);
-  box-shadow: 0 22px 42px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.10);
+}
+
+.wallpaper-explore-card:hover,
+.wallpaper-explore-card:focus-visible {
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 22px 38px rgba(0, 0, 0, 0.22);
+  transform: translateY(-3px);
+}
+
+.wallpaper-explore-card:hover::before,
+.wallpaper-explore-card:focus-visible::before {
+  opacity: 1;
+  transform: translateX(360%) skewX(-14deg);
 }
 
 .wallpaper-explore-card > img,
@@ -1286,6 +1330,18 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   height: 100%;
   min-height: 0;
   object-fit: cover;
+  transition:
+    filter 420ms ease,
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: filter, transform;
+}
+
+.wallpaper-explore-card:hover > img,
+.wallpaper-explore-card:focus-visible > img,
+.wallpaper-explore-card:hover .wallpaper-explore-placeholder,
+.wallpaper-explore-card:focus-visible .wallpaper-explore-placeholder {
+  filter: saturate(1.12) contrast(1.04) brightness(1.06);
+  transform: scale(1.055);
 }
 
 .wallpaper-explore-placeholder {
@@ -1298,19 +1354,19 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 .wallpaper-explore-card__view {
   position: absolute;
   left: 50%;
-  bottom: 142px;
+  bottom: 94px;
   z-index: 2;
-  min-width: 164px;
-  max-width: calc(100% - 38px);
+  min-width: 132px;
+  max-width: calc(100% - 34px);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.012)),
     rgba(255, 255, 255, 0.025);
   color: rgba(255, 255, 255, 0.94);
-  padding: 12px 22px;
-  font-size: 13px;
-  font-weight: 900;
+  padding: 10px 18px;
+  font-size: 12px;
+  font-weight: 660;
   line-height: 1;
   text-align: center;
   box-shadow:
@@ -1335,92 +1391,71 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 .wallpaper-explore-card__info {
   position: relative;
   display: flex;
-  height: 122px;
+  height: 78px;
   min-height: 0;
   flex-direction: column;
   justify-content: space-between;
-  background: rgba(21, 25, 20, 0.88);
-  padding: 22px 19px 18px;
+  background: rgba(18, 23, 19, 0.86);
+  padding: 13px 16px 12px;
 }
 
 .wallpaper-explore-card__info h2 {
   display: -webkit-box;
-  min-height: 42px;
   margin: 0;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   font-family: var(--wallpaper-display);
-  font-size: 20px;
-  line-height: 1.04;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.08;
 }
 
 .wallpaper-explore-card__meta {
   display: flex;
   min-width: 0;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   overflow: hidden;
   color: rgba(255, 255, 255, 0.55);
-  font-size: 14px;
-  font-weight: 900;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.wallpaper-author {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 8px;
-  overflow: hidden;
-}
-
-.wallpaper-author i {
-  display: grid;
-  width: 24px;
-  height: 24px;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.22);
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 11px;
-  font-style: normal;
-}
-
-.wallpaper-tag,
-.wallpaper-stats em {
+.wallpaper-tag {
   flex: 0 0 auto;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
-  padding: 3px 8px;
-  color: rgba(255, 255, 255, 0.48);
+  padding: 3px 9px;
+  color: rgba(255, 255, 255, 0.58);
   font-style: normal;
-}
-
-.wallpaper-stats {
-  display: flex;
-  flex: 0 0 auto;
-  margin-left: auto;
-  align-items: center;
-  gap: 13px;
 }
 
 .wallpaper-like-button {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 5px;
   border: 0;
   background: transparent;
   color: #ff4f70;
   padding: 0;
-  font-weight: 900;
+  font-weight: 680;
   cursor: pointer;
+  transition:
+    color 180ms ease,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.wallpaper-like-button svg,
-.wallpaper-stats svg {
-  width: 15px;
-  height: 15px;
+.wallpaper-like-button:hover {
+  color: #ff7892;
+  transform: translateY(-1px);
+}
+
+.wallpaper-like-button svg {
+  width: 14px;
+  height: 14px;
   fill: currentColor;
 }
 
