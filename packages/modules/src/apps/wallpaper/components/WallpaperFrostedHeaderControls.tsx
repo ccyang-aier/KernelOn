@@ -1,8 +1,9 @@
 'use client';
 
 import { AppHeaderSlot } from '@kernelon/shell';
+import { Glass, type GlassOptics } from '@kernelon/ui/liquid-glass';
 import { ArrowLeft, KeyRound, Search, Settings, Share2 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 
 import { viewLabels } from '../data';
 import type { WallpaperView } from '../types';
@@ -172,26 +173,18 @@ export function WallpaperFrostedHeaderControls({
 
   const licenseControl = useMemo(
     () => (
-      <button
-        aria-label="License"
-        className="wallpaper-frosted-button wallpaper-frosted-button--icon"
-        type="button"
-      >
+      <WallpaperHeaderLiquidGlassButton label="License">
         <KeyRound aria-hidden="true" />
-      </button>
+      </WallpaperHeaderLiquidGlassButton>
     ),
     [],
   );
 
   const shareControl = useMemo(
     () => (
-      <button
-        aria-label="Share"
-        className="wallpaper-frosted-button wallpaper-frosted-button--icon"
-        type="button"
-      >
+      <WallpaperHeaderLiquidGlassButton label="Share">
         <Share2 aria-hidden="true" />
-      </button>
+      </WallpaperHeaderLiquidGlassButton>
     ),
     [],
   );
@@ -240,3 +233,49 @@ const wallpaperViewOptions: Array<{ label: string; value: WallpaperView }> = [
   { label: viewLabels.explore, value: 'explore' },
   { label: viewLabels.settings, value: 'settings' },
 ];
+
+const wallpaperHeaderIconGlassOptics: Partial<GlassOptics> = {
+  mapSize: 256,
+  depth: 0.64,
+  curvature: 0.34,
+  strength: 0.18,
+  dispersion: 0.18,
+  bend: 0.58,
+  bendWidth: 0.08,
+  frost: 3.2,
+  brightness: 0.34,
+  specular: 1,
+  sheen: 0.5,
+  sheenAngle: 48,
+  sheenWidth: 2,
+  glow: 0.12,
+  glowSpread: 1,
+  glowFalloff: 0.7,
+};
+
+function WallpaperHeaderLiquidGlassButton({
+  children,
+  label,
+}: Readonly<{
+  children: ReactNode;
+  label: string;
+}>) {
+  return (
+    <button
+      aria-label={label}
+      className="wallpaper-frosted-button wallpaper-frosted-button--icon wallpaper-frosted-button--liquid-glass"
+      type="button"
+    >
+      <Glass
+        aria-hidden="true"
+        className="wallpaper-frosted-button__liquid-glass"
+        height={42}
+        optics={wallpaperHeaderIconGlassOptics}
+        radius={21}
+        width={42}
+      >
+        <span className="wallpaper-frosted-button__liquid-icon">{children}</span>
+      </Glass>
+    </button>
+  );
+}
