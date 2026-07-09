@@ -193,12 +193,17 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   position: absolute;
   inset: 0;
   z-index: 1;
-  border: 1px solid rgba(255, 255, 255, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.46);
   border-radius: 999px;
+  background:
+    radial-gradient(circle at 31% 19%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 42%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.015) 48%, rgba(255, 255, 255, 0.06));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.46),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
-    0 0 0 0.5px rgba(0, 0, 0, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    inset 0 0 10px rgba(255, 255, 255, 0.10),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 0 0 0.5px rgba(0, 0, 0, 0.10),
+    0 8px 18px rgba(0, 0, 0, 0.14);
   content: "";
   pointer-events: none;
 }
@@ -209,14 +214,14 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   overflow: visible;
   border-radius: 999px;
   color: inherit;
-  filter: drop-shadow(0 9px 18px rgba(0, 0, 0, 0.14));
+  box-shadow: 0 9px 18px rgba(0, 0, 0, 0.10);
   transition:
-    filter 180ms ease,
+    box-shadow 180ms ease,
     transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .wallpaper-frosted-button--liquid-glass:hover .wallpaper-frosted-button__liquid-glass {
-  filter: drop-shadow(0 11px 20px rgba(0, 0, 0, 0.17));
+  box-shadow: 0 11px 20px rgba(0, 0, 0, 0.13);
   transform: translate3d(0, -1px, 0);
 }
 
@@ -240,8 +245,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   width: 42px;
   height: 42px;
   place-items: center;
-  color: rgba(255, 255, 255, 0.94);
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.24));
+  color: rgba(255, 255, 255, 0.98);
   pointer-events: none;
 }
 
@@ -1116,8 +1120,8 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
     inset 0 1px 0 rgba(255, 255, 255, 0.28),
     inset 0 -1px 0 rgba(255, 255, 255, 0.03),
     0 6px 14px rgba(0, 0, 0, 0.05);
-  -webkit-backdrop-filter: blur(2px) saturate(1.02);
-  backdrop-filter: blur(2px) saturate(1.02);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   opacity: 0;
   transform: translate(-50%, 8px) scale(0.98);
   transition:
@@ -1127,6 +1131,8 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-carousel-card:hover .wallpaper-card-glass-label,
 .wallpaper-carousel-card:focus-visible .wallpaper-card-glass-label {
+  -webkit-backdrop-filter: blur(2px) saturate(1.02);
+  backdrop-filter: blur(2px) saturate(1.02);
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
 }
@@ -1404,7 +1410,6 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   transition:
     filter 420ms ease,
     transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: filter, transform;
 }
 
 .wallpaper-explore-card:hover > img,
@@ -1413,6 +1418,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 .wallpaper-explore-card:focus-visible .wallpaper-explore-placeholder {
   filter: saturate(1.12) contrast(1.04) brightness(1.06);
   transform: scale(1.055);
+  will-change: filter, transform;
 }
 
 .wallpaper-explore-placeholder {
@@ -1444,8 +1450,8 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
     inset 0 1px 0 rgba(255, 255, 255, 0.28),
     inset 0 -1px 0 rgba(255, 255, 255, 0.03),
     0 6px 14px rgba(0, 0, 0, 0.05);
-  -webkit-backdrop-filter: blur(2px) saturate(1.02);
-  backdrop-filter: blur(2px) saturate(1.02);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   opacity: 0;
   transform: translate(-50%, 8px) scale(0.98);
   transition:
@@ -1455,6 +1461,8 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-explore-card:hover .wallpaper-explore-card__view,
 .wallpaper-explore-card:focus-visible .wallpaper-explore-card__view {
+  -webkit-backdrop-filter: blur(2px) saturate(1.02);
+  backdrop-filter: blur(2px) saturate(1.02);
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
 }
