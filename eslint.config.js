@@ -17,6 +17,7 @@ export default tseslint.config(
       'packages/ui/src/components/liquid-glass/**',
       'packages/ui/src/components/liquid-glass-studio/**',
       'packages/ui/src/components/liquid-glass-svg-filter/**',
+      'packages/ui/src/components/liquidglass/**',
       '**/*.tsbuildinfo',
       'pnpm-lock.yaml',
     ],

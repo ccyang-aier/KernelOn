@@ -3,10 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { HeroFrostedAction } from '../src/apps/wallpaper/components/HeroFrostedAction';
 import { ExploreView } from '../src/apps/wallpaper/components/ExploreView';
 import { HomeView } from '../src/apps/wallpaper/components/HomeView';
-import {
-  createWallpaperHeaderGlassRefractStyle,
-  WallpaperFrostedHeaderControls,
-} from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
+import { WallpaperFrostedHeaderControls } from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
 import { createWallpaperHeader } from '../src/apps/wallpaper/header';
 import { wallpaperStyles } from '../src/apps/wallpaper/styles';
 
@@ -124,27 +121,12 @@ describe('Wallpaper styles', () => {
     expect(WallpaperFrostedHeaderControls.name).toBe('WallpaperFrostedHeaderControls');
   });
 
-  it('keeps header liquid glass refraction scoped to a local patch', () => {
-    const style = createWallpaperHeaderGlassRefractStyle('/wallpaper.jpg', {
-      offsetX: 1109,
-      offsetY: 14,
-      rootHeight: 721,
-      rootWidth: 1228,
-    });
+  it('keeps header liquid glass buttons on live material instead of a static image copy', () => {
+    const headerSource = WallpaperFrostedHeaderControls.toString();
 
-    expect(style).toMatchObject({
-      backgroundImage: 'url("/wallpaper.jpg")',
-      backgroundPosition: '-1045px 50px',
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: '1228px 721px',
-      height: 170,
-      left: -64,
-      top: -64,
-      width: 170,
-    });
-    expect(style.height).not.toBe(721);
-    expect(style.width).not.toBe(1228);
-    expect(wallpaperStyles).toContain('background-repeat: no-repeat;');
+    expect(headerSource).not.toContain('glassBackdropImage');
+    expect(wallpaperStyles).toContain('.wallpaper-frosted-button__liquid-material-fill');
+    expect(wallpaperStyles).not.toContain('wallpaper-frosted-button__liquid-refract');
   });
 
   it('defines preview header placement and preview entrance motion', () => {

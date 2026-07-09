@@ -6,13 +6,9 @@ import { ArrowLeft, KeyRound, Search, Settings, Share2 } from 'lucide-react';
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
-  useState,
-  type CSSProperties,
   type ReactNode,
-  type RefObject,
 } from 'react';
 
 import { viewLabels } from '../data';
@@ -22,7 +18,6 @@ type WallpaperHeaderView = WallpaperView | 'preview';
 
 export function WallpaperFrostedHeaderControls({
   activeView,
-  glassBackdropImage,
   isSearchOpen,
   onBack,
   onSearchChange,
@@ -32,7 +27,6 @@ export function WallpaperFrostedHeaderControls({
   searchQuery,
 }: Readonly<{
   activeView: WallpaperHeaderView;
-  glassBackdropImage: string;
   isSearchOpen: boolean;
   onBack(): void;
   onSearchChange(query: string): void;
@@ -185,20 +179,20 @@ export function WallpaperFrostedHeaderControls({
 
   const licenseControl = useMemo(
     () => (
-      <WallpaperHeaderLiquidGlassButton backdropImage={glassBackdropImage} label="License">
+      <WallpaperHeaderLiquidGlassButton label="License">
         <KeyRound aria-hidden="true" />
       </WallpaperHeaderLiquidGlassButton>
     ),
-    [glassBackdropImage],
+    [],
   );
 
   const shareControl = useMemo(
     () => (
-      <WallpaperHeaderLiquidGlassButton backdropImage={glassBackdropImage} label="Share">
+      <WallpaperHeaderLiquidGlassButton label="Share">
         <Share2 aria-hidden="true" />
       </WallpaperHeaderLiquidGlassButton>
     ),
-    [glassBackdropImage],
+    [],
   );
 
   const settingsControl = useMemo(
@@ -270,153 +264,36 @@ const wallpaperHeaderIconGlassOptics: Partial<GlassOptics> = {
 
 const WALLPAPER_HEADER_GLASS_SIZE = 42;
 const WALLPAPER_HEADER_GLASS_RADIUS = WALLPAPER_HEADER_GLASS_SIZE / 2;
-const WALLPAPER_HEADER_GLASS_REFRACT_OVERSCAN = 64;
-
-export interface WallpaperHeaderGlassFrame {
-  offsetX: number;
-  offsetY: number;
-  rootHeight: number;
-  rootWidth: number;
-}
 
 function WallpaperHeaderLiquidGlassButton({
-  backdropImage,
   children,
   label,
 }: Readonly<{
-  backdropImage: string;
   children: ReactNode;
   label: string;
 }>) {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const frame = useWallpaperHeaderGlassFrame(buttonRef);
-  const refractStyle = useMemo(
-    () => createWallpaperHeaderGlassRefractStyle(backdropImage, frame),
-    [backdropImage, frame],
-  );
-  const refractCopy = (
-    <span
-      aria-hidden="true"
-      className="wallpaper-frosted-button__liquid-refract"
-      style={refractStyle}
-    />
-  );
-
   return (
     <button
       aria-label={label}
       className="wallpaper-frosted-button wallpaper-frosted-button--icon wallpaper-frosted-button--liquid-glass"
-      ref={buttonRef}
       type="button"
     >
       <Glass
         aria-hidden="true"
-        behind="#7ca9ab"
-        brightnessInFilter
         className="wallpaper-frosted-button__liquid-glass"
         height={WALLPAPER_HEADER_GLASS_SIZE}
         optics={wallpaperHeaderIconGlassOptics}
         radius={WALLPAPER_HEADER_GLASS_RADIUS}
-        refract={refractCopy}
         style={{
           borderRadius: WALLPAPER_HEADER_GLASS_RADIUS,
           height: WALLPAPER_HEADER_GLASS_SIZE,
           width: WALLPAPER_HEADER_GLASS_SIZE,
         }}
         width={WALLPAPER_HEADER_GLASS_SIZE}
-      />
+      >
+        <span aria-hidden="true" className="wallpaper-frosted-button__liquid-material-fill" />
+      </Glass>
       <span className="wallpaper-frosted-button__liquid-icon">{children}</span>
     </button>
   );
-}
-
-function useWallpaperHeaderGlassFrame(
-  buttonRef: RefObject<HTMLButtonElement | null>,
-): WallpaperHeaderGlassFrame | null {
-  const [frame, setFrame] = useState<WallpaperHeaderGlassFrame | null>(null);
-
-  useLayoutEffect(() => {
-    const button = buttonRef.current;
-
-    if (!button) {
-      return undefined;
-    }
-
-    let rafId = 0;
-    const syncFrame = () => {
-      window.cancelAnimationFrame(rafId);
-      rafId = window.requestAnimationFrame(() => {
-        const root = button.closest('section[data-app-id="wallpaper"]') as HTMLElement | null;
-        const source = root ?? button.offsetParent;
-
-        if (!source) {
-          return;
-        }
-
-        const rootRect = source.getBoundingClientRect();
-        const buttonRect = button.getBoundingClientRect();
-        const nextFrame: WallpaperHeaderGlassFrame = {
-          offsetX: Math.round(buttonRect.left - rootRect.left),
-          offsetY: Math.round(buttonRect.top - rootRect.top),
-          rootHeight: Math.round(rootRect.height),
-          rootWidth: Math.round(rootRect.width),
-        };
-
-        setFrame((currentFrame) =>
-          currentFrame?.offsetX === nextFrame.offsetX &&
-          currentFrame.offsetY === nextFrame.offsetY &&
-          currentFrame.rootHeight === nextFrame.rootHeight &&
-          currentFrame.rootWidth === nextFrame.rootWidth
-            ? currentFrame
-            : nextFrame,
-        );
-      });
-    };
-
-    const resizeObserver = new ResizeObserver(syncFrame);
-    resizeObserver.observe(button);
-
-    const root = button.closest('section[data-app-id="wallpaper"]') as HTMLElement | null;
-    if (root) {
-      resizeObserver.observe(root);
-    }
-
-    window.addEventListener('resize', syncFrame);
-    syncFrame();
-
-    return () => {
-      window.cancelAnimationFrame(rafId);
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', syncFrame);
-    };
-  }, [buttonRef]);
-
-  return frame;
-}
-
-export function createWallpaperHeaderGlassRefractStyle(
-  backdropImage: string,
-  frame: WallpaperHeaderGlassFrame | null,
-): CSSProperties {
-  const backgroundImage = `url("${backdropImage}")`;
-
-  if (!frame) {
-    return { backgroundImage };
-  }
-
-  const overscan = WALLPAPER_HEADER_GLASS_REFRACT_OVERSCAN;
-  const patchSize = WALLPAPER_HEADER_GLASS_SIZE + overscan * 2;
-  const sourceX = frame.offsetX - overscan;
-  const sourceY = frame.offsetY - overscan;
-
-  return {
-    backgroundImage,
-    backgroundPosition: `${-sourceX}px ${-sourceY}px`,
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: `${frame.rootWidth}px ${frame.rootHeight}px`,
-    height: patchSize,
-    left: -overscan,
-    top: -overscan,
-    width: patchSize,
-  };
 }

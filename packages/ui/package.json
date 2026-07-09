@@ -12,6 +12,10 @@
       "types": "./src/components/liquid-glass/index.ts",
       "import": "./src/components/liquid-glass/index.ts"
     },
+    "./liquidglass": {
+      "types": "./src/components/liquidglass/index.ts",
+      "import": "./src/components/liquidglass/index.ts"
+    },
     "./liquid-glass-studio": {
       "types": "./src/components/liquid-glass-studio/index.ts",
       "import": "./src/components/liquid-glass-studio/index.ts"
@@ -26,6 +30,7 @@
     "@react-spring/web": "^10.1.2",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
+    "html-to-image": "^1.11.13",
     "leva": "^0.10.1",
     "re-resizable": "^6.11.2",
     "tailwind-merge": "3.6.0"

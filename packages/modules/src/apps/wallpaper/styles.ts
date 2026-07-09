@@ -225,18 +225,6 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   transform: translate3d(0, -1px, 0);
 }
 
-.wallpaper-frosted-button__liquid-refract {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 42px;
-  height: 42px;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  pointer-events: none;
-}
-
 .wallpaper-frosted-button__liquid-icon {
   position: absolute;
   inset: 0;
@@ -246,6 +234,14 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   height: 42px;
   place-items: center;
   color: rgba(255, 255, 255, 0.98);
+  pointer-events: none;
+}
+
+.wallpaper-frosted-button__liquid-material-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
   pointer-events: none;
 }
 
