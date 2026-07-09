@@ -3,7 +3,17 @@
 import { AppHeaderSlot } from '@kernelon/shell';
 import { Glass, type GlassOptics } from '@kernelon/ui/liquid-glass';
 import { ArrowLeft, KeyRound, Search, Settings, Share2 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 
 import { viewLabels } from '../data';
 import type { WallpaperView } from '../types';
@@ -12,6 +22,7 @@ type WallpaperHeaderView = WallpaperView | 'preview';
 
 export function WallpaperFrostedHeaderControls({
   activeView,
+  glassBackdropImage,
   isSearchOpen,
   onBack,
   onSearchChange,
@@ -21,6 +32,7 @@ export function WallpaperFrostedHeaderControls({
   searchQuery,
 }: Readonly<{
   activeView: WallpaperHeaderView;
+  glassBackdropImage: string;
   isSearchOpen: boolean;
   onBack(): void;
   onSearchChange(query: string): void;
@@ -173,20 +185,20 @@ export function WallpaperFrostedHeaderControls({
 
   const licenseControl = useMemo(
     () => (
-      <WallpaperHeaderLiquidGlassButton label="License">
+      <WallpaperHeaderLiquidGlassButton backdropImage={glassBackdropImage} label="License">
         <KeyRound aria-hidden="true" />
       </WallpaperHeaderLiquidGlassButton>
     ),
-    [],
+    [glassBackdropImage],
   );
 
   const shareControl = useMemo(
     () => (
-      <WallpaperHeaderLiquidGlassButton label="Share">
+      <WallpaperHeaderLiquidGlassButton backdropImage={glassBackdropImage} label="Share">
         <Share2 aria-hidden="true" />
       </WallpaperHeaderLiquidGlassButton>
     ),
-    [],
+    [glassBackdropImage],
   );
 
   const settingsControl = useMemo(
@@ -235,47 +247,160 @@ const wallpaperViewOptions: Array<{ label: string; value: WallpaperView }> = [
 ];
 
 const wallpaperHeaderIconGlassOptics: Partial<GlassOptics> = {
-  mapSize: 256,
-  depth: 0.64,
-  curvature: 0.34,
-  strength: 0.18,
-  dispersion: 0.18,
-  bend: 0.58,
-  bendWidth: 0.08,
-  frost: 3.2,
-  brightness: 0.34,
-  specular: 1,
-  sheen: 0.5,
+  mapSize: 512,
+  clipToShape: true,
+  softEdge: true,
+  depth: 0.66,
+  curvature: 0.32,
+  strength: 0.26,
+  dispersion: 0.2,
+  bend: 0.72,
+  bendWidth: 0.07,
+  frost: 3.4,
+  brightness: 0.54,
+  specular: 1.05,
+  sheen: 0.72,
   sheenAngle: 48,
-  sheenWidth: 2,
+  sheenWidth: 1.8,
+  sheenFalloff: 1.45,
   glow: 0.12,
   glowSpread: 1,
-  glowFalloff: 0.7,
+  glowFalloff: 0.8,
 };
 
+interface WallpaperHeaderGlassFrame {
+  offsetX: number;
+  offsetY: number;
+  rootHeight: number;
+  rootWidth: number;
+}
+
 function WallpaperHeaderLiquidGlassButton({
+  backdropImage,
   children,
   label,
 }: Readonly<{
+  backdropImage: string;
   children: ReactNode;
   label: string;
 }>) {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const frame = useWallpaperHeaderGlassFrame(buttonRef);
+  const refractStyle = useMemo(
+    () => createWallpaperHeaderGlassRefractStyle(backdropImage, frame),
+    [backdropImage, frame],
+  );
+  const refractCopy = (
+    <span
+      aria-hidden="true"
+      className="wallpaper-frosted-button__liquid-refract"
+      style={refractStyle}
+    />
+  );
+
   return (
     <button
       aria-label={label}
       className="wallpaper-frosted-button wallpaper-frosted-button--icon wallpaper-frosted-button--liquid-glass"
+      ref={buttonRef}
       type="button"
     >
       <Glass
         aria-hidden="true"
+        behind="#7ca9ab"
+        brightnessInFilter
         className="wallpaper-frosted-button__liquid-glass"
         height={42}
         optics={wallpaperHeaderIconGlassOptics}
         radius={21}
+        refract={refractCopy}
+        style={{ borderRadius: 21, height: 42, width: 42 }}
         width={42}
-      >
-        <span className="wallpaper-frosted-button__liquid-icon">{children}</span>
-      </Glass>
+      />
+      <span className="wallpaper-frosted-button__liquid-icon">{children}</span>
     </button>
   );
+}
+
+function useWallpaperHeaderGlassFrame(
+  buttonRef: RefObject<HTMLButtonElement | null>,
+): WallpaperHeaderGlassFrame | null {
+  const [frame, setFrame] = useState<WallpaperHeaderGlassFrame | null>(null);
+
+  useLayoutEffect(() => {
+    const button = buttonRef.current;
+
+    if (!button) {
+      return undefined;
+    }
+
+    let rafId = 0;
+    const syncFrame = () => {
+      window.cancelAnimationFrame(rafId);
+      rafId = window.requestAnimationFrame(() => {
+        const root = button.closest('section[data-app-id="wallpaper"]') as HTMLElement | null;
+        const source = root ?? button.offsetParent;
+
+        if (!source) {
+          return;
+        }
+
+        const rootRect = source.getBoundingClientRect();
+        const buttonRect = button.getBoundingClientRect();
+        const nextFrame: WallpaperHeaderGlassFrame = {
+          offsetX: Math.round(buttonRect.left - rootRect.left),
+          offsetY: Math.round(buttonRect.top - rootRect.top),
+          rootHeight: Math.round(rootRect.height),
+          rootWidth: Math.round(rootRect.width),
+        };
+
+        setFrame((currentFrame) =>
+          currentFrame?.offsetX === nextFrame.offsetX &&
+          currentFrame.offsetY === nextFrame.offsetY &&
+          currentFrame.rootHeight === nextFrame.rootHeight &&
+          currentFrame.rootWidth === nextFrame.rootWidth
+            ? currentFrame
+            : nextFrame,
+        );
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(syncFrame);
+    resizeObserver.observe(button);
+
+    const root = button.closest('section[data-app-id="wallpaper"]') as HTMLElement | null;
+    if (root) {
+      resizeObserver.observe(root);
+    }
+
+    window.addEventListener('resize', syncFrame);
+    syncFrame();
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', syncFrame);
+    };
+  }, [buttonRef]);
+
+  return frame;
+}
+
+function createWallpaperHeaderGlassRefractStyle(
+  backdropImage: string,
+  frame: WallpaperHeaderGlassFrame | null,
+): CSSProperties {
+  const backgroundImage = `url("${backdropImage}")`;
+
+  if (!frame) {
+    return { backgroundImage };
+  }
+
+  return {
+    backgroundImage,
+    height: frame.rootHeight,
+    left: -frame.offsetX,
+    top: -frame.offsetY,
+    width: frame.rootWidth,
+  };
 }

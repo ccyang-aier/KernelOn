@@ -189,38 +189,59 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   box-shadow: none;
 }
 
+.wallpaper-frosted-button--liquid-glass::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.46),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 0.5px rgba(0, 0, 0, 0.08);
+  content: "";
+  pointer-events: none;
+}
+
 .wallpaper-frosted-button__liquid-glass {
+  width: 42px;
+  height: 42px;
+  overflow: visible;
+  border-radius: 999px;
+  color: inherit;
+  filter: drop-shadow(0 9px 18px rgba(0, 0, 0, 0.14));
+  transition:
+    filter 180ms ease,
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wallpaper-frosted-button--liquid-glass:hover .wallpaper-frosted-button__liquid-glass {
+  filter: drop-shadow(0 11px 20px rgba(0, 0, 0, 0.17));
+  transform: translate3d(0, -1px, 0);
+}
+
+.wallpaper-frosted-button__liquid-refract {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 42px;
+  height: 42px;
+  background-position: center;
+  background-size: cover;
+  pointer-events: none;
+}
+
+.wallpaper-frosted-button__liquid-icon {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   display: grid;
   width: 42px;
   height: 42px;
   place-items: center;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.21);
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 48%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.018)),
-    rgba(255, 255, 255, 0.045);
-  color: inherit;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.30),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-    0 8px 18px rgba(0, 0, 0, 0.08);
-}
-
-.wallpaper-frosted-button--liquid-glass:hover .wallpaper-frosted-button__liquid-glass {
-  border-color: rgba(255, 255, 255, 0.30);
-  background:
-    radial-gradient(circle at 30% 16%, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0) 50%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.035)),
-    rgba(255, 255, 255, 0.07);
-}
-
-.wallpaper-frosted-button__liquid-icon {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  place-items: center;
+  color: rgba(255, 255, 255, 0.94);
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.24));
+  pointer-events: none;
 }
 
 .wallpaper-frosted-primary {

@@ -53,6 +53,11 @@ export default function WallpaperWindow() {
   const selectedWallpaper = assetById.get(selectedWallpaperId) ?? wallpaperLibrary[0]!;
   const previewWallpaper = previewWallpaperId ? assetById.get(previewWallpaperId) : null;
   const displayedView = previewWallpaper ? 'preview' : activeView;
+  const headerGlassBackdrop = previewWallpaper
+    ? resolveWallpaperImage(previewWallpaper)
+    : activeView === 'home'
+      ? (heroSlides[heroIndex]?.image ?? resolveWallpaperImage(selectedWallpaper))
+      : desktopWallpaper;
   const wallpaperRootStyle = useMemo(
     () =>
       ({
@@ -189,6 +194,7 @@ export default function WallpaperWindow() {
       <style>{wallpaperStyles}</style>
       <WallpaperFrostedHeaderControls
         activeView={displayedView}
+        glassBackdropImage={headerGlassBackdrop}
         isSearchOpen={isHeaderSearchOpen}
         onBack={closePreview}
         onSearchChange={setQuery}

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import WidgetManagerWindow from '../src/apps/widget-manager/WidgetManagerWindow';
@@ -166,11 +166,21 @@ describe('WidgetManagerWindow', () => {
       'grid',
       'grid-cols-[276px_minmax(0,1fr)]',
     );
-    expect(
-      screen.getByTestId('widget-manager-header-slot-widget-manager-title-control'),
-    ).toHaveTextContent('Widgets 管理');
+    expect(screen.getByTestId('widget-manager-window')).toHaveAttribute(
+      'data-sidebar-state',
+      'expanded',
+    );
+    expect(screen.getByTestId('widget-manager-title-control')).toHaveClass(
+      'absolute',
+      'left-1/2',
+      '-translate-x-1/2',
+    );
+    expect(screen.getByTestId('widget-manager-title-control')).toHaveTextContent('Widgets 管理');
     expect(screen.getByPlaceholderText('搜索')).toBeInTheDocument();
-    expect(screen.getByTestId('widget-manager-sidebar')).toHaveClass('bg-white/62');
+    expect(screen.getByTestId('widget-manager-sidebar')).toHaveAttribute(
+      'data-surface',
+      'frosted-sidebar',
+    );
 
     const toolbar = screen.getByTestId('widget-manager-toolbar');
 
@@ -184,6 +194,39 @@ describe('WidgetManagerWindow', () => {
     );
     expect(screen.getByTestId('widget-manager-grid')).toHaveClass(
       'grid-cols-[minmax(0,1.12fr)_minmax(0,0.8fr)_minmax(0,0.95fr)]',
+    );
+  });
+
+  it('smoothly collapses and expands the sidebar from the header control', () => {
+    render(<WidgetManagerWindow app={widgetManagerApp} window={widgetManagerWindow} />);
+
+    const toggle = screen.getByRole('button', { name: '收起小组件侧栏' });
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).toHaveAccessibleName('展开小组件侧栏');
+    expect(screen.getByTestId('widget-manager-window')).toHaveAttribute(
+      'data-sidebar-state',
+      'collapsed',
+    );
+    expect(screen.getByTestId('widget-manager-window')).toHaveClass(
+      'grid-cols-[88px_minmax(0,1fr)]',
+      'transition-[grid-template-columns]',
+    );
+    expect(screen.getByTestId('widget-manager-sidebar')).toHaveAttribute(
+      'data-collapsed',
+      'true',
+    );
+
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByTestId('widget-manager-window')).toHaveAttribute(
+      'data-sidebar-state',
+      'expanded',
     );
   });
 });

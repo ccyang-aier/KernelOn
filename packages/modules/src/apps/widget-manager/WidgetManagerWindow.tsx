@@ -312,8 +312,10 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
   const minimizeWindow = useShellSelector((state) => state.minimizeWindow);
   const [activeCategory, setActiveCategory] = useState<DemoWidgetCategory>('all');
   const [activeSize, setActiveSize] = useState<DemoWidgetSizeFilter>('all');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [query, setQuery] = useState('');
   const [recentlyAddedId, setRecentlyAddedId] = useState<string | null>(null);
+  const sidebarState = isSidebarCollapsed ? 'collapsed' : 'expanded';
   const normalizedQuery = query.trim().toLowerCase();
   const currentScreen = screens.find((screen) => screen.id === currentScreenId);
   const existingWidgetCounts = useMemo(
@@ -375,6 +377,10 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
     return () => appHeader.clearHeader();
   }, [appHeader]);
 
+  const handleSidebarToggle = useCallback(() => {
+    setIsSidebarCollapsed((currentValue) => !currentValue);
+  }, []);
+
   const handleAddWidget = useCallback(
     (demoWidget: DemoWidget) => {
       const widget = widgets.find((candidate) => candidate.id === demoWidget.widgetId);
@@ -397,58 +403,108 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
 
   return (
     <>
-      {appHeader ? <WidgetManagerHeaderSlots onQueryChange={setQuery} query={query} /> : null}
+      {appHeader ? (
+        <WidgetManagerHeaderSlots
+          isSidebarCollapsed={isSidebarCollapsed}
+          onQueryChange={setQuery}
+          onSidebarToggle={handleSidebarToggle}
+          query={query}
+        />
+      ) : null}
       <div
-        className="relative grid h-full w-full grid-cols-[276px_minmax(0,1fr)] select-none overflow-hidden bg-[#f6f7f9] font-sans text-[#303844]"
+        className={cx(
+          'relative grid h-full w-full select-none overflow-hidden bg-[#eef3f7] font-sans text-[#303844] transition-[grid-template-columns] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
+          isSidebarCollapsed
+            ? 'grid-cols-[88px_minmax(0,1fr)]'
+            : 'grid-cols-[276px_minmax(0,1fr)]',
+        )}
+        data-sidebar-state={sidebarState}
         data-testid="widget-manager-window"
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_0%,rgba(202,218,230,0.22),transparent_31%),radial-gradient(circle_at_18%_100%,rgba(255,255,255,0.9),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.72),rgba(245,247,250,0.74))]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_77%_2%,rgba(194,211,224,0.30),transparent_33%),radial-gradient(circle_at_16%_100%,rgba(255,255,255,0.82),transparent_42%),linear-gradient(180deg,rgba(248,251,253,0.78),rgba(235,241,246,0.82))]" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.18] [background-image:radial-gradient(circle,rgba(71,84,101,0.32)_0.55px,transparent_0.75px)] [background-size:7px_7px]" />
         <aside
-          className="relative z-10 flex h-full flex-col gap-5 border-r border-[#d8dde4]/85 bg-white/62 px-[22px] pb-[22px] pt-[16px] shadow-[inset_-1px_0_0_rgba(255,255,255,0.78)] backdrop-blur-[22px]"
+          className={cx(
+            'relative z-10 flex h-full flex-col border-r border-white/60 bg-[linear-gradient(180deg,rgba(238,244,248,0.74),rgba(224,233,240,0.66))] shadow-[inset_-1px_0_0_rgba(255,255,255,0.72),14px_0_40px_rgba(77,91,105,0.05)] backdrop-blur-[30px] transition-[gap,padding,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
+            isSidebarCollapsed ? 'gap-4 px-3 pb-5 pt-[18px]' : 'gap-5 px-[22px] pb-[22px] pt-[18px]',
+          )}
+          data-collapsed={String(isSidebarCollapsed)}
+          data-surface="frosted-sidebar"
           data-testid="widget-manager-sidebar"
         >
           {sidebarSections.map((section) => (
             <nav className="flex flex-col gap-2" key={section.label} aria-label={section.label}>
-              <div className="px-2 text-[12px] font-semibold text-[#4d5664]">{section.label}</div>
+              <div
+                className={cx(
+                  'px-2 text-[12px] font-semibold text-[#4d5664] transition-[height,opacity,transform] duration-300 ease-out',
+                  isSidebarCollapsed
+                    ? 'h-0 -translate-x-1 overflow-hidden opacity-0'
+                    : 'h-[18px] translate-x-0 opacity-100',
+                )}
+              >
+                {section.label}
+              </div>
               {section.items.map(({ Icon, id, name }) => {
                 const isActive = activeCategory === id;
 
                 return (
                   <button
                     className={cx(
-                      'flex h-11 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[15px] font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                      'flex h-11 w-full items-center rounded-[14px] text-left text-[15px] font-semibold outline-none transition-[background-color,color,box-shadow,transform,padding,gap] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                      isSidebarCollapsed ? 'justify-center gap-0 px-0' : 'justify-start gap-3 px-3',
                       isActive
-                        ? 'bg-[#178bff] text-white shadow-[0_12px_22px_rgba(19,132,255,0.28),inset_0_1px_0_rgba(255,255,255,0.42)]'
-                        : 'text-[#5f6773] hover:bg-white/70 hover:text-[#27313f]',
+                        ? 'bg-[#178bff] text-white shadow-[0_14px_26px_rgba(19,132,255,0.24),inset_0_1px_0_rgba(255,255,255,0.46)]'
+                        : 'text-[#5f6773] hover:bg-white/54 hover:text-[#27313f]',
                     )}
                     key={id}
                     onClick={() => setActiveCategory(id)}
                     type="button"
                   >
                     <Icon className="size-[19px] shrink-0" strokeWidth={2} />
-                    <span className="truncate">{name}</span>
+                    <span
+                      className={cx(
+                        'truncate transition-[width,opacity,transform] duration-300 ease-out',
+                        isSidebarCollapsed
+                          ? 'w-0 -translate-x-1 opacity-0'
+                          : 'w-auto translate-x-0 opacity-100',
+                      )}
+                    >
+                      {name}
+                    </span>
                   </button>
                 );
               })}
             </nav>
           ))}
-          <div className="mt-auto border-t border-[#d8dde4]/72 pt-4">
+          <div className="mt-auto border-t border-white/58 pt-4">
             <button
-              className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[15px] font-semibold text-[#5f6773] outline-none transition-all duration-200 hover:bg-white/72 hover:text-[#27313f] focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35"
+              className={cx(
+                'flex h-10 w-full items-center rounded-[14px] text-left text-[15px] font-semibold text-[#5f6773] outline-none transition-[background-color,color,padding,gap] duration-300 ease-out hover:bg-white/54 hover:text-[#27313f] focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                isSidebarCollapsed ? 'justify-center gap-0 px-0' : 'justify-start gap-3 px-3',
+              )}
               type="button"
             >
               <Settings className="size-[19px] shrink-0" strokeWidth={2} />
-              <span>设置</span>
+              <span
+                className={cx(
+                  'transition-[width,opacity,transform] duration-300 ease-out',
+                  isSidebarCollapsed
+                    ? 'w-0 -translate-x-1 overflow-hidden opacity-0'
+                    : 'w-auto translate-x-0 opacity-100',
+                )}
+              >
+                设置
+              </span>
             </button>
           </div>
         </aside>
-        <main className="relative z-10 flex min-w-0 flex-col overflow-hidden">
+        <main className="relative z-10 flex min-w-0 flex-col overflow-hidden bg-[linear-gradient(180deg,rgba(252,253,254,0.52),rgba(244,248,251,0.58))]">
           <header
-            className="shrink-0 px-[26px] pb-[18px] pt-[24px]"
+            className="shrink-0 px-[28px] pb-[18px] pt-[24px]"
             data-testid="widget-manager-toolbar"
           >
-            <div className="flex items-center justify-between gap-5">
-              <div className="flex min-w-0 gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex items-center justify-between gap-5 rounded-[24px] border border-white/56 bg-white/26 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_18px_44px_rgba(73,86,101,0.08)] backdrop-blur-[24px]">
+              <div className="flex min-w-0 gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {categoryChips.map((chip) => {
                   const isActive = activeCategory === chip.id;
 
@@ -456,10 +512,10 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
                     <button
                       aria-pressed={isActive}
                       className={cx(
-                        'h-10 shrink-0 rounded-full border px-5 text-[14px] font-semibold outline-none backdrop-blur-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+                        'h-9 shrink-0 rounded-full border px-5 text-[14px] font-semibold outline-none backdrop-blur-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
                         isActive
-                          ? 'border-[#111820] bg-[#111820] text-white shadow-[0_12px_22px_rgba(24,31,42,0.18),inset_0_1px_0_rgba(255,255,255,0.14)]'
-                          : 'border-[#e3e7ec] bg-white/56 text-[#384150] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] hover:bg-white/82',
+                          ? 'border-[#111820] bg-[#111820] text-white shadow-[0_12px_22px_rgba(24,31,42,0.16),inset_0_1px_0_rgba(255,255,255,0.16)]'
+                          : 'border-white/70 bg-white/40 text-[#384150] shadow-[inset_0_1px_0_rgba(255,255,255,0.86)] hover:bg-white/70',
                       )}
                       key={chip.id}
                       onClick={() => setActiveCategory(chip.id)}
@@ -470,7 +526,7 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
                   );
                 })}
               </div>
-              <div className="flex h-10 shrink-0 items-center gap-2 rounded-[13px] border border-[#e2e6eb] bg-white/50 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.88)] backdrop-blur-xl">
+              <div className="flex h-9 shrink-0 items-center gap-2 rounded-[13px] border border-white/68 bg-white/36 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.88)] backdrop-blur-xl">
                 {sizeFilters.map((filter) => {
                   const isActive = activeSize === filter.id;
 
@@ -525,27 +581,39 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
 }
 
 function WidgetManagerHeaderSlots({
+  isSidebarCollapsed,
   onQueryChange,
+  onSidebarToggle,
   query,
 }: Readonly<{
+  isSidebarCollapsed: boolean;
   onQueryChange(query: string): void;
+  onSidebarToggle(): void;
   query: string;
 }>) {
   const menuControl = useMemo(
     () => (
       <button
-        aria-label="切换小组件侧栏"
-        className="absolute left-[230px] top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-[10px] text-[#424b58] outline-none transition-all duration-200 hover:bg-white/54 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35"
+        aria-expanded={!isSidebarCollapsed}
+        aria-label={isSidebarCollapsed ? '展开小组件侧栏' : '收起小组件侧栏'}
+        className={cx(
+          'absolute top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/62 bg-white/34 text-[#424b58] shadow-[inset_0_1px_0_rgba(255,255,255,0.84),0_8px_18px_rgba(65,78,92,0.08)] outline-none backdrop-blur-xl transition-[left,background-color,box-shadow,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-white/64 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_12px_24px_rgba(65,78,92,0.12)] active:scale-95 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+          isSidebarCollapsed ? 'left-[76px]' : 'left-[234px]',
+        )}
+        onClick={onSidebarToggle}
         type="button"
       >
         <Menu className="size-5" strokeWidth={1.9} />
       </button>
     ),
-    [],
+    [isSidebarCollapsed, onSidebarToggle],
   );
   const titleControl = useMemo(
     () => (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[15px] font-bold text-[#374151]">
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center text-[15px] font-semibold text-[#303845] [text-shadow:0_1px_0_rgba(255,255,255,0.86)]"
+        data-testid="widget-manager-title-control"
+      >
         Widgets 管理
       </div>
     ),
@@ -553,7 +621,7 @@ function WidgetManagerHeaderSlots({
   );
   const searchControl = useMemo(
     () => (
-      <label className="flex h-9 w-[196px] items-center gap-2 rounded-[15px] border border-[#dfe4ea] bg-white/50 px-3 text-[#5d6673] shadow-[inset_0_1px_0_rgba(255,255,255,0.82),0_7px_18px_rgba(48,61,74,0.05)] backdrop-blur-xl focus-within:bg-white/72 focus-within:ring-2 focus-within:ring-white/74">
+      <label className="flex h-10 w-[226px] items-center gap-2 rounded-[18px] border border-white/70 bg-white/46 px-3.5 text-[#5d6673] shadow-[inset_0_1px_0_rgba(255,255,255,0.86),0_10px_24px_rgba(48,61,74,0.07)] backdrop-blur-xl transition-all duration-200 focus-within:bg-white/74 focus-within:ring-2 focus-within:ring-white/80">
         <Search className="size-4 shrink-0" strokeWidth={2.2} />
         <input
           className="min-w-0 flex-1 bg-transparent text-[13px] font-medium text-[#1f2937] outline-none placeholder:text-[#808894]"
