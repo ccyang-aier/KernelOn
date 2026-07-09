@@ -268,7 +268,11 @@ const wallpaperHeaderIconGlassOptics: Partial<GlassOptics> = {
   glowFalloff: 0.8,
 };
 
-interface WallpaperHeaderGlassFrame {
+const WALLPAPER_HEADER_GLASS_SIZE = 42;
+const WALLPAPER_HEADER_GLASS_RADIUS = WALLPAPER_HEADER_GLASS_SIZE / 2;
+const WALLPAPER_HEADER_GLASS_REFRACT_OVERSCAN = 64;
+
+export interface WallpaperHeaderGlassFrame {
   offsetX: number;
   offsetY: number;
   rootHeight: number;
@@ -310,12 +314,16 @@ function WallpaperHeaderLiquidGlassButton({
         behind="#7ca9ab"
         brightnessInFilter
         className="wallpaper-frosted-button__liquid-glass"
-        height={42}
+        height={WALLPAPER_HEADER_GLASS_SIZE}
         optics={wallpaperHeaderIconGlassOptics}
-        radius={21}
+        radius={WALLPAPER_HEADER_GLASS_RADIUS}
         refract={refractCopy}
-        style={{ borderRadius: 21, height: 42, width: 42 }}
-        width={42}
+        style={{
+          borderRadius: WALLPAPER_HEADER_GLASS_RADIUS,
+          height: WALLPAPER_HEADER_GLASS_SIZE,
+          width: WALLPAPER_HEADER_GLASS_SIZE,
+        }}
+        width={WALLPAPER_HEADER_GLASS_SIZE}
       />
       <span className="wallpaper-frosted-button__liquid-icon">{children}</span>
     </button>
@@ -386,7 +394,7 @@ function useWallpaperHeaderGlassFrame(
   return frame;
 }
 
-function createWallpaperHeaderGlassRefractStyle(
+export function createWallpaperHeaderGlassRefractStyle(
   backdropImage: string,
   frame: WallpaperHeaderGlassFrame | null,
 ): CSSProperties {
@@ -396,11 +404,19 @@ function createWallpaperHeaderGlassRefractStyle(
     return { backgroundImage };
   }
 
+  const overscan = WALLPAPER_HEADER_GLASS_REFRACT_OVERSCAN;
+  const patchSize = WALLPAPER_HEADER_GLASS_SIZE + overscan * 2;
+  const sourceX = frame.offsetX - overscan;
+  const sourceY = frame.offsetY - overscan;
+
   return {
     backgroundImage,
-    height: frame.rootHeight,
-    left: -frame.offsetX,
-    top: -frame.offsetY,
-    width: frame.rootWidth,
+    backgroundPosition: `${-sourceX}px ${-sourceY}px`,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: `${frame.rootWidth}px ${frame.rootHeight}px`,
+    height: patchSize,
+    left: -overscan,
+    top: -overscan,
+    width: patchSize,
   };
 }

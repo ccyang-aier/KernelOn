@@ -227,6 +227,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   width: 42px;
   height: 42px;
   background-position: center;
+  background-repeat: no-repeat;
   background-size: cover;
   pointer-events: none;
 }
