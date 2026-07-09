@@ -503,7 +503,7 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
             className="shrink-0 px-[28px] pb-[18px] pt-[24px]"
             data-testid="widget-manager-toolbar"
           >
-            <div className="flex items-center justify-between gap-5 rounded-[24px] border border-white/56 bg-white/26 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_18px_44px_rgba(73,86,101,0.08)] backdrop-blur-[24px]">
+            <div className="flex items-center justify-between gap-5">
               <div className="flex min-w-0 gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {categoryChips.map((chip) => {
                   const isActive = activeCategory === chip.id;
@@ -526,7 +526,7 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
                   );
                 })}
               </div>
-              <div className="flex h-9 shrink-0 items-center gap-2 rounded-[13px] border border-white/68 bg-white/36 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.88)] backdrop-blur-xl">
+              <div className="flex h-9 shrink-0 items-center gap-2 rounded-[13px] border border-white/68 bg-white/44 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.88),0_8px_18px_rgba(73,86,101,0.06)] backdrop-blur-xl">
                 {sizeFilters.map((filter) => {
                   const isActive = activeSize === filter.id;
 
@@ -597,8 +597,11 @@ function WidgetManagerHeaderSlots({
         aria-expanded={!isSidebarCollapsed}
         aria-label={isSidebarCollapsed ? '展开小组件侧栏' : '收起小组件侧栏'}
         className={cx(
-          'absolute top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/62 bg-white/34 text-[#424b58] shadow-[inset_0_1px_0_rgba(255,255,255,0.84),0_8px_18px_rgba(65,78,92,0.08)] outline-none backdrop-blur-xl transition-[left,background-color,box-shadow,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-white/64 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_12px_24px_rgba(65,78,92,0.12)] active:scale-95 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
+          'absolute top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-[11px] border text-[#424b58] outline-none backdrop-blur-xl transition-[left,background-color,border-color,box-shadow,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-white/62 hover:bg-white/46 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#0a84ff]/35',
           isSidebarCollapsed ? 'left-[76px]' : 'left-[234px]',
+          isSidebarCollapsed
+            ? 'border-white/58 bg-white/38 shadow-[inset_0_1px_0_rgba(255,255,255,0.82),0_8px_18px_rgba(65,78,92,0.08)]'
+            : 'border-transparent bg-transparent shadow-none',
         )}
         onClick={onSidebarToggle}
         type="button"
