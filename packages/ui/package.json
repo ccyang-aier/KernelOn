@@ -8,6 +8,10 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     },
+    "./liquid-glass": {
+      "types": "./src/components/liquid-glass/index.ts",
+      "import": "./src/components/liquid-glass/index.ts"
+    },
     "./liquid-glass-studio": {
       "types": "./src/components/liquid-glass-studio/index.ts",
       "import": "./src/components/liquid-glass-studio/index.ts"

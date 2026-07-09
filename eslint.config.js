@@ -14,6 +14,7 @@ export default tseslint.config(
       '.gemini/**',
       'open_source/**',
       'tmp/**',
+      'packages/ui/src/components/liquid-glass/**',
       'packages/ui/src/components/liquid-glass-studio/**',
       'packages/ui/src/components/liquid-glass-svg-filter/**',
       '**/*.tsbuildinfo',

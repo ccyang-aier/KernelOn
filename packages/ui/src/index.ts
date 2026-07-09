@@ -2,6 +2,7 @@ export * from './class-names';
 export * from './components/AppHeaderPrimitives';
 export * from './components/Button';
 export * from './components/IconButton';
+export * from './components/liquid-glass';
 export * from './components/liquid-glass-simple';
 export * from './components/Surface';
 export * from './components/WindowFrame';
