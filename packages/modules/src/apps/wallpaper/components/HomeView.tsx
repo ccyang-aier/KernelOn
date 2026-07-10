@@ -177,33 +177,31 @@ export function HomeView({
             </div>
           ) : null}
           <div className="wallpaper-home__actions">
-            <HeroFrostedAction variant="preview">
-              <button
-                className="wallpaper-home__frosted-button wallpaper-home__frosted-button--preview"
-                onClick={() => onPreview(activeHero.id)}
-                type="button"
-              >
-                <Play aria-hidden="true" className="wallpaper-icon wallpaper-icon--fill" />
-                <span>View Wallpaper</span>
-              </button>
+            <HeroFrostedAction
+              backdropImage={activeHero.image}
+              label="View Wallpaper"
+              onClick={() => onPreview(activeHero.id)}
+              variant="preview"
+            >
+              <Play aria-hidden="true" className="wallpaper-icon wallpaper-icon--fill" />
+              <span>View Wallpaper</span>
             </HeroFrostedAction>
-            <HeroFrostedAction variant="like">
-              <button
-                aria-pressed={likedIds.has(activeHero.id)}
-                className="wallpaper-home__frosted-button wallpaper-home__frosted-button--like"
-                onClick={() => onLike(activeHero.id)}
-                type="button"
-              >
-                <Heart
-                  aria-hidden="true"
-                  className={
-                    likedIds.has(activeHero.id)
-                      ? 'wallpaper-icon wallpaper-icon--fill'
-                      : 'wallpaper-icon'
-                  }
-                />
-                <span>{likedIds.has(activeHero.id) ? activeHero.likes + 1 : activeHero.likes}</span>
-              </button>
+            <HeroFrostedAction
+              backdropImage={activeHero.image}
+              label="Like wallpaper"
+              onClick={() => onLike(activeHero.id)}
+              pressed={likedIds.has(activeHero.id)}
+              variant="like"
+            >
+              <Heart
+                aria-hidden="true"
+                className={
+                  likedIds.has(activeHero.id)
+                    ? 'wallpaper-icon wallpaper-icon--fill'
+                    : 'wallpaper-icon'
+                }
+              />
+              <span>{likedIds.has(activeHero.id) ? activeHero.likes + 1 : activeHero.likes}</span>
             </HeroFrostedAction>
           </div>
         </div>

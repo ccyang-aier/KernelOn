@@ -1,22 +1,47 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
+
+import {
+  samasanteClearPillOptics,
+  WallpaperHeaderSamasanteGlassButton,
+  WallpaperHeaderYbouaneGlassButton,
+} from './WallpaperHeaderGlassButtons';
 
 type HeroFrostedActionVariant = 'preview' | 'like';
 
 export function HeroFrostedAction({
+  backdropImage,
   children,
+  label,
+  onClick,
+  pressed,
   variant,
 }: Readonly<{
+  backdropImage: string;
   children: ReactNode;
+  label: string;
+  onClick: MouseEventHandler<HTMLButtonElement>;
+  pressed?: boolean;
   variant: HeroFrostedActionVariant;
 }>) {
-  return (
-    <span
-      className={`wallpaper-home__frosted-action wallpaper-home__frosted-action--${variant}`}
-      data-wallpaper-hero-action-frosted={variant}
-    >
-      {children}
-    </span>
+  const sharedProps = {
+    backdropImage,
+    buttonClassName: `wallpaper-liquid-glass-button wallpaper-home__liquid-button wallpaper-home__liquid-button--${variant}`,
+    children,
+    contentClassName: 'wallpaper-home__liquid-content',
+    height: 42,
+    label,
+    onClick,
+    optics: variant === 'preview' ? samasanteClearPillOptics : undefined,
+    pressed,
+    rootClassName: `wallpaper-home__liquid-action wallpaper-home__liquid-action--${variant}`,
+    width: variant === 'preview' ? 190 : 80,
+  } as const;
+
+  return variant === 'preview' ? (
+    <WallpaperHeaderSamasanteGlassButton {...sharedProps} />
+  ) : (
+    <WallpaperHeaderYbouaneGlassButton {...sharedProps} />
   );
 }

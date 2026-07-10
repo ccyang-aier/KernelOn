@@ -174,16 +174,20 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   flex: 0 0 42px;
 }
 
-.wallpaper-header-glass-root {
+.wallpaper-liquid-glass-root {
   position: relative;
   isolation: isolate;
+  display: block;
+  overflow: visible;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.wallpaper-header-glass-root {
   display: inline-block;
   width: 42px;
   height: 42px;
   flex: 0 0 42px;
-  overflow: visible;
-  border-radius: 999px;
-  background: transparent;
   animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
   transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -196,58 +200,54 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   transform: scale(0.97);
 }
 
-.wallpaper-header-glass-lens {
+.wallpaper-liquid-glass-lens {
   position: absolute;
   inset: 0;
   z-index: 1;
-  width: 42px;
-  height: 42px;
+  width: 100%;
+  height: 100%;
   overflow: visible;
-  border-radius: 999px;
+  border-radius: inherit;
   background: transparent;
-}
-
-.wallpaper-header-glass-copy {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
   pointer-events: none;
 }
 
-.wallpaper-header-glass-backdrop {
+.wallpaper-liquid-glass-lens--samasante > div {
+  display: none !important;
+}
+
+.wallpaper-liquid-glass-backdrop {
   position: absolute;
   inset: 0;
   z-index: 0;
   display: block;
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  opacity: 0;
   pointer-events: none;
 }
 
-.wallpaper-header-glass-ybouane-surface {
+.wallpaper-liquid-glass-ybouane-surface {
   position: absolute;
   inset: 0;
   z-index: 1;
   display: block;
-  width: 42px;
-  height: 42px;
+  width: 100%;
+  height: 100%;
   overflow: visible;
-  border-radius: 999px;
+  border-radius: inherit;
+  opacity: 0;
   pointer-events: none;
+  transition: opacity 100ms ease;
 }
 
-.wallpaper-header-glass-button {
+.wallpaper-liquid-glass-button {
   position: absolute;
   inset: 0;
   z-index: 4;
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
+  width: 100%;
+  height: 100%;
   overflow: visible;
   border: 0;
   border-radius: 999px;
@@ -258,28 +258,55 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   outline: none;
 }
 
-.wallpaper-header-glass-root--ybouane .wallpaper-header-glass-button::before {
+.wallpaper-liquid-glass-button::before {
   position: absolute;
   inset: 0;
   z-index: -2;
   border-radius: inherit;
   background:
-    radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.2), transparent 42%),
-    rgba(255, 255, 255, 0.045);
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.14), transparent 38%),
+    rgba(255, 255, 255, 0.018);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.36),
-    inset 0 -5px 12px rgba(255, 255, 255, 0.055),
-    0 7px 16px rgba(3, 8, 12, 0.14);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.46),
+    inset 0 -4px 10px rgba(255, 255, 255, 0.025),
+    0 6px 14px rgba(3, 8, 12, 0.12);
   content: '';
   opacity: 1;
-  -webkit-backdrop-filter: blur(2px) saturate(1.12);
-  backdrop-filter: blur(2px) saturate(1.12);
+  -webkit-backdrop-filter: blur(0.4px) saturate(1.08) contrast(1.02);
+  backdrop-filter: blur(0.4px) saturate(1.08) contrast(1.02);
   transition: opacity 120ms ease;
 }
 
-.wallpaper-header-glass-root--ybouane[data-wallpaper-glass-ready="true"]
-  .wallpaper-header-glass-button::before {
+.wallpaper-liquid-glass-root--samasante[data-wallpaper-glass-ready="true"]
+  .wallpaper-liquid-glass-button::before,
+.wallpaper-liquid-glass-root--ybouane[data-wallpaper-glass-ready="true"]
+  .wallpaper-liquid-glass-button::before {
   opacity: 0;
+}
+
+.wallpaper-liquid-glass-root--ybouane[data-wallpaper-glass-ready="true"]
+  .wallpaper-liquid-glass-ybouane-surface {
+  opacity: 1;
+}
+
+.wallpaper-liquid-glass-root--ybouane[data-wallpaper-glass-ready="true"]
+  .wallpaper-liquid-glass-backdrop {
+  opacity: 0;
+}
+
+.wallpaper-liquid-glass-root--ybouane[data-wallpaper-glass-ready="true"]::after {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38);
+  content: '';
+  pointer-events: none;
+}
+
+.wallpaper-header-glass-button {
+  display: grid;
+  place-items: center;
 }
 
 .wallpaper-header-glass-button:focus-visible {
@@ -300,10 +327,6 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   width: 19px;
   height: 19px;
   stroke-width: 2.15;
-}
-
-.wallpaper-header-glass-root--ybouane[data-wallpaper-glass-ready="true"] .wallpaper-header-glass-backdrop {
-  opacity: 0;
 }
 
 .wallpaper-header-action-notice {
@@ -812,23 +835,24 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   margin-top: 16px;
 }
 
-.wallpaper-home__frosted-action {
+.wallpaper-home__liquid-action {
   position: relative;
   display: block;
   height: 42px;
   overflow: visible;
   flex: 0 0 auto;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.wallpaper-home__frosted-action--preview {
+.wallpaper-home__liquid-action--preview {
   width: 190px;
 }
 
-.wallpaper-home__frosted-action--like {
+.wallpaper-home__liquid-action--like {
   width: 80px;
 }
 
-.wallpaper-home__frosted-button {
+.wallpaper-home__liquid-button {
   display: inline-flex;
   width: 100%;
   height: 42px;
@@ -844,44 +868,46 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease,
     color 180ms ease,
-    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    filter 180ms ease;
 }
 
-.wallpaper-home__frosted-button:hover {
-  border-color: rgba(255, 255, 255, 0.24);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025)),
-    rgba(255, 255, 255, 0.04);
-  color: #fff;
+.wallpaper-home__liquid-action:has(.wallpaper-home__liquid-button:hover) {
+  transform: translate3d(0, -1px, 0);
 }
 
-.wallpaper-home__frosted-button:active {
+.wallpaper-home__liquid-action:has(.wallpaper-home__liquid-button:active) {
   transform: scale(0.985);
 }
 
-.wallpaper-home__frosted-button--like {
+.wallpaper-home__liquid-button:hover {
+  color: #fff;
+  filter: brightness(1.05);
+}
+
+.wallpaper-home__liquid-button--like {
   padding: 0 15px;
 }
 
-.wallpaper-home__frosted-button::before {
-  position: absolute;
-  inset: 1px 1px auto;
-  height: 42%;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0));
-  content: "";
-  pointer-events: none;
-  z-index: -1;
+.wallpaper-home__liquid-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.82);
+  outline-offset: 3px;
 }
 
-.wallpaper-home__frosted-button > svg,
-.wallpaper-home__frosted-button > span {
+.wallpaper-home__liquid-button > svg,
+.wallpaper-home__liquid-button > span {
   position: relative;
   z-index: 2;
+}
+
+.wallpaper-home__liquid-content {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
 }
 
 .wallpaper-home__arrow {

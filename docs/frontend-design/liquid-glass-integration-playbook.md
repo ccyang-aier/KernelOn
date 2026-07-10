@@ -87,7 +87,9 @@ context.drawImage(...);
 
 ### 4.1 DOM 与输入源
 
-`Glass` 的 `refract` 必须收到尺寸、位置和内容都可控的实际背景副本。对于滚动和轮播场景，优先使用已经完成双缓冲提交的局部 canvas；不要直接传一个重新请求图片的 CSS `background-image`，否则 CSS 图片解码与 Hero `<img>` 的生命周期可能不同步。
+`Glass` 必须收到尺寸、位置和内容都可控的实际背景副本。对于滚动和轮播场景，优先使用已经完成双缓冲提交的局部 canvas；不要直接传一个重新请求图片的 CSS `background-image`，否则 CSS 图片解码与 Hero `<img>` 的生命周期可能不同步。
+
+Wallpaper 当前采用 `draw` 输入局部 committed canvas，与组件视频 Demo 使用同一条 WebGL2 渲染路径。这样既能使用 `PLAYER_OPTICS`，又不会让组件重新截取整张 Hero。WebGL2 不可用时必须立即停止挂载 renderer，并保留低霜化、低填充的 CSS 清透回退层；不得改用页面级 `backdrop-filter: url(...)`，该方案会显著扩大合成区域，并可能阻塞截图或低端 GPU 的合成线程。
 
 对 42px 圆形按钮：
 
@@ -109,6 +111,8 @@ context.drawImage(...);
 
 Wallpaper 顶栏按钮以 `GlassVideoControls.tsx` 的 `PLAYER_OPTICS` 为基准，因为该预设本来就针对动态画面上的圆形控制器。复用预设时仍要保持业务尺寸与性能预算，不要机械扩大渲染分辨率。
 
+宽胶囊不能机械照搬圆形按钮参数。`190 × 42` 的 Hero 主按钮应降低 `strength`、`bend`、`curvature` 与 `frost`，否则横向位移会被放大成传统磨砂质感；当前清透宽胶囊预设以 `strength: 0.045`、`bend: 0.08`、`curvature: 0.3`、`frost: 0.55` 为基线。
+
 ## 5. Ybouane 接入要点
 
 ### 5.1 严格的 root 结构
@@ -125,6 +129,8 @@ Ybouane 会捕获 root 的直接子元素并生成 WebGL 输出，DOM 结构会�
 
 - 一个 42px 按钮只初始化一个实例，并在卸载时 `destroy()`。
 - icon-only 场景传 `prefetchFonts: false`，避免无意义的字体扫描和预取。
+- 如果玻璃 surface 本身为空、交互内容全部由独立的清晰 DOM 覆盖层承载，使用 `data-liquid-glass-skip-content` 跳过无意义的 `html-to-image` 内容预捕获，避免初始化 Promise 卡在空 surface 的首帧瀑布上。
+- 如果清晰交互层位于最后一个 glass surface 之后、不会成为任何玻璃的背景贡献者，使用 `data-liquid-glass-skip-capture` 跳过静态预热；不要为永远不会进入 scene 的按钮支付一次 `html-to-image` 成本。
 - 背景变化后先提交 canvas，再调用 `markChanged(canvas)`；不要空跑永久渲染循环。
 - 初始化后不要只靠固定延时判断 ready，应检查输出 canvas 确实已有非透明像素。
 - renderer 抛错后必须停止本轮循环，不能每帧重复抛错并拖垮浏览器。

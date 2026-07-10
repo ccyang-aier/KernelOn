@@ -558,6 +558,8 @@ export class LiquidGlass {
 		try {
 			for (const [el, glassCanvas] of this.glassCanvases) {
 				if (targets && !targets.has(el)) continue;
+				// Hosts with a separate crisp content layer can skip rasterising an empty surface.
+				if (el.hasAttribute('data-liquid-glass-skip-content')) continue;
 				const rect = el.getBoundingClientRect();
 				const img = await this.capture.captureToCanvas(
 					el,
@@ -584,6 +586,7 @@ export class LiquidGlass {
 	private async _prewarmStaticCaptures(): Promise<void> {
 		for (const child of this._sortedChildren) {
 			if (this.glassSet.has(child)) continue;
+			if (child.hasAttribute('data-liquid-glass-skip-capture')) continue;
 			const tag = child.tagName;
 			if (tag === 'CANVAS' || tag === 'IMG' || tag === 'VIDEO') continue;
 			if (child.hasAttribute('data-dynamic')) continue;

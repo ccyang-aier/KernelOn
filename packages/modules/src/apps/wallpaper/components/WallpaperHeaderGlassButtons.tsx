@@ -3,16 +3,17 @@
 import { Glass, type GlassOptics } from '@kernelon/ui/liquid-glass';
 import { LiquidGlass } from '@kernelon/ui/liquidglass';
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
+  useState,
   type MouseEventHandler,
   type ReactNode,
   type RefObject,
 } from 'react';
 
 const WALLPAPER_HEADER_GLASS_SIZE = 42;
-const WALLPAPER_HEADER_GLASS_RADIUS = WALLPAPER_HEADER_GLASS_SIZE / 2;
 
 const samasanteHeaderOptics: Partial<GlassOptics> = {
   mapSize: 512,
@@ -36,75 +37,156 @@ const samasanteHeaderOptics: Partial<GlassOptics> = {
   brightness: 0,
 };
 
-const ybouaneHeaderConfig = JSON.stringify({
-  blurAmount: 0.006,
-  refraction: 0.46,
-  chromAberration: 0.002,
-  edgeHighlight: 0.06,
-  specular: 0.015,
-  fresnel: 0.2,
-  distortion: 0.0025,
-  cornerRadius: WALLPAPER_HEADER_GLASS_RADIUS,
-  zRadius: 10,
-  opacity: 0.96,
-  saturation: 0.04,
-  tintStrength: 0,
-  brightness: 0.006,
-  shadowOpacity: 0.12,
-  shadowSpread: 3,
-  shadowOffsetY: 1,
-  floating: false,
-  button: true,
-  bevelMode: 1,
-});
+export const samasanteClearPillOptics: Partial<GlassOptics> = {
+  ...samasanteHeaderOptics,
+  strength: 0.045,
+  depth: 0.25,
+  curvature: 0.3,
+  bend: 0.08,
+  bendWidth: 0.06,
+  dispersion: 0.12,
+  glow: 0.1,
+  sheen: 0.65,
+  sheenWidth: 3,
+  frost: 0.55,
+};
+
+function createYbouaneConfig(radius: number): string {
+  return JSON.stringify({
+    blurAmount: 0.006,
+    refraction: 0.46,
+    chromAberration: 0.002,
+    edgeHighlight: 0.06,
+    specular: 0.015,
+    fresnel: 0.2,
+    distortion: 0.0025,
+    cornerRadius: radius,
+    zRadius: 10,
+    opacity: 0.96,
+    saturation: 0.04,
+    tintStrength: 0,
+    brightness: 0.006,
+    shadowOpacity: 0.12,
+    shadowSpread: 3,
+    shadowOffsetY: 1,
+    floating: false,
+    button: true,
+    bevelMode: 1,
+  });
+}
 
 type WallpaperHeaderGlassButtonProps = Readonly<{
   backdropImage: string;
+  buttonClassName?: string;
   children: ReactNode;
+  contentClassName?: string;
+  height?: number;
   label: string;
   onClick?: MouseEventHandler<HTMLButtonElement>;
+  optics?: Partial<GlassOptics>;
+  pressed?: boolean;
+  rootClassName?: string;
+  width?: number;
 }>;
 
 export function WallpaperHeaderSamasanteGlassButton({
   backdropImage,
+  buttonClassName,
   children,
+  contentClassName,
+  height = WALLPAPER_HEADER_GLASS_SIZE,
   label,
   onClick,
+  optics = samasanteHeaderOptics,
+  pressed,
+  rootClassName,
+  width = WALLPAPER_HEADER_GLASS_SIZE,
 }: WallpaperHeaderGlassButtonProps) {
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const backdropRef = useRef<HTMLCanvasElement | null>(null);
+  const [backdropReady, setBackdropReady] = useState(false);
+  const [rendererFailed, setRendererFailed] = useState(false);
+  const [rendererReady, setRendererReady] = useState(false);
+  const markBackdropReady = useCallback(() => setBackdropReady(true), []);
+  const shouldMountRenderer = backdropReady && !rendererFailed;
+  const drawBackdrop = useCallback((context: CanvasRenderingContext2D) => {
+    const source = backdropRef.current;
 
-  useBufferedBackdropCanvas(rootRef, backdropRef, null, backdropImage);
+    if (source && source.width > 0 && source.height > 0) {
+      context.drawImage(source, 0, 0, context.canvas.width, context.canvas.height);
+    }
+  }, []);
+
+  useBufferedBackdropCanvas(rootRef, backdropRef, null, backdropImage, markBackdropReady);
+
+  useEffect(() => {
+    const root = rootRef.current;
+
+    if (!root || !shouldMountRenderer) {
+      return undefined;
+    }
+
+    const inspectRenderer = () => {
+      const lens = root.querySelector<HTMLElement>('.wallpaper-liquid-glass-lens--samasante');
+      const output = lens?.querySelector<HTMLCanvasElement>('canvas');
+
+      if (lens?.textContent?.includes('WebGL unavailable')) {
+        setRendererFailed(true);
+        setRendererReady(false);
+        return;
+      }
+
+      if (output && window.getComputedStyle(output).display !== 'none') {
+        setRendererReady(true);
+      }
+    };
+    const observer = new MutationObserver(inspectRenderer);
+    observer.observe(root, { attributes: true, childList: true, subtree: true });
+    const frame = window.requestAnimationFrame(inspectRenderer);
+
+    return () => {
+      observer.disconnect();
+      window.cancelAnimationFrame(frame);
+    };
+  }, [shouldMountRenderer]);
 
   return (
     <span
-      className="wallpaper-header-glass-root wallpaper-header-glass-root--samasante"
+      className={[
+        'wallpaper-liquid-glass-root',
+        'wallpaper-liquid-glass-root--samasante',
+        rootClassName ?? 'wallpaper-header-glass-root wallpaper-header-glass-root--samasante',
+      ].join(' ')}
+      data-wallpaper-backdrop-ready={backdropReady ? 'true' : 'false'}
+      data-wallpaper-glass-material="position-matched-webgl"
+      data-wallpaper-glass-ready={rendererReady ? 'true' : 'fallback'}
       data-wallpaper-glass-engine="samasante-liquid-glass"
       ref={rootRef}
+      style={{ height, width }}
       title="samasante/liquid-glass"
     >
-      <Glass
-        aria-hidden="true"
-        behind="transparent"
-        brightnessInFilter
-        className="wallpaper-header-glass-lens wallpaper-header-glass-lens--samasante"
-        filterResolution={3}
-        height={WALLPAPER_HEADER_GLASS_SIZE}
-        optics={samasanteHeaderOptics}
-        radius={WALLPAPER_HEADER_GLASS_RADIUS}
-        refract={
-          <canvas aria-hidden="true" className="wallpaper-header-glass-copy" ref={backdropRef} />
-        }
-        width={WALLPAPER_HEADER_GLASS_SIZE}
-      />
+      <canvas aria-hidden="true" className="wallpaper-liquid-glass-backdrop" ref={backdropRef} />
+      {shouldMountRenderer ? (
+        <Glass
+          aria-hidden="true"
+          className="wallpaper-liquid-glass-lens wallpaper-liquid-glass-lens--samasante"
+          draw={drawBackdrop}
+          height={height}
+          maxDpr={2}
+          optics={optics}
+          radius={height / 2}
+          width={width}
+        />
+      ) : null}
       <button
         aria-label={label}
-        className="wallpaper-header-glass-button"
+        aria-pressed={pressed}
+        className={buttonClassName ?? 'wallpaper-liquid-glass-button wallpaper-header-glass-button'}
         data-wallpaper-glass-control={label.toLowerCase()}
         onClick={onClick}
         type="button"
       >
-        <span aria-hidden="true" className="wallpaper-header-glass-icon">
+        <span aria-hidden="true" className={contentClassName ?? 'wallpaper-header-glass-icon'}>
           {children}
         </span>
       </button>
@@ -114,105 +196,139 @@ export function WallpaperHeaderSamasanteGlassButton({
 
 export function WallpaperHeaderYbouaneGlassButton({
   backdropImage,
+  buttonClassName,
   children,
+  contentClassName,
+  height = WALLPAPER_HEADER_GLASS_SIZE,
   label,
   onClick,
+  pressed,
+  rootClassName,
+  width = WALLPAPER_HEADER_GLASS_SIZE,
 }: WallpaperHeaderGlassButtonProps) {
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const backdropRef = useRef<HTMLCanvasElement | null>(null);
   const surfaceRef = useRef<HTMLSpanElement | null>(null);
   const instanceRef = useRef<LiquidGlass | null>(null);
+  const [backdropReady, setBackdropReady] = useState(false);
+  const [glassStatus, setGlassStatus] = useState<
+    'waiting' | 'initializing' | 'warming' | 'true' | 'fallback' | 'error'
+  >('waiting');
+  const markBackdropReady = useCallback(() => {
+    setBackdropReady(true);
+    setGlassStatus('initializing');
+  }, []);
 
-  useBufferedBackdropCanvas(rootRef, backdropRef, instanceRef, backdropImage);
+  useBufferedBackdropCanvas(rootRef, backdropRef, instanceRef, backdropImage, markBackdropReady);
 
   useEffect(() => {
     const root = rootRef.current;
     const surface = surfaceRef.current;
 
-    if (!root || !surface) {
+    if (!root || !surface || !backdropReady) {
       return undefined;
     }
 
     let cancelled = false;
     let instance: LiquidGlass | null = null;
     let readinessFrame = 0;
-    const animationFrame = window.requestAnimationFrame(() => {
-      const initialize = async () => {
-        if (cancelled) {
-          return;
-        }
-
-        const nextInstance = await LiquidGlass.init({
-          root,
-          glassElements: [surface],
-          prefetchFonts: false,
-        });
-
-        if (cancelled) {
-          nextInstance.destroy();
-          return;
-        }
-
-        instance = nextInstance;
-        instanceRef.current = nextInstance;
-        root.dataset.wallpaperGlassReady = 'warming';
-        readinessFrame = window.requestAnimationFrame(() => {
-          readinessFrame = window.requestAnimationFrame(() => {
-            if (cancelled) {
-              return;
-            }
-
-            root.dataset.wallpaperGlassReady = hasRenderedGlassOutput(surface)
-              ? 'true'
-              : 'fallback';
-          });
-        });
-      };
-
-      void initialize().catch(() => {
-        if (!cancelled) {
-          root.dataset.wallpaperGlassReady = 'error';
-        }
+    const initialize = async () => {
+      const nextInstance = await LiquidGlass.init({
+        root,
+        glassElements: [surface],
+        prefetchFonts: false,
       });
+
+      if (cancelled) {
+        nextInstance.destroy();
+        return;
+      }
+
+      instance = nextInstance;
+      instanceRef.current = nextInstance;
+      setGlassStatus('warming');
+      const backdrop = backdropRef.current;
+
+      if (backdrop) {
+        nextInstance.markChanged(backdrop);
+      }
+
+      let attempts = 0;
+      const verifyOutput = () => {
+        if (cancelled) {
+          return;
+        }
+
+        attempts += 1;
+        if (hasRenderedGlassOutput(surface)) {
+          setGlassStatus('true');
+          return;
+        }
+
+        if (attempts >= 12) {
+          setGlassStatus('fallback');
+          return;
+        }
+
+        readinessFrame = window.requestAnimationFrame(verifyOutput);
+      };
+      readinessFrame = window.requestAnimationFrame(verifyOutput);
+    };
+
+    void initialize().catch(() => {
+      if (!cancelled) {
+        setGlassStatus('error');
+      }
     });
 
     return () => {
       cancelled = true;
-      window.cancelAnimationFrame(animationFrame);
       window.cancelAnimationFrame(readinessFrame);
       instance?.destroy();
       instanceRef.current = null;
-      delete root.dataset.wallpaperGlassReady;
     };
-  }, []);
+  }, [backdropReady]);
 
   return (
     <span
-      className="wallpaper-header-glass-root wallpaper-header-glass-root--ybouane"
+      className={[
+        'wallpaper-liquid-glass-root',
+        'wallpaper-liquid-glass-root--ybouane',
+        rootClassName ?? 'wallpaper-header-glass-root wallpaper-header-glass-root--ybouane',
+      ].join(' ')}
+      data-wallpaper-backdrop-ready={backdropReady ? 'true' : 'false'}
+      data-wallpaper-glass-ready={glassStatus}
       data-wallpaper-glass-engine="ybouane-liquidglass"
       ref={rootRef}
+      style={{ height, width }}
       title="ybouane/liquidglass"
     >
       <canvas
         aria-hidden="true"
-        className="wallpaper-header-glass-backdrop"
+        className="wallpaper-liquid-glass-backdrop"
         data-wallpaper-glass-backdrop="position-matched"
         ref={backdropRef}
       />
       <span
         aria-hidden="true"
-        className="wallpaper-header-glass-ybouane-surface"
-        data-config={ybouaneHeaderConfig}
+        className="wallpaper-liquid-glass-ybouane-surface"
+        data-config={createYbouaneConfig(height / 2)}
+        data-liquid-glass-skip-content="true"
         ref={surfaceRef}
       />
       <button
         aria-label={label}
-        className="wallpaper-header-glass-button wallpaper-header-glass-button--ybouane"
+        aria-pressed={pressed}
+        className={
+          buttonClassName ??
+          'wallpaper-liquid-glass-button wallpaper-header-glass-button wallpaper-header-glass-button--ybouane'
+        }
+        data-liquid-glass-skip-capture="true"
         data-wallpaper-glass-control={label.toLowerCase()}
         onClick={onClick}
         type="button"
       >
-        <span aria-hidden="true" className="wallpaper-header-glass-icon">
+        <span aria-hidden="true" className={contentClassName ?? 'wallpaper-header-glass-icon'}>
           {children}
         </span>
       </button>
@@ -244,6 +360,7 @@ function useBufferedBackdropCanvas(
   canvasRef: RefObject<HTMLCanvasElement | null>,
   instanceRef: RefObject<LiquidGlass | null> | null,
   backdropImage: string,
+  onFirstCommit: () => void,
 ): void {
   const stagingCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameRef = useRef(0);
@@ -261,7 +378,8 @@ function useBufferedBackdropCanvas(
 
         const stagingCanvas = stagingCanvasRef.current ?? document.createElement('canvas');
         const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-        const outputSize = Math.round(WALLPAPER_HEADER_GLASS_SIZE * pixelRatio);
+        const outputWidth = Math.max(1, Math.round(rootRect.width * pixelRatio));
+        const outputHeight = Math.max(1, Math.round(rootRect.height * pixelRatio));
         const stagingContext = stagingCanvas.getContext('2d', { willReadFrequently: true });
         const context = canvas.getContext('2d');
 
@@ -270,38 +388,42 @@ function useBufferedBackdropCanvas(
         }
 
         stagingCanvasRef.current = stagingCanvas;
-        if (stagingCanvas.width !== outputSize || stagingCanvas.height !== outputSize) {
-          stagingCanvas.width = outputSize;
-          stagingCanvas.height = outputSize;
+        if (stagingCanvas.width !== outputWidth || stagingCanvas.height !== outputHeight) {
+          stagingCanvas.width = outputWidth;
+          stagingCanvas.height = outputHeight;
         }
 
-        stagingContext.clearRect(0, 0, outputSize, outputSize);
+        stagingContext.clearRect(0, 0, outputWidth, outputHeight);
         if (backgroundColor !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'transparent') {
           stagingContext.fillStyle = backgroundColor;
-          stagingContext.fillRect(0, 0, outputSize, outputSize);
+          stagingContext.fillRect(0, 0, outputWidth, outputHeight);
         }
 
         for (const { image, imageRect } of layers) {
           drawBackdropLayer(stagingContext, image, imageRect, rootRect, pixelRatio);
         }
 
-        if (!isFrameFullyOpaque(stagingContext, outputSize)) {
+        if (!isFrameFullyOpaque(stagingContext, outputWidth, outputHeight)) {
           return;
         }
 
-        if (canvas.width !== outputSize || canvas.height !== outputSize) {
-          canvas.width = outputSize;
-          canvas.height = outputSize;
+        if (canvas.width !== outputWidth || canvas.height !== outputHeight) {
+          canvas.width = outputWidth;
+          canvas.height = outputHeight;
         }
         context.globalCompositeOperation = 'copy';
         context.drawImage(stagingCanvas, 0, 0);
         context.globalCompositeOperation = 'source-over';
+        const isFirstCommit = frameRef.current === 0;
         frameRef.current += 1;
         canvas.dataset.wallpaperBackdropFrame = String(frameRef.current % 2);
         instanceRef?.current?.markChanged(canvas);
+        if (isFirstCommit) {
+          onFirstCommit();
+        }
       },
     );
-  }, [backdropImage, canvasRef, instanceRef, rootRef]);
+  }, [backdropImage, canvasRef, instanceRef, onFirstCommit, rootRef]);
 }
 
 function drawBackdropLayer(
@@ -338,8 +460,12 @@ function drawBackdropLayer(
   );
 }
 
-function isFrameFullyOpaque(context: CanvasRenderingContext2D, size: number): boolean {
-  const pixels = context.getImageData(0, 0, size, size).data;
+function isFrameFullyOpaque(
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+): boolean {
+  const pixels = context.getImageData(0, 0, width, height).data;
 
   for (let index = 3; index < pixels.length; index += 4) {
     if ((pixels[index] ?? 0) < 250) {
