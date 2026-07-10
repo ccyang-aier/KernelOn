@@ -72,7 +72,7 @@
 - **常驻 Dock**：底部 Dock 固定常用 App，跨屏始终可见。
 - **顶部状态栏**：承载身份、通知与全局搜索等系统级入口。
 - **桌面与窗口**：App 以窗口形式打开，支持多窗口、拖拽、层级管理。
-- **App 顶部控制层**：App 容器统一承载标题、导航、搜索、视图切换、工具组和业务状态，业务 App 默认只需挂载主体内容；详细模型见 `docs/app_header_layer_design.md`。
+- **App 统一骨架**：所有 App 复用 `WindowShell + AppFrame` 契约。WindowShell 承载窗口系统能力，AppFrame 组合 Header、Sidebar、Inspector 与业务内容；公共能力保持一致，具体视觉和交互允许 App 自由定制。详细模型见 `docs/app_frame_architecture.md`。
 - **Dock / 启动台**：常用 App 常驻，全部 App 可在启动台总览与检索。
 - **小组件（Widget）**：在桌面直接展示关键信息与快捷操作（待办、进度、快速录入等）。
 - **按需加载**：App/Widget 的代码与资产可随平台或客户端预置在构建产物中，但只有被用户添加到桌面或主动打开时才加载、执行并渲染。
