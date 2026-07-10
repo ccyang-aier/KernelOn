@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  AppFrame,
   AppHeaderSlot,
   KernelOnShell,
   kernelOnDefaultCursor,
@@ -88,6 +89,73 @@ describe('KernelOnShell', () => {
     expect(screen.queryByText('入职进度')).not.toBeInTheDocument();
     expect(runtime.loadAppWindow).not.toHaveBeenCalled();
     expect(runtime.loadWidget).not.toHaveBeenCalled();
+  });
+
+  it('renders an app-owned AppFrame without runtime header registration', async () => {
+    const runtime: ShellRuntimeRegistry = {
+      loadAppWindow: vi.fn(async () => ({
+        default: function ComposedAppWindow() {
+          return (
+            <AppFrame
+              header={{
+                center: [{ id: 'composed-title', type: 'slot' }],
+                density: 'comfortable',
+                mode: 'composable',
+              }}
+              headerSlots={{ 'composed-title': <strong>Composed title</strong> }}
+            >
+              <div>Composed app body</div>
+            </AppFrame>
+          );
+        },
+      })),
+      loadWidget: vi.fn(async () => ({
+        default: function TestWidget() {
+          return null;
+        },
+      })),
+    };
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            {
+              ...initialState.apps[0],
+              runtime: {
+                window: {
+                  frameOwner: 'app',
+                  loaderKey: 'app:composed-window',
+                },
+              },
+            },
+          ],
+          windows: [
+            {
+              appId: 'onboarding',
+              bounds: { x: 96, y: 72, width: 960, height: 640 },
+              createdAt: 1,
+              id: 'window:composed',
+              status: 'active',
+              title: 'Composed App',
+              zIndex: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:composed');
+
+    expect(within(appContainer).getByText('Composed title')).toBeInTheDocument();
+    expect(within(appContainer).getByText('Composed app body')).toBeInTheDocument();
+    expect(
+      within(appContainer).getByText('Composed title').closest('[data-kernelon-app-frame]'),
+    ).toBe(
+      within(appContainer).getByText('Composed app body').closest('[data-kernelon-app-frame]'),
+    );
   });
 
   it('emits a water ripple only when clicking the empty desktop surface', () => {
@@ -177,9 +245,7 @@ describe('KernelOnShell', () => {
       '[--ko-liquid-glass-border-strong:transparent]',
       '[--ko-liquid-glass-border-soft:transparent]',
     );
-    expect(
-      statusFrame?.querySelectorAll('[data-liquid-glass-container-border]'),
-    ).toHaveLength(2);
+    expect(statusFrame?.querySelectorAll('[data-liquid-glass-container-border]')).toHaveLength(2);
     expect(statusWarp).toHaveAttribute('data-liquid-glass-render-mode', 'full');
     expect(statusWarp?.getAttribute('style')).toContain('filter: url(');
     expect(statusWarp?.getAttribute('style')).toContain('backdrop-filter: blur(');
@@ -454,6 +520,7 @@ describe('KernelOnShell', () => {
               },
               runtime: {
                 window: {
+                  layer: 'top',
                   loaderKey: 'app:wallpaper-window',
                 },
               },
@@ -878,6 +945,7 @@ describe('KernelOnShell', () => {
               dockedByDefault: false,
               runtime: {
                 window: {
+                  layer: 'top',
                   loaderKey: 'app:wallpaper-window',
                 },
               },
@@ -952,6 +1020,7 @@ describe('KernelOnShell', () => {
               dockedByDefault: false,
               runtime: {
                 window: {
+                  layer: 'top',
                   loaderKey: 'app:wallpaper-window',
                 },
               },
@@ -1085,6 +1154,7 @@ describe('KernelOnShell', () => {
               dockedByDefault: false,
               runtime: {
                 window: {
+                  layer: 'top',
                   loaderKey: 'app:wallpaper-window',
                 },
               },
@@ -1117,10 +1187,7 @@ describe('KernelOnShell', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Apply Aurora' }));
 
-    expect(screen.getByTestId('kernelon-desktop-wallpaper')).toHaveAttribute(
-      'src',
-      nextWallpaper,
-    );
+    expect(screen.getByTestId('kernelon-desktop-wallpaper')).toHaveAttribute('src', nextWallpaper);
   });
 
   it('replaces the native desktop context menu with a liquid glass desktop context menu', async () => {
@@ -1313,6 +1380,7 @@ describe('KernelOnShell', () => {
               dockedByDefault: false,
               runtime: {
                 window: {
+                  layer: 'top',
                   loaderKey: 'app:wallpaper-window',
                 },
               },

@@ -2,54 +2,43 @@
 
 import '@testing-library/jest-dom/vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import WidgetManagerWindow from '../src/apps/widget-manager/WidgetManagerWindow';
 
 const shellMocks = vi.hoisted(() => {
-  const setHeader = vi.fn();
-  const clearHeader = vi.fn();
-  const setSlot = vi.fn();
-  const clearSlot = vi.fn();
-  const registerCommand = vi.fn(() => vi.fn());
   const setPendingWidgetPlacement = vi.fn();
   const minimizeWindow = vi.fn();
 
   return {
-    clearHeader,
-    clearSlot,
     minimizeWindow,
-    registerCommand,
-    setHeader,
     setPendingWidgetPlacement,
-    setSlot,
   };
 });
 
-vi.mock('@kernelon/shell', async () => {
-  const { createContext } = await import('react');
-  const headerController = {
-    clearHeader: shellMocks.clearHeader,
-    clearSlot: shellMocks.clearSlot,
-    registerCommand: shellMocks.registerCommand,
-    setHeader: shellMocks.setHeader,
-    setSlot: shellMocks.setSlot,
-    windowId: 'window:widget-manager',
-  };
-
-  return {
-    AppHeaderContext: createContext(headerController),
-    AppHeaderSlot: ({
-      children,
-      id,
-    }: Readonly<{
-      children: React.ReactNode;
-      id: string;
-    }>) => <div data-testid={`widget-manager-header-slot-${id}`}>{children}</div>,
-    useShellSelector: <T,>(selector: (state: WidgetManagerShellState) => T): T =>
-      selector(widgetManagerShellState),
-  };
-});
+vi.mock('@kernelon/shell', () => ({
+  AppFrame: ({
+    children,
+    header,
+    headerSlots,
+  }: Readonly<{
+    children: ReactNode;
+    header?: { density?: string };
+    headerSlots?: Readonly<Record<string, ReactNode>>;
+  }>) => (
+    <div data-header-density={header?.density} data-testid="widget-manager-app-frame">
+      {Object.entries(headerSlots ?? {}).map(([id, slot]) => (
+        <div data-testid={`widget-manager-header-slot-${id}`} key={id}>
+          {slot}
+        </div>
+      ))}
+      {children}
+    </div>
+  ),
+  useShellSelector: <T,>(selector: (state: WidgetManagerShellState) => T): T =>
+    selector(widgetManagerShellState),
+}));
 
 interface WidgetManagerShellState {
   currentScreenId: string;
@@ -138,6 +127,7 @@ const widgetManagerApp = {
   priority: 'P2',
   runtime: {
     window: {
+      frameOwner: 'app',
       loaderKey: 'app:widget-manager-window',
     },
   },
@@ -149,18 +139,18 @@ afterEach(() => {
 
 describe('WidgetManagerWindow', () => {
   it('renders the macOS-style widget gallery chrome from the reference layout', () => {
-    shellMocks.setHeader.mockClear();
-
     render(<WidgetManagerWindow app={widgetManagerApp} window={widgetManagerWindow} />);
 
-    expect(shellMocks.setHeader).toHaveBeenCalledWith(
-      expect.objectContaining({
-        center: [{ id: 'widget-manager-title-control', type: 'slot' }],
-        density: 'comfortable',
-        identity: { title: '' },
-        trailing: [{ id: 'widget-manager-search-control', type: 'slot' }],
-      }),
+    expect(screen.getByTestId('widget-manager-app-frame')).toHaveAttribute(
+      'data-header-density',
+      'comfortable',
     );
+    expect(
+      screen.getByTestId('widget-manager-header-slot-widget-manager-title-control'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('widget-manager-header-slot-widget-manager-search-control'),
+    ).toBeInTheDocument();
 
     expect(screen.getByTestId('widget-manager-window')).toHaveClass(
       'grid',
@@ -216,10 +206,7 @@ describe('WidgetManagerWindow', () => {
       'grid-cols-[88px_minmax(0,1fr)]',
       'transition-[grid-template-columns]',
     );
-    expect(screen.getByTestId('widget-manager-sidebar')).toHaveAttribute(
-      'data-collapsed',
-      'true',
-    );
+    expect(screen.getByTestId('widget-manager-sidebar')).toHaveAttribute('data-collapsed', 'true');
 
     fireEvent.click(toggle);
 

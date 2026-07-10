@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -13,6 +14,7 @@ import {
 
 import type {
   AppHeaderDescriptor,
+  AppFrameOwner,
   KernelAppManifest,
   WindowBounds,
   WindowDescriptor,
@@ -20,7 +22,8 @@ import type {
 import { cn } from '@kernelon/ui';
 
 import type { AppHeaderCommandPayload } from '../app-header';
-import { AppContainerHeader } from './app-container-header';
+import { AppFrame } from '../app-frame';
+import { AppFrameWindowContext, type AppFrameWindowContextValue } from './app-frame-context';
 
 const MIN_WINDOW_WIDTH = 520;
 const MIN_WINDOW_HEIGHT = 360;
@@ -71,6 +74,7 @@ export interface AppWindowContainerProps {
   children: ReactNode;
   constrainToWorkspace?: boolean;
   genieHidden?: boolean;
+  frameOwner?: AppFrameOwner;
   header?: AppHeaderDescriptor;
   headerSlots?: Readonly<Record<string, ReactNode>>;
   onClose(windowId: string): void;
@@ -87,6 +91,7 @@ export function AppWindowContainer({
   children,
   constrainToWorkspace = true,
   genieHidden = false,
+  frameOwner = 'container',
   header,
   headerSlots,
   onClose,
@@ -282,6 +287,33 @@ export function AppWindowContainer({
   const handleFullscreenToggle = useCallback(() => {
     onToggleFullscreen(descriptor.id, resolveFullscreenWindowBounds());
   }, [descriptor.id, onToggleFullscreen]);
+  const getSourceElement = useCallback(() => frameRef.current, []);
+  const frameContext = useMemo<AppFrameWindowContextValue>(
+    () => ({
+      getSourceElement,
+      isFullscreen,
+      onBeginMove: beginMove,
+      onClose: () => onClose(descriptor.id),
+      onHeaderCommand: onHeaderCommand ?? ignoreHeaderCommand,
+      onMinimize: (sourceElement) => onMinimize(descriptor.id, sourceElement),
+      onToggleFullscreen: handleFullscreenToggle,
+      topLayer: isTopLayer,
+      windowId: descriptor.id,
+      windowTitle: descriptor.title,
+    }),
+    [
+      beginMove,
+      descriptor.id,
+      descriptor.title,
+      getSourceElement,
+      handleFullscreenToggle,
+      isFullscreen,
+      isTopLayer,
+      onClose,
+      onHeaderCommand,
+      onMinimize,
+    ],
+  );
 
   return (
     <motion.section
@@ -330,30 +362,15 @@ export function AppWindowContainer({
         y: { damping: 30, mass: 0.86, stiffness: 310, type: 'spring' },
       }}
     >
-      <AppContainerHeader
-        getSourceElement={() => frameRef.current}
-        header={header}
-        isFullscreen={isFullscreen}
-        onBeginMove={beginMove}
-        onClose={() => onClose(descriptor.id)}
-        onCommand={onHeaderCommand ?? ignoreHeaderCommand}
-        onMinimize={(sourceElement) => onMinimize(descriptor.id, sourceElement)}
-        onToggleFullscreen={handleFullscreenToggle}
-        slots={headerSlots}
-        topLayer={isTopLayer}
-        windowId={descriptor.id}
-        windowTitle={descriptor.title}
-      />
-      <div
-        className={cn(
-          'relative min-h-0 flex-1 overflow-hidden',
-          isTopLayer
-            ? 'bg-[rgba(7,9,12,0.74)]'
-            : 'bg-[linear-gradient(180deg,rgba(255,255,255,0.70),rgba(246,250,255,0.48))]',
+      <AppFrameWindowContext.Provider value={frameContext}>
+        {frameOwner === 'app' ? (
+          children
+        ) : (
+          <AppFrame header={header} headerSlots={headerSlots}>
+            {children}
+          </AppFrame>
         )}
-      >
-        <div className="h-full overflow-auto">{children}</div>
-      </div>
+      </AppFrameWindowContext.Provider>
       {!isFullscreen
         ? resizeHandles.map((handle) => (
             <div

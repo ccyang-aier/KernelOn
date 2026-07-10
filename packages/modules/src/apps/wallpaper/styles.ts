@@ -10,7 +10,7 @@ section[data-app-id="wallpaper"][data-window-layer="top"] {
     0 30px 84px rgba(0, 0, 0, 0.24) !important;
 }
 
-section[data-app-id="wallpaper"] > header {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header {
   position: absolute;
   inset: 0 0 auto;
   z-index: 120;
@@ -23,39 +23,39 @@ section[data-app-id="wallpaper"] > header {
   backdrop-filter: none !important;
 }
 
-section[data-app-id="wallpaper"] > header + div {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header + [data-app-frame-content] {
   height: 100%;
   flex: 1 1 auto;
   background: transparent !important;
 }
 
-section[data-app-id="wallpaper"] > header + div > div {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > [data-app-frame-content] > [data-app-frame-scroll] {
   height: 100%;
   overflow: hidden !important;
 }
 
-section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-window-traffic-lights-"] {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header [data-app-window-controls] {
   left: 24px;
   top: 31px;
   gap: 10px;
 }
 
-section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-window-traffic-lights-"] button {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header [data-app-window-controls] button {
   width: 13px;
   height: 13px;
 }
 
-section[data-app-id="wallpaper"] > header > div:nth-of-type(2) {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header > [data-app-header-row="primary"] {
   min-height: 68px;
   gap: 10px;
   padding: 0 24px;
 }
 
-section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-identity-"] {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header [data-app-header-region="identity"] {
   display: none;
 }
 
-section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"] {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header [data-app-header-region="leading"] {
   flex: 1 1 0;
   justify-content: flex-end;
   padding-right: 0;
@@ -64,14 +64,14 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-lea
     transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-center-"] {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header [data-app-header-region="center"] {
   flex: 0 0 auto;
   transition:
     opacity 260ms ease,
     transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header [data-app-header-region="trailing"] {
   flex: 1 1 0;
   gap: 10px;
   justify-content: flex-end;
@@ -80,7 +80,7 @@ section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-tra
     transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-leading-"] {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-header-preset="browser"] [data-app-header-region="leading"] {
   position: absolute;
   left: 112px;
   top: 13px;
@@ -88,7 +88,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   justify-content: flex-start;
 }
 
-section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-center-"] {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-header-preset="browser"] [data-app-header-region="center"] {
   position: absolute;
   left: 50%;
   top: 13px;
@@ -96,7 +96,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   transform: translateX(-50%);
 }
 
-section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-trailing-"] {
+section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-header-preset="browser"] [data-app-header-region="trailing"] {
   position: absolute;
   right: 24px;
   top: 13px;
@@ -2002,26 +2002,26 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 @media (max-width: 760px) {
-  section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-leading-"],
-  section[data-app-id="wallpaper"] > header [data-testid^="kernelon-app-header-trailing-"] {
+  section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header [data-app-header-region="leading"],
+  section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header [data-app-header-region="trailing"] {
     display: none;
   }
 
-  section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-leading-"],
-  section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-trailing-"] {
+  section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-header-preset="browser"] [data-app-header-region="leading"],
+  section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-header-preset="browser"] [data-app-header-region="trailing"] {
     display: flex;
   }
 
-  section[data-app-id="wallpaper"] > header > div:nth-of-type(2) {
+  section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header > [data-app-header-row="primary"] {
     justify-content: center;
     padding: 0 12px 0 80px;
   }
 
-  section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-leading-"] {
+  section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-header-preset="browser"] [data-app-header-region="leading"] {
     left: 78px;
   }
 
-  section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [data-testid^="kernelon-app-header-trailing-"] {
+  section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-header-preset="browser"] [data-app-header-region="trailing"] {
     display: none;
   }
 

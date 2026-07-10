@@ -26,6 +26,8 @@ describe('KernelOn built-in catalog', () => {
         name: '壁纸管理',
         runtime: {
           window: {
+            frameOwner: 'app',
+            layer: 'top',
             loaderKey: 'app:wallpaper-window',
           },
         },
@@ -43,6 +45,7 @@ describe('KernelOn built-in catalog', () => {
         name: '小组件管理',
         runtime: {
           window: {
+            frameOwner: 'app',
             loaderKey: 'app:widget-manager-window',
           },
         },
@@ -50,7 +53,7 @@ describe('KernelOn built-in catalog', () => {
     );
   });
 
-  it('opens Widget Manager with wide gallery chrome by default', () => {
+  it('opens Widget Manager with a wide app-owned frame by default', () => {
     const widgetManagerApp = kernelApps.find((app) => app.id === 'widget-manager');
 
     expect(widgetManagerApp?.defaultWindow.bounds).toEqual({
@@ -59,12 +62,8 @@ describe('KernelOn built-in catalog', () => {
       x: 48,
       y: 58,
     });
-    expect(widgetManagerApp?.defaultWindow.header).toEqual({
-      density: 'comfortable',
-      identity: { title: '' },
-      mode: 'standard',
-      preset: 'editor',
-    });
+    expect(widgetManagerApp?.defaultWindow.header).toBeUndefined();
+    expect(widgetManagerApp?.runtime.window.frameOwner).toBe('app');
   });
 
   it('declares the full built-in widget set with stable loader keys', () => {
@@ -82,19 +81,15 @@ describe('KernelOn built-in catalog', () => {
     ]);
   });
 
-  it('keeps Wallpaper default chrome owned by wallpaper slots', () => {
+  it('declares Wallpaper as an app-owned top-layer frame', () => {
     const wallpaperApp = kernelApps.find((app) => app.id === 'wallpaper');
 
-    expect(wallpaperApp?.defaultWindow.header?.leading).toEqual([
-      { id: 'wallpaper-search-control', type: 'slot' },
-    ]);
-    expect(wallpaperApp?.defaultWindow.header?.center).toEqual([
-      { id: 'wallpaper-view-control', type: 'slot' },
-    ]);
-    expect(wallpaperApp?.defaultWindow.header?.trailing).toEqual([
-      { id: 'wallpaper-license-control', type: 'slot' },
-      { id: 'wallpaper-share-control', type: 'slot' },
-    ]);
+    expect(wallpaperApp?.defaultWindow.header).toBeUndefined();
+    expect(wallpaperApp?.runtime.window).toEqual({
+      frameOwner: 'app',
+      layer: 'top',
+      loaderKey: 'app:wallpaper-window',
+    });
   });
 
   it('exposes a shared default shell state for web and desktop mounts', () => {

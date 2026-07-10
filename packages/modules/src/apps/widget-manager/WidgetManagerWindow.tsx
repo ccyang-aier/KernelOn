@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Activity,
   Calendar,
@@ -20,9 +20,9 @@ import {
 } from 'lucide-react';
 
 import {
-  AppHeaderContext,
-  AppHeaderSlot,
+  AppFrame,
   useShellSelector,
+  type AppFrameProps,
   type AppWindowSurfaceProps,
 } from '@kernelon/shell';
 
@@ -302,9 +302,17 @@ const widgetLayoutClassNames = new Map([
   ['calendar-month', 'row-span-4'],
 ]);
 const weekDays = ['一', '二', '三', '四', '五', '六', '日'];
+const widgetManagerHeader: AppFrameProps['header'] = {
+  center: [{ id: 'widget-manager-title-control', type: 'slot' }],
+  density: 'comfortable',
+  identity: { title: '' },
+  leading: [{ id: 'widget-manager-menu-control', type: 'slot' }],
+  mode: 'standard',
+  preset: 'editor',
+  trailing: [{ id: 'widget-manager-search-control', type: 'slot' }],
+};
 
 export default function WidgetManagerWindow({ window: windowDescriptor }: AppWindowSurfaceProps) {
-  const appHeader = useContext(AppHeaderContext);
   const widgets = useShellSelector((state) => state.widgets);
   const screens = useShellSelector((state) => state.screens);
   const currentScreenId = useShellSelector((state) => state.currentScreenId);
@@ -359,24 +367,6 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
     [activeCategory, activeSize, availableWidgetIds, existingWidgetCounts, normalizedQuery],
   );
 
-  useEffect(() => {
-    if (!appHeader) {
-      return undefined;
-    }
-
-    appHeader.setHeader({
-      center: [{ id: 'widget-manager-title-control', type: 'slot' }],
-      density: 'comfortable',
-      identity: { title: '' },
-      leading: [{ id: 'widget-manager-menu-control', type: 'slot' }],
-      mode: 'standard',
-      preset: 'editor',
-      trailing: [{ id: 'widget-manager-search-control', type: 'slot' }],
-    });
-
-    return () => appHeader.clearHeader();
-  }, [appHeader]);
-
   const handleSidebarToggle = useCallback(() => {
     setIsSidebarCollapsed((currentValue) => !currentValue);
   }, []);
@@ -400,23 +390,19 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
     },
     [minimizeWindow, setPendingWidgetPlacement, widgets, windowDescriptor.id],
   );
+  const headerSlots = useWidgetManagerHeaderSlots({
+    isSidebarCollapsed,
+    onQueryChange: setQuery,
+    onSidebarToggle: handleSidebarToggle,
+    query,
+  });
 
   return (
-    <>
-      {appHeader ? (
-        <WidgetManagerHeaderSlots
-          isSidebarCollapsed={isSidebarCollapsed}
-          onQueryChange={setQuery}
-          onSidebarToggle={handleSidebarToggle}
-          query={query}
-        />
-      ) : null}
+    <AppFrame header={widgetManagerHeader} headerSlots={headerSlots} scroll="hidden">
       <div
         className={cx(
           'relative grid h-full w-full select-none overflow-hidden bg-[#eef3f7] font-sans text-[#303844] transition-[grid-template-columns] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
-          isSidebarCollapsed
-            ? 'grid-cols-[88px_minmax(0,1fr)]'
-            : 'grid-cols-[276px_minmax(0,1fr)]',
+          isSidebarCollapsed ? 'grid-cols-[88px_minmax(0,1fr)]' : 'grid-cols-[276px_minmax(0,1fr)]',
         )}
         data-sidebar-state={sidebarState}
         data-testid="widget-manager-window"
@@ -426,7 +412,9 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
         <aside
           className={cx(
             'relative z-10 flex h-full flex-col border-r border-white/60 bg-[linear-gradient(180deg,rgba(238,244,248,0.74),rgba(224,233,240,0.66))] shadow-[inset_-1px_0_0_rgba(255,255,255,0.72),14px_0_40px_rgba(77,91,105,0.05)] backdrop-blur-[30px] transition-[gap,padding,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
-            isSidebarCollapsed ? 'gap-4 px-3 pb-5 pt-[18px]' : 'gap-5 px-[22px] pb-[22px] pt-[18px]',
+            isSidebarCollapsed
+              ? 'gap-4 px-3 pb-5 pt-[18px]'
+              : 'gap-5 px-[22px] pb-[22px] pt-[18px]',
           )}
           data-collapsed={String(isSidebarCollapsed)}
           data-surface="frosted-sidebar"
@@ -576,11 +564,11 @@ export default function WidgetManagerWindow({ window: windowDescriptor }: AppWin
           </section>
         </main>
       </div>
-    </>
+    </AppFrame>
   );
 }
 
-function WidgetManagerHeaderSlots({
+function useWidgetManagerHeaderSlots({
   isSidebarCollapsed,
   onQueryChange,
   onSidebarToggle,
@@ -638,12 +626,13 @@ function WidgetManagerHeaderSlots({
     [onQueryChange, query],
   );
 
-  return (
-    <>
-      <AppHeaderSlot id="widget-manager-menu-control">{menuControl}</AppHeaderSlot>
-      <AppHeaderSlot id="widget-manager-title-control">{titleControl}</AppHeaderSlot>
-      <AppHeaderSlot id="widget-manager-search-control">{searchControl}</AppHeaderSlot>
-    </>
+  return useMemo(
+    () => ({
+      'widget-manager-menu-control': menuControl,
+      'widget-manager-search-control': searchControl,
+      'widget-manager-title-control': titleControl,
+    }),
+    [menuControl, searchControl, titleControl],
   );
 }
 

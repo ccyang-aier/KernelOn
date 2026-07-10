@@ -1,8 +1,7 @@
 'use client';
 
-import { AppHeaderSlot } from '@kernelon/shell';
 import { ArrowLeft, KeyRound, Search, Settings, Share2 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 
 import { viewLabels } from '../data';
 import type { WallpaperView } from '../types';
@@ -15,6 +14,7 @@ type WallpaperHeaderView = WallpaperView | 'preview';
 
 export function WallpaperFrostedHeaderControls({
   activeView,
+  children,
   glassBackdropImage,
   isSearchOpen,
   onBack,
@@ -25,6 +25,7 @@ export function WallpaperFrostedHeaderControls({
   searchQuery,
 }: Readonly<{
   activeView: WallpaperHeaderView;
+  children(slots: Readonly<Record<string, ReactNode>>): ReactNode;
   glassBackdropImage: string;
   isSearchOpen: boolean;
   onBack(): void;
@@ -208,29 +209,27 @@ export function WallpaperFrostedHeaderControls({
     [onSettings],
   );
 
-  return (
-    <>
-      {activeView === 'preview' ? (
-        <AppHeaderSlot id="wallpaper-back-control">{backControl}</AppHeaderSlot>
-      ) : null}
-
-      {activeView === 'preview' ? (
-        <AppHeaderSlot id="wallpaper-search-control">{searchControl}</AppHeaderSlot>
-      ) : null}
-
-      {primaryControl ? (
-        <AppHeaderSlot id="wallpaper-primary-control">{primaryControl}</AppHeaderSlot>
-      ) : null}
-
-      <AppHeaderSlot id="wallpaper-license-control">{licenseControl}</AppHeaderSlot>
-
-      <AppHeaderSlot id="wallpaper-share-control">{shareControl}</AppHeaderSlot>
-
-      {activeView === 'preview' ? (
-        <AppHeaderSlot id="wallpaper-settings-control">{settingsControl}</AppHeaderSlot>
-      ) : null}
-    </>
+  const slots = useMemo(
+    () => ({
+      'wallpaper-back-control': activeView === 'preview' ? backControl : null,
+      'wallpaper-license-control': licenseControl,
+      'wallpaper-primary-control': primaryControl,
+      'wallpaper-search-control': activeView === 'preview' ? searchControl : null,
+      'wallpaper-settings-control': activeView === 'preview' ? settingsControl : null,
+      'wallpaper-share-control': shareControl,
+    }),
+    [
+      activeView,
+      backControl,
+      licenseControl,
+      primaryControl,
+      searchControl,
+      settingsControl,
+      shareControl,
+    ],
   );
+
+  return children(slots);
 }
 
 const wallpaperViewOptions: Array<{ label: string; value: WallpaperView }> = [

@@ -18,7 +18,7 @@ describe('Wallpaper styles', () => {
       'section[data-app-id="wallpaper"] {\n  background: transparent !important;',
     );
     expect(wallpaperStyles).toContain(
-      'section[data-app-id="wallpaper"] > header + div {\n  height: 100%;\n  flex: 1 1 auto;\n  background: transparent !important;',
+      'section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header + [data-app-frame-content] {\n  height: 100%;\n  flex: 1 1 auto;\n  background: transparent !important;',
     );
     expect(wallpaperStyles).toContain('.wallpaper-home {\n');
     expect(wallpaperStyles).toContain('background: transparent;');
@@ -31,6 +31,7 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).not.toContain('glass__warp');
     expect(wallpaperStyles).not.toContain('.wallpaper-home__glass-action .glass');
     expect(wallpaperStyles).not.toContain('wallpaper-home__liquid-action-glass');
+    expect(wallpaperStyles).not.toContain('data-testid^="kernelon-app-header');
   });
 
   it('defines custom clear frosted controls for wallpaper chrome', () => {

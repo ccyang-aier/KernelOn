@@ -137,18 +137,13 @@ export const kernelApps: KernelAppManifest[] = [
     dockedByDefault: true,
     runtime: {
       window: {
+        frameOwner: 'app',
         loaderKey: 'app:widget-manager-window',
       },
     },
     defaultWindow: {
       title: 'Widgets 管理',
       bounds: { x: 48, y: 58, width: 1328, height: 760 },
-      header: {
-        density: 'comfortable',
-        identity: { title: '' },
-        mode: 'standard',
-        preset: 'editor',
-      },
     },
   },
   {
@@ -161,27 +156,14 @@ export const kernelApps: KernelAppManifest[] = [
     dockedByDefault: false,
     runtime: {
       window: {
+        frameOwner: 'app',
+        layer: 'top',
         loaderKey: 'app:wallpaper-window',
       },
     },
     defaultWindow: {
       title: 'KernelOn WallPaper',
       bounds: { x: 120, y: 74, width: 1228, height: 768 },
-      header: {
-        mode: 'standard',
-        preset: 'editor',
-        density: 'comfortable',
-        leading: [{ type: 'slot', id: 'wallpaper-search-control' }],
-        center: [{ type: 'slot', id: 'wallpaper-view-control' }],
-        identity: {
-          title: 'KernelOn WallPaper',
-          subtitle: '桌面个性化与壁纸管理',
-        },
-        trailing: [
-          { type: 'slot', id: 'wallpaper-license-control' },
-          { type: 'slot', id: 'wallpaper-share-control' },
-        ],
-      },
     },
   },
 ];

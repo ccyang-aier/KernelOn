@@ -1,6 +1,6 @@
 'use client';
 
-import { kernelOnDesktopWallpaper, useAppHeader, useShellSelector } from '@kernelon/shell';
+import { AppFrame, kernelOnDesktopWallpaper, useShellSelector } from '@kernelon/shell';
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
 import { ExploreView } from './components/ExploreView';
@@ -22,7 +22,6 @@ import type { CategoryId, ExploreSort, WallpaperAsset, WallpaperView } from './t
 const sortSequence: ExploreSort[] = ['newest', 'liked', 'duration'];
 
 export default function WallpaperWindow() {
-  const header = useAppHeader();
   const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
   const setDesktopWallpaper = useShellSelector((state) => state.setDesktopWallpaper);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -50,6 +49,7 @@ export default function WallpaperWindow() {
   const selectedWallpaper = assetById.get(selectedWallpaperId) ?? wallpaperLibrary[0]!;
   const previewWallpaper = previewWallpaperId ? assetById.get(previewWallpaperId) : null;
   const displayedView = previewWallpaper ? 'preview' : activeView;
+  const wallpaperHeader = useMemo(() => createWallpaperHeader(displayedView), [displayedView]);
   const headerGlassBackdropImage =
     (previewWallpaper
       ? resolveWallpaperImage(previewWallpaper)
@@ -78,12 +78,6 @@ export default function WallpaperWindow() {
   const openSettings = useCallback(() => {
     switchView('settings');
   }, [switchView]);
-
-  useEffect(() => {
-    header.setHeader(createWallpaperHeader(displayedView));
-  }, [displayedView, header]);
-
-  useEffect(() => () => header.clearHeader(), [header]);
 
   const visibleExploreWallpapers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -181,90 +175,97 @@ export default function WallpaperWindow() {
   }, []);
 
   return (
-    <div
-      className={`wallpaper-ux wallpaper-ux--${displayedView}`}
-      data-wallpaper-active-view={displayedView}
-      data-wallpaper-app="true"
-      data-wallpaper-glass-depth={glassDepth}
-      data-wallpaper-preview-fit={previewFitMode}
-      style={wallpaperRootStyle}
+    <WallpaperFrostedHeaderControls
+      activeView={displayedView}
+      glassBackdropImage={headerGlassBackdropImage}
+      isSearchOpen={isHeaderSearchOpen}
+      onBack={closePreview}
+      onSearchChange={setQuery}
+      onSearchOpenChange={setIsHeaderSearchOpen}
+      onSettings={openSettings}
+      onViewChange={switchView}
+      searchQuery={query}
     >
-      <style>{wallpaperStyles}</style>
-      <WallpaperFrostedHeaderControls
-        activeView={displayedView}
-        glassBackdropImage={headerGlassBackdropImage}
-        isSearchOpen={isHeaderSearchOpen}
-        onBack={closePreview}
-        onSearchChange={setQuery}
-        onSearchOpenChange={setIsHeaderSearchOpen}
-        onSettings={openSettings}
-        onViewChange={switchView}
-        searchQuery={query}
-      />
-      {previewWallpaper ? (
-        <PreviewView
-          isApplied={desktopWallpaper === resolveWallpaperImage(previewWallpaper)}
-          isLiked={likedIds.has(previewWallpaper.id)}
-          onApply={applyWallpaper}
-          onLike={toggleLike}
-          wallpaper={previewWallpaper}
-          wallpaperImage={resolveWallpaperImage(previewWallpaper)}
-        />
-      ) : null}
-      {!previewWallpaper && activeView === 'home' ? (
-        <HomeView
-          heroIndex={heroIndex}
-          likedIds={likedIds}
-          onHeroDotSelect={selectHeroByIndex}
-          onHeroNav={selectHeroByDirection}
-          onLike={toggleLike}
-          onPreview={previewWallpaperById}
-          onRecommendationPreview={previewWallpaperById}
-          recommendationSections={recommendationSections}
-          selectedRecommendedId={selectedWallpaperId}
-          showHeroDetails={isHeroDetailsVisible}
-          slides={heroSlides}
-        />
-      ) : null}
-      {!previewWallpaper && activeView === 'explore' ? (
-        <ExploreView
-          categories={categories}
-          likedIds={likedIds}
-          onCategoryChange={setSelectedCategory}
-          onLike={toggleLike}
-          onPopularTagChange={setSelectedPopularTag}
-          onQueryChange={setQuery}
-          onSelectWallpaper={previewWallpaperById}
-          onSortCycle={cycleSort}
-          popularTags={popularTags}
-          query={query}
-          resultLabel={resultLabel}
-          searchInputRef={searchInputRef}
-          selectedCategory={selectedCategory}
-          selectedPopularTag={selectedPopularTag}
-          selectedWallpaperId={selectedWallpaperId}
-          sort={sort}
-          wallpapers={visibleExploreWallpapers}
-        />
-      ) : null}
-      {!previewWallpaper && activeView === 'settings' ? (
-        <SettingsView
-          glassDepth={glassDepth}
-          isHeroAutoplayEnabled={isHeroAutoplayEnabled}
-          isHeroDetailsVisible={isHeroDetailsVisible}
-          onToggleGlassDepth={() =>
-            setGlassDepth((currentDepth) => (currentDepth === 'deep' ? 'soft' : 'deep'))
-          }
-          onToggleHeroAutoplay={() => setIsHeroAutoplayEnabled((currentValue) => !currentValue)}
-          onToggleHeroDetails={() => setIsHeroDetailsVisible((currentValue) => !currentValue)}
-          onTogglePreviewFit={() =>
-            setPreviewFitMode((currentMode) => (currentMode === 'fit' ? 'fill' : 'fit'))
-          }
-          previewFitMode={previewFitMode}
-          selectedWallpaper={selectedWallpaper}
-        />
-      ) : null}
-    </div>
+      {(headerSlots) => (
+        <AppFrame header={wallpaperHeader} headerSlots={headerSlots} scroll="hidden">
+          <div
+            className={`wallpaper-ux wallpaper-ux--${displayedView}`}
+            data-wallpaper-active-view={displayedView}
+            data-wallpaper-app="true"
+            data-wallpaper-glass-depth={glassDepth}
+            data-wallpaper-preview-fit={previewFitMode}
+            style={wallpaperRootStyle}
+          >
+            <style>{wallpaperStyles}</style>
+            {previewWallpaper ? (
+              <PreviewView
+                isApplied={desktopWallpaper === resolveWallpaperImage(previewWallpaper)}
+                isLiked={likedIds.has(previewWallpaper.id)}
+                onApply={applyWallpaper}
+                onLike={toggleLike}
+                wallpaper={previewWallpaper}
+                wallpaperImage={resolveWallpaperImage(previewWallpaper)}
+              />
+            ) : null}
+            {!previewWallpaper && activeView === 'home' ? (
+              <HomeView
+                heroIndex={heroIndex}
+                likedIds={likedIds}
+                onHeroDotSelect={selectHeroByIndex}
+                onHeroNav={selectHeroByDirection}
+                onLike={toggleLike}
+                onPreview={previewWallpaperById}
+                onRecommendationPreview={previewWallpaperById}
+                recommendationSections={recommendationSections}
+                selectedRecommendedId={selectedWallpaperId}
+                showHeroDetails={isHeroDetailsVisible}
+                slides={heroSlides}
+              />
+            ) : null}
+            {!previewWallpaper && activeView === 'explore' ? (
+              <ExploreView
+                categories={categories}
+                likedIds={likedIds}
+                onCategoryChange={setSelectedCategory}
+                onLike={toggleLike}
+                onPopularTagChange={setSelectedPopularTag}
+                onQueryChange={setQuery}
+                onSelectWallpaper={previewWallpaperById}
+                onSortCycle={cycleSort}
+                popularTags={popularTags}
+                query={query}
+                resultLabel={resultLabel}
+                searchInputRef={searchInputRef}
+                selectedCategory={selectedCategory}
+                selectedPopularTag={selectedPopularTag}
+                selectedWallpaperId={selectedWallpaperId}
+                sort={sort}
+                wallpapers={visibleExploreWallpapers}
+              />
+            ) : null}
+            {!previewWallpaper && activeView === 'settings' ? (
+              <SettingsView
+                glassDepth={glassDepth}
+                isHeroAutoplayEnabled={isHeroAutoplayEnabled}
+                isHeroDetailsVisible={isHeroDetailsVisible}
+                onToggleGlassDepth={() =>
+                  setGlassDepth((currentDepth) => (currentDepth === 'deep' ? 'soft' : 'deep'))
+                }
+                onToggleHeroAutoplay={() =>
+                  setIsHeroAutoplayEnabled((currentValue) => !currentValue)
+                }
+                onToggleHeroDetails={() => setIsHeroDetailsVisible((currentValue) => !currentValue)}
+                onTogglePreviewFit={() =>
+                  setPreviewFitMode((currentMode) => (currentMode === 'fit' ? 'fill' : 'fit'))
+                }
+                previewFitMode={previewFitMode}
+                selectedWallpaper={selectedWallpaper}
+              />
+            ) : null}
+          </div>
+        </AppFrame>
+      )}
+    </WallpaperFrostedHeaderControls>
   );
 }
 

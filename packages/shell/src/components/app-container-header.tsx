@@ -66,6 +66,7 @@ export function AppContainerHeader({
       )}
       data-app-header-mode={mode}
       data-app-header-preset={preset}
+      data-kernelon-app-header="true"
       data-testid={`kernelon-app-header-${windowId}`}
     >
       <div
@@ -74,6 +75,7 @@ export function AppContainerHeader({
           topLayer ? 'left-6 top-[31px] gap-2.5' : 'left-4 top-[22px] gap-2.5',
         )}
         data-testid={`kernelon-app-window-traffic-lights-${windowId}`}
+        data-app-window-controls="true"
         onDoubleClick={(event) => event.stopPropagation()}
         onPointerDown={(event) => event.stopPropagation()}
       >
@@ -109,6 +111,7 @@ export function AppContainerHeader({
             hasStructuredHeader ? 'justify-between' : 'justify-center px-28',
             topLayer ? 'min-h-[68px] gap-2.5 px-6 pl-[86px]' : '',
           )}
+          data-app-header-row="primary"
           onDoubleClick={onToggleFullscreen}
           onPointerDown={onBeginMove}
         >
@@ -120,6 +123,7 @@ export function AppContainerHeader({
                   topLayer ? 'justify-end pr-0' : '',
                 )}
                 data-testid={`kernelon-app-header-leading-${windowId}`}
+                data-app-header-region="leading"
               >
                 <AppHeaderItems
                   chromeVariant={topLayer ? 'top-layer' : 'standard'}
@@ -132,6 +136,7 @@ export function AppContainerHeader({
                 <div
                   className={cn('min-w-[120px] max-w-[260px] flex-1', topLayer ? 'hidden' : '')}
                   data-testid={`kernelon-app-header-identity-${windowId}`}
+                  data-app-header-region="identity"
                 >
                   <AppHeaderTitleBlock status={status} subtitle={subtitle} title={title} />
                 </div>
@@ -142,6 +147,7 @@ export function AppContainerHeader({
                   topLayer ? 'flex-none' : '',
                 )}
                 data-testid={`kernelon-app-header-center-${windowId}`}
+                data-app-header-region="center"
               >
                 <AppHeaderItems
                   chromeVariant={topLayer ? 'top-layer' : 'standard'}
@@ -158,6 +164,7 @@ export function AppContainerHeader({
                   topLayer ? 'gap-2.5' : '',
                 )}
                 data-testid={`kernelon-app-header-trailing-${windowId}`}
+                data-app-header-region="trailing"
               >
                 <AppHeaderItems
                   chromeVariant={topLayer ? 'top-layer' : 'standard'}
@@ -173,6 +180,7 @@ export function AppContainerHeader({
             <div
               className="flex h-full min-w-0 flex-1 items-center justify-center text-[13px] font-semibold text-[var(--ko-app-header-ink)]"
               data-testid={`kernelon-app-header-identity-${windowId}`}
+              data-app-header-region="identity"
             >
               <span className="truncate">{title}</span>
             </div>
@@ -183,6 +191,7 @@ export function AppContainerHeader({
         <div
           className="flex min-h-9 min-w-0 items-center gap-2 border-t border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface-muted)] px-4 py-1.5 pl-28"
           data-testid={`kernelon-app-header-subbar-${windowId}`}
+          data-app-header-region="subbar"
         >
           <AppHeaderItems
             chromeVariant={topLayer ? 'top-layer' : 'standard'}

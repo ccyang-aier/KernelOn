@@ -1,14 +1,7 @@
 'use client';
 
 import { toCanvas } from 'html-to-image';
-import {
-  createElement,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ComponentType,
-} from 'react';
+import { createElement, useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 
 import type { KernelAppManifest, WindowDescriptor } from '@kernelon/core';
 
@@ -187,7 +180,13 @@ function GenieSnapshotItem({
 
       window.clearTimeout(timeoutHandle);
     };
-  }, [AppWindowComponent, app.id, onSnapshotReady, snapshotWindow.bounds.height, snapshotWindow.bounds.width]);
+  }, [
+    AppWindowComponent,
+    app.id,
+    onSnapshotReady,
+    snapshotWindow.bounds.height,
+    snapshotWindow.bounds.width,
+  ]);
 
   return (
     <div
@@ -203,11 +202,13 @@ function GenieSnapshotItem({
         <AppWindowContainer
           app={app}
           constrainToWorkspace={false}
+          frameOwner={app.runtime.window.frameOwner ?? 'container'}
           onClose={noop}
           onFocus={noop}
           onMinimize={noopMinimize}
           onResize={noopResize}
           onToggleFullscreen={noopResize}
+          topLayer={(app.runtime.window.layer ?? 'workspace') === 'top'}
           window={snapshotWindow}
         >
           {createElement(AppWindowComponent, {

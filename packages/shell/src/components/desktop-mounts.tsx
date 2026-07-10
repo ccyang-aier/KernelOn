@@ -258,7 +258,9 @@ export function AppWindowMount({
   const [runtimeHeader, setRuntimeHeader] = useState<AppHeaderDescriptor | undefined>();
   const [headerSlots, setHeaderSlots] = useState<Record<string, ReactNode>>({});
   const effectiveHeader = runtimeHeader ?? window.header ?? app.defaultWindow.header;
-  const isTopLayerWindow = app.id === 'wallpaper';
+  const frameOwner = app.runtime.window.frameOwner ?? 'container';
+  const isTopLayerWindow = (app.runtime.window.layer ?? 'workspace') === 'top';
+  const suspendsWholeWindow = frameOwner === 'app' || isTopLayerWindow;
 
   const clearHeader = useCallback(() => {
     setRuntimeHeader(undefined);
@@ -314,6 +316,7 @@ export function AppWindowMount({
   const windowSurface = (
     <AppWindowContainer
       app={app}
+      frameOwner={frameOwner}
       genieHidden={genieHidden}
       header={effectiveHeader}
       headerSlots={headerSlots}
@@ -327,7 +330,7 @@ export function AppWindowMount({
       window={window}
     >
       <AppHeaderContext.Provider value={headerController}>
-        {isTopLayerWindow ? (
+        {suspendsWholeWindow ? (
           createElement(AppWindowComponent, { app, window })
         ) : (
           <Suspense fallback={null}>{createElement(AppWindowComponent, { app, window })}</Suspense>
@@ -336,7 +339,7 @@ export function AppWindowMount({
     </AppWindowContainer>
   );
 
-  return isTopLayerWindow ? <Suspense fallback={null}>{windowSurface}</Suspense> : windowSurface;
+  return suspendsWholeWindow ? <Suspense fallback={null}>{windowSurface}</Suspense> : windowSurface;
 }
 
 type AppWindowContainerAction = (windowId: string) => void;

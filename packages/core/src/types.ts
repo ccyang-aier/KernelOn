@@ -16,6 +16,15 @@ export interface RuntimeLoaderReference {
   loaderKey: string;
 }
 
+export type AppFrameOwner = 'container' | 'app';
+
+export type AppWindowLayer = 'workspace' | 'top';
+
+export interface AppWindowRuntimeReference extends RuntimeLoaderReference {
+  frameOwner?: AppFrameOwner;
+  layer?: AppWindowLayer;
+}
+
 export interface KernelAppManifest {
   id: string;
   name: string;
@@ -25,7 +34,7 @@ export interface KernelAppManifest {
   icon: string;
   dockedByDefault?: boolean;
   runtime: {
-    window: RuntimeLoaderReference;
+    window: AppWindowRuntimeReference;
   };
   defaultWindow: {
     title?: string;
