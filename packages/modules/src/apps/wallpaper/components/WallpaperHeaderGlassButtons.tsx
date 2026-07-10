@@ -39,16 +39,21 @@ const samasanteHeaderOptics: Partial<GlassOptics> = {
 
 export const samasanteClearPillOptics: Partial<GlassOptics> = {
   ...samasanteHeaderOptics,
-  strength: 0.045,
-  depth: 0.25,
-  curvature: 0.3,
-  bend: 0.08,
-  bendWidth: 0.06,
+  mapSize: 256,
+  strength: 0.1,
+  scaleX: 0.035,
+  scaleY: 0.14,
+  depth: 0.45,
+  curvature: 0.42,
+  bend: 0.35,
+  bendWidth: 0.09,
   dispersion: 0.12,
-  glow: 0.1,
-  sheen: 0.65,
-  sheenWidth: 3,
-  frost: 0.55,
+  specular: 1.1,
+  glow: 0.14,
+  sheen: 0.8,
+  sheenWidth: 2,
+  frost: 0.8,
+  brightness: 0.04,
 };
 
 function createYbouaneConfig(radius: number): string {
@@ -102,53 +107,20 @@ export function WallpaperHeaderSamasanteGlassButton({
   rootClassName,
   width = WALLPAPER_HEADER_GLASS_SIZE,
 }: WallpaperHeaderGlassButtonProps) {
+  const sourceBleed = width > 100 ? 28 : 8;
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const backdropRef = useRef<HTMLCanvasElement | null>(null);
   const [backdropReady, setBackdropReady] = useState(false);
-  const [rendererFailed, setRendererFailed] = useState(false);
-  const [rendererReady, setRendererReady] = useState(false);
   const markBackdropReady = useCallback(() => setBackdropReady(true), []);
-  const shouldMountRenderer = backdropReady && !rendererFailed;
-  const drawBackdrop = useCallback((context: CanvasRenderingContext2D) => {
-    const source = backdropRef.current;
 
-    if (source && source.width > 0 && source.height > 0) {
-      context.drawImage(source, 0, 0, context.canvas.width, context.canvas.height);
-    }
-  }, []);
-
-  useBufferedBackdropCanvas(rootRef, backdropRef, null, backdropImage, markBackdropReady);
-
-  useEffect(() => {
-    const root = rootRef.current;
-
-    if (!root || !shouldMountRenderer) {
-      return undefined;
-    }
-
-    const inspectRenderer = () => {
-      const lens = root.querySelector<HTMLElement>('.wallpaper-liquid-glass-lens--samasante');
-      const output = lens?.querySelector<HTMLCanvasElement>('canvas');
-
-      if (lens?.textContent?.includes('WebGL unavailable')) {
-        setRendererFailed(true);
-        setRendererReady(false);
-        return;
-      }
-
-      if (output && window.getComputedStyle(output).display !== 'none') {
-        setRendererReady(true);
-      }
-    };
-    const observer = new MutationObserver(inspectRenderer);
-    observer.observe(root, { attributes: true, childList: true, subtree: true });
-    const frame = window.requestAnimationFrame(inspectRenderer);
-
-    return () => {
-      observer.disconnect();
-      window.cancelAnimationFrame(frame);
-    };
-  }, [shouldMountRenderer]);
+  useBufferedBackdropCanvas(
+    rootRef,
+    backdropRef,
+    null,
+    backdropImage,
+    markBackdropReady,
+    sourceBleed,
+  );
 
   return (
     <span
@@ -158,26 +130,38 @@ export function WallpaperHeaderSamasanteGlassButton({
         rootClassName ?? 'wallpaper-header-glass-root wallpaper-header-glass-root--samasante',
       ].join(' ')}
       data-wallpaper-backdrop-ready={backdropReady ? 'true' : 'false'}
-      data-wallpaper-glass-material="position-matched-webgl"
-      data-wallpaper-glass-ready={rendererReady ? 'true' : 'fallback'}
+      data-wallpaper-glass-material="position-matched-svg-copy"
+      data-wallpaper-glass-ready={backdropReady ? 'true' : 'waiting'}
       data-wallpaper-glass-engine="samasante-liquid-glass"
       ref={rootRef}
       style={{ height, width }}
       title="samasante/liquid-glass"
     >
-      <canvas aria-hidden="true" className="wallpaper-liquid-glass-backdrop" ref={backdropRef} />
-      {shouldMountRenderer ? (
-        <Glass
-          aria-hidden="true"
-          className="wallpaper-liquid-glass-lens wallpaper-liquid-glass-lens--samasante"
-          draw={drawBackdrop}
-          height={height}
-          maxDpr={2}
-          optics={optics}
-          radius={height / 2}
-          width={width}
-        />
-      ) : null}
+      <Glass
+        aria-hidden="true"
+        behind="transparent"
+        brightnessInFilter
+        className="wallpaper-liquid-glass-lens wallpaper-liquid-glass-lens--samasante"
+        filterResolution={2}
+        height={height}
+        optics={optics}
+        radius={height / 2}
+        refract={
+          <canvas
+            aria-hidden="true"
+            className="wallpaper-liquid-glass-source"
+            ref={backdropRef}
+            style={{
+              height: height + sourceBleed * 2,
+              left: -sourceBleed,
+              position: 'absolute',
+              top: -sourceBleed,
+              width: width + sourceBleed * 2,
+            }}
+          />
+        }
+        width={width}
+      />
       <button
         aria-label={label}
         aria-pressed={pressed}
@@ -361,6 +345,7 @@ function useBufferedBackdropCanvas(
   instanceRef: RefObject<LiquidGlass | null> | null,
   backdropImage: string,
   onFirstCommit: () => void,
+  samplePadding = 0,
 ): void {
   const stagingCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameRef = useRef(0);
@@ -377,9 +362,15 @@ function useBufferedBackdropCanvas(
         }
 
         const stagingCanvas = stagingCanvasRef.current ?? document.createElement('canvas');
+        const sampleRect = new DOMRect(
+          rootRect.left - samplePadding,
+          rootRect.top - samplePadding,
+          rootRect.width + samplePadding * 2,
+          rootRect.height + samplePadding * 2,
+        );
         const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-        const outputWidth = Math.max(1, Math.round(rootRect.width * pixelRatio));
-        const outputHeight = Math.max(1, Math.round(rootRect.height * pixelRatio));
+        const outputWidth = Math.max(1, Math.round(sampleRect.width * pixelRatio));
+        const outputHeight = Math.max(1, Math.round(sampleRect.height * pixelRatio));
         const stagingContext = stagingCanvas.getContext('2d', { willReadFrequently: true });
         const context = canvas.getContext('2d');
 
@@ -400,7 +391,7 @@ function useBufferedBackdropCanvas(
         }
 
         for (const { image, imageRect } of layers) {
-          drawBackdropLayer(stagingContext, image, imageRect, rootRect, pixelRatio);
+          drawBackdropLayer(stagingContext, image, imageRect, sampleRect, pixelRatio);
         }
 
         if (!isFrameFullyOpaque(stagingContext, outputWidth, outputHeight)) {
@@ -423,7 +414,7 @@ function useBufferedBackdropCanvas(
         }
       },
     );
-  }, [backdropImage, canvasRef, instanceRef, onFirstCommit, rootRef]);
+  }, [backdropImage, canvasRef, instanceRef, onFirstCommit, rootRef, samplePadding]);
 }
 
 function drawBackdropLayer(

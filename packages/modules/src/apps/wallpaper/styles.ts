@@ -212,8 +212,10 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   pointer-events: none;
 }
 
-.wallpaper-liquid-glass-lens--samasante > div {
-  display: none !important;
+.wallpaper-liquid-glass-source {
+  display: block;
+  max-width: none;
+  max-height: none;
 }
 
 .wallpaper-liquid-glass-backdrop {

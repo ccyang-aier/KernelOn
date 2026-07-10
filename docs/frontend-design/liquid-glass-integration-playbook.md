@@ -89,7 +89,9 @@ context.drawImage(...);
 
 `Glass` 必须收到尺寸、位置和内容都可控的实际背景副本。对于滚动和轮播场景，优先使用已经完成双缓冲提交的局部 canvas；不要直接传一个重新请求图片的 CSS `background-image`，否则 CSS 图片解码与 Hero `<img>` 的生命周期可能不同步。
 
-Wallpaper 当前采用 `draw` 输入局部 committed canvas，与组件视频 Demo 使用同一条 WebGL2 渲染路径。这样既能使用 `PLAYER_OPTICS`，又不会让组件重新截取整张 Hero。WebGL2 不可用时必须立即停止挂载 renderer，并保留低霜化、低填充的 CSS 清透回退层；不得改用页面级 `backdrop-filter: url(...)`，该方案会显著扩大合成区域，并可能阻塞截图或低端 GPU 的合成线程。
+Wallpaper 的普通按钮必须采用 `refract={positionMatchedCopy}` 进入 DOM/SVG filter 路径。局部 committed canvas 作为位置匹配的折射副本，`Glass` 只负责材质；同尺寸原生 button 作为兄弟节点覆盖在最上层。不要传 `src` 或 `draw`，这两个参数会把组件切换到服务视频/canvas 动态介质的 WebGL surface 模式。
+
+不要用选择器隐藏 `.wallpaper-liquid-glass-lens` 的直接子 `div`。在 SVG 模式中，这些直接子节点正是清晰层、refraction copy 与 filter 容器；为了隐藏 WebGL 错误占位而添加的宽泛规则会让真正的 SVG 折射一起消失，最终只剩业务层的透明背景。
 
 对 42px 圆形按钮：
 
@@ -111,7 +113,7 @@ Wallpaper 当前采用 `draw` 输入局部 committed canvas，与组件视频 De
 
 Wallpaper 顶栏按钮以 `GlassVideoControls.tsx` 的 `PLAYER_OPTICS` 为基准，因为该预设本来就针对动态画面上的圆形控制器。复用预设时仍要保持业务尺寸与性能预算，不要机械扩大渲染分辨率。
 
-宽胶囊不能机械照搬圆形按钮参数。`190 × 42` 的 Hero 主按钮应降低 `strength`、`bend`、`curvature` 与 `frost`，否则横向位移会被放大成传统磨砂质感；当前清透宽胶囊预设以 `strength: 0.045`、`bend: 0.08`、`curvature: 0.3`、`frost: 0.55` 为基线。
+宽胶囊不能机械照搬圆形按钮的各向同性强度。`190 × 42` 的 Hero 主按钮应使用 `scaleX/scaleY` 分轴控制：横向位移保持克制，纵向与边缘弯折仍清楚可见。当前预设以 `scaleX: 0.035`、`scaleY: 0.14`、`bend: 0.35`、`curvature: 0.42`、`frost: 0.8` 为基线，避免通过把整体强度降到接近零来伪造“清透”。
 
 ## 5. Ybouane 接入要点
 
