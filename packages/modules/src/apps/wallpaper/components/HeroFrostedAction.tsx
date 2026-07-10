@@ -2,11 +2,7 @@
 
 import type { MouseEventHandler, ReactNode } from 'react';
 
-import {
-  samasanteClearPillOptics,
-  WallpaperHeaderSamasanteGlassButton,
-  WallpaperHeaderYbouaneGlassButton,
-} from './WallpaperHeaderGlassButtons';
+import { WallpaperLiquidGlassButton } from './WallpaperHeaderGlassButtons';
 
 type HeroFrostedActionVariant = 'preview' | 'like';
 
@@ -33,15 +29,10 @@ export function HeroFrostedAction({
     height: 42,
     label,
     onClick,
-    optics: variant === 'preview' ? samasanteClearPillOptics : undefined,
     pressed,
     rootClassName: `wallpaper-home__liquid-action wallpaper-home__liquid-action--${variant}`,
     width: variant === 'preview' ? 190 : 80,
   } as const;
 
-  return variant === 'preview' ? (
-    <WallpaperHeaderSamasanteGlassButton {...sharedProps} />
-  ) : (
-    <WallpaperHeaderYbouaneGlassButton {...sharedProps} />
-  );
+  return <WallpaperLiquidGlassButton {...sharedProps} />;
 }

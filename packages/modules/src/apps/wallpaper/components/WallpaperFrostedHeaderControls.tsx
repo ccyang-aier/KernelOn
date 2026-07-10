@@ -5,10 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 
 import { viewLabels } from '../data';
 import type { WallpaperView } from '../types';
-import {
-  WallpaperHeaderSamasanteGlassButton,
-  WallpaperHeaderYbouaneGlassButton,
-} from './WallpaperHeaderGlassButtons';
+import { WallpaperLiquidGlassButton } from './WallpaperHeaderGlassButtons';
 
 type WallpaperHeaderView = WallpaperView | 'preview';
 
@@ -183,26 +180,26 @@ export function WallpaperFrostedHeaderControls({
 
   const licenseControl = useMemo(
     () => (
-      <WallpaperHeaderSamasanteGlassButton
+      <WallpaperLiquidGlassButton
         backdropImage={glassBackdropImage}
         label="License"
         onClick={onLicense}
       >
         <KeyRound aria-hidden="true" />
-      </WallpaperHeaderSamasanteGlassButton>
+      </WallpaperLiquidGlassButton>
     ),
     [glassBackdropImage, onLicense],
   );
 
   const shareControl = useMemo(
     () => (
-      <WallpaperHeaderYbouaneGlassButton
+      <WallpaperLiquidGlassButton
         backdropImage={glassBackdropImage}
         label="Share"
         onClick={onShare}
       >
         <Share2 aria-hidden="true" />
-      </WallpaperHeaderYbouaneGlassButton>
+      </WallpaperLiquidGlassButton>
     ),
     [glassBackdropImage, onShare],
   );

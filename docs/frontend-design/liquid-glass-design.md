@@ -2,6 +2,8 @@
 
 > 业务接入、动态背景同步与性能验收请同时阅读 [Liquid Glass 组件接入实战手册](./liquid-glass-integration-playbook.md)。该手册沉淀自 Wallpaper App 顶栏按钮的多轮真实调试。
 
+> **2026-07-11 实施状态补充**：本文关于 Samasante 的判断保留为架构研究结论，但 Wallpaper 的实测结果未达到生产要求，现已删除其业务接入并统一切换到 Ybouane `liquidglass` Frosted preset。未来若重启 Samasante 评估，必须先在隔离 Demo 完成视觉与性能门禁，不得直接回到 Wallpaper 继续 A/B 试错。
+
 本文分析范围扩展为仓库内的四个本地项目：
 
 - `open_source/liquid-glass-react`

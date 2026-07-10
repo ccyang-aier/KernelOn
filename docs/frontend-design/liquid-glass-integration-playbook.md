@@ -1,5 +1,7 @@
 # Liquid Glass 组件接入实战手册
 
+> **Wallpaper 当前决策（2026-07-11）**：四个业务按钮已经全部统一为 `packages/ui/src/components/liquidglass`（Ybouane）WebGL 路线，并采用官方文档的 Frosted Panel 基线。Wallpaper 不再导入或实例化 `packages/ui/src/components/liquid-glass`（Samasante）；下文 Samasante 内容仅保留为失败实验与避坑记录，不代表当前实现建议。
+
 本文沉淀 Wallpaper App 顶栏两个 42px 圆形按钮的多轮接入与视觉验收经验，覆盖：
 
 - `packages/ui/src/components/liquid-glass`：`samasante/liquid-glass` 的 React/headless 路线，本文简称 **Samasante**。
@@ -38,7 +40,7 @@ Samasante 的 `Glass` 是统一入口，但会根据 props 分流：
 | Refract copy  | `refract={node}`                           | SVG displacement/filter；children 或兄弟 DOM 保持清晰                         | 浮在图片上的按钮、菜单、通知          |
 | Media surface | `src`、`draw`，可配 `lenses`               | WebGL2                                                                        | 视频、动态 canvas、多 lens 媒体控制器 |
 
-Wallpaper 当前两个 Samasante 按钮都使用 **Refract copy / SVG**：输入是位置匹配、双缓冲提交的局部 canvas，不传 `src` 或 `draw`，运行时每个实例都应存在一个 SVG filter，且不存在 WebGL 输出 canvas。
+Wallpaper 曾有两个 Samasante 按钮使用 **Refract copy / SVG**：输入是位置匹配、双缓冲提交的局部 canvas，不传 `src` 或 `draw`。该方案已经从 Wallpaper 运行时代码中移除，仅作为历史复盘保留。
 
 Ybouane 不是上述四模式分流结构。它只有一条主要渲染管线：
 
@@ -46,7 +48,7 @@ Ybouane 不是上述四模式分流结构。它只有一条主要渲染管线：
 2. 合成后的局部 scene 统一上传到 WebGL 1 fragment shader。
 3. `data-dynamic`、静态缓存、`markChanged()` 是更新策略；`button`、`floating` 是交互行为，不是不同渲染模式。
 
-Wallpaper 当前两个 Ybouane 按钮使用 **局部 canvas 直接场景 + WebGL 1 shader**，空 glass surface 跳过内容捕获，原生 button 独立覆盖在最上层。
+Wallpaper 当前四个按钮统一使用 **局部 canvas 直接场景 + WebGL 1 shader**，空 glass surface 跳过内容捕获，原生 button 独立覆盖在最上层。
 
 ## 2. 第一性原理：玻璃必须折射当前位置的背景
 
@@ -175,6 +177,31 @@ Ybouane 会捕获 root 的直接子元素并生成 WebGL 输出，DOM 结构会�
 
 ### 5.3 参数白团排查
 
+Wallpaper 的 Frosted preset 以官方站点和随组件移植的 README 为准：官方 Frosted Panel 示例核心覆盖为 `blurAmount: 0.25`，顶部对比 Demo 的强化磨砂版本为 `0.5`。小型业务按钮采用标准 `0.25`，不使用 `0.5`，避免文字和图标周围过糊；其余参数显式对齐官方默认语义：
+
+```ts
+{
+  blurAmount: 0.25,
+  refraction: 0.69,
+  chromAberration: 0.05,
+  edgeHighlight: 0.05,
+  specular: 0,
+  fresnel: 1,
+  distortion: 0,
+  opacity: 1,
+  saturation: 0,
+  brightness: 0,
+  shadowOpacity: 0.3,
+  shadowSpread: 10,
+  button: true,
+  bevelMode: 0,
+}
+```
+
+`cornerRadius` 与 `zRadius` 均取按钮高度的一半，使 42px 圆形按钮与胶囊按钮使用一致的 biconvex 横截面。`button: true` 必须保留，以获得官方实现的 hover/press shader 反馈。背景 canvas 属于一次性或事件驱动更新，应继续调用 `instance.markChanged(canvas)`；不要改成永久 `data-dynamic`，否则会绕过空闲帧短路优化。
+
+输出 ready 不能按整个注入 canvas 的 alpha 占比判断，因为 `shadowSpread` 会让 canvas 比玻璃本体大：42px 圆形玻璃在带 halo 的 canvas 中面积占比可能只有约 36%，固定要求全画布 55% 会把正常输出永久判成 fallback。Wallpaper 检查画布中央 50% 核心区，要求连续两帧至少 80% 像素有效；这样既排除只渲染出底部月牙的残缺首帧，也适配圆形、短胶囊和宽胶囊。
+
 如果背景正确但玻璃内部出现局部白团，优先调参数而不是改 renderer：
 
 - 降低 `edgeHighlight`、`specular` 与 `fresnel`；
@@ -227,6 +254,8 @@ Ybouane 会捕获 root 的直接子元素并生成 WebGL 输出，DOM 结构会�
 
 ## 8. 当前选型建议
 
-Samasante 的 DOM 契约更轻、更容易保留语义和交互，也更适合作为 KernelOn 后续统一组件的基础。Ybouane 的场景捕获和 WebGL 质感上限较高，但结构、生命周期和性能约束明显更重，适合作为本次对比实验和特殊场景参考，不宜在业务页面中大规模铺开。
+Wallpaper 的实际多轮验收结果优先于抽象层面的推测：Samasante 虽然 DOM 契约较轻，但在局部动态背景、首帧 SourceGraphic、SVG cache、边缘 meniscus 与业务描边组合上出错率过高，反复消耗调试时间且仍未达到稳定视觉预期。因此 Wallpaper 暂停使用 Samasante，不再保留 A/B 双引擎分支；四个按钮统一采用 Ybouane `liquidglass` 的 Frosted preset。
+
+这不是对 KernelOn 全局材质基座的永久定论。若未来重新评估 Samasante，必须先在隔离 Demo 中通过动态背景同步、首帧、边框、滚动、性能五项验收，再允许进入业务页面；不能直接在 Wallpaper 中继续试错。
 
 业务代码最终应只消费 KernelOn 自己的语义组件和少量 preset，不应在每个页面重新选择引擎、复制取样管线或独立维护一套参数。

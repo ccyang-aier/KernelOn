@@ -1,6 +1,5 @@
 'use client';
 
-import { Glass, type GlassOptics } from '@kernelon/ui/liquid-glass';
 import { LiquidGlass } from '@kernelon/ui/liquidglass';
 import {
   useCallback,
@@ -15,68 +14,27 @@ import {
 
 const WALLPAPER_HEADER_GLASS_SIZE = 42;
 
-export const samasanteHeaderOptics: Partial<GlassOptics> = {
-  mapSize: 512,
-  clipToShape: true,
-  softEdge: true,
-  strength: 0.24,
-  depth: 0.5,
-  curvature: 0.7,
-  bend: 0,
-  bendWidth: 0,
-  dispersion: 0.08,
-  specular: 1,
-  sheenAngle: 50,
-  glow: 0,
-  glowSpread: 1,
-  glowFalloff: 1.5,
-  sheen: 0,
-  sheenWidth: 2,
-  sheenFalloff: 1.5,
-  frost: 0.15,
-  brightness: 0,
-};
-
-export const samasanteClearPillOptics: Partial<GlassOptics> = {
-  ...samasanteHeaderOptics,
-  mapSize: 256,
-  strength: 0.16,
-  scaleX: 0.09,
-  scaleY: 0.2,
-  depth: 0.62,
-  curvature: 0.68,
-  bend: 0,
-  bendWidth: 0,
-  dispersion: 0.08,
-  specular: 1,
-  glow: 0,
-  sheen: 0,
-  sheenWidth: 2,
-  frost: 0.12,
-  brightness: 0,
-};
-
-export function createYbouaneConfig(radius: number): string {
+export function createFrostedGlassConfig(radius: number): string {
   return JSON.stringify({
-    blurAmount: 0.006,
-    refraction: 0.46,
-    chromAberration: 0.002,
-    edgeHighlight: 0,
-    specular: 0.015,
-    fresnel: 0,
-    distortion: 0.0025,
+    blurAmount: 0.25,
+    refraction: 0.69,
+    chromAberration: 0.05,
+    edgeHighlight: 0.05,
+    specular: 0,
+    fresnel: 1,
+    distortion: 0,
     cornerRadius: radius,
-    zRadius: 10,
-    opacity: 0.96,
-    saturation: 0.04,
+    zRadius: radius,
+    opacity: 1,
+    saturation: 0,
     tintStrength: 0,
-    brightness: 0.006,
-    shadowOpacity: 0.12,
-    shadowSpread: 3,
+    brightness: 0,
+    shadowOpacity: 0.3,
+    shadowSpread: 10,
     shadowOffsetY: 1,
     floating: false,
     button: true,
-    bevelMode: 1,
+    bevelMode: 0,
   });
 }
 
@@ -88,133 +46,12 @@ type WallpaperHeaderGlassButtonProps = Readonly<{
   height?: number;
   label: string;
   onClick?: MouseEventHandler<HTMLButtonElement>;
-  optics?: Partial<GlassOptics>;
   pressed?: boolean;
   rootClassName?: string;
   width?: number;
 }>;
 
-export function WallpaperHeaderSamasanteGlassButton({
-  backdropImage,
-  buttonClassName,
-  children,
-  contentClassName,
-  height = WALLPAPER_HEADER_GLASS_SIZE,
-  label,
-  onClick,
-  optics = samasanteHeaderOptics,
-  pressed,
-  rootClassName,
-  width = WALLPAPER_HEADER_GLASS_SIZE,
-}: WallpaperHeaderGlassButtonProps) {
-  const sourceBleed = width > 100 ? 32 : 12;
-  const rootRef = useRef<HTMLSpanElement | null>(null);
-  const backdropRef = useRef<HTMLCanvasElement | null>(null);
-  const [backdropReady, setBackdropReady] = useState(false);
-  const [lensMapReady, setLensMapReady] = useState(false);
-  const [svgSourceReady, setSvgSourceReady] = useState(false);
-  const [svgSourceLive, setSvgSourceLive] = useState(false);
-  const svgSettleFrameRef = useRef(0);
-  const glassReady = backdropReady && lensMapReady && svgSourceReady;
-  const markBackdropReady = useCallback(() => setBackdropReady(true), []);
-  const markLensMapReady = useCallback((url: string | null) => {
-    if (url) {
-      setLensMapReady(true);
-    }
-  }, []);
-  const refreshSvgSource = useCallback(() => {
-    window.cancelAnimationFrame(svgSettleFrameRef.current);
-    setSvgSourceLive(true);
-    let remainingFrames = 2;
-    const settle = () => {
-      remainingFrames -= 1;
-      if (remainingFrames === 0) {
-        setSvgSourceLive(false);
-        setSvgSourceReady(true);
-        return;
-      }
-      svgSettleFrameRef.current = window.requestAnimationFrame(settle);
-    };
-    svgSettleFrameRef.current = window.requestAnimationFrame(settle);
-  }, []);
-
-  useEffect(
-    () => () => {
-      window.cancelAnimationFrame(svgSettleFrameRef.current);
-    },
-    [],
-  );
-
-  useBufferedBackdropCanvas(
-    rootRef,
-    backdropRef,
-    null,
-    backdropImage,
-    markBackdropReady,
-    sourceBleed,
-    refreshSvgSource,
-  );
-
-  return (
-    <span
-      className={[
-        'wallpaper-liquid-glass-root',
-        'wallpaper-liquid-glass-root--samasante',
-        rootClassName ?? 'wallpaper-header-glass-root wallpaper-header-glass-root--samasante',
-      ].join(' ')}
-      data-wallpaper-backdrop-ready={backdropReady ? 'true' : 'false'}
-      data-wallpaper-glass-material="position-matched-svg-copy"
-      data-wallpaper-glass-ready={glassReady ? 'true' : 'waiting'}
-      data-wallpaper-svg-refresh={svgSourceLive ? 'live' : 'idle'}
-      data-wallpaper-glass-engine="samasante-liquid-glass"
-      ref={rootRef}
-      style={{ height, width }}
-      title="samasante/liquid-glass"
-    >
-      <Glass
-        aria-hidden="true"
-        behind="transparent"
-        brightnessInFilter
-        className="wallpaper-liquid-glass-lens wallpaper-liquid-glass-lens--samasante"
-        filterResolution={2}
-        height={height}
-        live={svgSourceLive}
-        onLensMapChange={markLensMapReady}
-        optics={optics}
-        radius={height / 2}
-        refract={
-          <canvas
-            aria-hidden="true"
-            className="wallpaper-liquid-glass-source"
-            ref={backdropRef}
-            style={{
-              height: height + sourceBleed * 2,
-              left: -sourceBleed,
-              position: 'absolute',
-              top: -sourceBleed,
-              width: width + sourceBleed * 2,
-            }}
-          />
-        }
-        width={width}
-      />
-      <button
-        aria-label={label}
-        aria-pressed={pressed}
-        className={buttonClassName ?? 'wallpaper-liquid-glass-button wallpaper-header-glass-button'}
-        data-wallpaper-glass-control={label.toLowerCase()}
-        onClick={onClick}
-        type="button"
-      >
-        <span aria-hidden="true" className={contentClassName ?? 'wallpaper-header-glass-icon'}>
-          {children}
-        </span>
-      </button>
-    </span>
-  );
-}
-
-export function WallpaperHeaderYbouaneGlassButton({
+export function WallpaperLiquidGlassButton({
   backdropImage,
   buttonClassName,
   children,
@@ -320,15 +157,15 @@ export function WallpaperHeaderYbouaneGlassButton({
     <span
       className={[
         'wallpaper-liquid-glass-root',
-        'wallpaper-liquid-glass-root--ybouane',
-        rootClassName ?? 'wallpaper-header-glass-root wallpaper-header-glass-root--ybouane',
+        'wallpaper-liquid-glass-root--frosted',
+        rootClassName ?? 'wallpaper-header-glass-root',
       ].join(' ')}
       data-wallpaper-backdrop-ready={backdropReady ? 'true' : 'false'}
       data-wallpaper-glass-ready={glassStatus}
       data-wallpaper-glass-engine="ybouane-liquidglass"
       ref={rootRef}
       style={{ height, width }}
-      title="ybouane/liquidglass"
+      title="liquidglass / Frosted Glass"
     >
       <canvas
         aria-hidden="true"
@@ -338,18 +175,15 @@ export function WallpaperHeaderYbouaneGlassButton({
       />
       <span
         aria-hidden="true"
-        className="wallpaper-liquid-glass-ybouane-surface"
-        data-config={createYbouaneConfig(height / 2)}
+        className="wallpaper-liquid-glass-surface"
+        data-config={createFrostedGlassConfig(height / 2)}
         data-liquid-glass-skip-content="true"
         ref={surfaceRef}
       />
       <button
         aria-label={label}
         aria-pressed={pressed}
-        className={
-          buttonClassName ??
-          'wallpaper-liquid-glass-button wallpaper-header-glass-button wallpaper-header-glass-button--ybouane'
-        }
+        className={buttonClassName ?? 'wallpaper-liquid-glass-button wallpaper-header-glass-button'}
         data-liquid-glass-skip-capture="true"
         data-wallpaper-glass-control={label.toLowerCase()}
         onClick={onClick}
@@ -372,28 +206,32 @@ function hasRenderedGlassOutput(surface: HTMLElement): boolean {
   }
 
   const pixels = context.getImageData(0, 0, output.width, output.height).data;
-
+  const startX = Math.floor(output.width * 0.25);
+  const endX = Math.ceil(output.width * 0.75);
+  const startY = Math.floor(output.height * 0.25);
+  const endY = Math.ceil(output.height * 0.75);
   let sampledPixels = 0;
   let visiblePixels = 0;
 
-  for (let index = 3; index < pixels.length; index += 16) {
-    sampledPixels += 1;
-    if ((pixels[index] ?? 0) > 8) {
-      visiblePixels += 1;
+  for (let y = startY; y < endY; y += 2) {
+    for (let x = startX; x < endX; x += 2) {
+      sampledPixels += 1;
+      const alphaIndex = (y * output.width + x) * 4 + 3;
+      if ((pixels[alphaIndex] ?? 0) > 8) {
+        visiblePixels += 1;
+      }
     }
   }
 
-  return sampledPixels > 0 && visiblePixels / sampledPixels >= 0.55;
+  return sampledPixels > 0 && visiblePixels / sampledPixels >= 0.8;
 }
 
 function useBufferedBackdropCanvas(
   rootRef: RefObject<HTMLElement | null>,
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  instanceRef: RefObject<LiquidGlass | null> | null,
+  instanceRef: RefObject<LiquidGlass | null>,
   backdropImage: string,
   onFirstCommit: () => void,
-  samplePadding = 0,
-  onCommit?: () => void,
 ): void {
   const stagingCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameRef = useRef(0);
@@ -410,12 +248,7 @@ function useBufferedBackdropCanvas(
         }
 
         const stagingCanvas = stagingCanvasRef.current ?? document.createElement('canvas');
-        const sampleRect = new DOMRect(
-          rootRect.left - samplePadding,
-          rootRect.top - samplePadding,
-          rootRect.width + samplePadding * 2,
-          rootRect.height + samplePadding * 2,
-        );
+        const sampleRect = rootRect;
         const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
         const outputWidth = Math.max(1, Math.round(sampleRect.width * pixelRatio));
         const outputHeight = Math.max(1, Math.round(sampleRect.height * pixelRatio));
@@ -456,14 +289,13 @@ function useBufferedBackdropCanvas(
         const isFirstCommit = frameRef.current === 0;
         frameRef.current += 1;
         canvas.dataset.wallpaperBackdropFrame = String(frameRef.current % 2);
-        instanceRef?.current?.markChanged(canvas);
-        onCommit?.();
+        instanceRef.current?.markChanged(canvas);
         if (isFirstCommit) {
           onFirstCommit();
         }
       },
     );
-  }, [backdropImage, canvasRef, instanceRef, onCommit, onFirstCommit, rootRef, samplePadding]);
+  }, [backdropImage, canvasRef, instanceRef, onFirstCommit, rootRef]);
 }
 
 function drawBackdropLayer(

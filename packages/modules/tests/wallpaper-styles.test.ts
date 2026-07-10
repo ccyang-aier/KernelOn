@@ -6,11 +6,8 @@ import { HomeView } from '../src/apps/wallpaper/components/HomeView';
 import { SettingsView } from '../src/apps/wallpaper/components/SettingsView';
 import { WallpaperFrostedHeaderControls } from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
 import {
-  createYbouaneConfig,
-  samasanteClearPillOptics,
-  samasanteHeaderOptics,
-  WallpaperHeaderSamasanteGlassButton,
-  WallpaperHeaderYbouaneGlassButton,
+  createFrostedGlassConfig,
+  WallpaperLiquidGlassButton,
 } from '../src/apps/wallpaper/components/WallpaperHeaderGlassButtons';
 import { createWallpaperHeader } from '../src/apps/wallpaper/header';
 import { wallpaperStyles } from '../src/apps/wallpaper/styles';
@@ -142,26 +139,32 @@ describe('Wallpaper styles', () => {
     expect(WallpaperFrostedHeaderControls.name).toBe('WallpaperFrostedHeaderControls');
   });
 
-  it('keeps exactly one material boundary around each A/B header button', () => {
+  it('uses the documented liquidglass Frosted preset for every wallpaper glass button', () => {
     const headerSource = WallpaperFrostedHeaderControls.toString();
-    const samasanteSource = WallpaperHeaderSamasanteGlassButton.toString();
-    const ybouaneSource = WallpaperHeaderYbouaneGlassButton.toString();
+    const heroSource = HeroFrostedAction.toString();
+    const liquidGlassSource = WallpaperLiquidGlassButton.toString();
 
-    expect(headerSource).toContain('WallpaperHeaderSamasanteGlassButton');
-    expect(headerSource).toContain('WallpaperHeaderYbouaneGlassButton');
-    expect(samasanteSource).toContain('samasante-liquid-glass');
-    expect(ybouaneSource).toContain('ybouane-liquidglass');
-    expect(ybouaneSource).toContain('LiquidGlass.init');
+    expect(headerSource).toContain('WallpaperLiquidGlassButton');
+    expect(heroSource).toContain('WallpaperLiquidGlassButton');
+    expect(liquidGlassSource).toContain('ybouane-liquidglass');
+    expect(liquidGlassSource).toContain('LiquidGlass.init');
     expect(wallpaperStyles).toContain('.wallpaper-header-glass-root');
-    expect(wallpaperStyles).toContain('.wallpaper-liquid-glass-root::after');
+    expect(wallpaperStyles).toContain('.wallpaper-liquid-glass-root--frosted');
     expect(wallpaperStyles).not.toContain('wallpaper-frosted-button--liquid-glass');
     expect(wallpaperStyles).not.toContain('.wallpaper-header-glass-root::after');
     expect(wallpaperStyles).not.toContain('[data-wallpaper-glass-ready="true"]::after');
-    expect(samasanteHeaderOptics).toMatchObject({ bend: 0, glow: 0, sheen: 0 });
-    expect(samasanteClearPillOptics).toMatchObject({ bend: 0, glow: 0, sheen: 0 });
-    expect(JSON.parse(createYbouaneConfig(21))).toMatchObject({
-      edgeHighlight: 0,
-      fresnel: 0,
+    expect(wallpaperStyles).not.toContain('samasante');
+    expect(JSON.parse(createFrostedGlassConfig(21))).toMatchObject({
+      blurAmount: 0.25,
+      refraction: 0.69,
+      chromAberration: 0.05,
+      edgeHighlight: 0.05,
+      specular: 0,
+      fresnel: 1,
+      cornerRadius: 21,
+      zRadius: 21,
+      button: true,
+      bevelMode: 0,
     });
   });
 
