@@ -6,6 +6,9 @@ import { HomeView } from '../src/apps/wallpaper/components/HomeView';
 import { SettingsView } from '../src/apps/wallpaper/components/SettingsView';
 import { WallpaperFrostedHeaderControls } from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
 import {
+  createYbouaneConfig,
+  samasanteClearPillOptics,
+  samasanteHeaderOptics,
   WallpaperHeaderSamasanteGlassButton,
   WallpaperHeaderYbouaneGlassButton,
 } from '../src/apps/wallpaper/components/WallpaperHeaderGlassButtons';
@@ -150,9 +153,16 @@ describe('Wallpaper styles', () => {
     expect(ybouaneSource).toContain('ybouane-liquidglass');
     expect(ybouaneSource).toContain('LiquidGlass.init');
     expect(wallpaperStyles).toContain('.wallpaper-header-glass-root');
+    expect(wallpaperStyles).toContain('.wallpaper-liquid-glass-root::after');
     expect(wallpaperStyles).not.toContain('wallpaper-frosted-button--liquid-glass');
     expect(wallpaperStyles).not.toContain('.wallpaper-header-glass-root::after');
     expect(wallpaperStyles).not.toContain('[data-wallpaper-glass-ready="true"]::after');
+    expect(samasanteHeaderOptics).toMatchObject({ bend: 0, glow: 0, sheen: 0 });
+    expect(samasanteClearPillOptics).toMatchObject({ bend: 0, glow: 0, sheen: 0 });
+    expect(JSON.parse(createYbouaneConfig(21))).toMatchObject({
+      edgeHighlight: 0,
+      fresnel: 0,
+    });
   });
 
   it('builds Settings as preferences plus a current wallpaper preview', () => {

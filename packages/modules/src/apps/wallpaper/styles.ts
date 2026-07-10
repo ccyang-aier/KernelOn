@@ -183,6 +183,16 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   background: transparent;
 }
 
+.wallpaper-liquid-glass-root::after {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  border-radius: inherit;
+  content: '';
+  pointer-events: none;
+}
+
 .wallpaper-header-glass-root {
   display: inline-block;
   width: 42px;
@@ -210,6 +220,16 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   border-radius: inherit;
   background: transparent;
   pointer-events: none;
+}
+
+.wallpaper-liquid-glass-lens--samasante {
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+
+.wallpaper-liquid-glass-root--samasante[data-wallpaper-glass-ready="true"]
+  .wallpaper-liquid-glass-lens--samasante {
+  opacity: 1;
 }
 
 .wallpaper-liquid-glass-source {
@@ -269,7 +289,6 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
     radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.14), transparent 38%),
     rgba(255, 255, 255, 0.018);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.46),
     inset 0 -4px 10px rgba(255, 255, 255, 0.025),
     0 6px 14px rgba(3, 8, 12, 0.12);
   content: '';

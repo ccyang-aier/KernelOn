@@ -15,15 +15,15 @@ import {
 
 const WALLPAPER_HEADER_GLASS_SIZE = 42;
 
-const samasanteHeaderOptics: Partial<GlassOptics> = {
+export const samasanteHeaderOptics: Partial<GlassOptics> = {
   mapSize: 512,
   clipToShape: true,
   softEdge: true,
   strength: 0.24,
   depth: 0.5,
   curvature: 0.7,
-  bend: 0.58,
-  bendWidth: 0.1,
+  bend: 0,
+  bendWidth: 0,
   dispersion: 0.08,
   specular: 1,
   sheenAngle: 50,
@@ -45,8 +45,8 @@ export const samasanteClearPillOptics: Partial<GlassOptics> = {
   scaleY: 0.2,
   depth: 0.62,
   curvature: 0.68,
-  bend: 0.56,
-  bendWidth: 0.095,
+  bend: 0,
+  bendWidth: 0,
   dispersion: 0.08,
   specular: 1,
   glow: 0,
@@ -56,14 +56,14 @@ export const samasanteClearPillOptics: Partial<GlassOptics> = {
   brightness: 0,
 };
 
-function createYbouaneConfig(radius: number): string {
+export function createYbouaneConfig(radius: number): string {
   return JSON.stringify({
     blurAmount: 0.006,
     refraction: 0.46,
     chromAberration: 0.002,
-    edgeHighlight: 0.06,
+    edgeHighlight: 0,
     specular: 0.015,
-    fresnel: 0.2,
+    fresnel: 0,
     distortion: 0.0025,
     cornerRadius: radius,
     zRadius: 10,
@@ -111,9 +111,17 @@ export function WallpaperHeaderSamasanteGlassButton({
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const backdropRef = useRef<HTMLCanvasElement | null>(null);
   const [backdropReady, setBackdropReady] = useState(false);
+  const [lensMapReady, setLensMapReady] = useState(false);
+  const [svgSourceReady, setSvgSourceReady] = useState(false);
   const [svgSourceLive, setSvgSourceLive] = useState(false);
   const svgSettleFrameRef = useRef(0);
+  const glassReady = backdropReady && lensMapReady && svgSourceReady;
   const markBackdropReady = useCallback(() => setBackdropReady(true), []);
+  const markLensMapReady = useCallback((url: string | null) => {
+    if (url) {
+      setLensMapReady(true);
+    }
+  }, []);
   const refreshSvgSource = useCallback(() => {
     window.cancelAnimationFrame(svgSettleFrameRef.current);
     setSvgSourceLive(true);
@@ -122,6 +130,7 @@ export function WallpaperHeaderSamasanteGlassButton({
       remainingFrames -= 1;
       if (remainingFrames === 0) {
         setSvgSourceLive(false);
+        setSvgSourceReady(true);
         return;
       }
       svgSettleFrameRef.current = window.requestAnimationFrame(settle);
@@ -155,7 +164,7 @@ export function WallpaperHeaderSamasanteGlassButton({
       ].join(' ')}
       data-wallpaper-backdrop-ready={backdropReady ? 'true' : 'false'}
       data-wallpaper-glass-material="position-matched-svg-copy"
-      data-wallpaper-glass-ready={backdropReady ? 'true' : 'waiting'}
+      data-wallpaper-glass-ready={glassReady ? 'true' : 'waiting'}
       data-wallpaper-svg-refresh={svgSourceLive ? 'live' : 'idle'}
       data-wallpaper-glass-engine="samasante-liquid-glass"
       ref={rootRef}
@@ -170,6 +179,7 @@ export function WallpaperHeaderSamasanteGlassButton({
         filterResolution={2}
         height={height}
         live={svgSourceLive}
+        onLensMapChange={markLensMapReady}
         optics={optics}
         radius={height / 2}
         refract={
@@ -264,6 +274,7 @@ export function WallpaperHeaderYbouaneGlassButton({
       }
 
       let attempts = 0;
+      let stableFrames = 0;
       const verifyOutput = () => {
         if (cancelled) {
           return;
@@ -271,6 +282,12 @@ export function WallpaperHeaderYbouaneGlassButton({
 
         attempts += 1;
         if (hasRenderedGlassOutput(surface)) {
+          stableFrames += 1;
+        } else {
+          stableFrames = 0;
+        }
+
+        if (stableFrames >= 2) {
           setGlassStatus('true');
           return;
         }
@@ -356,13 +373,17 @@ function hasRenderedGlassOutput(surface: HTMLElement): boolean {
 
   const pixels = context.getImageData(0, 0, output.width, output.height).data;
 
+  let sampledPixels = 0;
+  let visiblePixels = 0;
+
   for (let index = 3; index < pixels.length; index += 16) {
-    if ((pixels[index] ?? 0) > 0) {
-      return true;
+    sampledPixels += 1;
+    if ((pixels[index] ?? 0) > 8) {
+      visiblePixels += 1;
     }
   }
 
-  return false;
+  return sampledPixels > 0 && visiblePixels / sampledPixels >= 0.55;
 }
 
 function useBufferedBackdropCanvas(
