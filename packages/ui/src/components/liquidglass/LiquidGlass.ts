@@ -26,6 +26,8 @@ export interface LiquidGlassOptions {
 	glassElements?: NodeListOf<HTMLElement> | HTMLElement[];
 	/** Override the default configuration values. */
 	defaults?: Partial<GlassConfig>;
+	/** Skip page-font embedding for font-independent glass such as icon-only controls. */
+	prefetchFonts?: boolean;
 }
 
 interface DragState {
@@ -100,6 +102,7 @@ export class LiquidGlass {
 	readonly glassCanvases: Map<HTMLElement, HTMLCanvasElement>;
 	readonly capture: HtmlCapture;
 	readonly renderer: GlassRenderer;
+	readonly prefetchFonts: boolean;
 
 	/** Current frames-per-second (updated every frame). */
 	fps = 0;
@@ -174,7 +177,12 @@ export class LiquidGlass {
 	// Constructor (prefer LiquidGlass.init)
 	// ────────────────────────────────────────────
 
-	constructor({ root, glassElements, defaults = {} }: LiquidGlassOptions) {
+	constructor({
+		root,
+		glassElements,
+		defaults = {},
+		prefetchFonts = true,
+	}: LiquidGlassOptions) {
 		if (!root) throw new Error('LiquidGlass: `root` element is required.');
 
 		this.root = root;
@@ -182,6 +190,7 @@ export class LiquidGlass {
 		this.glassSet = new Set(Array.from(glassElements || []));
 		this.glassCanvases = new Map();
 		this.capture = new HtmlCapture(root);
+		this.prefetchFonts = prefetchFonts;
 		// When an async html-to-image re-capture finishes, mark only
 		// the glasses whose sample rect intersects that element's
 		// bounds — they're the only ones whose composed scene
@@ -224,7 +233,9 @@ export class LiquidGlass {
 		// up front, so every subsequent html-to-image capture renders
 		// text with the page's actual webfont (matching glyph metrics
 		// with the live DOM under the glass).
-		await this.capture.prefetchFontEmbedCSS();
+		if (this.prefetchFonts) {
+			await this.capture.prefetchFontEmbedCSS();
+		}
 
 		await this._captureGlassContent();
 		// Pre-warm the static-content cache so the first rendered frame
@@ -964,6 +975,11 @@ export class LiquidGlass {
 			this._renderFrame();
 		} catch (err) {
 			console.error('LiquidGlass: render error:', err);
+			// A fatal upload/capture error (most commonly a CORS-tainted canvas)
+			// cannot recover by retrying every animation frame. Stop this instance
+			// so the host can keep its lightweight fallback without a crash loop.
+			this._running = false;
+			return;
 		}
 
 		this._rafId = requestAnimationFrame(() => this._renderLoop());

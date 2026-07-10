@@ -151,7 +151,13 @@ export function HomeView({
         >
           {slides.map((slide) => (
             <figure className="wallpaper-home__slide" key={slide.id}>
-              <img alt="" className="wallpaper-home__image" draggable={false} src={slide.image} />
+              <img
+                alt=""
+                className="wallpaper-home__image"
+                crossOrigin="anonymous"
+                draggable={false}
+                src={slide.image}
+              />
               <div className="wallpaper-home__shade" />
             </figure>
           ))}
