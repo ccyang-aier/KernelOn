@@ -27,74 +27,74 @@ export function SettingsView({
   selectedWallpaper: WallpaperAsset;
 }>) {
   return (
-    <section aria-label="Wallpaper Settings" className="wallpaper-page wallpaper-page--settings">
+    <section aria-label="壁纸设置" className="wallpaper-page wallpaper-page--settings">
       <div className="wallpaper-settings-heading">
-        <p>Personalization</p>
-        <h1>Your space, your pace.</h1>
-        <span>Fine-tune how wallpapers move, fit and feel across your desktop.</span>
+        <p>个性化</p>
+        <h1>打造你的专属空间。</h1>
+        <span>微调壁纸在桌面上的动态、适配方式与视觉质感。</span>
       </div>
 
       <div className="wallpaper-settings-layout">
         <div className="wallpaper-settings-card">
           <div className="wallpaper-settings-card__heading">
             <div>
-              <span>Viewing experience</span>
-              <strong>Applies instantly</strong>
+              <span>浏览体验</span>
+              <strong>即时生效</strong>
             </div>
-            <span className="wallpaper-settings-card__status">4 preferences</span>
+            <span className="wallpaper-settings-card__status">4 项偏好</span>
           </div>
 
           <SettingsRow
             active={isHeroAutoplayEnabled}
-            description="Rotate featured wallpapers automatically while Home is open."
+            description="主页打开时自动轮换精选壁纸。"
             icon={
               isHeroAutoplayEnabled ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />
             }
-            label="Auto-rotate featured wallpapers"
+            label="自动轮换精选壁纸"
             onClick={onToggleHeroAutoplay}
-            state={isHeroAutoplayEnabled ? 'On' : 'Off'}
+            state={isHeroAutoplayEnabled ? '开启' : '关闭'}
           />
           <SettingsRow
             active={isHeroDetailsVisible}
-            description="Show resolution, creator, file size and duration in the Hero."
+            description="在主视觉区域显示分辨率、作者、文件大小和时长。"
             icon={isHeroDetailsVisible ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
-            label="Wallpaper details"
+            label="壁纸详情"
             onClick={onToggleHeroDetails}
-            state={isHeroDetailsVisible ? 'Visible' : 'Hidden'}
+            state={isHeroDetailsVisible ? '可见' : '隐藏'}
           />
           <SettingsRow
             active={previewFitMode === 'fill'}
-            description="Choose edge-to-edge framing or preserve the full artwork."
+            description="选择铺满窗口，或保留完整作品。"
             icon={<Frame aria-hidden="true" />}
-            label="Preview framing"
+            label="预览画面"
             onClick={onTogglePreviewFit}
-            state={previewFitMode === 'fill' ? 'Fill' : 'Fit'}
+            state={previewFitMode === 'fill' ? '铺满' : '适配'}
           />
           <SettingsRow
             active={glassDepth === 'deep'}
-            description="Control the contrast of frosted surfaces outside the Home view."
+            description="控制主页以外磨砂界面的对比度。"
             icon={<Sparkles aria-hidden="true" />}
-            label="Interface glass"
+            label="界面玻璃"
             onClick={onToggleGlassDepth}
-            state={glassDepth === 'deep' ? 'Deep' : 'Soft'}
+            state={glassDepth === 'deep' ? '深色' : '柔和'}
           />
         </div>
 
-        <aside className="wallpaper-settings-current" aria-label="Current wallpaper">
+        <aside className="wallpaper-settings-current" aria-label="当前壁纸">
           <div className="wallpaper-settings-current__media">
             <img alt="" draggable={false} src={selectedWallpaper.image} />
             <div className="wallpaper-settings-current__shade" />
-            <span className="wallpaper-settings-current__badge">Current wallpaper</span>
+            <span className="wallpaper-settings-current__badge">当前壁纸</span>
           </div>
           <div className="wallpaper-settings-current__content">
             <span>{selectedWallpaper.category}</span>
             <h2>{selectedWallpaper.title}</h2>
             <p>
-              {selectedWallpaper.resolution} · by {selectedWallpaper.author}
+              {selectedWallpaper.resolution} · {selectedWallpaper.author}
             </p>
-            <div className="wallpaper-settings-current__chips" aria-label="Current preferences">
-              <span>{previewFitMode === 'fill' ? 'Fill frame' : 'Fit artwork'}</span>
-              <span>{glassDepth === 'deep' ? 'Deep glass' : 'Soft glass'}</span>
+            <div className="wallpaper-settings-current__chips" aria-label="当前偏好">
+              <span>{previewFitMode === 'fill' ? '铺满画面' : '完整作品'}</span>
+              <span>{glassDepth === 'deep' ? '深色磨砂' : '柔和磨砂'}</span>
             </div>
           </div>
         </aside>

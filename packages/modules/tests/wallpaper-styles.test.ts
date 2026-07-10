@@ -159,7 +159,7 @@ describe('Wallpaper styles', () => {
 
     expect(settingsSource).toContain('wallpaper-settings-layout');
     expect(settingsSource).toContain('wallpaper-settings-current');
-    expect(settingsSource).toContain('Wallpaper details');
+    expect(settingsSource).toContain('壁纸详情');
     expect(wallpaperStyles).toContain('.wallpaper-settings-row');
     expect(wallpaperStyles).toContain(
       'grid-template-columns: minmax(0, 1.32fr) minmax(290px, 0.68fr);',
