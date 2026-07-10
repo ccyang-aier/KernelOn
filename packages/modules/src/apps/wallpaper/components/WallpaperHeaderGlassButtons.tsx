@@ -38,25 +38,25 @@ const samasanteHeaderOptics: Partial<GlassOptics> = {
 };
 
 const ybouaneHeaderConfig = JSON.stringify({
-  blurAmount: 0.012,
-  refraction: 0.52,
-  chromAberration: 0.003,
-  edgeHighlight: 0.05,
-  specular: 0.08,
-  fresnel: 0.36,
-  distortion: 0.004,
+  blurAmount: 0.006,
+  refraction: 0.46,
+  chromAberration: 0.002,
+  edgeHighlight: 0.06,
+  specular: 0.015,
+  fresnel: 0.2,
+  distortion: 0.0025,
   cornerRadius: WALLPAPER_HEADER_GLASS_RADIUS,
-  zRadius: 12,
-  opacity: 0.98,
-  saturation: 0.06,
-  tintStrength: 0.01,
-  brightness: 0.02,
-  shadowOpacity: 0.11,
-  shadowSpread: 4,
+  zRadius: 10,
+  opacity: 0.96,
+  saturation: 0.04,
+  tintStrength: 0,
+  brightness: 0.006,
+  shadowOpacity: 0.12,
+  shadowSpread: 3,
   shadowOffsetY: 1,
   floating: false,
   button: true,
-  bevelMode: 0,
+  bevelMode: 1,
 });
 
 type WallpaperHeaderGlassButtonProps = Readonly<{
@@ -353,13 +353,30 @@ function observeBackdropGeometry(
   const syncVisibleImage = () => {
     const rootRect = root.getBoundingClientRect();
     const sampleX = rootRect.left + rootRect.width / 2;
-    const visibleImage =
-      images.find((image) => {
-        const rect = image.getBoundingClientRect();
-        return rect.left <= sampleX && rect.right >= sampleX;
-      }) ?? activeImage;
+    const sampleY = rootRect.top + rootRect.height / 2;
+    let visibleImage: HTMLImageElement | undefined;
 
-    if (visibleImage.complete && visibleImage.naturalWidth > 0) {
+    for (let index = images.length - 1; index >= 0; index -= 1) {
+      const image = images[index];
+
+      if (!image || !image.complete || image.naturalWidth === 0) {
+        continue;
+      }
+
+      const rect = image.getBoundingClientRect();
+
+      if (
+        rect.left <= sampleX &&
+        rect.right >= sampleX &&
+        rect.top <= sampleY &&
+        rect.bottom >= sampleY
+      ) {
+        visibleImage = image;
+        break;
+      }
+    }
+
+    if (visibleImage) {
       const rect = visibleImage.getBoundingClientRect();
       sync({
         image: visibleImage,
