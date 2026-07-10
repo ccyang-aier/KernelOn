@@ -1,6 +1,6 @@
 # Liquid Glass 组件接入实战手册
 
-> **Wallpaper 当前决策（2026-07-11）**：四个业务按钮已经全部统一为 `packages/ui/src/components/liquidglass`（Ybouane）WebGL 路线，并采用官方文档的 Frosted Panel 基线。Wallpaper 不再导入或实例化 `packages/ui/src/components/liquid-glass`（Samasante）；下文 Samasante 内容仅保留为失败实验与避坑记录，不代表当前实现建议。
+> **Wallpaper 当前决策（2026-07-11）**：四个业务按钮已经全部统一为 `packages/ui/src/components/liquidglass`（Ybouane）WebGL 路线，并采用官方文档的 Frosted Panel 基线。当前验收存档点在此基础上增加由业务 root 独占的单层 1px 浅色外沿，以增强复杂背景下的可辨识度；等待态不再单独绘制 inset ring。Wallpaper 不再导入或实例化 `packages/ui/src/components/liquid-glass`（Samasante）；下文 Samasante 内容仅保留为失败实验与避坑记录，不代表当前实现建议。
 
 本文沉淀 Wallpaper App 顶栏两个 42px 圆形按钮的多轮接入与视觉验收经验，覆盖：
 
@@ -146,7 +146,7 @@ SVG 与 WebGL 即使消费同一套 `GlassOptics`，也不能假设数值对应�
 - 不要因为参数来自 WebGL Demo，就连同 WebGL 模式一起复制。参数参考与渲染介质选择是两件独立的事。
 - `refract` 副本不能只包含 lens 内部像素。折射会向周围采样，必须额外捕获邻域；当前增强预设下圆形按钮四周取样 12px，宽胶囊取样 32px。
 - 不要通过降低整个 `strength` 来让宽胶囊“清透”，这会让材质退化成透明。应使用 `scaleX/scaleY` 分轴约束宽高比导致的位移放大。
-- 试图把业务描边向内偏移并与光学 meniscus “对齐”不可靠：不同缩放和 DPR 下两条线仍会分离。最终方案必须职责互斥：Samasante 关闭 `bend/sheen/glow`，Ybouane 关闭会形成环形边光的 `edgeHighlight/fresnel`，只保留中心折射；业务 root 在最外沿始终绘制唯一的 1px 浅色 `::after` 边框。等待态 fallback 不再自带 inset 边框，从渲染源头杜绝第二条环形轮廓。
+- 试图把业务描边向内偏移并与光学 meniscus “对齐”不可靠：不同缩放和 DPR 下两条线仍会分离。当前 Ybouane Frosted preset 保留官方的低强度光学边缘（`edgeHighlight: 0.05`、`fresnel: 1`），但 CSS 结构边框只能有一个所有者：业务 root 在几何最外沿绘制唯一的 1px 浅色 `::after`；真实 button、canvas 与等待态 fallback 均不再绘制 border 或 inset ring。光学高光属于材质变化，CSS 外沿属于轮廓识别，两者不能再由多个 DOM 层重复实现。
 - 首次背景画布提交不等于 SVG 已可见。Samasante 必须同时满足背景副本已提交、lens map 已生成、`live` 刷新尾帧已稳定后才淡入真实玻璃；Ybouane 不能以“发现任意一个非透明像素”作为 ready，至少需要连续两帧达到 55% 的有效 alpha 覆盖，避免白色空面或底部月牙被误判为成品。
 - 视觉清透度首先由 `frost` 和位移强度决定，不应通过降低整体 opacity 或删除高光伪造。
 - `<canvas>` 像素更新不会产生 DOM mutation。Samasante 的静态 SVG copy 可能继续复用首次空 SourceGraphic；每次 committed canvas 更新后需要短暂开启 `live` 使 filter id 重建。Wallpaper 只保持 2 个尾帧，过渡期间由连续提交自然续期，稳定后立即关闭，禁止永久 RAF。

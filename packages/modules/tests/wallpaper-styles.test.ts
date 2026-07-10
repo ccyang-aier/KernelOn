@@ -150,8 +150,10 @@ describe('Wallpaper styles', () => {
     expect(liquidGlassSource).toContain('LiquidGlass.init');
     expect(wallpaperStyles).toContain('.wallpaper-header-glass-root');
     expect(wallpaperStyles).toContain('.wallpaper-liquid-glass-root--frosted');
+    expect(wallpaperStyles).toContain('.wallpaper-liquid-glass-root::after');
+    expect(wallpaperStyles).toContain('border: 1px solid rgba(239, 249, 255, 0.34)');
+    expect(wallpaperStyles).not.toContain('inset 0 0 0 1px rgba(255, 255, 255, 0.38)');
     expect(wallpaperStyles).not.toContain('wallpaper-frosted-button--liquid-glass');
-    expect(wallpaperStyles).not.toContain('.wallpaper-header-glass-root::after');
     expect(wallpaperStyles).not.toContain('[data-wallpaper-glass-ready="true"]::after');
     expect(wallpaperStyles).not.toContain('samasante');
     expect(JSON.parse(createFrostedGlassConfig(21))).toMatchObject({
