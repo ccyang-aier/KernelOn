@@ -152,6 +152,7 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).toContain('.wallpaper-header-glass-root');
     expect(wallpaperStyles).not.toContain('wallpaper-frosted-button--liquid-glass');
     expect(wallpaperStyles).not.toContain('.wallpaper-header-glass-root::after');
+    expect(wallpaperStyles).not.toContain('[data-wallpaper-glass-ready="true"]::after');
   });
 
   it('builds Settings as preferences plus a current wallpaper preview', () => {

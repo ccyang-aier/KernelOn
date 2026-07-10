@@ -19,11 +19,11 @@ const samasanteHeaderOptics: Partial<GlassOptics> = {
   mapSize: 512,
   clipToShape: true,
   softEdge: true,
-  strength: 0.18,
-  depth: 0.4,
-  curvature: 0.6,
-  bend: 0.45,
-  bendWidth: 0.09,
+  strength: 0.24,
+  depth: 0.5,
+  curvature: 0.7,
+  bend: 0.58,
+  bendWidth: 0.1,
   dispersion: 0.08,
   specular: 1,
   sheenAngle: 50,
@@ -40,13 +40,13 @@ const samasanteHeaderOptics: Partial<GlassOptics> = {
 export const samasanteClearPillOptics: Partial<GlassOptics> = {
   ...samasanteHeaderOptics,
   mapSize: 256,
-  strength: 0.12,
-  scaleX: 0.06,
-  scaleY: 0.14,
-  depth: 0.5,
-  curvature: 0.55,
-  bend: 0.4,
-  bendWidth: 0.08,
+  strength: 0.16,
+  scaleX: 0.09,
+  scaleY: 0.2,
+  depth: 0.62,
+  curvature: 0.68,
+  bend: 0.56,
+  bendWidth: 0.095,
   dispersion: 0.08,
   specular: 1,
   glow: 0,
@@ -107,7 +107,7 @@ export function WallpaperHeaderSamasanteGlassButton({
   rootClassName,
   width = WALLPAPER_HEADER_GLASS_SIZE,
 }: WallpaperHeaderGlassButtonProps) {
-  const sourceBleed = width > 100 ? 28 : 8;
+  const sourceBleed = width > 100 ? 32 : 12;
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const backdropRef = useRef<HTMLCanvasElement | null>(null);
   const [backdropReady, setBackdropReady] = useState(false);

@@ -296,17 +296,6 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   opacity: 0;
 }
 
-.wallpaper-liquid-glass-root--samasante[data-wallpaper-glass-ready="true"]::after,
-.wallpaper-liquid-glass-root--ybouane[data-wallpaper-glass-ready="true"]::after {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38);
-  content: '';
-  pointer-events: none;
-}
-
 .wallpaper-header-glass-button {
   display: grid;
   place-items: center;
