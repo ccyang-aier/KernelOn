@@ -27,6 +27,27 @@
 - icon 与文字保持清晰 DOM，不要绘进玻璃 canvas。
 - 不要让组件库的装饰层和业务按钮各画一套 border、inset ring 或 shadow；“双层边框”通常就是两套轮廓同时存在。
 
+### 1.1 两套组件的模式矩阵
+
+Samasante 的 `Glass` 是统一入口，但会根据 props 分流：
+
+| 模式          | 触发方式                                   | 核心渲染                                                                      | 适用场景                              |
+| ------------- | ------------------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------- |
+| Material      | 仅传 `children`，不传媒体或高级 copy props | DOM 材质层；Blink 可使用 live backdrop bend，其他浏览器降级为 frost/tint/edge | 普通按钮、面板、小浮层                |
+| In-place      | 传明确几何，让 children 成为折射源         | SVG displacement/filter                                                       | Hero、卡片、可动 lens                 |
+| Refract copy  | `refract={node}`                           | SVG displacement/filter；children 或兄弟 DOM 保持清晰                         | 浮在图片上的按钮、菜单、通知          |
+| Media surface | `src`、`draw`，可配 `lenses`               | WebGL2                                                                        | 视频、动态 canvas、多 lens 媒体控制器 |
+
+Wallpaper 当前两个 Samasante 按钮都使用 **Refract copy / SVG**：输入是位置匹配、双缓冲提交的局部 canvas，不传 `src` 或 `draw`，运行时每个实例都应存在一个 SVG filter，且不存在 WebGL 输出 canvas。
+
+Ybouane 不是上述四模式分流结构。它只有一条主要渲染管线：
+
+1. 普通 HTML/CSS 通过 `html-to-image`（内部使用 SVG `foreignObject`）栅格化到 Canvas 2D；图片、canvas、video 直接 `drawImage`。
+2. 合成后的局部 scene 统一上传到 WebGL 1 fragment shader。
+3. `data-dynamic`、静态缓存、`markChanged()` 是更新策略；`button`、`floating` 是交互行为，不是不同渲染模式。
+
+Wallpaper 当前两个 Ybouane 按钮使用 **局部 canvas 直接场景 + WebGL 1 shader**，空 glass surface 跳过内容捕获，原生 button 独立覆盖在最上层。
+
 ## 2. 第一性原理：玻璃必须折射当前位置的背景
 
 按钮位于 `(x, y)`，它的输入纹理就必须是页面在 `(x, y, width, height)` 的像素。仅把当前整张 Hero 图片设为按钮背景是不够的：
@@ -111,9 +132,20 @@ Wallpaper 的普通按钮必须采用 `refract={positionMatchedCopy}` 进入 DOM
 5. 最后调 `specular`、`sheen`、`glow`；它们过高会被误判成白边。
 6. `frost` 只用于轻微柔化，必须跨明暗、云层、纯色和高频纹理背景验收。
 
-Wallpaper 顶栏按钮以 `GlassVideoControls.tsx` 的 `PLAYER_OPTICS` 为基准，因为该预设本来就针对动态画面上的圆形控制器。复用预设时仍要保持业务尺寸与性能预算，不要机械扩大渲染分辨率。
+Wallpaper 顶栏按钮最初以 `GlassVideoControls.tsx` 的 `PLAYER_OPTICS` 理解各参数的职责，但最终 SVG preset 必须单独校准，不能宣称与视频 WebGL preset 数值完全对齐。复用设计意图时仍要根据渲染路径、业务尺寸和性能预算调整。
 
-宽胶囊不能机械照搬圆形按钮的各向同性强度。`190 × 42` 的 Hero 主按钮应使用 `scaleX/scaleY` 分轴控制：横向位移保持克制，纵向与边缘弯折仍清楚可见。当前预设以 `scaleX: 0.035`、`scaleY: 0.14`、`bend: 0.35`、`curvature: 0.42`、`frost: 0.8` 为基线，避免通过把整体强度降到接近零来伪造“清透”。
+宽胶囊不能机械照搬圆形按钮的各向同性强度。`190 × 42` 的 Hero 主按钮应使用 `scaleX/scaleY` 分轴控制：横向位移保持克制，纵向与边缘弯折仍清楚可见。当前预设以 `scaleX: 0.022`、`scaleY: 0.075`、`bend: 0.28`、`curvature: 0.4`、`frost: 0.25` 为基线，避免通过模糊制造材质。
+
+SVG 与 WebGL 即使消费同一套 `GlassOptics`，也不能假设数值对应完全相同的视觉强度。尤其是 `frost`、位移归一化和宽高比：视频 Demo 的 `frost: 3` 在 42px DOM/SVG 按钮上会明显偏磨砂。当前 SVG 圆形按钮使用 `frost: 0.3`；宽胶囊使用 `scaleX: 0.022`、`scaleY: 0.075`、`frost: 0.25`，以保持纹理清晰，同时由 `bend/sheen` 表达液态边缘。
+
+### 4.3 本轮新增踩坑
+
+- `src` / `draw` 不只是“换一种数据输入”，而是模式路由开关；传入后会直接离开 DOM/SVG 路径。
+- 不要因为参数来自 WebGL Demo，就连同 WebGL 模式一起复制。参数参考与渲染介质选择是两件独立的事。
+- `refract` 副本不能只包含 lens 内部像素。折射会向周围采样，必须额外捕获邻域；当前圆形按钮四周取样 8px，宽胶囊取样 28px。
+- 不要通过降低整个 `strength` 来让宽胶囊“清透”，这会让材质退化成透明。应使用 `scaleX/scaleY` 分轴约束宽高比导致的位移放大。
+- 单层亮边应画在业务 root 的最终 `::after` 上，并仅在 glass ready 后显示；等待态 fallback 的轮廓必须同步淡出，避免再次形成双边框。
+- 视觉清透度首先由 `frost` 和位移强度决定，不应通过降低整体 opacity 或删除高光伪造。
 
 ## 5. Ybouane 接入要点
 

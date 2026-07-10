@@ -296,6 +296,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   opacity: 0;
 }
 
+.wallpaper-liquid-glass-root--samasante[data-wallpaper-glass-ready="true"]::after,
 .wallpaper-liquid-glass-root--ybouane[data-wallpaper-glass-ready="true"]::after {
   position: absolute;
   inset: 0;
