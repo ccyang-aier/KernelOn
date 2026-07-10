@@ -191,38 +191,43 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-frosted-button--liquid-glass::after {
   position: absolute;
-  inset: 0;
+  inset: 2px;
   z-index: 1;
-  border: 1px solid rgba(255, 255, 255, 0.46);
+  border: 0;
   border-radius: 999px;
-  background:
-    radial-gradient(circle at 31% 19%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 42%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.015) 48%, rgba(255, 255, 255, 0.06));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.62),
-    inset 0 0 10px rgba(255, 255, 255, 0.10),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
-    0 0 0 0.5px rgba(0, 0, 0, 0.10),
-    0 8px 18px rgba(0, 0, 0, 0.14);
+  background: radial-gradient(circle at 32% 16%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 46%);
   content: "";
+  opacity: 0.68;
   pointer-events: none;
+  transition: opacity 180ms ease;
 }
 
 .wallpaper-frosted-button__liquid-glass {
   width: 42px;
   height: 42px;
-  overflow: visible;
+  overflow: hidden;
   border-radius: 999px;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.028) 52%, rgba(255, 255, 255, 0.065)),
+    rgba(10, 16, 22, 0.14);
   color: inherit;
-  box-shadow: 0 9px 18px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 7px 16px rgba(3, 8, 12, 0.13);
   transition:
+    background 180ms ease,
     box-shadow 180ms ease,
     transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .wallpaper-frosted-button--liquid-glass:hover .wallpaper-frosted-button__liquid-glass {
-  box-shadow: 0 11px 20px rgba(0, 0, 0, 0.13);
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.04) 52%, rgba(255, 255, 255, 0.085)),
+    rgba(10, 16, 22, 0.12);
+  box-shadow: 0 10px 20px rgba(3, 8, 12, 0.16);
   transform: translate3d(0, -1px, 0);
+}
+
+.wallpaper-frosted-button--liquid-glass:hover::after {
+  opacity: 0.9;
 }
 
 .wallpaper-frosted-button__liquid-icon {
@@ -233,8 +238,15 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   width: 42px;
   height: 42px;
   place-items: center;
-  color: rgba(255, 255, 255, 0.98);
+  color: rgba(255, 255, 255, 0.94);
+  filter: drop-shadow(0 1px 5px rgba(0, 0, 0, 0.24));
   pointer-events: none;
+}
+
+.wallpaper-frosted-button__liquid-icon svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 2.15;
 }
 
 .wallpaper-frosted-button__liquid-material-fill {
@@ -625,6 +637,13 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   height: clamp(520px, 68vh, 690px);
   min-height: 520px;
   overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.wallpaper-home__hero[data-wallpaper-hero-dragging="true"] {
+  cursor: grabbing;
 }
 
 .wallpaper-home__track {
@@ -632,6 +651,11 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   width: 100%;
   height: 100%;
   transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.wallpaper-home__hero[data-wallpaper-hero-dragging="true"] .wallpaper-home__track {
+  transition: none;
 }
 
 .wallpaper-home__slide {
@@ -646,6 +670,7 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none;
   transform: scale(1.01);
   user-select: none;
 }
@@ -794,31 +819,64 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
 .wallpaper-home__arrow {
   position: absolute;
-  top: 42%;
+  top: 50%;
   z-index: 4;
   display: grid;
-  width: 42px;
-  height: 64px;
+  width: 46px;
+  height: 46px;
   place-items: center;
-  border: 0;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 999px;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035)),
+    rgba(7, 12, 17, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 10px 24px rgba(0, 0, 0, 0.16);
+  color: rgba(255, 255, 255, 0.88);
   cursor: pointer;
+  transform: translateY(-50%);
+  backdrop-filter: blur(12px) saturate(1.14);
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wallpaper-home__arrow:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05)),
+    rgba(7, 12, 17, 0.16);
+  color: #fff;
+  transform: translateY(-50%) scale(1.04);
+}
+
+.wallpaper-home__arrow:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.wallpaper-home__arrow:focus-visible,
+.wallpaper-home__pagination button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.82);
+  outline-offset: 3px;
 }
 
 .wallpaper-home__arrow svg {
-  width: 39px;
-  height: 39px;
-  stroke-width: 2.8;
-  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.34));
 }
 
 .wallpaper-home__arrow--prev {
-  left: 20px;
+  left: 18px;
 }
 
 .wallpaper-home__arrow--next {
-  right: 20px;
+  right: 18px;
 }
 
 .wallpaper-home__pagination {
@@ -832,19 +890,37 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-home__pagination button {
-  width: 7px;
-  height: 7px;
+  position: relative;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
   border: 0;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.33);
+  background: transparent;
   padding: 0;
   cursor: pointer;
 }
 
-.wallpaper-home__pagination button.is-active {
-  width: 9px;
-  height: 9px;
-  transform: translateY(-1px);
+.wallpaper-home__pagination button::before {
+  width: 6px;
+  height: 6px;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.38);
+  content: "";
+  transition:
+    background 180ms ease,
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    width 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wallpaper-home__pagination button:hover::before {
+  background: rgba(255, 255, 255, 0.68);
+  transform: scale(1.22);
+}
+
+.wallpaper-home__pagination button.is-active::before {
+  width: 15px;
   background: rgba(255, 255, 255, 0.96);
 }
 
@@ -1152,10 +1228,10 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-page--settings {
-  padding: 112px clamp(52px, 5vw, 72px) 126px;
+  padding: 104px clamp(52px, 5vw, 72px) 90px;
   background:
-    radial-gradient(circle at 48% 12%, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 34%),
-    linear-gradient(112deg, rgba(20, 82, 93, 0.24), rgba(16, 21, 24, 0.24), rgba(130, 18, 54, 0.20));
+    radial-gradient(circle at 48% 10%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 32%),
+    linear-gradient(112deg, rgba(20, 64, 72, 0.18), rgba(16, 21, 24, 0.18), rgba(92, 28, 48, 0.16));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     inset 0 0 120px rgba(255, 255, 255, 0.04);
@@ -1548,117 +1624,283 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 }
 
 .wallpaper-settings-heading p {
-  margin: 0 0 14px;
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 18px;
-  font-weight: 900;
+  margin: 0 0 12px;
+  color: rgba(216, 243, 240, 0.72);
+  font-size: 13px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
 }
 
 .wallpaper-settings-heading h1 {
-  font-size: clamp(42px, 4vw, 60px);
+  max-width: 760px;
+  font-size: clamp(40px, 3.8vw, 58px);
+  line-height: 0.96;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
 }
 
-.wallpaper-settings-grid {
+.wallpaper-settings-heading > span {
+  display: block;
+  max-width: 600px;
+  margin-top: 14px;
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 14px;
+  font-weight: 520;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.wallpaper-settings-layout {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 42px;
+  grid-template-columns: minmax(0, 1.32fr) minmax(290px, 0.68fr);
+  align-items: stretch;
+  gap: 22px;
+  margin-top: 30px;
 }
 
-.wallpaper-settings-tile {
-  display: grid;
-  min-height: 178px;
-  align-content: space-between;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 20px;
+.wallpaper-settings-card,
+.wallpaper-settings-current {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 24px;
   background:
-    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 42%),
-    rgba(255, 255, 255, 0.08);
-  color: #fff;
-  padding: 22px;
-  text-align: left;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 22px 44px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(22px) saturate(1.24);
-  cursor: pointer;
+    linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.035)),
+    rgba(10, 17, 22, 0.20);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 28px 62px rgba(3, 8, 12, 0.19);
+  backdrop-filter: blur(24px) saturate(1.18);
 }
 
-.wallpaper-settings-tile__icon {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.92);
+.wallpaper-settings-card {
+  min-height: 358px;
+  padding: 12px;
 }
 
-.wallpaper-settings-tile__icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.wallpaper-settings-tile > span:not(.wallpaper-settings-tile__icon) {
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.wallpaper-settings-tile strong {
-  font-family: var(--wallpaper-display);
-  font-size: 28px;
-  line-height: 1;
-}
-
-.wallpaper-settings-tile[data-wallpaper-settings-tone="cyan"] {
-  background:
-    radial-gradient(circle at 24% 16%, rgba(84, 205, 225, 0.24), rgba(84, 205, 225, 0) 44%),
-    rgba(255, 255, 255, 0.08);
-}
-
-.wallpaper-settings-tile[data-wallpaper-settings-tone="green"] {
-  background:
-    radial-gradient(circle at 24% 16%, rgba(33, 230, 106, 0.20), rgba(33, 230, 106, 0) 44%),
-    rgba(255, 255, 255, 0.08);
-}
-
-.wallpaper-settings-tile[data-wallpaper-settings-tone="amber"] {
-  background:
-    radial-gradient(circle at 24% 16%, rgba(255, 182, 70, 0.22), rgba(255, 182, 70, 0) 44%),
-    rgba(255, 255, 255, 0.08);
-}
-
-.wallpaper-settings-panel {
+.wallpaper-settings-card__heading {
   display: flex;
-  min-height: 96px;
+  min-height: 62px;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  margin-top: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 24px 28px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 24px 54px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(24px) saturate(1.24);
+  gap: 20px;
+  padding: 7px 12px 12px;
 }
 
-.wallpaper-settings-panel div {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.70);
-  font-size: 14px;
-  font-weight: 900;
+.wallpaper-settings-card__heading > div {
+  display: grid;
+  gap: 3px;
 }
 
-.wallpaper-settings-panel svg {
-  width: 22px;
-  height: 22px;
-}
-
-.wallpaper-settings-panel strong {
+.wallpaper-settings-card__heading > div > span {
   color: #fff;
-  font-size: 18px;
+  font-size: 14px;
+  font-weight: 720;
+}
+
+.wallpaper-settings-card__heading > div > strong {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 11px;
+  font-weight: 560;
+}
+
+.wallpaper-settings-card__status {
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+  color: rgba(255, 255, 255, 0.56);
+  padding: 6px 10px;
+  font-size: 10px;
+  font-weight: 680;
+}
+
+.wallpaper-settings-row {
+  display: grid;
+  width: 100%;
+  min-height: 70px;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 13px;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.075);
+  background: transparent;
+  color: #fff;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.wallpaper-settings-row:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.wallpaper-settings-row:active {
+  transform: scale(0.993);
+}
+
+.wallpaper-settings-row:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid rgba(211, 248, 242, 0.74);
+  outline-offset: -2px;
+  border-radius: 14px;
+}
+
+.wallpaper-settings-row__icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.065);
+  color: rgba(255, 255, 255, 0.66);
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.wallpaper-settings-row[aria-pressed="true"] .wallpaper-settings-row__icon {
+  background: rgba(171, 226, 216, 0.14);
+  color: rgba(220, 255, 249, 0.92);
+}
+
+.wallpaper-settings-row__icon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.15;
+}
+
+.wallpaper-settings-row__copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.wallpaper-settings-row__copy strong {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 12.5px;
+  font-weight: 690;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wallpaper-settings-row__copy small {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 10.5px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wallpaper-settings-row__state {
+  min-width: 58px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+  color: rgba(255, 255, 255, 0.62);
+  padding: 7px 10px;
+  font-size: 10px;
+  font-weight: 720;
+  text-align: center;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.wallpaper-settings-row[aria-pressed="true"] .wallpaper-settings-row__state {
+  border-color: rgba(186, 236, 226, 0.18);
+  background: rgba(171, 226, 216, 0.12);
+  color: rgba(225, 255, 249, 0.88);
+}
+
+.wallpaper-settings-current {
+  display: grid;
+  min-height: 358px;
+  grid-template-rows: minmax(168px, 1.2fr) minmax(150px, 0.8fr);
+}
+
+.wallpaper-settings-current__media {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wallpaper-settings-current__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.015);
+}
+
+.wallpaper-settings-current__shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(5, 9, 12, 0.05), rgba(5, 9, 12, 0.44)),
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.14), transparent 42%);
+}
+
+.wallpaper-settings-current__badge {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(8, 14, 18, 0.24);
+  color: rgba(255, 255, 255, 0.78);
+  padding: 6px 9px;
+  font-size: 9px;
+  font-weight: 690;
+  backdrop-filter: blur(12px) saturate(1.12);
+}
+
+.wallpaper-settings-current__content {
+  min-width: 0;
+  padding: 18px 20px 20px;
+}
+
+.wallpaper-settings-current__content > span {
+  color: rgba(204, 242, 235, 0.58);
+  font-size: 9px;
+  font-weight: 760;
+  letter-spacing: 0.09em;
+}
+
+.wallpaper-settings-current__content h2 {
+  overflow: hidden;
+  margin: 5px 0 0;
+  color: #fff;
+  font-family: var(--wallpaper-display);
+  font-size: clamp(23px, 2.2vw, 31px);
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wallpaper-settings-current__content p {
+  overflow: hidden;
+  margin: 7px 0 0;
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 10.5px;
+  font-weight: 520;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wallpaper-settings-current__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.wallpaper-settings-current__chips span {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(255, 255, 255, 0.56);
+  padding: 6px 8px;
+  font-size: 9px;
+  font-weight: 650;
 }
 
 @keyframes wallpaperHeaderControlIn {
@@ -1733,6 +1975,16 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   .wallpaper-carousel {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .wallpaper-settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .wallpaper-settings-current {
+    min-height: 260px;
+    grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.15fr);
+    grid-template-rows: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1783,6 +2035,25 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
 
   .wallpaper-grid {
     grid-template-columns: 1fr;
+  }
+
+  .wallpaper-page--settings {
+    padding-top: 96px;
+  }
+
+  .wallpaper-settings-heading h1 {
+    font-size: clamp(36px, 10vw, 48px);
+  }
+
+  .wallpaper-settings-card__status,
+  .wallpaper-settings-row__copy small {
+    display: none;
+  }
+
+  .wallpaper-settings-current {
+    min-height: 358px;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(180px, 1.15fr) minmax(150px, 0.85fr);
   }
 }
 `;

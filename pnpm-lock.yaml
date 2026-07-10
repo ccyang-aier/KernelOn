@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  html-to-image@1.11.13: 116e1e8eb944a2c14502ba4a69ba6af1fc909ed0b18b2229b283c7f3302c8226
+
 importers:
 
   .:
@@ -160,7 +163,7 @@ importers:
         version: 3.15.0
       html-to-image:
         specifier: ^1.11.13
-        version: 1.11.13
+        version: 1.11.13(patch_hash=116e1e8eb944a2c14502ba4a69ba6af1fc909ed0b18b2229b283c7f3302c8226)
       lucide-react:
         specifier: ^1.21.0
         version: 1.21.0(react@19.2.7)
@@ -205,7 +208,7 @@ importers:
         version: 2.1.1
       html-to-image:
         specifier: ^1.11.13
-        version: 1.11.13
+        version: 1.11.13(patch_hash=116e1e8eb944a2c14502ba4a69ba6af1fc909ed0b18b2229b283c7f3302c8226)
       leva:
         specifier: ^0.10.1
         version: 0.10.1(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -5812,7 +5815,7 @@ snapshots:
     transitivePeerDependencies:
       - '@noble/hashes'
 
-  html-to-image@1.11.13: {}
+  html-to-image@1.11.13(patch_hash=116e1e8eb944a2c14502ba4a69ba6af1fc909ed0b18b2229b283c7f3302c8226): {}
 
   ignore@5.3.2: {}
 

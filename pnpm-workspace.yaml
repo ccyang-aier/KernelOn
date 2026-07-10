@@ -6,3 +6,5 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - prettier@3.9.0
+patchedDependencies:
+  html-to-image@1.11.13: patches/html-to-image@1.11.13.patch

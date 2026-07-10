@@ -21,6 +21,7 @@ export function HomeView({
   onRecommendationPreview,
   recommendationSections,
   selectedRecommendedId,
+  showHeroDetails,
   slides,
 }: Readonly<{
   heroIndex: number;
@@ -32,12 +33,13 @@ export function HomeView({
   onRecommendationPreview(wallpaperId: string): void;
   recommendationSections: RecommendedWallpaperSection[];
   selectedRecommendedId: string;
+  showHeroDetails: boolean;
   slides: HeroSlide[];
 }>) {
   const heroSwipeRef = useRef<HeroSwipeState | null>(null);
   const activeHero = slides[heroIndex] ?? slides[0];
   const trackStyle = {
-    transform: `translateX(-${heroIndex * 100}%)`,
+    transform: `translate3d(calc(-${heroIndex * 100}% + var(--wallpaper-hero-drag-x, 0px)), 0, 0)`,
   } satisfies CSSProperties;
 
   const handleKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
@@ -59,7 +61,9 @@ export function HomeView({
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
+      startedAt: event.timeStamp,
     };
+    event.currentTarget.style.setProperty('--wallpaper-hero-drag-x', '0px');
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
@@ -70,11 +74,16 @@ export function HomeView({
       return;
     }
 
-    const offsetX = Math.abs(event.clientX - swipe.startX);
+    const rawOffsetX = event.clientX - swipe.startX;
+    const offsetX = Math.abs(rawOffsetX);
     const offsetY = Math.abs(event.clientY - swipe.startY);
 
-    if (offsetX > 8 && offsetX > offsetY) {
+    if (offsetX > 5 && offsetX > offsetY) {
       event.preventDefault();
+      event.currentTarget.dataset.wallpaperHeroDragging = 'true';
+      const dampenedOffset = Math.max(-132, Math.min(132, rawOffsetX * 0.72));
+
+      event.currentTarget.style.setProperty('--wallpaper-hero-drag-x', `${dampenedOffset}px`);
     }
   };
 
@@ -86,12 +95,21 @@ export function HomeView({
     }
 
     heroSwipeRef.current = null;
-    event.currentTarget.releasePointerCapture(event.pointerId);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
 
     const offsetX = event.clientX - swipe.startX;
     const offsetY = event.clientY - swipe.startY;
+    const elapsed = Math.max(1, event.timeStamp - swipe.startedAt);
+    const horizontalIntent = Math.abs(offsetX) > Math.abs(offsetY) * 1.12;
+    const passedDistance = Math.abs(offsetX) >= 36;
+    const passedFlick = Math.abs(offsetX) >= 18 && Math.abs(offsetX) / elapsed >= 0.28;
 
-    if (Math.abs(offsetX) < 52 || Math.abs(offsetX) < Math.abs(offsetY) * 1.3) {
+    event.currentTarget.removeAttribute('data-wallpaper-hero-dragging');
+    event.currentTarget.style.setProperty('--wallpaper-hero-drag-x', '0px');
+
+    if (!horizontalIntent || (!passedDistance && !passedFlick)) {
       return;
     }
 
@@ -106,6 +124,8 @@ export function HomeView({
     }
 
     heroSwipeRef.current = null;
+    event.currentTarget.removeAttribute('data-wallpaper-hero-dragging');
+    event.currentTarget.style.setProperty('--wallpaper-hero-drag-x', '0px');
   };
 
   return (
@@ -138,14 +158,18 @@ export function HomeView({
         </div>
 
         <div className="wallpaper-home__content">
-          <span className="wallpaper-home__category">{activeHero.categoryLabel}</span>
+          {showHeroDetails ? (
+            <span className="wallpaper-home__category">{activeHero.categoryLabel}</span>
+          ) : null}
           <h1>{activeHero.title}</h1>
-          <div className="wallpaper-home__meta">
-            {activeHero.meta.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
-            <span className="wallpaper-home__badge">4K</span>
-          </div>
+          {showHeroDetails ? (
+            <div className="wallpaper-home__meta">
+              {activeHero.meta.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+              <span className="wallpaper-home__badge">4K</span>
+            </div>
+          ) : null}
           <div className="wallpaper-home__actions">
             <HeroFrostedAction variant="preview">
               <button
@@ -226,10 +250,7 @@ export function HomeView({
                 return (
                   <button
                     aria-pressed={selected}
-                    className={[
-                      'wallpaper-carousel-card',
-                      selected ? 'is-selected' : '',
-                    ]
+                    className={['wallpaper-carousel-card', selected ? 'is-selected' : '']
                       .filter(Boolean)
                       .join(' ')}
                     key={item.id}
@@ -253,6 +274,7 @@ type HeroSwipeState = {
   pointerId: number;
   startX: number;
   startY: number;
+  startedAt: number;
 };
 
 function isInteractiveSwipeTarget(target: EventTarget | null): boolean {

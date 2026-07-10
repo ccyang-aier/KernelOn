@@ -3,13 +3,7 @@
 import { AppHeaderSlot } from '@kernelon/shell';
 import { Glass, type GlassOptics } from '@kernelon/ui/liquid-glass';
 import { ArrowLeft, KeyRound, Search, Settings, Share2 } from 'lucide-react';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 
 import { viewLabels } from '../data';
 import type { WallpaperView } from '../types';
@@ -244,22 +238,23 @@ const wallpaperHeaderIconGlassOptics: Partial<GlassOptics> = {
   mapSize: 256,
   clipToShape: true,
   softEdge: true,
-  depth: 0.9,
-  curvature: 0.58,
-  strength: 0.38,
-  dispersion: 0.3,
-  bend: 1,
-  bendWidth: 0.075,
-  frost: 0.72,
-  brightness: 0.05,
-  specular: 1.55,
-  sheen: 1.18,
-  sheenAngle: 48,
-  sheenWidth: 2.4,
-  sheenFalloff: 1.45,
-  glow: 0.34,
+  depth: 0.56,
+  curvature: 0.34,
+  strength: 0.09,
+  dispersion: 0.14,
+  bend: 0.58,
+  bendWidth: 0.16,
+  frost: 6,
+  saturate: 1.16,
+  brightness: 0.015,
+  specular: 0.82,
+  sheen: 0.34,
+  sheenAngle: 42,
+  sheenWidth: 3,
+  sheenFalloff: 1.6,
+  glow: 0.08,
   glowSpread: 1,
-  glowFalloff: 0.7,
+  glowFalloff: 0.55,
 };
 
 const WALLPAPER_HEADER_GLASS_SIZE = 42;
@@ -284,11 +279,6 @@ function WallpaperHeaderLiquidGlassButton({
         height={WALLPAPER_HEADER_GLASS_SIZE}
         optics={wallpaperHeaderIconGlassOptics}
         radius={WALLPAPER_HEADER_GLASS_RADIUS}
-        style={{
-          borderRadius: WALLPAPER_HEADER_GLASS_RADIUS,
-          height: WALLPAPER_HEADER_GLASS_SIZE,
-          width: WALLPAPER_HEADER_GLASS_SIZE,
-        }}
         width={WALLPAPER_HEADER_GLASS_SIZE}
       >
         <span aria-hidden="true" className="wallpaper-frosted-button__liquid-material-fill" />

@@ -3,15 +3,18 @@ import { describe, expect, it } from 'vitest';
 import { HeroFrostedAction } from '../src/apps/wallpaper/components/HeroFrostedAction';
 import { ExploreView } from '../src/apps/wallpaper/components/ExploreView';
 import { HomeView } from '../src/apps/wallpaper/components/HomeView';
+import { SettingsView } from '../src/apps/wallpaper/components/SettingsView';
 import { WallpaperFrostedHeaderControls } from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
 import { createWallpaperHeader } from '../src/apps/wallpaper/header';
 import { wallpaperStyles } from '../src/apps/wallpaper/styles';
 
 describe('Wallpaper styles', () => {
   it('keeps the Home hero edge transparent and hero actions separated', () => {
-    expect(wallpaperStyles).toContain('section[data-app-id="wallpaper"] {\n  background: transparent !important;');
     expect(wallpaperStyles).toContain(
-      'section[data-app-id="wallpaper"] > header + div {\n  height: 100%;\n  flex: 1 1 auto;\n  background: transparent !important;'
+      'section[data-app-id="wallpaper"] {\n  background: transparent !important;',
+    );
+    expect(wallpaperStyles).toContain(
+      'section[data-app-id="wallpaper"] > header + div {\n  height: 100%;\n  flex: 1 1 auto;\n  background: transparent !important;',
     );
     expect(wallpaperStyles).toContain('.wallpaper-home {\n');
     expect(wallpaperStyles).toContain('background: transparent;');
@@ -41,7 +44,9 @@ describe('Wallpaper styles', () => {
     const headerSource = WallpaperFrostedHeaderControls.toString();
 
     expect(wallpaperStyles).toContain('.wallpaper-frosted-segment__indicator');
-    expect(wallpaperStyles).toContain('transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);');
+    expect(wallpaperStyles).toContain(
+      'transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);',
+    );
     expect(wallpaperStyles).not.toContain('@keyframes wallpaperSegmentTouchBounce');
     expect(headerSource).not.toContain('key={segmentView}');
   });
@@ -59,10 +64,14 @@ describe('Wallpaper styles', () => {
 
   it('defines the expanding header search state without switching views', () => {
     expect(wallpaperStyles).toContain('.wallpaper-frosted-search');
-    expect(wallpaperStyles).toContain('.wallpaper-frosted-primary[data-wallpaper-search-open="true"]');
+    expect(wallpaperStyles).toContain(
+      '.wallpaper-frosted-primary[data-wallpaper-search-open="true"]',
+    );
     expect(wallpaperStyles).toContain('.wallpaper-frosted-menu-button');
     expect(wallpaperStyles).toContain('width: clamp(250px, 30vw, 380px);');
-    expect(wallpaperStyles).toContain('.wallpaper-frosted-navigation[data-wallpaper-search-open="true"]');
+    expect(wallpaperStyles).toContain(
+      '.wallpaper-frosted-navigation[data-wallpaper-search-open="true"]',
+    );
     expect(wallpaperStyles).toContain('transition: width 620ms cubic-bezier(0.22, 1, 0.36, 1);');
     expect(wallpaperStyles).not.toContain('filter: blur(8px);');
   });
@@ -71,7 +80,11 @@ describe('Wallpaper styles', () => {
     const homeSource = HomeView.toString();
 
     expect(homeSource).toContain('onPointerDown');
+    expect(homeSource).toContain('onPointerMove');
     expect(homeSource).toContain('onPointerUp');
+    expect(homeSource).toContain('wallpaperHeroDragging');
+    expect(wallpaperStyles).toContain('touch-action: pan-y;');
+    expect(wallpaperStyles).toContain('[data-wallpaper-hero-dragging="true"]');
   });
 
   it('renders a dedicated animated search control in the wallpaper header', () => {
@@ -127,6 +140,18 @@ describe('Wallpaper styles', () => {
     expect(headerSource).not.toContain('glassBackdropImage');
     expect(wallpaperStyles).toContain('.wallpaper-frosted-button__liquid-material-fill');
     expect(wallpaperStyles).not.toContain('wallpaper-frosted-button__liquid-refract');
+  });
+
+  it('builds Settings as preferences plus a current wallpaper preview', () => {
+    const settingsSource = SettingsView.toString();
+
+    expect(settingsSource).toContain('wallpaper-settings-layout');
+    expect(settingsSource).toContain('wallpaper-settings-current');
+    expect(settingsSource).toContain('Wallpaper details');
+    expect(wallpaperStyles).toContain('.wallpaper-settings-row');
+    expect(wallpaperStyles).toContain(
+      'grid-template-columns: minmax(0, 1.32fr) minmax(290px, 0.68fr);',
+    );
   });
 
   it('defines preview header placement and preview entrance motion', () => {

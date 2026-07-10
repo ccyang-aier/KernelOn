@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  kernelOnDesktopWallpaper,
-  useAppHeader,
-  useShellSelector,
-} from '@kernelon/shell';
+import { kernelOnDesktopWallpaper, useAppHeader, useShellSelector } from '@kernelon/shell';
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
 import { ExploreView } from './components/ExploreView';
@@ -43,6 +39,7 @@ export default function WallpaperWindow() {
   );
   const [selectedWallpaperId, setSelectedWallpaperId] = useState('retrowaves');
   const [isHeroAutoplayEnabled, setIsHeroAutoplayEnabled] = useState(true);
+  const [isHeroDetailsVisible, setIsHeroDetailsVisible] = useState(true);
   const [previewFitMode, setPreviewFitMode] = useState<'fill' | 'fit'>('fill');
   const [glassDepth, setGlassDepth] = useState<'deep' | 'soft'>('deep');
 
@@ -218,6 +215,7 @@ export default function WallpaperWindow() {
           onRecommendationPreview={previewWallpaperById}
           recommendationSections={recommendationSections}
           selectedRecommendedId={selectedWallpaperId}
+          showHeroDetails={isHeroDetailsVisible}
           slides={heroSlides}
         />
       ) : null}
@@ -246,15 +244,17 @@ export default function WallpaperWindow() {
         <SettingsView
           glassDepth={glassDepth}
           isHeroAutoplayEnabled={isHeroAutoplayEnabled}
+          isHeroDetailsVisible={isHeroDetailsVisible}
           onToggleGlassDepth={() =>
             setGlassDepth((currentDepth) => (currentDepth === 'deep' ? 'soft' : 'deep'))
           }
           onToggleHeroAutoplay={() => setIsHeroAutoplayEnabled((currentValue) => !currentValue)}
+          onToggleHeroDetails={() => setIsHeroDetailsVisible((currentValue) => !currentValue)}
           onTogglePreviewFit={() =>
             setPreviewFitMode((currentMode) => (currentMode === 'fit' ? 'fill' : 'fit'))
           }
           previewFitMode={previewFitMode}
-          selectedWallpaperTitle={selectedWallpaper.title}
+          selectedWallpaper={selectedWallpaper}
         />
       ) : null}
     </div>
