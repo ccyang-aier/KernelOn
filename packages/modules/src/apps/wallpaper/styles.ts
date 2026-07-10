@@ -174,87 +174,101 @@ section[data-app-id="wallpaper"] > header[data-app-header-preset="browser"] [dat
   flex: 0 0 42px;
 }
 
-.wallpaper-frosted-button--liquid-glass {
-  overflow: visible;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-
-.wallpaper-frosted-button--liquid-glass:hover {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-}
-
-.wallpaper-frosted-button--liquid-glass::after {
-  position: absolute;
-  inset: 2px;
-  z-index: 1;
-  border: 0;
-  border-radius: 999px;
-  background: radial-gradient(circle at 32% 16%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 46%);
-  content: "";
-  opacity: 0.68;
-  pointer-events: none;
-  transition: opacity 180ms ease;
-}
-
-.wallpaper-frosted-button__liquid-glass {
+.wallpaper-header-glass-root {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
   width: 42px;
   height: 42px;
-  overflow: hidden;
+  flex: 0 0 42px;
+  overflow: visible;
   border-radius: 999px;
-  background:
-    linear-gradient(155deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.028) 52%, rgba(255, 255, 255, 0.065)),
-    rgba(10, 16, 22, 0.14);
-  color: inherit;
-  box-shadow: 0 7px 16px rgba(3, 8, 12, 0.13);
-  transition:
-    background 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  background: transparent;
+  animation: wallpaperHeaderControlIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.wallpaper-frosted-button--liquid-glass:hover .wallpaper-frosted-button__liquid-glass {
-  background:
-    linear-gradient(155deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.04) 52%, rgba(255, 255, 255, 0.085)),
-    rgba(10, 16, 22, 0.12);
-  box-shadow: 0 10px 20px rgba(3, 8, 12, 0.16);
+.wallpaper-header-glass-root--samasante:has(.wallpaper-header-glass-button:hover) {
   transform: translate3d(0, -1px, 0);
 }
 
-.wallpaper-frosted-button--liquid-glass:hover::after {
-  opacity: 0.9;
+.wallpaper-header-glass-root--samasante:has(.wallpaper-header-glass-button:active) {
+  transform: scale(0.97);
 }
 
-.wallpaper-frosted-button__liquid-icon {
+.wallpaper-header-glass-lens {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 1;
+  width: 42px;
+  height: 42px;
+  overflow: visible;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.wallpaper-header-glass-copy {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: inherit;
+  background-position: 72% 18%;
+  background-size: cover;
+}
+
+.wallpaper-header-glass-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  object-fit: cover;
+  object-position: 72% 18%;
+  pointer-events: none;
+}
+
+.wallpaper-header-glass-button {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
   display: grid;
   width: 42px;
   height: 42px;
   place-items: center;
+  overflow: visible;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
   color: rgba(255, 255, 255, 0.94);
-  filter: drop-shadow(0 1px 5px rgba(0, 0, 0, 0.24));
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+.wallpaper-header-glass-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.88);
+  outline-offset: 3px;
+}
+
+.wallpaper-header-glass-icon {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 1px 5px rgba(0, 0, 0, 0.28));
   pointer-events: none;
 }
 
-.wallpaper-frosted-button__liquid-icon svg {
+.wallpaper-header-glass-icon svg {
   width: 19px;
   height: 19px;
   stroke-width: 2.15;
 }
 
-.wallpaper-frosted-button__liquid-material-fill {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  pointer-events: none;
+.wallpaper-header-glass-root--ybouane[data-wallpaper-glass-ready="true"] .wallpaper-header-glass-backdrop {
+  opacity: 0.92;
 }
 
 .wallpaper-frosted-primary {

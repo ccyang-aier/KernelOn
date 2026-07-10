@@ -5,6 +5,10 @@ import { ExploreView } from '../src/apps/wallpaper/components/ExploreView';
 import { HomeView } from '../src/apps/wallpaper/components/HomeView';
 import { SettingsView } from '../src/apps/wallpaper/components/SettingsView';
 import { WallpaperFrostedHeaderControls } from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
+import {
+  WallpaperHeaderSamasanteGlassButton,
+  WallpaperHeaderYbouaneGlassButton,
+} from '../src/apps/wallpaper/components/WallpaperHeaderGlassButtons';
 import { createWallpaperHeader } from '../src/apps/wallpaper/header';
 import { wallpaperStyles } from '../src/apps/wallpaper/styles';
 
@@ -134,12 +138,19 @@ describe('Wallpaper styles', () => {
     expect(WallpaperFrostedHeaderControls.name).toBe('WallpaperFrostedHeaderControls');
   });
 
-  it('keeps header liquid glass buttons on live material instead of a static image copy', () => {
+  it('keeps exactly one material boundary around each A/B header button', () => {
     const headerSource = WallpaperFrostedHeaderControls.toString();
+    const samasanteSource = WallpaperHeaderSamasanteGlassButton.toString();
+    const ybouaneSource = WallpaperHeaderYbouaneGlassButton.toString();
 
-    expect(headerSource).not.toContain('glassBackdropImage');
-    expect(wallpaperStyles).toContain('.wallpaper-frosted-button__liquid-material-fill');
-    expect(wallpaperStyles).not.toContain('wallpaper-frosted-button__liquid-refract');
+    expect(headerSource).toContain('WallpaperHeaderSamasanteGlassButton');
+    expect(headerSource).toContain('WallpaperHeaderYbouaneGlassButton');
+    expect(samasanteSource).toContain('samasante-liquid-glass');
+    expect(ybouaneSource).toContain('ybouane-liquidglass');
+    expect(ybouaneSource).toContain('LiquidGlass.init');
+    expect(wallpaperStyles).toContain('.wallpaper-header-glass-root');
+    expect(wallpaperStyles).not.toContain('wallpaper-frosted-button--liquid-glass');
+    expect(wallpaperStyles).not.toContain('.wallpaper-header-glass-root::after');
   });
 
   it('builds Settings as preferences plus a current wallpaper preview', () => {

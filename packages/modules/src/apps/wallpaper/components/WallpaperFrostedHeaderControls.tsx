@@ -1,17 +1,21 @@
 'use client';
 
 import { AppHeaderSlot } from '@kernelon/shell';
-import { Glass, type GlassOptics } from '@kernelon/ui/liquid-glass';
 import { ArrowLeft, KeyRound, Search, Settings, Share2 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { viewLabels } from '../data';
 import type { WallpaperView } from '../types';
+import {
+  WallpaperHeaderSamasanteGlassButton,
+  WallpaperHeaderYbouaneGlassButton,
+} from './WallpaperHeaderGlassButtons';
 
 type WallpaperHeaderView = WallpaperView | 'preview';
 
 export function WallpaperFrostedHeaderControls({
   activeView,
+  glassBackdropImage,
   isSearchOpen,
   onBack,
   onSearchChange,
@@ -21,6 +25,7 @@ export function WallpaperFrostedHeaderControls({
   searchQuery,
 }: Readonly<{
   activeView: WallpaperHeaderView;
+  glassBackdropImage: string;
   isSearchOpen: boolean;
   onBack(): void;
   onSearchChange(query: string): void;
@@ -173,20 +178,20 @@ export function WallpaperFrostedHeaderControls({
 
   const licenseControl = useMemo(
     () => (
-      <WallpaperHeaderLiquidGlassButton label="License">
+      <WallpaperHeaderSamasanteGlassButton backdropImage={glassBackdropImage} label="License">
         <KeyRound aria-hidden="true" />
-      </WallpaperHeaderLiquidGlassButton>
+      </WallpaperHeaderSamasanteGlassButton>
     ),
-    [],
+    [glassBackdropImage],
   );
 
   const shareControl = useMemo(
     () => (
-      <WallpaperHeaderLiquidGlassButton label="Share">
+      <WallpaperHeaderYbouaneGlassButton backdropImage={glassBackdropImage} label="Share">
         <Share2 aria-hidden="true" />
-      </WallpaperHeaderLiquidGlassButton>
+      </WallpaperHeaderYbouaneGlassButton>
     ),
-    [],
+    [glassBackdropImage],
   );
 
   const settingsControl = useMemo(
@@ -233,57 +238,3 @@ const wallpaperViewOptions: Array<{ label: string; value: WallpaperView }> = [
   { label: viewLabels.explore, value: 'explore' },
   { label: viewLabels.settings, value: 'settings' },
 ];
-
-const wallpaperHeaderIconGlassOptics: Partial<GlassOptics> = {
-  mapSize: 256,
-  clipToShape: true,
-  softEdge: true,
-  depth: 0.56,
-  curvature: 0.34,
-  strength: 0.09,
-  dispersion: 0.14,
-  bend: 0.58,
-  bendWidth: 0.16,
-  frost: 6,
-  saturate: 1.16,
-  brightness: 0.015,
-  specular: 0.82,
-  sheen: 0.34,
-  sheenAngle: 42,
-  sheenWidth: 3,
-  sheenFalloff: 1.6,
-  glow: 0.08,
-  glowSpread: 1,
-  glowFalloff: 0.55,
-};
-
-const WALLPAPER_HEADER_GLASS_SIZE = 42;
-const WALLPAPER_HEADER_GLASS_RADIUS = WALLPAPER_HEADER_GLASS_SIZE / 2;
-
-function WallpaperHeaderLiquidGlassButton({
-  children,
-  label,
-}: Readonly<{
-  children: ReactNode;
-  label: string;
-}>) {
-  return (
-    <button
-      aria-label={label}
-      className="wallpaper-frosted-button wallpaper-frosted-button--icon wallpaper-frosted-button--liquid-glass"
-      type="button"
-    >
-      <Glass
-        aria-hidden="true"
-        className="wallpaper-frosted-button__liquid-glass"
-        height={WALLPAPER_HEADER_GLASS_SIZE}
-        optics={wallpaperHeaderIconGlassOptics}
-        radius={WALLPAPER_HEADER_GLASS_RADIUS}
-        width={WALLPAPER_HEADER_GLASS_SIZE}
-      >
-        <span aria-hidden="true" className="wallpaper-frosted-button__liquid-material-fill" />
-      </Glass>
-      <span className="wallpaper-frosted-button__liquid-icon">{children}</span>
-    </button>
-  );
-}
