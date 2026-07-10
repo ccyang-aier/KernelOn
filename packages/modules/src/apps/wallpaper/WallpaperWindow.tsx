@@ -41,6 +41,7 @@ export default function WallpaperWindow() {
   const [isHeroDetailsVisible, setIsHeroDetailsVisible] = useState(true);
   const [previewFitMode, setPreviewFitMode] = useState<'fill' | 'fit'>('fill');
   const [glassDepth, setGlassDepth] = useState<'deep' | 'soft'>('deep');
+  const [headerActionNotice, setHeaderActionNotice] = useState<string | null>(null);
 
   const assetById = useMemo(
     () => new Map(wallpaperLibrary.map((wallpaper) => [wallpaper.id, wallpaper])),
@@ -48,6 +49,7 @@ export default function WallpaperWindow() {
   );
   const selectedWallpaper = assetById.get(selectedWallpaperId) ?? wallpaperLibrary[0]!;
   const previewWallpaper = previewWallpaperId ? assetById.get(previewWallpaperId) : null;
+  const activeWallpaper = previewWallpaper ?? selectedWallpaper;
   const displayedView = previewWallpaper ? 'preview' : activeView;
   const wallpaperHeader = useMemo(() => createWallpaperHeader(displayedView), [displayedView]);
   const headerGlassBackdropImage =
@@ -174,14 +176,50 @@ export default function WallpaperWindow() {
     });
   }, []);
 
+  const showHeaderActionNotice = useCallback((message: string) => {
+    setHeaderActionNotice(message);
+  }, []);
+
+  const showLicense = useCallback(() => {
+    showHeaderActionNotice(
+      `“${activeWallpaper.title}”由 ${activeWallpaper.author} 提供，请在使用前核对原作者许可。`,
+    );
+  }, [activeWallpaper.author, activeWallpaper.title, showHeaderActionNotice]);
+
+  const shareWallpaper = useCallback(() => {
+    const shareText = `${activeWallpaper.title} · ${activeWallpaper.author}\n${window.location.href}`;
+
+    if (!navigator.clipboard) {
+      showHeaderActionNotice('当前环境不支持剪贴板，请手动复制浏览器地址。');
+      return;
+    }
+
+    void navigator.clipboard.writeText(shareText).then(
+      () => showHeaderActionNotice('壁纸分享信息已复制到剪贴板。'),
+      () => showHeaderActionNotice('浏览器未允许访问剪贴板，请检查站点权限。'),
+    );
+  }, [activeWallpaper.author, activeWallpaper.title, showHeaderActionNotice]);
+
+  useEffect(() => {
+    if (!headerActionNotice) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setHeaderActionNotice(null), 3200);
+
+    return () => window.clearTimeout(timer);
+  }, [headerActionNotice]);
+
   return (
     <WallpaperFrostedHeaderControls
       activeView={displayedView}
       glassBackdropImage={headerGlassBackdropImage}
       isSearchOpen={isHeaderSearchOpen}
       onBack={closePreview}
+      onLicense={showLicense}
       onSearchChange={setQuery}
       onSearchOpenChange={setIsHeaderSearchOpen}
+      onShare={shareWallpaper}
       onSettings={openSettings}
       onViewChange={switchView}
       searchQuery={query}
@@ -197,6 +235,11 @@ export default function WallpaperWindow() {
             style={wallpaperRootStyle}
           >
             <style>{wallpaperStyles}</style>
+            {headerActionNotice ? (
+              <div className="wallpaper-header-action-notice" role="status">
+                {headerActionNotice}
+              </div>
+            ) : null}
             {previewWallpaper ? (
               <PreviewView
                 isApplied={desktopWallpaper === resolveWallpaperImage(previewWallpaper)}

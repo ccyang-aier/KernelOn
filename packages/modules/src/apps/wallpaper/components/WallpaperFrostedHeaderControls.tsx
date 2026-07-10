@@ -18,8 +18,10 @@ export function WallpaperFrostedHeaderControls({
   glassBackdropImage,
   isSearchOpen,
   onBack,
+  onLicense,
   onSearchChange,
   onSearchOpenChange,
+  onShare,
   onSettings,
   onViewChange,
   searchQuery,
@@ -29,8 +31,10 @@ export function WallpaperFrostedHeaderControls({
   glassBackdropImage: string;
   isSearchOpen: boolean;
   onBack(): void;
+  onLicense(): void;
   onSearchChange(query: string): void;
   onSearchOpenChange(isOpen: boolean): void;
+  onShare(): void;
   onSettings(): void;
   onViewChange(view: WallpaperView): void;
   searchQuery: string;
@@ -179,20 +183,28 @@ export function WallpaperFrostedHeaderControls({
 
   const licenseControl = useMemo(
     () => (
-      <WallpaperHeaderSamasanteGlassButton backdropImage={glassBackdropImage} label="License">
+      <WallpaperHeaderSamasanteGlassButton
+        backdropImage={glassBackdropImage}
+        label="License"
+        onClick={onLicense}
+      >
         <KeyRound aria-hidden="true" />
       </WallpaperHeaderSamasanteGlassButton>
     ),
-    [glassBackdropImage],
+    [glassBackdropImage, onLicense],
   );
 
   const shareControl = useMemo(
     () => (
-      <WallpaperHeaderYbouaneGlassButton backdropImage={glassBackdropImage} label="Share">
+      <WallpaperHeaderYbouaneGlassButton
+        backdropImage={glassBackdropImage}
+        label="Share"
+        onClick={onShare}
+      >
         <Share2 aria-hidden="true" />
       </WallpaperHeaderYbouaneGlassButton>
     ),
-    [glassBackdropImage],
+    [glassBackdropImage, onShare],
   );
 
   const settingsControl = useMemo(

@@ -1157,12 +1157,13 @@ export class LiquidGlass {
 	}
 
 	private _prepareSceneCanvas(width: number, height: number): void {
-		if (this._sceneCanvas.width !== width || this._sceneCanvas.height !== height) {
-			this._sceneCanvas.width = width;
-			this._sceneCanvas.height = height;
-		} else {
-			this._sceneCtx.clearRect(0, 0, width, height);
-		}
+		// Reassigning the bitmap dimensions resets both the pixels and the
+		// canvas origin-clean flag. A single transient cross-origin capture
+		// must not poison this reusable scene canvas for every later frame.
+		// The scene is button-local (roughly 120px here), so the reset is
+		// bounded and cheaper than repeatedly failing WebGL uploads.
+		this._sceneCanvas.width = width;
+		this._sceneCanvas.height = height;
 		this._sceneCtx.fillStyle = '#ffffff';
 		this._sceneCtx.fillRect(0, 0, width, height);
 	}

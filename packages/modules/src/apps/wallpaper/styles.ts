@@ -211,7 +211,9 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   position: absolute;
   inset: 0;
   display: block;
-  background-repeat: no-repeat;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
   pointer-events: none;
 }
 
@@ -302,6 +304,24 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-header-glass-root--ybouane[data-wallpaper-glass-ready="true"] .wallpaper-header-glass-backdrop {
   opacity: 0;
+}
+
+.wallpaper-header-action-notice {
+  position: absolute;
+  top: 18px;
+  right: 26px;
+  z-index: 40;
+  max-width: min(420px, calc(100% - 52px));
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+  color: rgba(255, 255, 255, 0.94);
+  background: rgba(12, 18, 24, 0.74);
+  box-shadow: 0 12px 32px rgba(2, 6, 10, 0.26);
+  backdrop-filter: blur(18px) saturate(1.18);
+  font-size: 13px;
+  line-height: 1.45;
+  animation: wallpaperHeaderControlIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .wallpaper-frosted-primary {

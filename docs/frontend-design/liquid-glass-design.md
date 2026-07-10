@@ -1,5 +1,7 @@
 # Liquid Glass 前端设计与实现对比分析
 
+> 业务接入、动态背景同步与性能验收请同时阅读 [Liquid Glass 组件接入实战手册](./liquid-glass-integration-playbook.md)。该手册沉淀自 Wallpaper App 顶栏按钮的多轮真实调试。
+
 本文分析范围扩展为仓库内的四个本地项目：
 
 - `open_source/liquid-glass-react`
@@ -15,12 +17,12 @@
 
 这里的“唯一”很重要。`liquid-glass-react`、`liquid-glass-studio`、`ybouane/liquidglass` 都不应该进入 KernelOn 的产品运行时主线。它们最多是一次性研究材料，不能成为 Shell、业务 App、Widget 在不同场景里各自选择的实现分支。真正优雅的架构不是“这里用 A，那里用 B”，而是所有场景都只面对 KernelOn 自己的一个材质契约。
 
-| 项目 | 定位 | 成熟度判断 | 对 KernelOn 的结论 |
-| --- | --- | --- | --- |
-| `liquid-glass-react` | 小型 React 玻璃容器 | 社区热度最高，但组件假设较重，定位、背景、SVG filter、浏览器支持和鼠标状态耦合明显 | 淘汰出主线；不再扩展新场景 |
-| `liquid-glass-studio` | WebGL/WebGPU 材质实验室 | shader 模型强，但本质是实验应用，不是 DOM 组件库 | 不进入运行时；只能作为只读研究样本 |
-| `liquidglass` | 命令式 WebGL + DOM capture 场景折射引擎 | 折射真实感强，但 root/capture/WebGL 生命周期约束过重 | 不进入通用 UI；不作为 KernelOn 材质基座 |
-| `liquid-glass` | Headless React 液态玻璃 primitive | 版本新，但组件抽象最正确：DOM 友好、headless、可降级、可封装 | 唯一保留为产品级基座候选 |
+| 项目                  | 定位                                    | 成熟度判断                                                                         | 对 KernelOn 的结论                      |
+| --------------------- | --------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------- |
+| `liquid-glass-react`  | 小型 React 玻璃容器                     | 社区热度最高，但组件假设较重，定位、背景、SVG filter、浏览器支持和鼠标状态耦合明显 | 淘汰出主线；不再扩展新场景              |
+| `liquid-glass-studio` | WebGL/WebGPU 材质实验室                 | shader 模型强，但本质是实验应用，不是 DOM 组件库                                   | 不进入运行时；只能作为只读研究样本      |
+| `liquidglass`         | 命令式 WebGL + DOM capture 场景折射引擎 | 折射真实感强，但 root/capture/WebGL 生命周期约束过重                               | 不进入通用 UI；不作为 KernelOn 材质基座 |
+| `liquid-glass`        | Headless React 液态玻璃 primitive       | 版本新，但组件抽象最正确：DOM 友好、headless、可降级、可封装                       | 唯一保留为产品级基座候选                |
 
 ### 0.1 为什么不再把 `liquid-glass-react` 作为主基座
 
@@ -246,7 +248,7 @@ KernelOn 的液态玻璃架构应该是一条线，而不是一组备选方案�
 玻璃的 frosty 感主要由 `.glass__warp` 层的 CSS 完成：
 
 ```ts
-backdropFilter: `blur(${(overLight ? 12 : 4) + blurAmount * 32}px) saturate(${saturation}%)`
+backdropFilter: `blur(${(overLight ? 12 : 4) + blurAmount * 32}px) saturate(${saturation}%)`;
 ```
 
 这说明 `blurAmount` 并不是直接像素值，而是被放大到实际 blur 半径。`overLight` 为 true 时基础 blur 更强，同时还有两层黑色 overlay，帮助玻璃在亮背景上保持边界和内容可读性。
@@ -384,13 +386,13 @@ README 明确提示 Safari 和 Firefox 只部分支持效果，位移不可见�
 架构上，`studio` 已经把 renderer 抽象为 `IMultiPassRenderer`：
 
 ```ts
-resize(width, height)
-setUniform(name, value)
-setUniforms(uniforms)
-clearUniform(name)
-clearAllUniforms()
-render(passUniforms)
-dispose()
+resize(width, height);
+setUniform(name, value);
+setUniforms(uniforms);
+clearUniform(name);
+clearAllUniforms();
+render(passUniforms);
+dispose();
 ```
 
 WebGL2 的 `MultiPassRenderer` 和 WebGPU 的 `GPUMultiPassRenderer` 都实现这个接口，使 `App.tsx` 的渲染循环可以基本后端无关。
@@ -607,26 +609,26 @@ Canvas 渲染的是像素，不是语义 UI。屏幕阅读器、键盘导航、�
 
 ### 5.1 核心差异总览
 
-| 维度 | `liquid-glass-react` | `liquid-glass-studio` |
-| --- | --- | --- |
-| 项目定位 | React 玻璃容器组件 | WebGL/WebGPU 液态玻璃实验室 |
-| 主要目标 | 快速给 DOM UI 加玻璃质感 | 高保真复现 Liquid Glass 材质 |
-| 渲染路线 | CSS backdrop-filter + SVG filter + DOM overlay | 多 pass GPU shader 渲染 |
-| 背景来源 | 浏览器 backdrop 自动采样 DOM 背景 | 显式渲染背景纹理，再在 shader 采样 |
-| 折射方式 | SVG displacement map 近似边缘折射 | SDF 法线 + 折射厚度 + UV 偏移 |
-| 色散方式 | RGB 三次 `feDisplacementMap` 后合成 | RGB 通道按不同折射率采样背景 |
-| Fresnel | 没有严格 Fresnel 模型，主要靠边缘高光近似 | shader 中显式计算 Fresnel factor |
-| 眩光 | 鼠标驱动的渐变边框和 overlay | 法线角度 + glare angle + LCH 高光 |
-| 形状能力 | CSS 圆角和预制位移贴图 | SDF 圆角矩形、圆形、smooth merge、速度形变 |
-| DOM children | 原生支持 | 当前不支持真实 DOM 嵌入 |
-| 可访问性基础 | 可通过宿主封装语义控件补齐 | 需要额外 DOM 层承载语义 |
-| 接入成本 | 低 | 高 |
-| 运行成本 | 中低，随实例数量升高 | 中高，随 canvas 尺寸、DPR、blur、视频升高 |
-| 浏览器风险 | SVG filter/backdrop-filter 兼容差异 | WebGL2 extension/WebGPU/驱动差异 |
-| 参数探索 | 基础参数 | 非常全面 |
-| 调试能力 | 主要靠示例和视觉调参 | WebGL STEP 0-9 中间结果可视化 |
-| 适用位置 | Dock、按钮、浮层、小卡片、工具条 | 全屏特效、材质实验、品牌展示、Spotlight 背景 |
-| 对 KernelOn 的直接可用性 | 中等，需封装和修复 | 低，需工程化抽取 |
+| 维度                     | `liquid-glass-react`                           | `liquid-glass-studio`                        |
+| ------------------------ | ---------------------------------------------- | -------------------------------------------- |
+| 项目定位                 | React 玻璃容器组件                             | WebGL/WebGPU 液态玻璃实验室                  |
+| 主要目标                 | 快速给 DOM UI 加玻璃质感                       | 高保真复现 Liquid Glass 材质                 |
+| 渲染路线                 | CSS backdrop-filter + SVG filter + DOM overlay | 多 pass GPU shader 渲染                      |
+| 背景来源                 | 浏览器 backdrop 自动采样 DOM 背景              | 显式渲染背景纹理，再在 shader 采样           |
+| 折射方式                 | SVG displacement map 近似边缘折射              | SDF 法线 + 折射厚度 + UV 偏移                |
+| 色散方式                 | RGB 三次 `feDisplacementMap` 后合成            | RGB 通道按不同折射率采样背景                 |
+| Fresnel                  | 没有严格 Fresnel 模型，主要靠边缘高光近似      | shader 中显式计算 Fresnel factor             |
+| 眩光                     | 鼠标驱动的渐变边框和 overlay                   | 法线角度 + glare angle + LCH 高光            |
+| 形状能力                 | CSS 圆角和预制位移贴图                         | SDF 圆角矩形、圆形、smooth merge、速度形变   |
+| DOM children             | 原生支持                                       | 当前不支持真实 DOM 嵌入                      |
+| 可访问性基础             | 可通过宿主封装语义控件补齐                     | 需要额外 DOM 层承载语义                      |
+| 接入成本                 | 低                                             | 高                                           |
+| 运行成本                 | 中低，随实例数量升高                           | 中高，随 canvas 尺寸、DPR、blur、视频升高    |
+| 浏览器风险               | SVG filter/backdrop-filter 兼容差异            | WebGL2 extension/WebGPU/驱动差异             |
+| 参数探索                 | 基础参数                                       | 非常全面                                     |
+| 调试能力                 | 主要靠示例和视觉调参                           | WebGL STEP 0-9 中间结果可视化                |
+| 适用位置                 | Dock、按钮、浮层、小卡片、工具条               | 全屏特效、材质实验、品牌展示、Spotlight 背景 |
+| 对 KernelOn 的直接可用性 | 中等，需封装和修复                             | 低，需工程化抽取                             |
 
 ### 5.2 视觉保真度对比
 

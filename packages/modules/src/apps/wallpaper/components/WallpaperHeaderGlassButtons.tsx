@@ -6,7 +6,7 @@ import {
   useEffect,
   useLayoutEffect,
   useRef,
-  type CSSProperties,
+  type MouseEventHandler,
   type ReactNode,
   type RefObject,
 } from 'react';
@@ -15,26 +15,25 @@ const WALLPAPER_HEADER_GLASS_SIZE = 42;
 const WALLPAPER_HEADER_GLASS_RADIUS = WALLPAPER_HEADER_GLASS_SIZE / 2;
 
 const samasanteHeaderOptics: Partial<GlassOptics> = {
-  mapSize: 256,
+  mapSize: 512,
   clipToShape: true,
   softEdge: true,
-  depth: 0.7,
-  curvature: 0.46,
-  strength: 0.15,
-  dispersion: 0.14,
-  bend: 0.7,
-  bendWidth: 0.1,
-  frost: 0.55,
-  brightness: 0.08,
-  specular: 0.92,
-  sheen: 0.58,
-  sheenAngle: 42,
-  sheenWidth: 2.25,
-  sheenFalloff: 1.45,
-  glow: 0.08,
-  glowSpread: 0.56,
-  glowFalloff: 0.85,
-  edgeShadow: '0 8px 18px rgba(3, 8, 12, 0.16)',
+  strength: 0.16,
+  depth: 0.2,
+  curvature: 0.55,
+  bend: 0.25,
+  bendWidth: 0.08,
+  dispersion: 0.15,
+  specular: 1,
+  sheenAngle: 50,
+  glow: 0.15,
+  glowSpread: 1,
+  glowFalloff: 1.5,
+  sheen: 0.95,
+  sheenWidth: 2,
+  sheenFalloff: 1.5,
+  frost: 3,
+  brightness: 0,
 };
 
 const ybouaneHeaderConfig = JSON.stringify({
@@ -63,15 +62,19 @@ type WallpaperHeaderGlassButtonProps = Readonly<{
   backdropImage: string;
   children: ReactNode;
   label: string;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
 }>;
 
 export function WallpaperHeaderSamasanteGlassButton({
   backdropImage,
   children,
   label,
+  onClick,
 }: WallpaperHeaderGlassButtonProps) {
   const rootRef = useRef<HTMLSpanElement | null>(null);
-  const copyStyle = usePositionMatchedBackdrop(rootRef, backdropImage);
+  const backdropRef = useRef<HTMLCanvasElement | null>(null);
+
+  useBufferedBackdropCanvas(rootRef, backdropRef, null, backdropImage);
 
   return (
     <span
@@ -90,11 +93,7 @@ export function WallpaperHeaderSamasanteGlassButton({
         optics={samasanteHeaderOptics}
         radius={WALLPAPER_HEADER_GLASS_RADIUS}
         refract={
-          <span
-            aria-hidden="true"
-            className="wallpaper-header-glass-copy"
-            style={copyStyle}
-          />
+          <canvas aria-hidden="true" className="wallpaper-header-glass-copy" ref={backdropRef} />
         }
         width={WALLPAPER_HEADER_GLASS_SIZE}
       />
@@ -102,6 +101,7 @@ export function WallpaperHeaderSamasanteGlassButton({
         aria-label={label}
         className="wallpaper-header-glass-button"
         data-wallpaper-glass-control={label.toLowerCase()}
+        onClick={onClick}
         type="button"
       >
         <span aria-hidden="true" className="wallpaper-header-glass-icon">
@@ -116,13 +116,14 @@ export function WallpaperHeaderYbouaneGlassButton({
   backdropImage,
   children,
   label,
+  onClick,
 }: WallpaperHeaderGlassButtonProps) {
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const backdropRef = useRef<HTMLCanvasElement | null>(null);
   const surfaceRef = useRef<HTMLSpanElement | null>(null);
   const instanceRef = useRef<LiquidGlass | null>(null);
 
-  useLocalBackdropCanvas(rootRef, backdropRef, instanceRef, backdropImage);
+  useBufferedBackdropCanvas(rootRef, backdropRef, instanceRef, backdropImage);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -208,6 +209,7 @@ export function WallpaperHeaderYbouaneGlassButton({
         aria-label={label}
         className="wallpaper-header-glass-button wallpaper-header-glass-button--ybouane"
         data-wallpaper-glass-control={label.toLowerCase()}
+        onClick={onClick}
         type="button"
       >
         <span aria-hidden="true" className="wallpaper-header-glass-icon">
@@ -237,95 +239,123 @@ function hasRenderedGlassOutput(surface: HTMLElement): boolean {
   return false;
 }
 
-function usePositionMatchedBackdrop(
-  rootRef: RefObject<HTMLElement | null>,
-  backdropImage: string,
-): CSSProperties {
-  useLayoutEffect(() => {
-    return observeBackdropGeometry(rootRef, backdropImage, ({ image, imageRect, rootRect }) => {
-      const projection = projectCoverImage(image, imageRect);
-      const root = rootRef.current;
-
-      if (!root) {
-        return;
-      }
-
-      root.style.setProperty(
-        '--wallpaper-header-backdrop-position',
-        `${projection.left - rootRect.left}px ${projection.top - rootRect.top}px`,
-      );
-      root.style.setProperty(
-        '--wallpaper-header-backdrop-image',
-        `url(${JSON.stringify(image.currentSrc || image.src)})`,
-      );
-      root.style.setProperty(
-        '--wallpaper-header-backdrop-size',
-        `${projection.width}px ${projection.height}px`,
-      );
-    });
-  }, [backdropImage, rootRef]);
-
-  return {
-    backgroundImage: `var(--wallpaper-header-backdrop-image, url(${JSON.stringify(backdropImage)}))`,
-    backgroundPosition: 'var(--wallpaper-header-backdrop-position, 0 0)',
-    backgroundSize: `var(--wallpaper-header-backdrop-size, ${WALLPAPER_HEADER_GLASS_SIZE}px ${WALLPAPER_HEADER_GLASS_SIZE}px)`,
-  };
-}
-
-function useLocalBackdropCanvas(
+function useBufferedBackdropCanvas(
   rootRef: RefObject<HTMLElement | null>,
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  instanceRef: RefObject<LiquidGlass | null>,
+  instanceRef: RefObject<LiquidGlass | null> | null,
   backdropImage: string,
 ): void {
+  const stagingCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const frameRef = useRef(0);
+
   useLayoutEffect(() => {
-    return observeBackdropGeometry(rootRef, backdropImage, ({ image, imageRect, rootRect }) => {
-      const canvas = canvasRef.current;
+    return observeBackdropGeometry(
+      rootRef,
+      backdropImage,
+      ({ backgroundColor, layers, rootRect }) => {
+        const canvas = canvasRef.current;
 
-      if (!canvas || image.naturalWidth === 0 || image.naturalHeight === 0) {
-        return;
-      }
+        if (!canvas || layers.length === 0) {
+          return;
+        }
 
-      const projection = projectCoverImage(image, imageRect);
-      const sourceX = (rootRect.left - projection.left) / projection.scale;
-      const sourceY = (rootRect.top - projection.top) / projection.scale;
-      const sourceWidth = WALLPAPER_HEADER_GLASS_SIZE / projection.scale;
-      const sourceHeight = WALLPAPER_HEADER_GLASS_SIZE / projection.scale;
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 3);
-      const outputSize = Math.round(WALLPAPER_HEADER_GLASS_SIZE * pixelRatio);
-      const context = canvas.getContext('2d');
+        const stagingCanvas = stagingCanvasRef.current ?? document.createElement('canvas');
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        const outputSize = Math.round(WALLPAPER_HEADER_GLASS_SIZE * pixelRatio);
+        const stagingContext = stagingCanvas.getContext('2d', { willReadFrequently: true });
+        const context = canvas.getContext('2d');
 
-      if (!context) {
-        return;
-      }
+        if (!stagingContext || !context) {
+          return;
+        }
 
-      if (canvas.width !== outputSize || canvas.height !== outputSize) {
-        canvas.width = outputSize;
-        canvas.height = outputSize;
-      }
-      context.clearRect(0, 0, outputSize, outputSize);
-      context.drawImage(
-        image,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
-        0,
-        0,
-        outputSize,
-        outputSize,
-      );
-      instanceRef.current?.markChanged(canvas);
-    });
+        stagingCanvasRef.current = stagingCanvas;
+        if (stagingCanvas.width !== outputSize || stagingCanvas.height !== outputSize) {
+          stagingCanvas.width = outputSize;
+          stagingCanvas.height = outputSize;
+        }
+
+        stagingContext.clearRect(0, 0, outputSize, outputSize);
+        if (backgroundColor !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'transparent') {
+          stagingContext.fillStyle = backgroundColor;
+          stagingContext.fillRect(0, 0, outputSize, outputSize);
+        }
+
+        for (const { image, imageRect } of layers) {
+          drawBackdropLayer(stagingContext, image, imageRect, rootRect, pixelRatio);
+        }
+
+        if (!isFrameFullyOpaque(stagingContext, outputSize)) {
+          return;
+        }
+
+        if (canvas.width !== outputSize || canvas.height !== outputSize) {
+          canvas.width = outputSize;
+          canvas.height = outputSize;
+        }
+        context.globalCompositeOperation = 'copy';
+        context.drawImage(stagingCanvas, 0, 0);
+        context.globalCompositeOperation = 'source-over';
+        frameRef.current += 1;
+        canvas.dataset.wallpaperBackdropFrame = String(frameRef.current % 2);
+        instanceRef?.current?.markChanged(canvas);
+      },
+    );
   }, [backdropImage, canvasRef, instanceRef, rootRef]);
+}
+
+function drawBackdropLayer(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  imageRect: BackdropRect,
+  rootRect: DOMRect,
+  pixelRatio: number,
+): void {
+  const intersection = intersectRects(imageRect, rootRect);
+
+  if (!intersection) {
+    return;
+  }
+
+  const projection = projectCoverImage(image, imageRect);
+  const sourceX = (intersection.left - projection.left) / projection.scale;
+  const sourceY = (intersection.top - projection.top) / projection.scale;
+  const sourceWidth = intersection.width / projection.scale;
+  const sourceHeight = intersection.height / projection.scale;
+  const destinationX = (intersection.left - rootRect.left) * pixelRatio;
+  const destinationY = (intersection.top - rootRect.top) * pixelRatio;
+
+  context.drawImage(
+    image,
+    sourceX,
+    sourceY,
+    sourceWidth,
+    sourceHeight,
+    destinationX,
+    destinationY,
+    intersection.width * pixelRatio,
+    intersection.height * pixelRatio,
+  );
+}
+
+function isFrameFullyOpaque(context: CanvasRenderingContext2D, size: number): boolean {
+  const pixels = context.getImageData(0, 0, size, size).data;
+
+  for (let index = 3; index < pixels.length; index += 4) {
+    if ((pixels[index] ?? 0) < 250) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function observeBackdropGeometry(
   rootRef: RefObject<HTMLElement | null>,
-  backdropImage: string,
+  _backdropImage: string,
   sync: (context: {
-    image: HTMLImageElement;
-    imageRect: BackdropRect;
+    backgroundColor: string;
+    layers: ReadonlyArray<BackdropLayer>;
     rootRect: DOMRect;
   }) => void,
 ): () => void {
@@ -338,13 +368,10 @@ function observeBackdropGeometry(
   const appFrame = root.closest('[data-kernelon-app-frame]');
   const hero = appFrame?.querySelector<HTMLElement>('.wallpaper-home__hero');
   const track = appFrame?.querySelector<HTMLElement>('.wallpaper-home__track');
-  const activeIndex = Number(track?.dataset.wallpaperHeroIndex ?? 0);
   const images = Array.from(
     appFrame?.querySelectorAll<HTMLImageElement>('.wallpaper-home__image') ?? [],
   );
-  const activeImage = images[activeIndex] ?? images.find((image) => image.currentSrc === backdropImage);
-
-  if (!activeImage || !hero) {
+  if (!hero || images.length === 0) {
     return () => undefined;
   }
 
@@ -352,40 +379,21 @@ function observeBackdropGeometry(
   let followUntil = 0;
   const syncVisibleImage = () => {
     const rootRect = root.getBoundingClientRect();
-    const sampleX = rootRect.left + rootRect.width / 2;
-    const sampleY = rootRect.top + rootRect.height / 2;
-    let visibleImage: HTMLImageElement | undefined;
-
-    for (let index = images.length - 1; index >= 0; index -= 1) {
-      const image = images[index];
-
-      if (!image || !image.complete || image.naturalWidth === 0) {
-        continue;
+    const layers = images.flatMap<BackdropLayer>((image) => {
+      if (!image.complete || image.naturalWidth === 0 || image.naturalHeight === 0) {
+        return [];
       }
 
       const rect = image.getBoundingClientRect();
+      const imageRect = { height: rect.height, left: rect.left, top: rect.top, width: rect.width };
 
-      if (
-        rect.left <= sampleX &&
-        rect.right >= sampleX &&
-        rect.top <= sampleY &&
-        rect.bottom >= sampleY
-      ) {
-        visibleImage = image;
-        break;
-      }
-    }
+      return intersectRects(imageRect, rootRect) ? [{ image, imageRect }] : [];
+    });
 
-    if (visibleImage) {
-      const rect = visibleImage.getBoundingClientRect();
+    if (layers.length > 0) {
       sync({
-        image: visibleImage,
-        imageRect: {
-          height: rect.height,
-          left: rect.left,
-          top: rect.top,
-          width: rect.width,
-        },
+        backgroundColor: window.getComputedStyle(track ?? hero).backgroundColor,
+        layers,
         rootRect,
       });
     }
@@ -407,7 +415,9 @@ function observeBackdropGeometry(
   observer.observe(hero);
   track?.addEventListener('transitionrun', followTransition);
   track?.addEventListener('transitionend', update);
-  activeImage.addEventListener('load', update);
+  for (const image of images) {
+    image.addEventListener('load', update);
+  }
   appFrame?.addEventListener('scroll', update, { capture: true, passive: true });
   window.addEventListener('resize', update);
   window.addEventListener('scroll', update, { capture: true, passive: true });
@@ -418,7 +428,9 @@ function observeBackdropGeometry(
     observer.disconnect();
     track?.removeEventListener('transitionrun', followTransition);
     track?.removeEventListener('transitionend', update);
-    activeImage.removeEventListener('load', update);
+    for (const image of images) {
+      image.removeEventListener('load', update);
+    }
     appFrame?.removeEventListener('scroll', update, true);
     window.removeEventListener('resize', update);
     window.removeEventListener('scroll', update, true);
@@ -430,6 +442,11 @@ type BackdropRect = Readonly<{
   left: number;
   top: number;
   width: number;
+}>;
+
+type BackdropLayer = Readonly<{
+  image: HTMLImageElement;
+  imageRect: BackdropRect;
 }>;
 
 type CoverProjection = BackdropRect & Readonly<{ scale: number }>;
@@ -448,5 +465,23 @@ function projectCoverImage(image: HTMLImageElement, imageRect: BackdropRect): Co
     scale,
     top: imageRect.top + (imageRect.height - height) / 2,
     width,
+  };
+}
+
+function intersectRects(left: BackdropRect, right: BackdropRect): BackdropRect | null {
+  const intersectionLeft = Math.max(left.left, right.left);
+  const intersectionTop = Math.max(left.top, right.top);
+  const intersectionRight = Math.min(left.left + left.width, right.left + right.width);
+  const intersectionBottom = Math.min(left.top + left.height, right.top + right.height);
+
+  if (intersectionRight <= intersectionLeft || intersectionBottom <= intersectionTop) {
+    return null;
+  }
+
+  return {
+    height: intersectionBottom - intersectionTop,
+    left: intersectionLeft,
+    top: intersectionTop,
+    width: intersectionRight - intersectionLeft,
   };
 }
