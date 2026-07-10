@@ -19,40 +19,40 @@ const samasanteHeaderOptics: Partial<GlassOptics> = {
   mapSize: 512,
   clipToShape: true,
   softEdge: true,
-  strength: 0.12,
-  depth: 0.24,
-  curvature: 0.5,
-  bend: 0.28,
-  bendWidth: 0.08,
-  dispersion: 0.1,
+  strength: 0.18,
+  depth: 0.4,
+  curvature: 0.6,
+  bend: 0.45,
+  bendWidth: 0.09,
+  dispersion: 0.08,
   specular: 1,
   sheenAngle: 50,
-  glow: 0.1,
+  glow: 0,
   glowSpread: 1,
   glowFalloff: 1.5,
-  sheen: 0.78,
+  sheen: 0,
   sheenWidth: 2,
   sheenFalloff: 1.5,
-  frost: 0.3,
+  frost: 0.15,
   brightness: 0,
 };
 
 export const samasanteClearPillOptics: Partial<GlassOptics> = {
   ...samasanteHeaderOptics,
   mapSize: 256,
-  strength: 0.08,
-  scaleX: 0.022,
-  scaleY: 0.075,
-  depth: 0.38,
-  curvature: 0.4,
-  bend: 0.28,
-  bendWidth: 0.075,
+  strength: 0.12,
+  scaleX: 0.06,
+  scaleY: 0.14,
+  depth: 0.5,
+  curvature: 0.55,
+  bend: 0.4,
+  bendWidth: 0.08,
   dispersion: 0.08,
   specular: 1,
-  glow: 0.1,
-  sheen: 0.72,
+  glow: 0,
+  sheen: 0,
   sheenWidth: 2,
-  frost: 0.25,
+  frost: 0.12,
   brightness: 0,
 };
 
@@ -111,7 +111,30 @@ export function WallpaperHeaderSamasanteGlassButton({
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const backdropRef = useRef<HTMLCanvasElement | null>(null);
   const [backdropReady, setBackdropReady] = useState(false);
+  const [svgSourceLive, setSvgSourceLive] = useState(false);
+  const svgSettleFrameRef = useRef(0);
   const markBackdropReady = useCallback(() => setBackdropReady(true), []);
+  const refreshSvgSource = useCallback(() => {
+    window.cancelAnimationFrame(svgSettleFrameRef.current);
+    setSvgSourceLive(true);
+    let remainingFrames = 2;
+    const settle = () => {
+      remainingFrames -= 1;
+      if (remainingFrames === 0) {
+        setSvgSourceLive(false);
+        return;
+      }
+      svgSettleFrameRef.current = window.requestAnimationFrame(settle);
+    };
+    svgSettleFrameRef.current = window.requestAnimationFrame(settle);
+  }, []);
+
+  useEffect(
+    () => () => {
+      window.cancelAnimationFrame(svgSettleFrameRef.current);
+    },
+    [],
+  );
 
   useBufferedBackdropCanvas(
     rootRef,
@@ -120,6 +143,7 @@ export function WallpaperHeaderSamasanteGlassButton({
     backdropImage,
     markBackdropReady,
     sourceBleed,
+    refreshSvgSource,
   );
 
   return (
@@ -132,6 +156,7 @@ export function WallpaperHeaderSamasanteGlassButton({
       data-wallpaper-backdrop-ready={backdropReady ? 'true' : 'false'}
       data-wallpaper-glass-material="position-matched-svg-copy"
       data-wallpaper-glass-ready={backdropReady ? 'true' : 'waiting'}
+      data-wallpaper-svg-refresh={svgSourceLive ? 'live' : 'idle'}
       data-wallpaper-glass-engine="samasante-liquid-glass"
       ref={rootRef}
       style={{ height, width }}
@@ -144,6 +169,7 @@ export function WallpaperHeaderSamasanteGlassButton({
         className="wallpaper-liquid-glass-lens wallpaper-liquid-glass-lens--samasante"
         filterResolution={2}
         height={height}
+        live={svgSourceLive}
         optics={optics}
         radius={height / 2}
         refract={
@@ -346,6 +372,7 @@ function useBufferedBackdropCanvas(
   backdropImage: string,
   onFirstCommit: () => void,
   samplePadding = 0,
+  onCommit?: () => void,
 ): void {
   const stagingCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameRef = useRef(0);
@@ -409,12 +436,13 @@ function useBufferedBackdropCanvas(
         frameRef.current += 1;
         canvas.dataset.wallpaperBackdropFrame = String(frameRef.current % 2);
         instanceRef?.current?.markChanged(canvas);
+        onCommit?.();
         if (isFirstCommit) {
           onFirstCommit();
         }
       },
     );
-  }, [backdropImage, canvasRef, instanceRef, onFirstCommit, rootRef, samplePadding]);
+  }, [backdropImage, canvasRef, instanceRef, onCommit, onFirstCommit, rootRef, samplePadding]);
 }
 
 function drawBackdropLayer(

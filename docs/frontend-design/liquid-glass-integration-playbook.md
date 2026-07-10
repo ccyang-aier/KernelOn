@@ -134,9 +134,9 @@ Wallpaper 的普通按钮必须采用 `refract={positionMatchedCopy}` 进入 DOM
 
 Wallpaper 顶栏按钮最初以 `GlassVideoControls.tsx` 的 `PLAYER_OPTICS` 理解各参数的职责，但最终 SVG preset 必须单独校准，不能宣称与视频 WebGL preset 数值完全对齐。复用设计意图时仍要根据渲染路径、业务尺寸和性能预算调整。
 
-宽胶囊不能机械照搬圆形按钮的各向同性强度。`190 × 42` 的 Hero 主按钮应使用 `scaleX/scaleY` 分轴控制：横向位移保持克制，纵向与边缘弯折仍清楚可见。当前预设以 `scaleX: 0.022`、`scaleY: 0.075`、`bend: 0.28`、`curvature: 0.4`、`frost: 0.25` 为基线，避免通过模糊制造材质。
+宽胶囊不能机械照搬圆形按钮的各向同性强度。`190 × 42` 的 Hero 主按钮应使用 `scaleX/scaleY` 分轴控制：横向与纵向网格都必须出现可辨弯折。当前预设以 `scaleX: 0.06`、`scaleY: 0.14`、`bend: 0.4`、`curvature: 0.55`、`frost: 0.12` 为基线，避免通过模糊制造材质。
 
-SVG 与 WebGL 即使消费同一套 `GlassOptics`，也不能假设数值对应完全相同的视觉强度。尤其是 `frost`、位移归一化和宽高比：视频 Demo 的 `frost: 3` 在 42px DOM/SVG 按钮上会明显偏磨砂。当前 SVG 圆形按钮使用 `frost: 0.3`；宽胶囊使用 `scaleX: 0.022`、`scaleY: 0.075`、`frost: 0.25`，以保持纹理清晰，同时由 `bend/sheen` 表达液态边缘。
+SVG 与 WebGL 即使消费同一套 `GlassOptics`，也不能假设数值对应完全相同的视觉强度。尤其是 `frost`、位移归一化和宽高比：视频 Demo 的 `frost: 3` 在 42px DOM/SVG 按钮上会明显偏磨砂。当前 SVG 圆形按钮使用 `frost: 0.15`；宽胶囊使用 `scaleX: 0.06`、`scaleY: 0.14`、`frost: 0.12`，保持网格纹理清晰；`sheen/glow` 关闭以避免与业务亮边叠成双轮廓。
 
 ### 4.3 本轮新增踩坑
 
@@ -144,8 +144,9 @@ SVG 与 WebGL 即使消费同一套 `GlassOptics`，也不能假设数值对应�
 - 不要因为参数来自 WebGL Demo，就连同 WebGL 模式一起复制。参数参考与渲染介质选择是两件独立的事。
 - `refract` 副本不能只包含 lens 内部像素。折射会向周围采样，必须额外捕获邻域；当前圆形按钮四周取样 8px，宽胶囊取样 28px。
 - 不要通过降低整个 `strength` 来让宽胶囊“清透”，这会让材质退化成透明。应使用 `scaleX/scaleY` 分轴约束宽高比导致的位移放大。
-- 单层亮边应画在业务 root 的最终 `::after` 上，并仅在 glass ready 后显示；等待态 fallback 的轮廓必须同步淡出，避免再次形成双边框。
+- 单层亮边应画在业务 root 的最终 `::after` 上，并仅在 glass ready 后显示；若保留这条业务边框，SVG preset 的全周 `sheen/glow` 必须关闭，等待态 fallback 的轮廓也必须同步淡出，避免再次形成双边框。材质体积由真实折射、`bend` 与 `curvature` 承担，不再用第二条光边表达。
 - 视觉清透度首先由 `frost` 和位移强度决定，不应通过降低整体 opacity 或删除高光伪造。
+- `<canvas>` 像素更新不会产生 DOM mutation。Samasante 的静态 SVG copy 可能继续复用首次空 SourceGraphic；每次 committed canvas 更新后需要短暂开启 `live` 使 filter id 重建。Wallpaper 只保持 2 个尾帧，过渡期间由连续提交自然续期，稳定后立即关闭，禁止永久 RAF。
 
 ## 5. Ybouane 接入要点
 
