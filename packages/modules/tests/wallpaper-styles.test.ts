@@ -181,8 +181,10 @@ describe('Wallpaper styles', () => {
     const headerSource = WallpaperFrostedHeaderControls.toString();
 
     expect(headerSource).toContain('设置锁屏');
-    expect(lockScreenSource).toContain('启用并立即锁屏');
-    expect(lockScreenSource).toContain('输入锁屏密码');
+    expect(lockScreenSource).toContain('应用锁屏');
+    expect(lockScreenSource).not.toContain('确认密码');
+    expect(lockScreenSource).not.toContain('稍后设置');
+    expect(lockScreenSource).toContain('/kernelon-assets/avatars/current-user.png');
     expect(wallpaperStyles).toContain('.wallpaper-lock-screen__background');
     expect(wallpaperStyles).toContain('@keyframes wallpaperLockPanelIn');
   });

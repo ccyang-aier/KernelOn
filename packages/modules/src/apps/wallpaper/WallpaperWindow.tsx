@@ -58,6 +58,7 @@ const defaultSources: WallpaperSource[] = [
 export default function WallpaperWindow() {
   const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
   const setDesktopWallpaper = useShellSelector((state) => state.setDesktopWallpaper);
+  const lockDesktop = useShellSelector((state) => state.lockDesktop);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [activeView, setActiveView] = useState<WallpaperView>('home');
   const [previewWallpaperId, setPreviewWallpaperId] = useState<string | null>(null);
@@ -336,7 +337,10 @@ export default function WallpaperWindow() {
             <style>{wallpaperStyles}</style>
             <LockScreenSetup
               isOpen={isLockScreenOpen}
-              onClose={() => setIsLockScreenOpen(false)}
+              onApplyLock={(password) => {
+                setIsLockScreenOpen(false);
+                lockDesktop(password);
+              }}
               wallpaper={desktopWallpaper}
             />
             {headerActionNotice ? (

@@ -40,6 +40,7 @@ import {
 import { hideGenieWindow, revealGenieWindow } from './components/genie-hidden-windows';
 import { GenieSnapshotStage } from './components/genie-snapshot-stage';
 import { KernelOnStatusBar } from './components/status-bar';
+import { ShellLockScreen } from './components/shell-lock-screen';
 import type { ShellRuntimeRegistry } from './runtime';
 import {
   createShellStore,
@@ -96,6 +97,9 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const screens = useShellSelector((state) => state.screens);
   const windows = useShellSelector((state) => state.windows);
   const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
+  const isDesktopLocked = useShellSelector((state) => state.isDesktopLocked);
+  const restoreDesktopLock = useShellSelector((state) => state.restoreDesktopLock);
+  const unlockDesktop = useShellSelector((state) => state.unlockDesktop);
   const dockAppIds = useShellSelector((state) => state.dockAppIds);
   const spotlightOpen = useShellSelector((state) => state.spotlightOpen);
   const activeDraggedDesktopItemId = useShellSelector((state) => state.activeDraggedDesktopItemId);
@@ -131,6 +135,28 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
   const closeDesktopContextMenu = useCallback(() => {
     setDesktopContextMenu(null);
   }, []);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('kernelon_wallpaper_lock_screen');
+
+      if (!saved) {
+        return;
+      }
+
+      const config = JSON.parse(saved) as {
+        enabled?: boolean;
+        locked?: boolean;
+        password?: string;
+      };
+
+      if (config.enabled && config.password) {
+        restoreDesktopLock(config.password, config.locked === true);
+      }
+    } catch {
+      // Ignore invalid legacy lock-screen settings and keep the desktop available.
+    }
+  }, [restoreDesktopLock]);
 
   useEffect(() => {
     const element = desktopSurfaceRef.current;
@@ -388,6 +414,18 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
     () => createDesktopGridCells(desktopSurfaceSize),
     [desktopSurfaceSize],
   );
+
+  if (isDesktopLocked) {
+    return (
+      <main
+        aria-label="KernelOn shell"
+        className="relative min-h-screen overflow-hidden bg-[#5f8789] text-white"
+        data-testid="kernelon-shell"
+      >
+        <ShellLockScreen onUnlock={unlockDesktop} wallpaper={desktopWallpaper} />
+      </main>
+    );
+  }
 
   return (
     <main

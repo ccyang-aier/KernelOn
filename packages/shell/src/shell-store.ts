@@ -31,6 +31,8 @@ import { createStore } from 'zustand/vanilla';
 
 import { kernelOnDesktopWallpaper } from './visual-assets';
 
+const desktopLockStorageKey = 'kernelon_wallpaper_lock_screen';
+
 export interface ShellInitialState {
   currentScreenId?: string;
   desktopWallpaper?: string;
@@ -61,6 +63,8 @@ export interface ShellState {
   commands: CommandDefinition[];
   screens: DesktopScreen[];
   desktopWallpaper: string;
+  desktopLockPassword: string | null;
+  isDesktopLocked: boolean;
   activeDraggedDesktopItemId: string | null;
   pendingWidgetPlacement: PendingWidgetPlacement | null;
   addWidgetToScreen(screenId: string, widgetId: string, grid: DesktopGridArea): void;
@@ -68,6 +72,9 @@ export interface ShellState {
   removeDesktopItem(screenId: string, itemId: string): void;
   setActiveDraggedDesktopItemId(itemId: string | null): void;
   setDesktopWallpaper(wallpaper: string): void;
+  lockDesktop(password: string): void;
+  restoreDesktopLock(password: string, locked: boolean): void;
+  unlockDesktop(password: string): boolean;
   setPendingWidgetPlacement(item: PendingWidgetPlacement | null): void;
   openApp(appId: string, options?: OpenShellAppOptions): void;
   openAppIntent(intent: AppOpenIntent): void;
@@ -91,7 +98,7 @@ export function createShellStore(initialState: ShellInitialState) {
   const appRegistry = createAppRegistry(initialState.apps);
   const currentScreenId = initialState.currentScreenId ?? 'screen-home';
 
-  return createStore<ShellState>()((set) => ({
+  return createStore<ShellState>()((set, get) => ({
     currentScreenId,
     windows: initialState.windows ?? [],
     launcherOpen: initialState.launcherOpen ?? false,
@@ -103,6 +110,8 @@ export function createShellStore(initialState: ShellInitialState) {
     widgets: initialState.widgets ?? [],
     commands: initialState.commands ?? createAppOpenCommands(appRegistry.all()),
     desktopWallpaper: initialState.desktopWallpaper ?? kernelOnDesktopWallpaper,
+    desktopLockPassword: null,
+    isDesktopLocked: false,
     screens: initialState.screens ?? [
       createDefaultDesktopScreen([], {
         screenId: currentScreenId,
@@ -154,6 +163,22 @@ export function createShellStore(initialState: ShellInitialState) {
     },
     setDesktopWallpaper: (wallpaper) => {
       set({ desktopWallpaper: wallpaper });
+    },
+    lockDesktop: (password) => {
+      set({ desktopLockPassword: password, isDesktopLocked: true });
+      persistDesktopLock(password, true);
+    },
+    restoreDesktopLock: (password, locked) => {
+      set({ desktopLockPassword: password, isDesktopLocked: locked });
+    },
+    unlockDesktop: (password) => {
+      if (password !== get().desktopLockPassword) {
+        return false;
+      }
+
+      set({ isDesktopLocked: false });
+      persistDesktopLock(password, false);
+      return true;
     },
     setPendingWidgetPlacement: (item) => {
       set({ pendingWidgetPlacement: item });
@@ -230,4 +255,12 @@ export function createShellStore(initialState: ShellInitialState) {
       }));
     },
   }));
+}
+
+function persistDesktopLock(password: string, locked: boolean) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  localStorage.setItem(desktopLockStorageKey, JSON.stringify({ enabled: true, locked, password }));
 }

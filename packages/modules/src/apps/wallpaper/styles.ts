@@ -2620,6 +2620,17 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   box-shadow: 0 10px 28px rgba(13, 148, 136, 0.2);
 }
 
+.wallpaper-lock-setup__avatar {
+  display: block;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 10px;
+  border: 2px solid rgba(255, 255, 255, 0.68);
+  border-radius: 99px;
+  object-fit: cover;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+}
+
 .wallpaper-lock-setup__icon svg {
   width: 21px;
   height: 21px;
@@ -2680,8 +2691,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-lock-field > div:focus-within,
 .wallpaper-lock-unlock__field:focus-within {
-  border-color: rgba(94, 234, 212, 0.58);
-  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+  border-color: rgba(255, 255, 255, 0.54);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .wallpaper-lock-field input,
@@ -2747,7 +2758,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   height: 38px;
   padding: 0 15px;
   border-radius: 11px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 650;
   cursor: pointer;
   transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;

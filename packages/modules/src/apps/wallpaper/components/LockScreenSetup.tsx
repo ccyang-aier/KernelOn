@@ -1,30 +1,20 @@
 'use client';
 
-import { Check, Eye, EyeOff, KeyRound, LockKeyhole, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 
 const lockScreenStorageKey = 'kernelon_wallpaper_lock_screen';
 
-type LockScreenConfig = Readonly<{
-  enabled: boolean;
-  password: string;
-}>;
-
 export function LockScreenSetup({
   isOpen,
-  onClose,
+  onApplyLock,
   wallpaper,
 }: Readonly<{
   isOpen: boolean;
-  onClose(): void;
+  onApplyLock(password: string): void;
   wallpaper: string;
 }>) {
-  const [config, setConfig] = useState<LockScreenConfig>(() => readLockScreenConfig());
-  const [mode, setMode] = useState<'setup' | 'locked'>(() =>
-    readLockScreenConfig().enabled ? 'locked' : 'setup',
-  );
   const [password, setPassword] = useState('');
-  const [confirmation, setConfirmation] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [now, setNow] = useState(() => new Date());
@@ -58,64 +48,22 @@ export function LockScreenSetup({
     [now],
   );
 
-  const saveConfig = useCallback((nextConfig: LockScreenConfig) => {
-    localStorage.setItem(lockScreenStorageKey, JSON.stringify(nextConfig));
-    setConfig(nextConfig);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setPassword('');
-    setConfirmation('');
-    setError('');
-    onClose();
-  }, [onClose]);
-
   const enableLockScreen = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      if (password.length < 4) {
-        setError('请设置至少 4 位锁屏密码。');
+      if (password.trim().length < 4) {
+        setError('请输入至少 4 位密码');
         return;
       }
 
-      if (password !== confirmation) {
-        setError('两次输入的密码不一致，请重新确认。');
-        return;
-      }
-
-      saveConfig({ enabled: true, password });
-      setMode('locked');
-      setPassword('');
-      setConfirmation('');
-      setError('');
-    },
-    [confirmation, password, saveConfig],
-  );
-
-  const unlock = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-
-      if (password !== config.password) {
-        setError('密码不正确，请重试。');
-        return;
-      }
-
+      localStorage.setItem(lockScreenStorageKey, JSON.stringify({ enabled: true, password }));
+      onApplyLock(password);
       setPassword('');
       setError('');
-      onClose();
     },
-    [config.password, onClose, password],
+    [onApplyLock, password],
   );
-
-  const resetLockScreen = useCallback(() => {
-    saveConfig({ enabled: false, password: '' });
-    setMode('setup');
-    setPassword('');
-    setConfirmation('');
-    setError('');
-  }, [saveConfig]);
 
   if (!isOpen) {
     return null;
@@ -126,7 +74,7 @@ export function LockScreenSetup({
       aria-label="锁屏设置"
       aria-modal="true"
       className="wallpaper-lock-screen"
-      data-lock-screen-mode={mode}
+      data-lock-screen-mode="setup"
       role="dialog"
     >
       <img alt="当前桌面壁纸" className="wallpaper-lock-screen__background" src={wallpaper} />
@@ -138,132 +86,58 @@ export function LockScreenSetup({
         <small>KernelOn · 桌面已就绪</small>
       </div>
 
-      {mode === 'setup' ? (
-        <form className="wallpaper-lock-setup" onSubmit={enableLockScreen}>
-          <div className="wallpaper-lock-setup__icon">
-            <KeyRound aria-hidden="true" />
-          </div>
-          <div className="wallpaper-lock-setup__heading">
-            <span>设置锁屏密码</span>
-            <p>离开时保护你的 KernelOn 工作台</p>
-          </div>
+      <form className="wallpaper-lock-setup" onSubmit={enableLockScreen}>
+        <img
+          alt="当前用户头像"
+          className="wallpaper-lock-setup__avatar"
+          src="/kernelon-assets/avatars/current-user.png"
+        />
+        <div className="wallpaper-lock-setup__heading">
+          <span>设置锁屏密码</span>
+          <p>离开时保护你的 KernelOn 工作台</p>
+        </div>
 
-          <label className="wallpaper-lock-field">
-            <span>锁屏密码</span>
-            <div>
-              <input
-                autoFocus
-                autoComplete="new-password"
-                onChange={(event) => {
-                  setPassword(event.currentTarget.value);
-                  setError('');
-                }}
-                placeholder="至少 4 位密码"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-              />
-              <button
-                aria-label={showPassword ? '隐藏密码' : '显示密码'}
-                onClick={() => setShowPassword((visible) => !visible)}
-                type="button"
-              >
-                {showPassword ? <EyeOff /> : <Eye />}
-              </button>
-            </div>
-          </label>
-
-          <label className="wallpaper-lock-field">
-            <span>确认密码</span>
-            <div>
-              <input
-                autoComplete="new-password"
-                onChange={(event) => {
-                  setConfirmation(event.currentTarget.value);
-                  setError('');
-                }}
-                placeholder="再次输入密码"
-                type={showPassword ? 'text' : 'password'}
-                value={confirmation}
-              />
-              {confirmation && confirmation === password ? <Check aria-hidden="true" /> : null}
-            </div>
-          </label>
-
-          <div className="wallpaper-lock-setup__hint">
-            <ShieldCheck aria-hidden="true" />
-            <span>密码仅保存在此浏览器中，不会上传或同步。</span>
-          </div>
-          {error ? (
-            <p className="wallpaper-lock-error" role="alert">
-              {error}
-            </p>
-          ) : null}
-
-          <div className="wallpaper-lock-setup__actions">
-            <button
-              className="wallpaper-lock-button wallpaper-lock-button--secondary"
-              onClick={handleClose}
-              type="button"
-            >
-              稍后设置
-            </button>
-            <button className="wallpaper-lock-button wallpaper-lock-button--primary" type="submit">
-              <LockKeyhole aria-hidden="true" />
-              启用并立即锁屏
-            </button>
-          </div>
-        </form>
-      ) : (
-        <form className="wallpaper-lock-unlock" onSubmit={unlock}>
-          <div className="wallpaper-lock-unlock__avatar">KO</div>
-          <strong>KernelOn 用户</strong>
-          <span>输入密码以返回桌面</span>
-          <div className="wallpaper-lock-unlock__field">
-            <LockKeyhole aria-hidden="true" />
+        <label className="wallpaper-lock-field">
+          <span>锁屏密码</span>
+          <div>
             <input
               autoFocus
-              autoComplete="current-password"
+              autoComplete="new-password"
               onChange={(event) => {
                 setPassword(event.currentTarget.value);
                 setError('');
               }}
-              placeholder="输入锁屏密码"
-              type="password"
+              placeholder="至少 4 位密码"
+              type={showPassword ? 'text' : 'password'}
               value={password}
             />
-            <button aria-label="解锁" type="submit">
-              →
+            <button
+              aria-label={showPassword ? '隐藏密码' : '显示密码'}
+              onClick={() => setShowPassword((visible) => !visible)}
+              type="button"
+            >
+              {showPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
-          {error ? (
-            <p className="wallpaper-lock-error" role="alert">
-              {error}
-            </p>
-          ) : null}
-          <div className="wallpaper-lock-unlock__actions">
-            <button onClick={resetLockScreen} type="button">
-              重新设置密码
-            </button>
-            <span aria-hidden="true" />
-            <button onClick={handleClose} type="button">
-              返回壁纸应用
-            </button>
-          </div>
-        </form>
-      )}
+        </label>
+
+        <div className="wallpaper-lock-setup__hint">
+          <ShieldCheck aria-hidden="true" />
+          <span>密码仅保存在此浏览器中，不会上传或同步。</span>
+        </div>
+        {error ? (
+          <p className="wallpaper-lock-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+
+        <div className="wallpaper-lock-setup__actions">
+          <button className="wallpaper-lock-button wallpaper-lock-button--primary" type="submit">
+            <LockKeyhole aria-hidden="true" />
+            应用锁屏
+          </button>
+        </div>
+      </form>
     </div>
   );
-}
-
-function readLockScreenConfig(): LockScreenConfig {
-  if (typeof window === 'undefined') {
-    return { enabled: false, password: '' };
-  }
-
-  try {
-    const saved = localStorage.getItem(lockScreenStorageKey);
-    return saved ? (JSON.parse(saved) as LockScreenConfig) : { enabled: false, password: '' };
-  } catch {
-    return { enabled: false, password: '' };
-  }
 }
