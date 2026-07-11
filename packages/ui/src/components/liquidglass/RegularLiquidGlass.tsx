@@ -25,7 +25,7 @@ export function RegularLiquidGlass({
   children,
   className = '',
   interactive = false,
-  radius = 20,
+  radius = 14,
 }: Readonly<RegularLiquidGlassProps>) {
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const backdropRef = useRef<HTMLCanvasElement | null>(null);
@@ -90,9 +90,10 @@ export function RegularLiquidGlass({
 
   return (
     <span
-      className={`group relative isolate block rounded-[inherit] ${interactive ? 'transition-[transform,filter] duration-200 ease-out hover:-translate-y-0.5 hover:drop-shadow-[0_8px_18px_rgba(255,255,255,0.16)] active:translate-y-0 active:scale-[0.995]' : ''} ${className}`}
+      className={`group relative isolate block rounded-[inherit] ${interactive ? 'transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.995]' : ''} ${className}`}
       data-glass-ready={glassReady ? 'true' : 'false'}
       ref={rootRef}
+      style={{ borderRadius: radius }}
     >
       <canvas
         aria-hidden="true"
@@ -113,7 +114,7 @@ export function RegularLiquidGlass({
       />
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 z-[3] rounded-[inherit] border border-white/45 bg-white/[0.015] shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] transition-[background-color,border-color,box-shadow] duration-200 ${interactive ? 'group-hover:border-white/75 group-hover:bg-white/10 group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_0_18px_rgba(255,255,255,0.12)]' : 'group-focus-within:border-white/65'}`}
+        className={`pointer-events-none absolute inset-0 z-[3] rounded-[inherit] border border-white/45 bg-white/[0.015] shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] transition-colors duration-200 ${interactive ? 'group-hover:bg-white/10' : 'group-focus-within:border-white/65'}`}
         data-liquid-glass-skip-capture="true"
       />
       <span

@@ -9,6 +9,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -42,7 +43,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
 
   return (
     <ShellCredentialScreen ariaLabel="KernelOn 登录" wallpaper={kernelOnDesktopWallpaper}>
-      <form className="mx-auto w-full max-w-[360px]" onSubmit={handleSubmit}>
+      <form className="mx-auto w-full max-w-[320px] -translate-y-[4vh]" onSubmit={handleSubmit}>
         <img
           alt="未登录用户"
           className="mx-auto h-[62px] w-[62px] rounded-full border border-white/35 object-cover shadow-[0_10px_30px_rgba(0,0,0,0.16)]"
@@ -58,7 +59,8 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
         <div className="mt-5 grid gap-3">
           <RegularLiquidGlass
             backdropImageSelector="[data-credential-wallpaper]"
-            className="h-10 w-full rounded-full"
+            className="h-10 w-full rounded-[14px]"
+            radius={14}
           >
             <label className="flex h-full w-full items-center px-3">
               <svg
@@ -82,7 +84,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
                 className="h-full min-w-0 flex-1 border-0 bg-transparent text-[12px] text-white outline-none placeholder:text-white/55"
                 inputMode="email"
                 onChange={(event) => setEmail(event.currentTarget.value)}
-                placeholder="邮箱"
+                placeholder="Email address"
                 required
                 type="email"
                 value={email}
@@ -91,7 +93,8 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
           </RegularLiquidGlass>
           <RegularLiquidGlass
             backdropImageSelector="[data-credential-wallpaper]"
-            className="h-10 w-full rounded-full"
+            className="h-10 w-full rounded-[14px]"
+            radius={14}
           >
             <label className="flex h-full w-full items-center px-3">
               <svg
@@ -113,21 +116,58 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
                 autoComplete="current-password"
                 className="h-full min-w-0 flex-1 border-0 bg-transparent text-[12px] text-white outline-none placeholder:text-white/55"
                 onChange={(event) => setPassword(event.currentTarget.value)}
-                placeholder="密码"
+                placeholder="Password"
                 required
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
               />
+              <button
+                aria-label={showPassword ? '隐藏密码' : '显示密码'}
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-0 bg-transparent text-white/55 outline-none transition-colors hover:text-white/85"
+                onClick={() => setShowPassword((visible) => !visible)}
+                type="button"
+              >
+                <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                  {showPassword ? (
+                    <>
+                      <path
+                        d="M3 3l18 18"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeWidth="1.6"
+                      />
+                      <path
+                        d="M10.6 10.7a2 2 0 0 0 2.7 2.7M9.8 5.3A10.8 10.8 0 0 1 12 5c4.8 0 8 4.2 9 7a11.7 11.7 0 0 1-2.2 3.6M6.6 6.6A12.2 12.2 0 0 0 3 12c1 2.8 4.2 7 9 7a10 10 0 0 0 4-.8"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.6"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <path
+                        d="M3 12c1-2.8 4.2-7 9-7s8 4.2 9 7c-1 2.8-4.2 7-9 7s-8-4.2-9-7Z"
+                        stroke="currentColor"
+                        strokeLinejoin="round"
+                        strokeWidth="1.6"
+                      />
+                      <circle cx="12" cy="12" r="2.5" stroke="currentColor" strokeWidth="1.6" />
+                    </>
+                  )}
+                </svg>
+              </button>
             </label>
           </RegularLiquidGlass>
           <RegularLiquidGlass
             backdropImageSelector="[data-credential-wallpaper]"
-            className="mt-1 h-10 w-full rounded-full"
+            className="mt-1 h-10 w-full rounded-[14px]"
             interactive
+            radius={14}
           >
             <button
               aria-label="登录"
-              className="h-full w-full rounded-full border-0 bg-transparent text-[12px] font-semibold text-white outline-none disabled:cursor-wait disabled:opacity-60"
+              className="h-full w-full rounded-[14px] border-0 bg-transparent text-[12px] font-semibold text-white outline-none disabled:cursor-wait disabled:opacity-60"
               disabled={submitting}
               type="submit"
             >

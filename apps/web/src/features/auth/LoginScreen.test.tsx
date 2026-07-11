@@ -45,4 +45,16 @@ describe('LoginScreen', () => {
     expect(await screen.findByText('邮箱或密码不正确')).toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
   });
+
+  it('toggles password visibility without submitting the form', () => {
+    render(<LoginScreen nextPath="/workspace" />);
+
+    const password = screen.getByLabelText('密码');
+    expect(password).toHaveAttribute('type', 'password');
+
+    fireEvent.click(screen.getByRole('button', { name: '显示密码' }));
+    expect(password).toHaveAttribute('type', 'text');
+    expect(screen.getByRole('button', { name: '隐藏密码' })).toBeInTheDocument();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
 });
