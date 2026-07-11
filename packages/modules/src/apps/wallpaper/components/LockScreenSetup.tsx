@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Eye, EyeOff, KeyRound, LockKeyhole, ShieldCheck, X } from 'lucide-react';
+import { Check, Eye, EyeOff, KeyRound, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 
 const lockScreenStorageKey = 'kernelon_wallpaper_lock_screen';
@@ -132,15 +132,6 @@ export function LockScreenSetup({
       <img alt="当前桌面壁纸" className="wallpaper-lock-screen__background" src={wallpaper} />
       <div aria-hidden="true" className="wallpaper-lock-screen__shade" />
 
-      <button
-        aria-label="关闭锁屏设置"
-        className="wallpaper-lock-screen__close"
-        onClick={handleClose}
-        type="button"
-      >
-        <X />
-      </button>
-
       <div className="wallpaper-lock-screen__clock" aria-hidden="true">
         <span>{formattedDate}</span>
         <strong>{formattedTime}</strong>
@@ -153,9 +144,8 @@ export function LockScreenSetup({
             <KeyRound aria-hidden="true" />
           </div>
           <div className="wallpaper-lock-setup__heading">
-            <span>设置锁屏</span>
-            <h2>让你的桌面保持私密</h2>
-            <p>锁屏会使用当前桌面壁纸，并在离开时保护你的 KernelOn 工作台。</p>
+            <span>设置锁屏密码</span>
+            <p>离开时保护你的 KernelOn 工作台</p>
           </div>
 
           <label className="wallpaper-lock-field">

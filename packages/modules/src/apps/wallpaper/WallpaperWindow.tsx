@@ -127,7 +127,10 @@ export default function WallpaperWindow() {
   const previewWallpaper = previewWallpaperId ? assetById.get(previewWallpaperId) : null;
   const activeWallpaper = previewWallpaper ?? selectedWallpaper;
   const displayedView = previewWallpaper ? 'preview' : activeView;
-  const wallpaperHeader = useMemo(() => createWallpaperHeader(displayedView), [displayedView]);
+  const wallpaperHeader = useMemo(
+    () => createWallpaperHeader(isLockScreenOpen ? 'lock' : displayedView),
+    [displayedView, isLockScreenOpen],
+  );
   const wallpaperRootStyle = useMemo(
     () =>
       ({
@@ -308,9 +311,11 @@ export default function WallpaperWindow() {
   return (
     <WallpaperFrostedHeaderControls
       activeView={displayedView}
+      isLockScreenOpen={isLockScreenOpen}
       isSearchOpen={isHeaderSearchOpen}
       onBack={closePreview}
       onLockScreen={openLockScreen}
+      onLockScreenClose={() => setIsLockScreenOpen(false)}
       onSearchChange={setQuery}
       onSearchOpenChange={setIsHeaderSearchOpen}
       onShare={shareWallpaper}

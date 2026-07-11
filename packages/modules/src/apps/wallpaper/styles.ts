@@ -2498,11 +2498,12 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 /* 当前壁纸驱动的锁屏设置与预览 */
 .wallpaper-lock-screen {
   position: absolute;
-  z-index: 80;
+  z-index: 9999;
   inset: 0;
   display: grid;
   place-items: center;
   overflow: hidden;
+  background: #5f8789;
   color: #fff;
   animation: wallpaperLockScreenIn 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -2988,6 +2989,258 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
     min-height: 358px;
     grid-template-columns: 1fr;
     grid-template-rows: minmax(180px, 1.15fr) minmax(150px, 0.85fr);
+  }
+}
+
+/* 锁屏保持参考图的纯净全屏构图：仅保留返回键与底部轻量控制 */
+section[data-app-id="wallpaper"]:has(.wallpaper-lock-screen)
+  > [data-kernelon-app-frame]
+  > header {
+  z-index: 10000;
+}
+
+section[data-app-id="wallpaper"]:has(.wallpaper-lock-screen)
+  > [data-kernelon-app-frame]
+  > header
+  [data-app-window-controls] {
+  display: none;
+}
+
+section[data-app-id="wallpaper"]:has(.wallpaper-lock-screen)
+  > [data-kernelon-app-frame]
+  > header[data-app-header-preset="browser"]
+  [data-app-header-region="leading"] {
+  left: 24px;
+}
+
+.wallpaper-ux:has(> .wallpaper-lock-screen) > .wallpaper-home,
+.wallpaper-ux:has(> .wallpaper-lock-screen) > .wallpaper-page,
+.wallpaper-ux:has(> .wallpaper-lock-screen) > .wallpaper-preview {
+  visibility: hidden;
+}
+
+.wallpaper-lock-back-control {
+  width: 42px;
+  height: 42px;
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(231, 246, 248, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.26);
+  backdrop-filter: blur(10px) saturate(1.08);
+}
+
+.wallpaper-lock-screen__shade {
+  background:
+    linear-gradient(180deg, rgba(5, 12, 16, 0.12), rgba(5, 12, 16, 0.01) 45%, rgba(4, 12, 16, 0.28)),
+    radial-gradient(circle at 50% 36%, transparent 28%, rgba(3, 9, 12, 0.12) 100%);
+  backdrop-filter: blur(1.5px) saturate(0.96);
+}
+
+.wallpaper-lock-screen__clock {
+  top: clamp(82px, 11vh, 108px);
+}
+
+.wallpaper-lock-screen__clock span {
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.wallpaper-lock-screen__clock strong {
+  margin-top: -2px;
+  font-size: clamp(88px, 12vw, 148px);
+  font-weight: 650;
+}
+
+.wallpaper-lock-screen__clock small {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 12px;
+}
+
+.wallpaper-lock-setup,
+.wallpaper-lock-unlock {
+  position: absolute;
+  z-index: 3;
+  right: auto;
+  bottom: clamp(30px, 5vh, 54px);
+  left: 50%;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  transform: translateX(-50%);
+  animation: wallpaperLockControlsIn 620ms 80ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.wallpaper-lock-setup {
+  width: min(520px, calc(100% - 48px));
+  padding: 0;
+  border-radius: 0;
+  text-align: center;
+}
+
+.wallpaper-lock-setup__icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 10px;
+  border-color: rgba(255, 255, 255, 0.3);
+  border-radius: 99px;
+  background: rgba(231, 246, 248, 0.18);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(12px) saturate(1.08);
+}
+
+.wallpaper-lock-setup__heading {
+  margin: 0 0 14px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.3);
+}
+
+.wallpaper-lock-setup__heading > span {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 680;
+  letter-spacing: 0.01em;
+}
+
+.wallpaper-lock-setup__heading p {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 10.5px;
+}
+
+.wallpaper-lock-field {
+  width: min(340px, 100%);
+  margin: 9px auto 0;
+  text-align: left;
+}
+
+.wallpaper-lock-field > span {
+  margin-left: 12px;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+
+.wallpaper-lock-field > div,
+.wallpaper-lock-unlock__field {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(232, 246, 248, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 8px 24px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(14px) saturate(1.08);
+}
+
+.wallpaper-lock-field > div {
+  height: 38px;
+  border-radius: 99px;
+}
+
+.wallpaper-lock-field input,
+.wallpaper-lock-unlock__field input {
+  color: #fff;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.wallpaper-lock-field input::placeholder,
+.wallpaper-lock-unlock__field input::placeholder {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.wallpaper-lock-setup__hint {
+  justify-content: center;
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.68);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
+}
+
+.wallpaper-lock-setup__hint svg,
+.wallpaper-lock-field svg {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.wallpaper-lock-error {
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(102, 18, 18, 0.8);
+}
+
+.wallpaper-lock-setup__actions {
+  justify-content: center;
+  margin-top: 13px;
+}
+
+.wallpaper-lock-button {
+  height: 38px;
+  border-radius: 99px;
+  backdrop-filter: blur(14px) saturate(1.08);
+}
+
+.wallpaper-lock-button--secondary {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(232, 246, 248, 0.14);
+  color: rgba(255, 255, 255, 0.88);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.wallpaper-lock-button--primary {
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(238, 250, 250, 0.26);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 10px 28px rgba(0, 0, 0, 0.14);
+}
+
+.wallpaper-lock-button--primary:hover {
+  background: rgba(238, 250, 250, 0.34);
+}
+
+.wallpaper-lock-unlock {
+  width: min(330px, calc(100% - 48px));
+  padding: 0;
+  border-radius: 0;
+}
+
+.wallpaper-lock-unlock__avatar {
+  width: 58px;
+  height: 58px;
+  margin-bottom: 9px;
+  border-color: rgba(255, 255, 255, 0.72);
+  background: rgba(231, 246, 248, 0.22);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(12px) saturate(1.08);
+}
+
+.wallpaper-lock-unlock > strong {
+  color: #fff;
+  font-size: 13px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.34);
+}
+
+.wallpaper-lock-unlock > span {
+  color: rgba(255, 255, 255, 0.72);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
+}
+
+.wallpaper-lock-unlock__field {
+  height: 38px;
+  margin-top: 11px;
+}
+
+.wallpaper-lock-unlock__field button {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.wallpaper-lock-unlock__actions button {
+  color: rgba(255, 255, 255, 0.72);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes wallpaperLockControlsIn {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, 22px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0) scale(1);
   }
 }
 `;

@@ -3,6 +3,14 @@ import { describe, expect, it } from 'vitest';
 import { createWallpaperHeader } from '../src/apps/wallpaper/header';
 
 describe('Wallpaper header', () => {
+  it('reduces the lock screen header to a single back control', () => {
+    const header = createWallpaperHeader('lock' as never);
+
+    expect(header.leading).toEqual([{ id: 'wallpaper-lock-back-control', type: 'slot' }]);
+    expect(header.center).toBeUndefined();
+    expect(header.trailing).toBeUndefined();
+  });
+
   it('uses a combined wallpaper-owned primary slot outside preview', () => {
     const header = createWallpaperHeader('home');
 
