@@ -49,6 +49,7 @@ KernelOn/
 ```powershell
 pnpm install
 ./scripts/api/api.ps1 setup
+pnpm start:local
 pnpm dev:web
 pnpm dev:api
 pnpm dev:desktop
@@ -58,6 +59,8 @@ pnpm typecheck
 pnpm test
 pnpm check
 ```
+
+`pnpm start:local` 会固定使用前端端口 `3000`、默认后端端口 `8000`，自动清理端口占用、准备 PostgreSQL 与迁移、重新构建前端并在健康检查通过后返回。日志写入 `logs/startup`；如需调整后端端口，可执行 `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-kernelon.ps1 -BackendPort 8100`。
 
 `pnpm dev` 与 `pnpm dev:web` 都会启动 `apps/web` 的 Next.js dev server。`pnpm check` 会串行执行 lint、typecheck、test 和 build。
 `pnpm dev:desktop` 启动桌面端 Vite 壳层，用于提前验证共享 Shell、App 模块与 Widget 模块在桌面容器中的复用情况；真正的 Tauri 打包命令保留在 `apps/desktop` 内。
