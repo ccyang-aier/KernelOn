@@ -112,9 +112,12 @@ describe('Wallpaper styles', () => {
   it('locks Explore cards to consistent media and info regions', () => {
     const exploreSource = ExploreView.toString();
 
-    expect(wallpaperStyles).toContain('grid-template-rows: minmax(0, 1fr) 78px;');
-    expect(wallpaperStyles).toContain('height: clamp(248px, 21vw, 330px);');
-    expect(wallpaperStyles).toContain('height: 78px;');
+    expect(wallpaperStyles).toContain('grid-template-rows: minmax(0, 1fr) 72px;');
+    expect(wallpaperStyles).toContain('height: clamp(224px, 18vw, 290px);');
+    expect(wallpaperStyles).toContain('height: 72px;');
+    expect(wallpaperStyles).toContain('background-size: 300% 100%;');
+    expect(wallpaperStyles).toContain('background-position: 0 0;');
+    expect(wallpaperStyles).not.toContain('skewX(-14deg)');
     expect(wallpaperStyles).toContain('.wallpaper-explore-card:hover > img');
     expect(exploreSource).not.toContain('wallpaper-author');
     expect(exploreSource).not.toContain('wallpaper-stats');

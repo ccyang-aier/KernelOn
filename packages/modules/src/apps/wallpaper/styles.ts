@@ -1339,7 +1339,13 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-page--explore .wallpaper-page__intro h1 {
   font-size: clamp(34px, 3.4vw, 50px);
+  font-weight: 500;
   text-wrap: balance;
+}
+
+.wallpaper-page--explore .wallpaper-page__intro p,
+.wallpaper-page--explore .wallpaper-page__intro > span {
+  font-weight: 400;
 }
 
 .wallpaper-page__intro > span {
@@ -1379,7 +1385,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   background: transparent;
   color: #fff;
   font-size: 15px;
-  font-weight: 520;
+  font-weight: 400;
 }
 
 .wallpaper-search input::placeholder {
@@ -1397,7 +1403,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-popular > span {
   color: rgba(255, 255, 255, 0.5);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .wallpaper-popular button,
@@ -1407,7 +1413,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
 }
 
@@ -1465,7 +1471,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-results-bar strong {
   color: rgba(255, 255, 255, 0.55);
   font-size: 15px;
-  font-weight: 620;
+  font-weight: 400;
 }
 
 .wallpaper-results-bar button {
@@ -1479,7 +1485,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   color: rgba(255, 255, 255, 0.75);
   padding: 0 13px;
   font-size: 14px;
-  font-weight: 620;
+  font-weight: 400;
   cursor: pointer;
 }
 
@@ -1498,9 +1504,9 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-explore-card {
   position: relative;
   display: grid;
-  height: clamp(248px, 21vw, 330px);
+  height: clamp(224px, 18vw, 290px);
   min-height: 0;
-  grid-template-rows: minmax(0, 1fr) 78px;
+  grid-template-rows: minmax(0, 1fr) 72px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 16px;
@@ -1515,24 +1521,24 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-explore-card::before {
   position: absolute;
-  top: 0;
-  bottom: 78px;
-  left: -46%;
+  inset: 0 0 72px;
   z-index: 1;
-  width: 42%;
   background: linear-gradient(
-    105deg,
+    112deg,
     rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0.2),
     rgba(255, 255, 255, 0)
   );
+  background-position: 100% 0;
+  background-size: 300% 100%;
   content: "";
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-120%) skewX(-14deg);
   transition:
+    background-position 700ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 260ms ease,
-    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    visibility 0s linear 700ms;
+  visibility: hidden;
 }
 
 .wallpaper-explore-card.is-selected {
@@ -1549,8 +1555,10 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-explore-card:hover::before,
 .wallpaper-explore-card:focus-visible::before {
+  background-position: 0 0;
   opacity: 1;
-  transform: translateX(360%) skewX(-14deg);
+  transition-delay: 0s;
+  visibility: visible;
 }
 
 .wallpaper-explore-card > img,
@@ -1584,7 +1592,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-explore-card__view {
   position: absolute;
   left: 50%;
-  bottom: 94px;
+  bottom: 88px;
   z-index: 2;
   min-width: 132px;
   max-width: calc(100% - 34px);
@@ -1623,12 +1631,12 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-explore-card__info {
   position: relative;
   display: flex;
-  height: 78px;
+  height: 72px;
   min-height: 0;
   flex-direction: column;
   justify-content: space-between;
   background: rgba(18, 23, 19, 0.86);
-  padding: 13px 16px 12px;
+  padding: 11px 16px 10px;
 }
 
 .wallpaper-explore-card__info h2 {
@@ -1639,7 +1647,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   -webkit-line-clamp: 1;
   font-family: var(--wallpaper-display);
   font-size: 17px;
-  font-weight: 650;
+  font-weight: 500;
   line-height: 1.08;
 }
 
@@ -1652,7 +1660,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   overflow: hidden;
   color: rgba(255, 255, 255, 0.55);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .wallpaper-tag {
@@ -1673,7 +1681,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   background: transparent;
   color: #ff4f70;
   padding: 0;
-  font-weight: 680;
+  font-weight: 500;
   cursor: pointer;
   transition:
     color 180ms ease,
