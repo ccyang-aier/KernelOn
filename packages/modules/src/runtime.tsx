@@ -43,9 +43,19 @@ export const kernelModuleRuntime: ShellRuntimeRegistry = {
 };
 
 export function KernelOnModuleRuntime({
+  currentUser,
   initialState,
-}: Readonly<{ initialState: ShellInitialState }>) {
-  return <KernelOnShell initialState={initialState} runtime={kernelModuleRuntime} />;
+}: Readonly<{
+  currentUser?: { avatarUrl?: string | null; displayName: string };
+  initialState: ShellInitialState;
+}>) {
+  return (
+    <KernelOnShell
+      currentUser={currentUser}
+      initialState={initialState}
+      runtime={kernelModuleRuntime}
+    />
+  );
 }
 
 function MissingAppWindow() {

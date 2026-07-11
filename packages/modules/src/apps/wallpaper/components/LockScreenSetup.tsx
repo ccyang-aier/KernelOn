@@ -57,7 +57,10 @@ export function LockScreenSetup({
         return;
       }
 
-      localStorage.setItem(lockScreenStorageKey, JSON.stringify({ enabled: true, password }));
+      localStorage.setItem(
+        lockScreenStorageKey,
+        JSON.stringify({ enabled: true, password, version: 1 }),
+      );
       onApplyLock(password);
       setPassword('');
       setError('');

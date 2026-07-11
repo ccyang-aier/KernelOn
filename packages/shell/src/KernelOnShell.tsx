@@ -40,7 +40,7 @@ import {
 import { hideGenieWindow, revealGenieWindow } from './components/genie-hidden-windows';
 import { GenieSnapshotStage } from './components/genie-snapshot-stage';
 import { KernelOnStatusBar } from './components/status-bar';
-import { ShellLockScreen } from './components/shell-lock-screen';
+import { ShellLockScreen, type ShellCredentialUser } from './components/shell-lock-screen';
 import type { ShellRuntimeRegistry } from './runtime';
 import {
   createShellStore,
@@ -50,6 +50,7 @@ import {
 } from './shell-store';
 
 export interface KernelOnShellProps {
+  currentUser?: ShellCredentialUser;
   initialState: ShellInitialState;
   runtime: ShellRuntimeRegistry;
 }
@@ -75,15 +76,18 @@ export function useShellSelector<T>(selector: (state: ShellState) => T): T {
   return useStore(store, selector);
 }
 
-export function KernelOnShell({ initialState, runtime }: KernelOnShellProps) {
+export function KernelOnShell({ currentUser, initialState, runtime }: KernelOnShellProps) {
   return (
     <ShellStoreProvider initialState={initialState}>
-      <KernelOnShellView runtime={runtime} />
+      <KernelOnShellView currentUser={currentUser} runtime={runtime} />
     </ShellStoreProvider>
   );
 }
 
-function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry }>) {
+function KernelOnShellView({
+  currentUser,
+  runtime,
+}: Readonly<{ currentUser?: ShellCredentialUser; runtime: ShellRuntimeRegistry }>) {
   const liquidGlassContextContainerRef = useRef<HTMLElement>(null);
   const desktopSurfaceRef = useRef<HTMLElement>(null);
   const genieEffectLayerRef = useRef<GenieEffectLayerHandle>(null);
@@ -146,12 +150,11 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
 
       const config = JSON.parse(saved) as {
         enabled?: boolean;
-        locked?: boolean;
         password?: string;
       };
 
       if (config.enabled && config.password) {
-        restoreDesktopLock(config.password, config.locked === true);
+        restoreDesktopLock(config.password, true);
       }
     } catch {
       // Ignore invalid legacy lock-screen settings and keep the desktop available.
@@ -422,7 +425,7 @@ function KernelOnShellView({ runtime }: Readonly<{ runtime: ShellRuntimeRegistry
         className="relative min-h-screen overflow-hidden bg-[#5f8789] text-white"
         data-testid="kernelon-shell"
       >
-        <ShellLockScreen onUnlock={unlockDesktop} wallpaper={desktopWallpaper} />
+        <ShellLockScreen onUnlock={unlockDesktop} user={currentUser} wallpaper={desktopWallpaper} />
       </main>
     );
   }

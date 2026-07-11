@@ -1,16 +1,30 @@
 import { KernelOnModuleRuntime } from '@kernelon/modules/runtime';
+import { redirect } from 'next/navigation';
 
 import {
   resolveWorkspaceInitialState,
   type WorkspaceSearchParams,
 } from './resolve-workspace-entry';
+import { requireSession } from '../../server/auth/session';
 
 export interface WorkspacePageProps {
   searchParams?: Promise<WorkspaceSearchParams> | WorkspaceSearchParams;
 }
 
 export async function WorkspaceShellPage({ searchParams }: WorkspacePageProps = {}) {
-  const initialState = resolveWorkspaceInitialState(await Promise.resolve(searchParams));
+  const [resolvedSearchParams, user] = await Promise.all([
+    Promise.resolve(searchParams),
+    requireSession('/workspace'),
+  ]);
+  const initialState = resolveWorkspaceInitialState(resolvedSearchParams);
+  if (user.mustChangePassword) {
+    redirect('/change-password');
+  }
 
-  return <KernelOnModuleRuntime initialState={initialState} />;
+  return (
+    <KernelOnModuleRuntime
+      currentUser={{ avatarUrl: user.avatarUrl, displayName: user.displayName }}
+      initialState={initialState}
+    />
+  );
 }

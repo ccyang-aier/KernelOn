@@ -1,8 +1,5 @@
-import {
-  WorkspaceShellPage,
-  type WorkspacePageProps,
-} from '../features/workspace/WorkspaceShellPage';
+import { redirect } from 'next/navigation';
 
-export default async function Page(props: WorkspacePageProps) {
-  return WorkspaceShellPage(props);
+export default function Page() {
+  redirect('/workspace');
 }

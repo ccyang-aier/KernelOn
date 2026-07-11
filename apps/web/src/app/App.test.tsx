@@ -1,11 +1,18 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import Page from './page';
+import { WorkspaceShellPage } from '../features/workspace/WorkspaceShellPage';
+
+vi.mock('../server/auth/session', () => ({
+  requireSession: vi.fn().mockResolvedValue({
+    avatarUrl: null,
+    displayName: '测试用户',
+  }),
+}));
 
 describe('Page', () => {
   it('renders an empty KernelOn shell mount', async () => {
-    render(await Page({}));
+    render(await WorkspaceShellPage({}));
 
     expect(screen.getByTestId('kernelon-shell')).toBeInTheDocument();
     expect(screen.queryByText('Core Services')).not.toBeInTheDocument();
@@ -13,7 +20,7 @@ describe('Page', () => {
 
   it('opens an app window from a workspace URL intent', async () => {
     render(
-      await Page({
+      await WorkspaceShellPage({
         searchParams: Promise.resolve({
           id: 'newcomer-123',
           open: 'mentor',

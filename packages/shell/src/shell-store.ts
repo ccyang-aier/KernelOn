@@ -166,7 +166,7 @@ export function createShellStore(initialState: ShellInitialState) {
     },
     lockDesktop: (password) => {
       set({ desktopLockPassword: password, isDesktopLocked: true });
-      persistDesktopLock(password, true);
+      persistDesktopLock(password);
     },
     restoreDesktopLock: (password, locked) => {
       set({ desktopLockPassword: password, isDesktopLocked: locked });
@@ -177,7 +177,6 @@ export function createShellStore(initialState: ShellInitialState) {
       }
 
       set({ isDesktopLocked: false });
-      persistDesktopLock(password, false);
       return true;
     },
     setPendingWidgetPlacement: (item) => {
@@ -257,10 +256,13 @@ export function createShellStore(initialState: ShellInitialState) {
   }));
 }
 
-function persistDesktopLock(password: string, locked: boolean) {
+function persistDesktopLock(password: string) {
   if (typeof window === 'undefined') {
     return;
   }
 
-  localStorage.setItem(desktopLockStorageKey, JSON.stringify({ enabled: true, locked, password }));
+  localStorage.setItem(
+    desktopLockStorageKey,
+    JSON.stringify({ enabled: true, password, version: 1 }),
+  );
 }
