@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "advanced-alchemy>=1.11,<2",
+  "argon2-cffi>=25.1,<26",
   "litestar[standard,structlog]>=2.24,<3",
+  "pyjwt>=2.10,<3",
   "psycopg[binary,pool]>=3.2,<4",
   "pydantic>=2.12,<3",
   "pydantic-settings>=2.12,<3",
@@ -54,7 +56,7 @@ plugins = ["pydantic.mypy"]
 warn_unreachable = true
 
 [tool.pytest.ini_options]
-addopts = "--strict-config --strict-markers --cov=kernelon_api --cov-report=term-missing --cov-fail-under=85"
+addopts = "--strict-config --strict-markers --cov=kernelon_api --cov-config=apps/api/pyproject.toml --cov-report=term-missing --cov-fail-under=85"
 asyncio_mode = "auto"
 testpaths = ["tests"]
 markers = [
@@ -64,6 +66,10 @@ markers = [
 [tool.coverage.run]
 branch = true
 source = ["kernelon_api"]
+omit = [
+  "**/cli.py",
+  "**/infrastructure/service.py",
+]
 
 [tool.coverage.report]
 exclude_also = [

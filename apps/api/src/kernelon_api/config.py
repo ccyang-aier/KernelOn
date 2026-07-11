@@ -43,6 +43,11 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     openapi_enabled: bool = True
     request_max_body_size: int = Field(default=10 * 1024 * 1024, ge=1024)
+    jwt_secret: str = "development-only-change-me-at-least-32-bytes"  # noqa: S105
+    jwt_issuer: str = "kernelon-api"
+    jwt_audience: str = "kernelon-clients"
+    access_token_minutes: int = Field(default=15, ge=1, le=1440)
+    refresh_token_days: int = Field(default=30, ge=1, le=365)
 
     @field_validator("allowed_origins", "allowed_hosts")
     @classmethod
@@ -58,6 +63,8 @@ class Settings(BaseSettings):
             "*" in self.allowed_origins or "*" in self.allowed_hosts
         ):
             raise ValueError("wildcard origins and hosts are not allowed in production")
+        if self.environment == "production" and len(self.jwt_secret.encode()) < 32:
+            raise ValueError("jwt_secret must contain at least 32 bytes in production")
 
     @property
     def sqlalchemy_url(self) -> str:

@@ -39,4 +39,23 @@ pnpm db:upgrade
 pnpm db:make-migration
 ```
 
+## 初始化用户与组织
+
+数据库迁移完成后，通过安全交互命令创建首个组织、预置角色和所有者。密码从隐藏输入读取，不会出现在命令历史中：
+
+```bash
+uv run --project apps/api python -m kernelon_api.cli bootstrap-organization \
+  --organization-name "示例部门" --code example \
+  --email owner@example.com --display-name "平台所有者"
+```
+
+全局停用或恢复账号仅开放给运维 CLI；组织管理员通过 API 暂停本组织成员，不能影响该账号在其他组织的身份：
+
+```bash
+uv run --project apps/api python -m kernelon_api.cli disable-account --email user@example.com
+uv run --project apps/api python -m kernelon_api.cli enable-account --email user@example.com
+```
+
+认证接口位于 `/api/v1/auth`。组织管理接口位于 `/api/v1/organizations/{organizationId}`；服务端会根据访问令牌和组织成员关系重新计算有效权限，不信任客户端声明的组织或角色。
+
 数据库迁移和架构规则见 `docs/backend_architecture.md`；日常任务约束见本目录 `AGENTS.md`。

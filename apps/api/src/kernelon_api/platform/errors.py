@@ -8,6 +8,7 @@ from litestar import Request, Response
 from litestar.exceptions import HTTPException
 from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 
+from kernelon_api.platform.application_errors import ApplicationError
 from kernelon_api.platform.request_id import normalize_request_id
 
 if TYPE_CHECKING:
@@ -70,4 +71,19 @@ def create_exception_handlers(settings: Settings) -> dict[type[Exception] | int,
             error_code="INTERNAL_ERROR",
         )
 
-    return {HTTPException: handle_http_exception, Exception: handle_unknown_exception}
+    def handle_application_error(
+        request: Request[Any, Any, Any], exc: ApplicationError
+    ) -> Response[dict[str, Any]]:
+        return problem_response(
+            request,
+            status=exc.status,
+            title=exc.code.replace("_", " ").title(),
+            detail=exc.detail,
+            error_code=exc.code,
+        )
+
+    return {
+        ApplicationError: handle_application_error,
+        HTTPException: handle_http_exception,
+        Exception: handle_unknown_exception,
+    }
