@@ -61,6 +61,8 @@ pnpm check
 
 数据库可使用本机/远程 PostgreSQL，也可在装有 Docker 的环境运行 `docker compose up --build` 启动 PostgreSQL 17 与 API。迁移通过 `pnpm db:upgrade` 执行。
 
+Compose PostgreSQL 默认映射到宿主机标准端口 `5432`，可通过 `KERNELON_POSTGRES_PORT` 覆盖。WSL2 可使用 `scripts/api/check-wsl.sh` 在 Conda `v20` 环境中完成 PostgreSQL 17 迁移、集成测试、全仓检查和 Linux OCI 构建验证。
+
 ## 架构原则
 
 - `packages/core` 不依赖 React，承载 App manifest、窗口模型、桌面布局、命令模型等核心类型和纯函数。

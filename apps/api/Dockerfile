@@ -1,16 +1,15 @@
-# syntax=docker/dockerfile:1.7
-FROM ghcr.io/astral-sh/uv:0.11.28 AS uv
-
 FROM python:3.12-slim-bookworm@sha256:8a7e7cc04fd3e2bd787f7f24e22d5d119aa590d429b50c95dfe12b3abe52f48b AS builder
-COPY --from=uv /uv /uvx /bin/
+ARG PIP_INDEX_URL=https://pypi.org/simple
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 WORKDIR /app
+RUN python -m pip install --no-cache-dir --index-url "$PIP_INDEX_URL" uv==0.11.28
 COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
 RUN uv sync --locked --no-dev --no-editable
 
 FROM python:3.12-slim-bookworm@sha256:8a7e7cc04fd3e2bd787f7f24e22d5d119aa590d429b50c95dfe12b3abe52f48b AS runtime
 ENV PATH="/app/.venv/bin:$PATH" \
+    KERNELON_API_ROOT=/app \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 WORKDIR /app

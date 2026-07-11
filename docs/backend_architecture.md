@@ -38,6 +38,8 @@ Litestar Guard 只处理认证和粗粒度进入权限。组织上下文和 Prin
 - `/health/live` 只检查进程；`/health/ready` 检查数据库但不泄漏连接信息。
 - 生产环境默认关闭交互式 Schema UI，CORS 与 Allowed Hosts 必须显式配置。
 
+本地 Compose 使用 PostgreSQL 17，宿主机和容器网络默认端口均为 5432，并允许通过环境变量覆盖宿主端口。迁移和集成测试必须验证 `alembic_versions` 已处于唯一 Head；WSL2 验证使用 Conda `v20` 的 Python 3.12，并在 Linux 原生临时工作区和独立虚拟环境中执行，避免与 Windows 依赖交叉污染。
+
 ## 6. 未来模块
 
 Identity、Organizations、Onboarding、Mentorship、Growth、Training、Assessment、Notifications、Audit、Integrations 和 AI 仅在出现首个真实用例时创建。AI provider 位于 infrastructure，通过 application port 被调用，不能进入核心领域模型。

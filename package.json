@@ -26,7 +26,7 @@
     "test:api": "uv run --project apps/api pytest -c apps/api/pyproject.toml apps/api/tests",
     "test:web": "pnpm -r test",
     "check:api": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/api/api.ps1 check",
-    "db:upgrade": "uv run --project apps/api litestar --app kernelon_api.asgi:app database upgrade",
+    "db:upgrade": "uv run --project apps/api litestar --app kernelon_api.asgi:app database upgrade --no-prompt",
     "db:make-migration": "uv run --project apps/api litestar --app kernelon_api.asgi:app database make-migrations",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "format": "prettier --write .",

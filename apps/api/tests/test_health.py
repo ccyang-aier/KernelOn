@@ -6,6 +6,8 @@ from collections.abc import AsyncIterator
 import pytest
 from litestar import Litestar
 from litestar.testing import AsyncTestClient
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from kernelon_api.asgi import create_app
 from kernelon_api.config import Settings
@@ -84,3 +86,11 @@ async def test_readiness_succeeds_with_postgres() -> None:
 
     assert response.status_code == 200
     assert response.json()["checks"] == {"database": "ok"}
+
+    engine = create_async_engine(database_url)
+    try:
+        async with engine.connect() as connection:
+            revision = await connection.scalar(text("SELECT version_num FROM alembic_versions"))
+    finally:
+        await engine.dispose()
+    assert revision == "0001"

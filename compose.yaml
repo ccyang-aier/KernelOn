@@ -15,7 +15,7 @@ services:
     volumes:
       - kernelon-postgres-data:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
+      - '${KERNELON_POSTGRES_PORT:-5432}:5432'
 
   api:
     build:

@@ -29,7 +29,7 @@ case "$ACTION" in
     uv sync --locked
     ;;
   dev) uv run litestar --app kernelon_api.asgi:app run --reload --host 127.0.0.1 --port 8000 ;;
-  migrate) uv run litestar --app kernelon_api.asgi:app database upgrade ;;
+  migrate) uv run litestar --app kernelon_api.asgi:app database upgrade --no-prompt ;;
   make-migration) uv run litestar --app kernelon_api.asgi:app database make-migrations --message "$MESSAGE" ;;
   check)
     uv run ruff check .

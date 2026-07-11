@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -9,7 +10,7 @@ from typing import Literal
 from pydantic import Field, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-API_ROOT = Path(__file__).resolve().parents[2]
+API_ROOT = Path(os.environ.get("KERNELON_API_ROOT", Path(__file__).resolve().parents[2])).resolve()
 
 
 class Settings(BaseSettings):

@@ -31,7 +31,7 @@ try {
       Invoke-Uv sync --locked
     }
     'dev' { Invoke-Uv run litestar --app kernelon_api.asgi:app run --reload --host 127.0.0.1 --port 8000 }
-    'migrate' { Invoke-Uv run litestar --app kernelon_api.asgi:app database upgrade }
+    'migrate' { Invoke-Uv run litestar --app kernelon_api.asgi:app database upgrade --no-prompt }
     'make-migration' { Invoke-Uv run litestar --app kernelon_api.asgi:app database make-migrations --message $Message }
     'check' {
       Invoke-Uv run ruff check .
