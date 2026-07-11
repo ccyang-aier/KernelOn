@@ -1764,76 +1764,111 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   text-wrap: pretty;
 }
 
-.wallpaper-settings-container {
+.wallpaper-settings-board {
   display: grid;
-  grid-template-columns: 210px 1fr;
-  gap: 26px;
-  margin-top: 28px;
-  align-items: start;
+  grid-template-columns: 200px 1fr;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: rgba(10, 16, 20, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 24px 64px rgba(3, 8, 12, 0.28);
+  backdrop-filter: blur(32px) saturate(1.2);
+  overflow: hidden;
+  height: calc(100% - 40px);
+  min-height: 480px;
 }
 
 .wallpaper-settings-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 10px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
+  gap: 4px;
+  padding: 24px 14px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.wallpaper-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 14px;
+}
+
+.wallpaper-sidebar-header span {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.32);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.logo-spark {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: #2dd4bf;
+  box-shadow: 0 0 8px #2dd4bf;
 }
 
 .wallpaper-sidebar-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 12.5px;
-  font-weight: 680;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 12px;
+  font-weight: 500;
   text-align: left;
-  border: 1px solid transparent;
+  border: 0;
   background: transparent;
   cursor: pointer;
-  transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  transition: all 180ms ease;
 }
 
 .wallpaper-sidebar-item:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.07);
-  transform: translate3d(2px, 0, 0);
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .wallpaper-sidebar-item.is-active {
   color: #fff;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 8px 16px rgba(0, 0, 0, 0.1);
-  transform: scale(1.01);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .wallpaper-sidebar-item__icon {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
+  width: 14px;
+  height: 14px;
+  stroke-width: 2px;
 }
 
 .wallpaper-sidebar-item__badge {
-  margin-left: auto;
-  padding: 2px 7px;
-  font-size: 9.5px;
-  font-weight: 780;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.9);
+  position: absolute;
+  right: 12px;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  font-family: monospace;
+}
+
+.wallpaper-sidebar-item.is-active .wallpaper-sidebar-item__badge {
+  background: rgba(45, 212, 191, 0.16);
+  color: #2dd4bf;
 }
 
 .wallpaper-settings-main-content {
-  min-height: 480px;
+  padding: 28px 32px;
+  overflow-y: auto;
+  height: 100%;
+  scrollbar-width: none;
 }
 
 .wallpaper-settings-panel {
@@ -1842,314 +1877,47 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   gap: 22px;
 }
 
-.wallpaper-settings-panel__header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 12px;
-}
-
 .wallpaper-settings-panel__header h2 {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 500;
   color: #fff;
-  margin: 0;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
 }
 
 .wallpaper-settings-panel__header p {
-  font-size: 11.5px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.44);
-  margin: 4px 0 0;
+  margin: 0;
 }
 
-.wallpaper-settings-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.32fr) minmax(290px, 0.68fr);
-  align-items: start;
-  gap: 20px;
-}
-
-.wallpaper-settings-card,
-.wallpaper-settings-current {
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 24px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.035)),
-    rgba(10, 17, 22, 0.20);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 28px 62px rgba(3, 8, 12, 0.19);
-  backdrop-filter: blur(24px) saturate(1.18);
-}
-
-.wallpaper-settings-card {
-  min-height: 320px;
-  padding: 12px;
-}
-
-.wallpaper-settings-card__heading {
-  display: flex;
-  min-height: 54px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 4px 12px 8px;
-}
-
-.wallpaper-settings-card__heading > div {
-  display: grid;
-  gap: 2px;
-}
-
-.wallpaper-settings-card__heading > div > span {
-  color: #fff;
-  font-size: 13.5px;
-  font-weight: 720;
-}
-
-.wallpaper-settings-card__heading > div > strong {
-  color: rgba(255, 255, 255, 0.42);
-  font-size: 10.5px;
-  font-weight: 560;
-}
-
-.wallpaper-settings-card__status {
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.055);
-  color: rgba(255, 255, 255, 0.56);
-  padding: 5px 9px;
-  font-size: 9.5px;
-  font-weight: 680;
-}
-
-.wallpaper-settings-row {
-  display: grid;
-  width: 100%;
-  min-height: 66px;
-  grid-template-columns: 42px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 13px;
-  border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.075);
-  background: transparent;
-  color: #fff;
-  padding: 10px 12px;
-  text-align: left;
-  cursor: pointer;
-  transition: background 180ms ease, transform 180ms ease;
-}
-
-.wallpaper-settings-row:hover {
-  background: rgba(255, 255, 255, 0.055);
-}
-
-.wallpaper-settings-row:active {
-  transform: scale(0.993);
-}
-
-.wallpaper-settings-row:focus-visible {
-  position: relative;
-  z-index: 1;
-  outline: 2px solid rgba(211, 248, 242, 0.74);
-  outline-offset: -2px;
-  border-radius: 14px;
-}
-
-.wallpaper-settings-row__icon {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.065);
-  color: rgba(255, 255, 255, 0.66);
-  transition: background 180ms ease, color 180ms ease;
-}
-
-.wallpaper-settings-row[aria-pressed="true"] .wallpaper-settings-row__icon {
-  background: rgba(171, 226, 216, 0.14);
-  color: rgba(220, 255, 249, 0.92);
-}
-
-.wallpaper-settings-row__icon svg {
-  width: 17px;
-  height: 17px;
-  stroke-width: 2.15;
-}
-
-.wallpaper-settings-row__copy {
-  display: grid;
-  min-width: 0;
-  gap: 3px;
-}
-
-.wallpaper-settings-row__copy strong {
-  overflow: hidden;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 12.5px;
-  font-weight: 690;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.wallpaper-settings-row__copy small {
-  overflow: hidden;
-  color: rgba(255, 255, 255, 0.42);
-  font-size: 10.5px;
-  font-weight: 500;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.wallpaper-settings-row__state {
-  min-width: 58px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.055);
-  color: rgba(255, 255, 255, 0.62);
-  padding: 6px 9px;
-  font-size: 9.5px;
-  font-weight: 720;
-  text-align: center;
-  transition: background 180ms ease, color 180ms ease;
-}
-
-.wallpaper-settings-row[aria-pressed="true"] .wallpaper-settings-row__state {
-  border-color: rgba(186, 236, 226, 0.18);
-  background: rgba(171, 226, 216, 0.12);
-  color: rgba(225, 255, 249, 0.88);
-}
-
-.wallpaper-settings-current {
-  display: grid;
-  min-height: 320px;
-  grid-template-rows: minmax(150px, 1.2fr) minmax(130px, 0.8fr);
-}
-
-.wallpaper-settings-current__media {
-  position: relative;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.wallpaper-settings-current__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.015);
-}
-
-.wallpaper-settings-current__shade {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, rgba(5, 9, 12, 0.05), rgba(5, 9, 12, 0.44)),
-    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.14), transparent 42%);
-}
-
-.wallpaper-settings-current__badge {
-  position: absolute;
-  left: 14px;
-  top: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  background: rgba(8, 14, 18, 0.24);
-  color: rgba(255, 255, 255, 0.78);
-  padding: 6px 9px;
-  font-size: 9px;
-  font-weight: 690;
-  backdrop-filter: blur(12px) saturate(1.12);
-}
-
-.wallpaper-settings-current__content {
-  min-width: 0;
-  padding: 14px 18px 18px;
-}
-
-.wallpaper-settings-current__content > span {
-  color: rgba(204, 242, 235, 0.58);
-  font-size: 9px;
-  font-weight: 760;
-  letter-spacing: 0.09em;
-}
-
-.wallpaper-settings-current__content h2 {
-  overflow: hidden;
-  margin: 4px 0 0;
-  color: #fff;
-  font-family: var(--wallpaper-display);
-  font-size: clamp(20px, 2vw, 26px);
-  line-height: 1.05;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.wallpaper-settings-current__content p {
-  overflow: hidden;
-  margin: 6px 0 0;
-  color: rgba(255, 255, 255, 0.46);
-  font-size: 10px;
-  font-weight: 520;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.wallpaper-settings-current__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 12px;
-}
-
-.wallpaper-settings-current__chips span {
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.045);
-  color: rgba(255, 255, 255, 0.56);
-  padding: 5px 7px;
-  font-size: 9px;
-  font-weight: 650;
-}
-
-/* 我的收藏与上传壁纸网格 */
+/* 我的收藏 / 已上传壁纸网格 */
 .wallpaper-settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 16px;
 }
 
 .wallpaper-settings-grid-item {
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
-}
-
-.wallpaper-settings-grid-item:hover {
-  transform: translateY(-3px) scale(1.005);
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-  background: rgba(255, 255, 255, 0.05);
+  gap: 8px;
 }
 
 .wallpaper-settings-grid-item__media {
   position: relative;
   aspect-ratio: 16/10;
+  border-radius: 12px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 15px 15px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .wallpaper-settings-grid-item__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .wallpaper-settings-grid-item:hover .wallpaper-settings-grid-item__media img {
@@ -2159,241 +1927,206 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-settings-grid-item__overlay {
   position: absolute;
   inset: 0;
-  background: rgba(8, 12, 16, 0.55);
+  background: rgba(10, 16, 20, 0.1);
+  backdrop-filter: blur(0px) brightness(1);
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
+  justify-content: center;
+  gap: 10px;
   opacity: 0;
-  backdrop-filter: blur(4px);
-  transition: opacity 220ms ease;
+  pointer-events: none;
+  transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.wallpaper-settings-grid-item:hover .wallpaper-settings-grid-item__overlay {
+.wallpaper-settings-grid-item__media:hover .wallpaper-settings-grid-item__overlay {
   opacity: 1;
+  pointer-events: auto;
+  background: rgba(10, 16, 20, 0.32);
+  backdrop-filter: blur(10px) brightness(0.8);
 }
 
-.action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 88%;
-  padding: 7px 12px;
-  border-radius: 9px;
-  font-size: 11px;
-  font-weight: 680;
+/* 圆形气泡按钮 */
+.mini-glass-btn {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.88);
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  transition: all 180ms ease;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.action-btn svg {
-  width: 13px;
-  height: 13px;
-}
-
-.action-btn--apply {
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-}
-
-.action-btn--apply:hover {
-  background: rgba(255, 255, 255, 0.28);
+.mini-glass-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
   border-color: rgba(255, 255, 255, 0.36);
-  transform: scale(1.02);
+  color: #fff;
+  transform: scale(1.08);
 }
 
-.action-btn--apply.applied {
-  background: rgba(45, 212, 191, 0.16);
-  border-color: rgba(45, 212, 191, 0.34);
+.mini-glass-btn.applied {
+  background: rgba(45, 212, 191, 0.22);
+  border-color: rgba(45, 212, 191, 0.45);
   color: #2dd4bf;
-  cursor: default;
 }
 
-.action-btn--apply.applied:hover {
-  transform: none;
+.mini-glass-btn .tooltip {
+  position: absolute;
+  bottom: 38px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background: rgba(10, 16, 20, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 180ms ease;
+  backdrop-filter: blur(6px);
 }
 
-.action-btn--unlike {
-  background: rgba(244, 63, 94, 0.12);
-  border-color: rgba(244, 63, 94, 0.26);
-  color: #fca5a5;
-}
-
-.action-btn--unlike:hover {
-  background: rgba(244, 63, 94, 0.22);
-  border-color: rgba(244, 63, 94, 0.36);
-  color: #fff;
-  transform: scale(1.02);
-}
-
-.action-btn--delete {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.26);
-  color: #fca5a5;
-}
-
-.action-btn--delete:hover {
-  background: rgba(239, 68, 68, 0.22);
-  border-color: rgba(239, 68, 68, 0.36);
-  color: #fff;
-  transform: scale(1.02);
-}
-
-.wallpaper-settings-grid-item__info {
-  padding: 10px 12px;
-  min-width: 0;
+.mini-glass-btn:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
 
 .wallpaper-settings-grid-item__info h4 {
-  font-size: 11.5px;
-  font-weight: 680;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
   margin: 0;
-  text-overflow: ellipsis;
-  overflow: hidden;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .wallpaper-settings-grid-item__info p {
-  font-size: 9.5px;
-  color: rgba(255, 255, 255, 0.42);
-  margin: 4px 0 0;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.36);
+  margin: 2px 0 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Empty states */
+/* 收藏空状态 */
 .wallpaper-settings-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 56px 24px;
+  padding: 56px 20px;
   text-align: center;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  margin: 10px 0;
 }
 
 .wallpaper-settings-empty__icon {
-  width: 58px;
-  height: 58px;
+  width: 48px;
+  height: 48px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   display: grid;
   place-items: center;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
   margin-bottom: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.wallpaper-settings-empty__icon svg {
-  width: 24px;
-  height: 24px;
-  color: rgba(255, 255, 255, 0.3);
+.heart-broken {
+  width: 20px;
+  height: 20px;
+  color: rgba(255, 255, 255, 0.28);
+  animation: heartPulse 2s infinite ease-in-out;
 }
 
-.wallpaper-settings-empty__icon svg.heart-broken {
-  animation: heartbeat 1.5s ease infinite;
-}
-
-@keyframes heartbeat {
+@keyframes heartPulse {
   0% { transform: scale(1); }
-  14% { transform: scale(1.12); }
-  28% { transform: scale(1); }
-  42% { transform: scale(1.12); }
-  70% { transform: scale(1); }
+  50% { transform: scale(1.08); color: rgba(244, 63, 94, 0.4); }
+  100% { transform: scale(1); }
 }
 
 .wallpaper-settings-empty h3 {
-  font-size: 14.5px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.88);
-  margin: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 6px;
 }
 
 .wallpaper-settings-empty p {
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.44);
-  margin: 8px 0 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.38);
   max-width: 320px;
   line-height: 1.6;
+  margin: 0;
 }
 
-/* 上传区 */
+/* 壁纸上传区 */
 .wallpaper-upload-zone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 46px 20px;
-  border: 2px dashed rgba(255, 255, 255, 0.14);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.015);
+  border-radius: 16px;
+  padding: 40px 20px;
+  text-align: center;
   cursor: pointer;
   transition: all 220ms ease;
-  margin-bottom: 16px;
 }
 
 .wallpaper-upload-zone:hover,
 .wallpaper-upload-zone.is-dragover {
-  border-color: rgba(45, 212, 191, 0.5);
-  background: rgba(45, 212, 191, 0.03);
+  border-color: rgba(45, 212, 191, 0.4);
+  background: rgba(45, 212, 191, 0.02);
 }
 
 .wallpaper-upload-zone__content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  text-align: center;
+  gap: 8px;
 }
 
 .wallpaper-upload-zone__content h3 {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
   margin: 0;
 }
 
 .wallpaper-upload-zone__content h3 span {
   color: #2dd4bf;
   text-decoration: underline;
-  margin-left: 4px;
+  text-underline-offset: 3px;
 }
 
 .wallpaper-upload-zone__content p {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(255, 255, 255, 0.32);
   margin: 0;
 }
 
+/* 壁纸上传表单 */
 .wallpaper-upload-form {
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
   padding: 20px;
-  backdrop-filter: blur(20px);
-  margin-bottom: 24px;
 }
 
 .wallpaper-upload-form__layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 20px;
+  grid-template-columns: minmax(180px, 1fr) 1.6fr;
+  gap: 24px;
 }
 
 .wallpaper-upload-form__preview {
   position: relative;
-  border-radius: 14px;
-  overflow: hidden;
   aspect-ratio: 16/10;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(0, 0, 0, 0.25);
   height: fit-content;
 }
@@ -2410,8 +2143,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   right: 8px;
   padding: 3px 6px;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.65);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 9px;
   font-family: monospace;
 }
@@ -2436,31 +2169,31 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .form-group label {
   font-size: 11px;
-  font-weight: 680;
-  color: rgba(255, 255, 255, 0.44);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.32);
 }
 
 .form-group input,
 .form-group select {
-  padding: 8px 12px;
-  border-radius: 9px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0;
   color: #fff;
-  font-size: 11.5px;
+  font-size: 12px;
   outline: none;
-  transition: all 180ms ease;
+  transition: all 220ms ease;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: rgba(45, 212, 191, 0.36);
-  background: rgba(0, 0, 0, 0.3);
-  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.08);
+  border-bottom-color: #2dd4bf;
+  box-shadow: none;
 }
 
 .form-group select option {
-  background: #121822;
+  background: #10161a;
   color: #fff;
 }
 
@@ -2474,9 +2207,9 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .cancel-btn,
 .submit-btn {
   padding: 8px 16px;
-  border-radius: 9px;
+  border-radius: 8px;
   font-size: 11.5px;
-  font-weight: 680;
+  font-weight: 500;
   cursor: pointer;
   transition: all 180ms ease;
 }
@@ -2488,13 +2221,13 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   color: #fff;
 }
 
 .submit-btn {
   background: linear-gradient(135deg, #0d9488, #0f766e);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 0;
   color: #fff;
   box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
 }
@@ -2502,7 +2235,13 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .submit-btn:hover {
   background: linear-gradient(135deg, #14b8a6, #0d9488);
   box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3);
-  transform: translateY(-1px);
+}
+
+.section-title {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0 0 12px;
 }
 
 .wallpaper-settings-sub-empty {
@@ -2512,18 +2251,18 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   justify-content: center;
   padding: 36px;
   text-align: center;
-  border-radius: 16px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.01);
   border: 1px dashed rgba(255, 255, 255, 0.06);
 }
 
 .wallpaper-settings-sub-empty svg {
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.18);
 }
 
 .wallpaper-settings-sub-empty p {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.32);
   margin: 0;
 }
 
@@ -2536,23 +2275,20 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-source-card {
   padding: 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(20px);
   transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .wallpaper-source-card.is-enabled {
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 4px 14px rgba(0, 0, 0, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .wallpaper-source-card.is-disabled {
-  opacity: 0.44;
-  border-color: rgba(255, 255, 255, 0.03);
+  opacity: 0.4;
+  border-color: rgba(255, 255, 255, 0.02);
 }
 
 .wallpaper-source-card__header {
@@ -2570,24 +2306,24 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .source-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   display: grid;
   place-items: center;
-  flex: 0 0 36px;
+  flex: 0 0 32px;
 }
 
 .source-icon svg {
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
 }
 
 .source-info h3 {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 500;
   color: #fff;
   margin: 0;
   display: flex;
@@ -2596,18 +2332,18 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .sys-badge {
-  font-size: 9px;
-  padding: 1px 5px;
-  background: rgba(45, 212, 191, 0.15);
+  font-size: 8.5px;
+  padding: 1px 4px;
+  background: rgba(45, 212, 191, 0.12);
   color: #2dd4bf;
   border-radius: 4px;
-  border: 1px solid rgba(45, 212, 191, 0.25);
-  font-weight: 600;
+  border: 1px solid rgba(45, 212, 191, 0.2);
+  font-weight: 500;
 }
 
 .source-url {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.32);
   font-family: monospace;
   word-break: break-all;
   display: block;
@@ -2626,38 +2362,33 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   border: 0;
   cursor: pointer;
   padding: 6px;
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.32);
   transition: all 180ms ease;
   display: grid;
   place-items: center;
 }
 
-.source-delete-btn svg {
-  width: 15px;
-  height: 15px;
-}
-
 .source-delete-btn:hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.12);
   color: #fca5a5;
 }
 
 .source-description {
-  margin: 10px 0 0 48px;
+  margin: 8px 0 0 44px;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.44);
+  color: rgba(255, 255, 255, 0.36);
   line-height: 1.5;
 }
 
 /* Glass Switch */
 .glass-switch {
   position: relative;
-  width: 36px;
-  height: 20px;
+  width: 32px;
+  height: 16px;
   border-radius: 99px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   cursor: pointer;
   padding: 0;
   transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -2666,25 +2397,25 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .glass-switch__handle {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
+  top: 1.5px;
+  left: 1.5px;
+  width: 11px;
+  height: 11px;
   border-radius: 99px;
   background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-switch.active {
-  background: rgba(45, 212, 191, 0.28);
-  border-color: rgba(45, 212, 191, 0.4);
+  background: rgba(45, 212, 191, 0.24);
+  border-color: rgba(45, 212, 191, 0.35);
 }
 
 .glass-switch.active .glass-switch__handle {
   transform: translateX(16px);
-  background: #fff;
-  box-shadow: 0 1px 5px rgba(20, 184, 166, 0.4);
+  background: #2dd4bf;
+  box-shadow: 0 1px 4px rgba(45, 212, 191, 0.4);
 }
 
 /* 添加源板块 */
@@ -2695,12 +2426,12 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .add-source-trigger {
   width: 100%;
   padding: 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.54);
+  font-size: 11.5px;
+  font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2709,23 +2440,17 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   transition: all 200ms ease;
 }
 
-.add-source-trigger svg {
-  width: 15px;
-  height: 15px;
-}
-
 .add-source-trigger:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.16);
   color: #fff;
 }
 
 .add-source-form {
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
   padding: 20px;
-  backdrop-filter: blur(20px);
 }
 
 .add-source-form__header {
@@ -2736,8 +2461,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .add-source-form__header h3 {
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 500;
   color: #fff;
   margin: 0;
 }
@@ -2748,46 +2473,14 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.32);
   display: grid;
   place-items: center;
 }
 
 .add-source-form__header .close-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   color: #fff;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.col-span-2 {
-  grid-column: span 2;
-}
-
-.add-source-form__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.add-source-form__actions .cancel-btn,
-.add-source-form__actions .submit-btn {
-  padding: 8px 16px;
-  border-radius: 9px;
-  font-size: 11.5px;
-  font-weight: 680;
-  cursor: pointer;
-  transition: all 180ms ease;
-}
-
-.add-source-form__actions .submit-btn svg {
-  width: 14px;
-  height: 14px;
 }
 
 /* 动效 */

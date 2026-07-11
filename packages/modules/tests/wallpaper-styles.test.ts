@@ -185,16 +185,14 @@ describe('Wallpaper styles', () => {
     expect(headerSource).toContain('backdropView: activeView');
   });
 
-  it('builds Settings as preferences plus a current wallpaper preview', () => {
+  it('builds Settings as unified glass board with sidebar', () => {
     const settingsSource = SettingsView.toString();
 
-    expect(settingsSource).toContain('wallpaper-settings-layout');
-    expect(settingsSource).toContain('wallpaper-settings-current');
-    expect(settingsSource).toContain('壁纸详情');
-    expect(wallpaperStyles).toContain('.wallpaper-settings-row');
-    expect(wallpaperStyles).toContain(
-      'grid-template-columns: minmax(0, 1.32fr) minmax(290px, 0.68fr);',
-    );
+    expect(settingsSource).toContain('wallpaper-settings-board');
+    expect(settingsSource).toContain('wallpaper-settings-sidebar');
+    expect(settingsSource).toContain('我的收藏');
+    expect(wallpaperStyles).toContain('.wallpaper-settings-board {');
+    expect(wallpaperStyles).toContain('grid-template-columns: 200px 1fr;');
   });
 
   it('defines preview header placement and preview entrance motion', () => {

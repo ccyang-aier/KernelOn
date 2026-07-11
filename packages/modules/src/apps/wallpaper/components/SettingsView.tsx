@@ -5,40 +5,26 @@ import {
   Check,
   Cloud,
   Database,
-  Eye,
-  EyeOff,
-  Frame,
   Heart,
   Image as ImageIcon,
   Monitor,
-  Pause,
-  Play,
   Plus,
-  Sparkles,
   Trash2,
   Upload,
   X,
 } from 'lucide-react';
-import { useCallback, useState, useRef, type ReactNode, type FormEvent } from 'react';
+import { useCallback, useState, useRef, type FormEvent } from 'react';
 
 import type { CategoryId, WallpaperAsset, WallpaperSource } from '../types';
 
-type SettingsTab = 'personalize' | 'favorites' | 'uploads' | 'sources';
+type SettingsTab = 'favorites' | 'uploads' | 'sources';
 
 export function SettingsView({
-  glassDepth,
-  isHeroAutoplayEnabled,
-  isHeroDetailsVisible,
-  onToggleGlassDepth,
-  onToggleHeroAutoplay,
-  onToggleHeroDetails,
-  onTogglePreviewFit,
-  previewFitMode,
-  selectedWallpaper,
   allWallpapers,
   customWallpapers,
   likedIds,
   sources,
+  selectedWallpaperId,
   onLike,
   onApply,
   onUploadWallpaper,
@@ -47,19 +33,11 @@ export function SettingsView({
   onAddSource,
   onRemoveSource,
 }: Readonly<{
-  glassDepth: 'deep' | 'soft';
-  isHeroAutoplayEnabled: boolean;
-  isHeroDetailsVisible: boolean;
-  onToggleGlassDepth(): void;
-  onToggleHeroAutoplay(): void;
-  onToggleHeroDetails(): void;
-  onTogglePreviewFit(): void;
-  previewFitMode: 'fill' | 'fit';
-  selectedWallpaper: WallpaperAsset;
   allWallpapers: WallpaperAsset[];
   customWallpapers: WallpaperAsset[];
   likedIds: ReadonlySet<string>;
   sources: WallpaperSource[];
+  selectedWallpaperId: string;
   onLike(id: string): void;
   onApply(id: string): void;
   onUploadWallpaper(w: WallpaperAsset): void;
@@ -68,7 +46,7 @@ export function SettingsView({
   onAddSource(s: WallpaperSource): void;
   onRemoveSource(id: string): void;
 }>) {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('personalize');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('favorites');
 
   // 上传相关的状态
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -141,7 +119,7 @@ export function SettingsView({
       category: uploadCategory,
       author: uploadAuthor || '本地用户',
       authorInitial: (uploadAuthor || '本')[0]?.toUpperCase() || 'L',
-      image: uploadPreviewUrl, // 实质上在刷新后如果使用 Blob URL 可能会失效，不过在当前 session/演示中可直接工作，若要严格可用也可以使用 base64。但因为演示中 blob 链接即用，所以保留 blob
+      image: uploadPreviewUrl,
       device: 'User Upload',
       duration: '0:00',
       durationSeconds: 0,
@@ -194,24 +172,13 @@ export function SettingsView({
 
   return (
     <section aria-label="壁纸设置" className="wallpaper-page wallpaper-page--settings">
-      <div className="wallpaper-settings-heading">
-        <p>个性化管理</p>
-        <h1>高级偏好设置</h1>
-        <span>微调壁纸视觉质感、管理收藏壁纸、配置壁纸获取源。</span>
-      </div>
-
-      <div className="wallpaper-settings-container">
+      <div className="wallpaper-settings-board">
         {/* 左侧垂直侧边栏菜单 */}
         <aside className="wallpaper-settings-sidebar">
-          <button
-            aria-current={activeTab === 'personalize' ? 'page' : undefined}
-            className={`wallpaper-sidebar-item ${activeTab === 'personalize' ? 'is-active' : ''}`}
-            onClick={() => setActiveTab('personalize')}
-            type="button"
-          >
-            <Sparkles className="wallpaper-sidebar-item__icon" />
-            <span>个性化微调</span>
-          </button>
+          <div className="wallpaper-sidebar-header">
+            <div className="logo-spark" />
+            <span>壁纸首选项</span>
+          </div>
           <button
             aria-current={activeTab === 'favorites' ? 'page' : undefined}
             className={`wallpaper-sidebar-item ${activeTab === 'favorites' ? 'is-active' : ''}`}
@@ -249,83 +216,7 @@ export function SettingsView({
 
         {/* 右侧主面板内容区 */}
         <main className="wallpaper-settings-main-content">
-          {/* Tab 1: 个性化微调 */}
-          {activeTab === 'personalize' && (
-            <div className="wallpaper-settings-panel anime-fade-in">
-              <div className="wallpaper-settings-panel__header">
-                <h2>个性化微调</h2>
-                <p>调整系统外观与动态交互行为。</p>
-              </div>
-
-              <div className="wallpaper-settings-layout">
-                <div className="wallpaper-settings-card">
-                  <div className="wallpaper-settings-card__heading">
-                    <div>
-                      <span>浏览体验</span>
-                      <strong>即时生效</strong>
-                    </div>
-                    <span className="wallpaper-settings-card__status">4 项偏好</span>
-                  </div>
-
-                  <SettingsRow
-                    active={isHeroAutoplayEnabled}
-                    description="主页打开时自动轮换精选壁纸。"
-                    icon={
-                      isHeroAutoplayEnabled ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />
-                    }
-                    label="自动轮换精选壁纸"
-                    onClick={onToggleHeroAutoplay}
-                    state={isHeroAutoplayEnabled ? '开启' : '关闭'}
-                  />
-                  <SettingsRow
-                    active={isHeroDetailsVisible}
-                    description="在主视觉区域显示分辨率、作者、文件大小和时长。"
-                    icon={isHeroDetailsVisible ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
-                    label="壁纸详情"
-                    onClick={onToggleHeroDetails}
-                    state={isHeroDetailsVisible ? '可见' : '隐藏'}
-                  />
-                  <SettingsRow
-                    active={previewFitMode === 'fill'}
-                    description="选择铺满窗口，或保留完整作品。"
-                    icon={<Frame aria-hidden="true" />}
-                    label="预览画面"
-                    onClick={onTogglePreviewFit}
-                    state={previewFitMode === 'fill' ? '铺满' : '适配'}
-                  />
-                  <SettingsRow
-                    active={glassDepth === 'deep'}
-                    description="控制主页以外磨砂界面的对比度。"
-                    icon={<Sparkles aria-hidden="true" />}
-                    label="界面玻璃"
-                    onClick={onToggleGlassDepth}
-                    state={glassDepth === 'deep' ? '深色' : '柔和'}
-                  />
-                </div>
-
-                <aside className="wallpaper-settings-current" aria-label="当前壁纸">
-                  <div className="wallpaper-settings-current__media">
-                    <img alt="" draggable={false} src={selectedWallpaper.image} />
-                    <div className="wallpaper-settings-current__shade" />
-                    <span className="wallpaper-settings-current__badge">当前壁纸</span>
-                  </div>
-                  <div className="wallpaper-settings-current__content">
-                    <span>{selectedWallpaper.category}</span>
-                    <h2>{selectedWallpaper.title}</h2>
-                    <p>
-                      {selectedWallpaper.resolution} · {selectedWallpaper.author}
-                    </p>
-                    <div className="wallpaper-settings-current__chips" aria-label="当前偏好">
-                      <span>{previewFitMode === 'fill' ? '铺满画面' : '完整作品'}</span>
-                      <span>{glassDepth === 'deep' ? '深色磨砂' : '柔和磨砂'}</span>
-                    </div>
-                  </div>
-                </aside>
-              </div>
-            </div>
-          )}
-
-          {/* Tab 2: 我的收藏 */}
+          {/* Tab 1: 我的收藏 */}
           {activeTab === 'favorites' && (
             <div className="wallpaper-settings-panel anime-fade-in">
               <div className="wallpaper-settings-panel__header">
@@ -344,28 +235,31 @@ export function SettingsView({
               ) : (
                 <div className="wallpaper-settings-grid">
                   {favoriteWallpapers.map((wallpaper) => {
-                    const isApplied = selectedWallpaper.id === wallpaper.id;
+                    const isApplied = selectedWallpaperId === wallpaper.id;
                     return (
                       <div className="wallpaper-settings-grid-item" key={wallpaper.id}>
                         <div className="wallpaper-settings-grid-item__media">
                           <img alt={wallpaper.title} src={wallpaper.image} />
                           <div className="wallpaper-settings-grid-item__overlay">
+                            {/* 设为壁纸小气泡按钮 */}
                             <button
-                              className={`action-btn action-btn--apply ${isApplied ? 'applied' : ''}`}
+                              className={`mini-glass-btn ${isApplied ? 'applied' : ''}`}
                               onClick={() => onApply(wallpaper.id)}
+                              title={isApplied ? '当前使用中' : '应用此壁纸'}
                               type="button"
                             >
                               {isApplied ? <Check className="w-4 h-4" /> : <Monitor className="w-4 h-4" />}
-                              <span>{isApplied ? '当前使用中' : '设为壁纸'}</span>
+                              <span className="tooltip">{isApplied ? '当前使用中' : '设为壁纸'}</span>
                             </button>
+                            {/* 取消收藏小气泡按钮 */}
                             <button
-                              className="action-btn action-btn--unlike"
+                              className="mini-glass-btn unlike-btn"
                               onClick={() => onLike(wallpaper.id)}
                               title="取消收藏"
                               type="button"
                             >
-                              <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-                              <span>取消收藏</span>
+                              <Heart className="w-4 h-4 text-rose-400 fill-rose-400" />
+                              <span className="tooltip">取消收藏</span>
                             </button>
                           </div>
                         </div>
@@ -381,11 +275,11 @@ export function SettingsView({
             </div>
           )}
 
-          {/* Tab 3: 壁纸上传管理 */}
+          {/* Tab 2: 壁纸上传管理 */}
           {activeTab === 'uploads' && (
             <div className="wallpaper-settings-panel anime-fade-in">
               <div className="wallpaper-settings-panel__header">
-                <h2>壁纸上传管理</h2>
+                <h2>壁纸上传</h2>
                 <p>将本地的优质图片上传到 KernelOn 壁纸库中，供系统快捷应用。</p>
               </div>
 
@@ -410,9 +304,9 @@ export function SettingsView({
                     type="file"
                   />
                   <div className="wallpaper-upload-zone__content">
-                    <Upload className="w-12 h-12 text-slate-400 stroke-1" />
-                    <h3>拖拽图片文件到此，或<span>点击选择</span></h3>
-                    <p>支持 JPG, PNG, WEBP 高清图片</p>
+                    <Upload className="w-8 h-8 text-teal-400/80 stroke-1 mb-1" />
+                    <h3>拖拽图片文件到此，或 <span>浏览本地</span></h3>
+                    <p>支持 JPG, PNG, WEBP 高清图片格式</p>
                   </div>
                 </div>
               ) : (
@@ -480,10 +374,10 @@ export function SettingsView({
                           onClick={handleCancelUpload}
                           type="button"
                         >
-                          取消
+                          重新选择
                         </button>
                         <button className="submit-btn" type="submit">
-                          确认导入壁纸库
+                          导入壁纸库
                         </button>
                       </div>
                     </div>
@@ -492,39 +386,42 @@ export function SettingsView({
               )}
 
               {/* 已上传壁纸展示 */}
-              <div className="wallpaper-settings-panel__section mt-8">
-                <h3 className="section-title">已上传壁纸 ({customWallpapers.length})</h3>
+              <div className="wallpaper-settings-panel__section mt-6">
+                <h3 className="section-title">我的上传 ({customWallpapers.length})</h3>
 
                 {customWallpapers.length === 0 ? (
                   <div className="wallpaper-settings-sub-empty">
-                    <ImageIcon className="w-8 h-8 text-slate-500 mb-2" />
+                    <ImageIcon className="w-6 h-6 text-slate-500/70 mb-2" />
                     <p>暂无自行上传的壁纸，你可以通过上方卡片上传本地资源。</p>
                   </div>
                 ) : (
                   <div className="wallpaper-settings-grid">
                     {customWallpapers.map((wallpaper) => {
-                      const isApplied = selectedWallpaper.id === wallpaper.id;
+                      const isApplied = selectedWallpaperId === wallpaper.id;
                       return (
                         <div className="wallpaper-settings-grid-item" key={wallpaper.id}>
                           <div className="wallpaper-settings-grid-item__media">
                             <img alt={wallpaper.title} src={wallpaper.image} />
                             <div className="wallpaper-settings-grid-item__overlay">
+                              {/* 设为壁纸小气泡按钮 */}
                               <button
-                                className={`action-btn action-btn--apply ${isApplied ? 'applied' : ''}`}
+                                className={`mini-glass-btn ${isApplied ? 'applied' : ''}`}
                                 onClick={() => onApply(wallpaper.id)}
+                                title={isApplied ? '当前使用中' : '应用此壁纸'}
                                 type="button"
                               >
                                 {isApplied ? <Check className="w-4 h-4" /> : <Monitor className="w-4 h-4" />}
-                                <span>{isApplied ? '当前使用中' : '设为壁纸'}</span>
+                                <span className="tooltip">{isApplied ? '当前使用中' : '设为壁纸'}</span>
                               </button>
+                              {/* 删除上传小气泡按钮 */}
                               <button
-                                className="action-btn action-btn--delete"
+                                className="mini-glass-btn unlike-btn"
                                 onClick={() => onDeleteUploadedWallpaper(wallpaper.id)}
                                 title="删除此壁纸"
                                 type="button"
                               >
-                                <Trash2 className="w-4 h-4 text-red-400" />
-                                <span>删除</span>
+                                <Trash2 className="w-4 h-4 text-rose-400" />
+                                <span className="tooltip">彻底删除</span>
                               </button>
                             </div>
                           </div>
@@ -541,12 +438,12 @@ export function SettingsView({
             </div>
           )}
 
-          {/* Tab 4: 壁纸源管理 */}
+          {/* Tab 3: 壁纸源管理 */}
           {activeTab === 'sources' && (
             <div className="wallpaper-settings-panel anime-fade-in">
               <div className="wallpaper-settings-panel__header">
                 <h2>壁纸源管理</h2>
-                <p>启用、停用或添加系统壁纸拉取 API 数据源。</p>
+                <p>配置系统获取外部壁纸数据源的拉取端口。</p>
               </div>
 
               {/* 源列表 */}
@@ -560,24 +457,24 @@ export function SettingsView({
                       <div className="source-info">
                         <div className="source-icon">
                           {source.id === 'system' ? (
-                            <Monitor className="w-5 h-5 text-teal-400" />
+                            <Monitor className="w-4 h-4 text-teal-400/80" />
                           ) : source.id === 'unsplash' ? (
-                            <ImageIcon className="w-5 h-5 text-sky-400" />
+                            <ImageIcon className="w-4 h-4 text-sky-400/80" />
                           ) : (
-                            <Database className="w-5 h-5 text-purple-400" />
+                            <Database className="w-4 h-4 text-purple-400/80" />
                           )}
                         </div>
                         <div>
                           <h3>
                             {source.name}
-                            {source.isSystem && <span className="sys-badge">系统</span>}
+                            {source.isSystem && <span className="sys-badge">系统预置</span>}
                           </h3>
                           <code className="source-url">{source.url}</code>
                         </div>
                       </div>
 
                       <div className="source-controls">
-                        {/* 玻璃开关 Toggle */}
+                        {/* 极简滑块 Toggle */}
                         <button
                           aria-label={`切换壁纸源: ${source.name}`}
                           className={`glass-switch ${source.enabled ? 'active' : ''}`}
@@ -594,7 +491,7 @@ export function SettingsView({
                             title="移除此壁纸源"
                             type="button"
                           >
-                            <Trash2 className="w-4 h-4 text-rose-400" />
+                            <Trash2 className="w-3.5 h-3.5 text-rose-400" />
                           </button>
                         )}
                       </div>
@@ -606,7 +503,7 @@ export function SettingsView({
               </div>
 
               {/* 添加源板块 */}
-              <div className="wallpaper-sources-add-section mt-8">
+              <div className="wallpaper-sources-add-section">
                 {!isAddingSource ? (
                   <button
                     className="add-source-trigger"
@@ -614,12 +511,12 @@ export function SettingsView({
                     type="button"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>添加自定义壁纸来源站</span>
+                    <span>对接外部自定义壁纸源</span>
                   </button>
                 ) : (
                   <form className="add-source-form anime-fade-in" onSubmit={handleAddSourceSubmit}>
                     <div className="add-source-form__header">
-                      <h3>新增壁纸数据源</h3>
+                      <h3>对接新壁纸数据源</h3>
                       <button
                         className="close-btn"
                         onClick={() => setIsAddingSource(false)}
@@ -631,11 +528,11 @@ export function SettingsView({
 
                     <div className="form-grid">
                       <div className="form-group">
-                        <label htmlFor="source-name">来源名称</label>
+                        <label htmlFor="source-name">来源站名称</label>
                         <input
                           id="source-name"
                           onChange={(e) => setNewSourceName(e.target.value)}
-                          placeholder="例如：My Custom API"
+                          placeholder="My Custom Gallery"
                           required
                           type="text"
                           value={newSourceName}
@@ -643,11 +540,11 @@ export function SettingsView({
                       </div>
 
                       <div className="form-group">
-                        <label htmlFor="source-api-url">API 接口端点 / 地址</label>
+                        <label htmlFor="source-api-url">API 接口端点 (URL)</label>
                         <input
                           id="source-api-url"
                           onChange={(e) => setNewSourceUrl(e.target.value)}
-                          placeholder="https://api.mywallpapers.com/v1"
+                          placeholder="https://api.domain.com/v1"
                           required
                           type="url"
                           value={newSourceUrl}
@@ -655,11 +552,11 @@ export function SettingsView({
                       </div>
 
                       <div className="form-group col-span-2">
-                        <label htmlFor="source-description">来源描述</label>
+                        <label htmlFor="source-description">接口协议与版权声明描述</label>
                         <input
                           id="source-description"
                           onChange={(e) => setNewSourceDesc(e.target.value)}
-                          placeholder="微调或填写该接口的相关描述与版权规则..."
+                          placeholder="填写该壁纸站点的简单描述以及图片分发版权规则..."
                           type="text"
                           value={newSourceDesc}
                         />
@@ -675,8 +572,8 @@ export function SettingsView({
                         取消
                       </button>
                       <button className="submit-btn" type="submit">
-                        配置对接
-                        <ArrowRight className="w-4 h-4 ml-1" />
+                        确认对接
+                        <ArrowRight className="w-3.5 h-3.5 ml-1" />
                       </button>
                     </div>
                   </form>
@@ -687,37 +584,5 @@ export function SettingsView({
         </main>
       </div>
     </section>
-  );
-}
-
-function SettingsRow({
-  active,
-  description,
-  icon,
-  label,
-  onClick,
-  state,
-}: Readonly<{
-  active: boolean;
-  description: string;
-  icon: ReactNode;
-  label: string;
-  onClick(): void;
-  state: string;
-}>) {
-  return (
-    <button
-      aria-pressed={active}
-      className="wallpaper-settings-row"
-      onClick={onClick}
-      type="button"
-    >
-      <span className="wallpaper-settings-row__icon">{icon}</span>
-      <span className="wallpaper-settings-row__copy">
-        <strong>{label}</strong>
-        <small>{description}</small>
-      </span>
-      <span className="wallpaper-settings-row__state">{state}</span>
-    </button>
   );
 }

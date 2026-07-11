@@ -104,10 +104,10 @@ export default function WallpaperWindow() {
   }, [likedIds]);
 
   const [selectedWallpaperId, setSelectedWallpaperId] = useState('retrowaves');
-  const [isHeroAutoplayEnabled, setIsHeroAutoplayEnabled] = useState(true);
-  const [isHeroDetailsVisible, setIsHeroDetailsVisible] = useState(true);
-  const [previewFitMode, setPreviewFitMode] = useState<'fill' | 'fit'>('fill');
-  const [glassDepth, setGlassDepth] = useState<'deep' | 'soft'>('deep');
+  const [isHeroAutoplayEnabled] = useState(true);
+  const [isHeroDetailsVisible] = useState(true);
+  const [previewFitMode] = useState<'fill' | 'fit'>('fill');
+  const [glassDepth] = useState<'deep' | 'soft'>('deep');
   const [headerActionNotice, setHeaderActionNotice] = useState<string | null>(null);
 
   const assetById = useMemo(
@@ -384,25 +384,11 @@ export default function WallpaperWindow() {
             ) : null}
             {!previewWallpaper && activeView === 'settings' ? (
               <SettingsView
-                glassDepth={glassDepth}
-                isHeroAutoplayEnabled={isHeroAutoplayEnabled}
-                isHeroDetailsVisible={isHeroDetailsVisible}
-                onToggleGlassDepth={() =>
-                  setGlassDepth((currentDepth) => (currentDepth === 'deep' ? 'soft' : 'deep'))
-                }
-                onToggleHeroAutoplay={() =>
-                  setIsHeroAutoplayEnabled((currentValue) => !currentValue)
-                }
-                onToggleHeroDetails={() => setIsHeroDetailsVisible((currentValue) => !currentValue)}
-                onTogglePreviewFit={() =>
-                  setPreviewFitMode((currentMode) => (currentMode === 'fit' ? 'fill' : 'fit'))
-                }
-                previewFitMode={previewFitMode}
-                selectedWallpaper={selectedWallpaper}
                 allWallpapers={allWallpapers}
                 customWallpapers={customWallpapers}
                 likedIds={likedIds}
                 sources={sources}
+                selectedWallpaperId={selectedWallpaperId}
                 onLike={toggleLike}
                 onApply={applyWallpaper}
                 onUploadWallpaper={handleUploadWallpaper}
