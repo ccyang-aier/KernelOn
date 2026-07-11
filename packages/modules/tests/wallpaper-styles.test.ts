@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { HeroFrostedAction } from '../src/apps/wallpaper/components/HeroFrostedAction';
 import { ExploreView } from '../src/apps/wallpaper/components/ExploreView';
 import { HomeView } from '../src/apps/wallpaper/components/HomeView';
+import { LockScreenSetup } from '../src/apps/wallpaper/components/LockScreenSetup';
 import { SettingsView } from '../src/apps/wallpaper/components/SettingsView';
 import { WallpaperFrostedHeaderControls } from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
 import { createWallpaperHeader } from '../src/apps/wallpaper/header';
@@ -172,6 +173,18 @@ describe('Wallpaper styles', () => {
     expect(settingsSource).toContain('我的收藏');
     expect(wallpaperStyles).toContain('.wallpaper-settings-board {');
     expect(wallpaperStyles).toContain('grid-template-columns: 220px 1fr;');
+    expect(wallpaperStyles).toContain('background: rgba(45, 212, 191, 0.13);');
+  });
+
+  it('builds the key action as a current-wallpaper lock-screen workflow', () => {
+    const lockScreenSource = LockScreenSetup.toString();
+    const headerSource = WallpaperFrostedHeaderControls.toString();
+
+    expect(headerSource).toContain('设置锁屏');
+    expect(lockScreenSource).toContain('启用并立即锁屏');
+    expect(lockScreenSource).toContain('输入锁屏密码');
+    expect(wallpaperStyles).toContain('.wallpaper-lock-screen__background');
+    expect(wallpaperStyles).toContain('@keyframes wallpaperLockPanelIn');
   });
 
   it('defines preview header placement and preview entrance motion', () => {

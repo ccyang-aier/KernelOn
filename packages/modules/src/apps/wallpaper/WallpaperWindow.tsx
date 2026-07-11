@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 
 import { ExploreView } from './components/ExploreView';
 import { HomeView } from './components/HomeView';
+import { LockScreenSetup } from './components/LockScreenSetup';
 import { PreviewView } from './components/PreviewView';
 import { SettingsView } from './components/SettingsView';
 import { WallpaperFrostedHeaderControls } from './components/WallpaperFrostedHeaderControls';
@@ -115,6 +116,7 @@ export default function WallpaperWindow() {
   const [previewFitMode] = useState<'fill' | 'fit'>('fill');
   const [glassDepth] = useState<'deep' | 'soft'>('deep');
   const [headerActionNotice, setHeaderActionNotice] = useState<string | null>(null);
+  const [isLockScreenOpen, setIsLockScreenOpen] = useState(false);
 
   const assetById = useMemo(
     () => new Map(allWallpapers.map((wallpaper) => [wallpaper.id, wallpaper])),
@@ -274,11 +276,10 @@ export default function WallpaperWindow() {
     setHeaderActionNotice(message);
   }, []);
 
-  const showLicense = useCallback(() => {
-    showHeaderActionNotice(
-      `“${activeWallpaper.title}”由 ${activeWallpaper.author} 提供，请在使用前核对原作者许可。`,
-    );
-  }, [activeWallpaper.author, activeWallpaper.title, showHeaderActionNotice]);
+  const openLockScreen = useCallback(() => {
+    setIsHeaderSearchOpen(false);
+    setIsLockScreenOpen(true);
+  }, []);
 
   const shareWallpaper = useCallback(() => {
     const shareText = `${activeWallpaper.title} · ${activeWallpaper.author}\n${window.location.href}`;
@@ -309,7 +310,7 @@ export default function WallpaperWindow() {
       activeView={displayedView}
       isSearchOpen={isHeaderSearchOpen}
       onBack={closePreview}
-      onLicense={showLicense}
+      onLockScreen={openLockScreen}
       onSearchChange={setQuery}
       onSearchOpenChange={setIsHeaderSearchOpen}
       onShare={shareWallpaper}
@@ -328,6 +329,11 @@ export default function WallpaperWindow() {
             style={wallpaperRootStyle}
           >
             <style>{wallpaperStyles}</style>
+            <LockScreenSetup
+              isOpen={isLockScreenOpen}
+              onClose={() => setIsLockScreenOpen(false)}
+              wallpaper={desktopWallpaper}
+            />
             {headerActionNotice ? (
               <div className="wallpaper-header-action-notice" role="status">
                 {headerActionNotice}

@@ -13,7 +13,7 @@ export function WallpaperFrostedHeaderControls({
   children,
   isSearchOpen,
   onBack,
-  onLicense,
+  onLockScreen,
   onSearchChange,
   onSearchOpenChange,
   onShare,
@@ -25,7 +25,7 @@ export function WallpaperFrostedHeaderControls({
   children(slots: Readonly<Record<string, ReactNode>>): ReactNode;
   isSearchOpen: boolean;
   onBack(): void;
-  onLicense(): void;
+  onLockScreen(): void;
   onSearchChange(query: string): void;
   onSearchOpenChange(isOpen: boolean): void;
   onShare(): void;
@@ -175,18 +175,18 @@ export function WallpaperFrostedHeaderControls({
     );
   }, [isSearchOpen, navigationControl, searchControl]);
 
-  const licenseControl = useMemo(
+  const lockScreenControl = useMemo(
     () => (
       <button
-        aria-label="License"
+        aria-label="设置锁屏"
         className="wallpaper-frosted-button wallpaper-frosted-surface wallpaper-frosted-button--icon wallpaper-frosted-button--action"
-        onClick={onLicense}
+        onClick={onLockScreen}
         type="button"
       >
         <KeyRound aria-hidden="true" />
       </button>
     ),
-    [onLicense],
+    [onLockScreen],
   );
 
   const shareControl = useMemo(
@@ -220,7 +220,7 @@ export function WallpaperFrostedHeaderControls({
   const slots = useMemo(
     () => ({
       'wallpaper-back-control': activeView === 'preview' ? backControl : null,
-      'wallpaper-license-control': licenseControl,
+      'wallpaper-license-control': lockScreenControl,
       'wallpaper-primary-control': primaryControl,
       'wallpaper-search-control': activeView === 'preview' ? searchControl : null,
       'wallpaper-settings-control': activeView === 'preview' ? settingsControl : null,
@@ -229,7 +229,7 @@ export function WallpaperFrostedHeaderControls({
     [
       activeView,
       backControl,
-      licenseControl,
+      lockScreenControl,
       primaryControl,
       searchControl,
       settingsControl,

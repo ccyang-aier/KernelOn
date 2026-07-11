@@ -1671,12 +1671,12 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-sidebar-item.is-active {
   color: #fff;
-  background: rgba(45, 212, 191, 0.06);
-  border: 1px dashed rgba(45, 212, 191, 0.52);
+  background: rgba(45, 212, 191, 0.13);
+  border: 1px solid rgba(94, 234, 212, 0.48);
   border-radius: 10px;
   box-shadow:
-    0 0 8px rgba(45, 212, 191, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 0 12px rgba(45, 212, 191, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   animation: sidebarItemActivate 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -2492,6 +2492,406 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   to {
     opacity: 1;
     transform: translate3d(-50%, 0, 0) scale(1);
+  }
+}
+
+/* 当前壁纸驱动的锁屏设置与预览 */
+.wallpaper-lock-screen {
+  position: absolute;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #fff;
+  animation: wallpaperLockScreenIn 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.wallpaper-lock-screen__background,
+.wallpaper-lock-screen__shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.wallpaper-lock-screen__background {
+  object-fit: cover;
+  transform: scale(1.025);
+  animation: wallpaperLockBackgroundIn 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.wallpaper-lock-screen__shade {
+  background:
+    linear-gradient(180deg, rgba(5, 12, 16, 0.2), rgba(5, 12, 16, 0.03) 40%, rgba(5, 12, 16, 0.48)),
+    radial-gradient(circle at center, transparent 18%, rgba(3, 9, 12, 0.22) 100%);
+  backdrop-filter: blur(3px) saturate(0.9);
+}
+
+.wallpaper-lock-screen__close {
+  position: absolute;
+  z-index: 4;
+  top: 70px;
+  right: 24px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 99px;
+  background: rgba(12, 22, 27, 0.24);
+  color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(18px) saturate(1.2);
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.wallpaper-lock-screen__close:hover {
+  transform: scale(1.06);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.wallpaper-lock-screen__close svg {
+  width: 17px;
+  height: 17px;
+}
+
+.wallpaper-lock-screen__clock {
+  position: absolute;
+  z-index: 2;
+  top: clamp(76px, 10vh, 96px);
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.34);
+}
+
+.wallpaper-lock-screen__clock span {
+  font-size: 14px;
+  font-weight: 620;
+  letter-spacing: 0.02em;
+}
+
+.wallpaper-lock-screen__clock strong {
+  margin-top: -4px;
+  font-size: clamp(72px, 10vw, 124px);
+  font-weight: 680;
+  line-height: 1;
+  letter-spacing: -0.07em;
+}
+
+.wallpaper-lock-screen__clock small {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 11px;
+  font-weight: 560;
+}
+
+.wallpaper-lock-setup,
+.wallpaper-lock-unlock {
+  position: relative;
+  z-index: 3;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(145deg, rgba(13, 25, 30, 0.72), rgba(9, 18, 23, 0.52));
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(30px) saturate(1.22);
+  animation: wallpaperLockPanelIn 620ms 80ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.wallpaper-lock-setup {
+  width: min(430px, calc(100% - 40px));
+  margin-top: clamp(130px, 22vh, 210px);
+  padding: 26px;
+  border-radius: 24px;
+}
+
+.wallpaper-lock-setup__icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(94, 234, 212, 0.32);
+  border-radius: 14px;
+  background: rgba(45, 212, 191, 0.14);
+  color: #99f6e4;
+  box-shadow: 0 10px 28px rgba(13, 148, 136, 0.2);
+}
+
+.wallpaper-lock-setup__icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.wallpaper-lock-setup__heading {
+  margin: 16px 0 20px;
+}
+
+.wallpaper-lock-setup__heading > span {
+  color: #99f6e4;
+  font-size: 10px;
+  font-weight: 720;
+  letter-spacing: 0.12em;
+}
+
+.wallpaper-lock-setup__heading h2 {
+  margin: 5px 0 7px;
+  font-size: 22px;
+  font-weight: 680;
+  letter-spacing: -0.025em;
+}
+
+.wallpaper-lock-setup__heading p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.wallpaper-lock-field {
+  display: block;
+  margin-top: 13px;
+}
+
+.wallpaper-lock-field > span {
+  display: block;
+  margin: 0 0 6px 2px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 10.5px;
+  font-weight: 580;
+}
+
+.wallpaper-lock-field > div,
+.wallpaper-lock-unlock__field {
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(3, 10, 13, 0.34);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.wallpaper-lock-field > div {
+  height: 40px;
+  padding: 0 11px;
+  border-radius: 11px;
+}
+
+.wallpaper-lock-field > div:focus-within,
+.wallpaper-lock-unlock__field:focus-within {
+  border-color: rgba(94, 234, 212, 0.58);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+}
+
+.wallpaper-lock-field input,
+.wallpaper-lock-unlock__field input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+}
+
+.wallpaper-lock-field input::placeholder,
+.wallpaper-lock-unlock__field input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.wallpaper-lock-field button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.48);
+  cursor: pointer;
+}
+
+.wallpaper-lock-field svg {
+  width: 15px;
+  height: 15px;
+  color: #5eead4;
+}
+
+.wallpaper-lock-setup__hint {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 13px;
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 9.5px;
+}
+
+.wallpaper-lock-setup__hint svg {
+  width: 14px;
+  height: 14px;
+  color: #5eead4;
+}
+
+.wallpaper-lock-error {
+  margin: 10px 0 0;
+  color: #fecaca;
+  font-size: 10.5px;
+}
+
+.wallpaper-lock-setup__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.wallpaper-lock-button {
+  height: 38px;
+  padding: 0 15px;
+  border-radius: 11px;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.wallpaper-lock-button:hover {
+  transform: translateY(-1px);
+}
+
+.wallpaper-lock-button--secondary {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.wallpaper-lock-button--primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(153, 246, 228, 0.38);
+  background: linear-gradient(135deg, #14b8a6, #0f766e);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(13, 148, 136, 0.28);
+}
+
+.wallpaper-lock-button--primary svg {
+  width: 14px;
+  height: 14px;
+}
+
+.wallpaper-lock-unlock {
+  align-self: end;
+  width: min(310px, calc(100% - 40px));
+  margin-bottom: clamp(32px, 7vh, 72px);
+  padding: 22px;
+  border-radius: 22px;
+  text-align: center;
+}
+
+.wallpaper-lock-unlock__avatar {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 10px;
+  border: 2px solid rgba(255, 255, 255, 0.58);
+  border-radius: 99px;
+  background: linear-gradient(145deg, rgba(94, 234, 212, 0.88), rgba(15, 118, 110, 0.92));
+  color: #07201f;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
+}
+
+.wallpaper-lock-unlock > strong,
+.wallpaper-lock-unlock > span {
+  display: block;
+}
+
+.wallpaper-lock-unlock > strong {
+  font-size: 13px;
+}
+
+.wallpaper-lock-unlock > span {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 10px;
+}
+
+.wallpaper-lock-unlock__field {
+  height: 38px;
+  margin-top: 13px;
+  padding-left: 11px;
+  border-radius: 99px;
+  text-align: left;
+}
+
+.wallpaper-lock-unlock__field > svg {
+  width: 13px;
+  height: 13px;
+  margin-right: 7px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.wallpaper-lock-unlock__field button {
+  width: 32px;
+  height: 32px;
+  margin-right: 2px;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+}
+
+.wallpaper-lock-unlock__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.wallpaper-lock-unlock__actions span {
+  width: 2px;
+  height: 2px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.wallpaper-lock-unlock__actions button {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 9.5px;
+  cursor: pointer;
+}
+
+.wallpaper-lock-unlock__actions button:hover {
+  color: #fff;
+}
+
+@keyframes wallpaperLockScreenIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes wallpaperLockBackgroundIn {
+  from { filter: blur(16px); transform: scale(1.12); }
+  to { filter: blur(0); transform: scale(1.025); }
+}
+
+@keyframes wallpaperLockPanelIn {
+  from { opacity: 0; transform: translateY(28px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallpaper-lock-screen,
+  .wallpaper-lock-screen__background,
+  .wallpaper-lock-setup,
+  .wallpaper-lock-unlock,
+  .wallpaper-sidebar-item.is-active,
+  .anime-fade-in {
+    animation: none;
   }
 }
 
