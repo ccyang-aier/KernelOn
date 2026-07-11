@@ -4,6 +4,8 @@ KernelOn 是一个面向新员工运作的 Web OS 式管理平台。它把入职
 
 本仓库当前处于工程骨架阶段：优先建立清晰、可扩展、可验证的前后端架构，不提前锁死完整视觉稿或完整 MVP 交互。
 
+项目文档从 [`docs/README.md`](docs/README.md) 进入；agent 执行规则按目录拆分在根目录及各子系统的 `AGENTS.md`。普通任务只需读取对应子系统文档，不需要同时加载产品、前端视觉和后端架构全文。
+
 ## 技术栈
 
 - 包管理与工作区：`pnpm` workspace
@@ -23,9 +25,9 @@ KernelOn 是一个面向新员工运作的 Web OS 式管理平台。它把入职
 ```text
 KernelOn/
   apps/
-    api/              # Litestar REST API 模块化单体
+    api/              # Litestar REST API 模块化单体（含后端 AGENTS.md）
     desktop/          # Tauri + Vite 桌面端壳层骨架
-    web/              # Next.js App Router Web 应用
+    web/              # Next.js App Router Web 应用（含 Web AGENTS.md）
   packages/
     catalog/          # App/Widget manifest 与默认桌面配置
     core/             # 纯 TypeScript 核心模型与纯函数
@@ -33,10 +35,13 @@ KernelOn/
     shell/            # 可复用 Web OS 客户端壳层
     ui/               # React UI primitives 与设计系统组件
   docs/
+    README.md         # 文档导航与任务阅读矩阵
+    frontend_architecture.md
+    backend_architecture.md
     product_planning_overview.md
   .agents/            # 仓库本地 agent skills
   .codex/             # 项目级 Codex 配置
-  AGENTS.md           # 仓库级 Codex 指引
+  AGENTS.md           # 仅包含仓库级规则与上下文路由
 ```
 
 ## 开发命令
@@ -57,7 +62,7 @@ pnpm check
 `pnpm dev` 与 `pnpm dev:web` 都会启动 `apps/web` 的 Next.js dev server。`pnpm check` 会串行执行 lint、typecheck、test 和 build。
 `pnpm dev:desktop` 启动桌面端 Vite 壳层，用于提前验证共享 Shell、App 模块与 Widget 模块在桌面容器中的复用情况；真正的 Tauri 打包命令保留在 `apps/desktop` 内。
 
-后端要求 Python 3.12.x 与 `uv`。当前机器未安装 `uv` 时，需显式运行 `scripts/api/install-uv.ps1`（Linux 使用 `install-uv.sh`），再执行 API setup。API 默认监听 `127.0.0.1:8000`，开发文档位于 `/schema`。
+后端要求 Python 3.12.x 与 `uv`。API 默认监听 `127.0.0.1:8000`，开发文档位于 `/schema`。正式后端验证仅在 WSL2 的 Conda `v20` 环境运行 `scripts/api/check-wsl.sh`，不要求在 Windows Python 环境重复验证。
 
 数据库可使用本机/远程 PostgreSQL，也可在装有 Docker 的环境运行 `docker compose up --build` 启动 PostgreSQL 17 与 API。迁移通过 `pnpm db:upgrade` 执行。
 

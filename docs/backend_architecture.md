@@ -38,8 +38,18 @@ Litestar Guard 只处理认证和粗粒度进入权限。组织上下文和 Prin
 - `/health/live` 只检查进程；`/health/ready` 检查数据库但不泄漏连接信息。
 - 生产环境默认关闭交互式 Schema UI，CORS 与 Allowed Hosts 必须显式配置。
 
-本地 Compose 使用 PostgreSQL 17，宿主机和容器网络默认端口均为 5432，并允许通过环境变量覆盖宿主端口。迁移和集成测试必须验证 `alembic_versions` 已处于唯一 Head；WSL2 验证使用 Conda `v20` 的 Python 3.12，并在 Linux 原生临时工作区和独立虚拟环境中执行，避免与 Windows 依赖交叉污染。
+本地 Compose 使用 PostgreSQL 17，宿主机和容器网络默认端口均为 5432，并允许通过环境变量覆盖宿主端口。迁移和集成测试必须验证 `alembic_versions` 已处于唯一 Head。
 
-## 6. 未来模块
+## 6. 后端验证环境
+
+后端以 Linux 作为唯一交付验证基线。所有后端任务只需在 WSL2 Ubuntu 中验证，不要求在 Windows Python 环境重复执行；Windows 只作为编辑与 WSL2 宿主环境。
+
+- 使用 `$HOME/miniforge3` 中的 Conda `v20` 环境，Python 必须为 3.12.x。
+- `uv` 安装在 `v20`；Docker Engine、Compose、Node 与 pnpm 在 WSL2 内执行。
+- PostgreSQL 17 由根目录 Compose 管理，真实数据库检查必须覆盖迁移 Head 和 readiness。
+- 完整验证复制到 `/tmp/kernelon-wsl-validation`，并使用 `/tmp/kernelon-api-v20` 虚拟环境，避免 `/mnt/c` 文件系统性能损耗及跨平台依赖污染。
+- 标准入口为 `./scripts/api/check-wsl.sh`；镜像源覆盖和定向验证规则见 `apps/api/AGENTS.md`。
+
+## 7. 未来模块
 
 Identity、Organizations、Onboarding、Mentorship、Growth、Training、Assessment、Notifications、Audit、Integrations 和 AI 仅在出现首个真实用例时创建。AI provider 位于 infrastructure，通过 application port 被调用，不能进入核心领域模型。
