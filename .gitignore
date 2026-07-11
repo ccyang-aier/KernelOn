@@ -6,8 +6,21 @@ node_modules/
 dist/
 build/
 coverage/
+.coverage
+.coverage.*
+htmlcov/
 .tmp/
 *.tsbuildinfo
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.import_linter_cache/
+.hypothesis/
 
 # External source snapshots
 open_source/

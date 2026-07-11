@@ -1,0 +1,81 @@
+[project]
+name = "kernelon-api"
+version = "0.1.0"
+description = "KernelOn modular-monolith REST API"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "advanced-alchemy>=1.11,<2",
+  "litestar[standard,structlog]>=2.24,<3",
+  "psycopg[binary,pool]>=3.2,<4",
+  "pydantic>=2.12,<3",
+  "pydantic-settings>=2.12,<3",
+]
+
+[dependency-groups]
+dev = [
+  "hatchling>=1.28,<2",
+  "import-linter>=2.9,<3",
+  "mypy>=1.19,<2",
+  "pytest>=9,<10",
+  "pytest-asyncio>=1.3,<2",
+  "pytest-cov>=7,<8",
+  "ruff>=0.14,<1",
+]
+
+[build-system]
+requires = ["hatchling>=1.28,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kernelon_api"]
+
+[tool.uv]
+package = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["A", "ASYNC", "B", "C4", "DTZ", "E", "F", "I", "N", "PERF", "PIE", "RET", "RUF", "S", "SIM", "T20", "TC", "UP", "W"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"migrations/versions/*.py" = ["INP001"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["kernelon_api"]
+mypy_path = "src"
+plugins = ["pydantic.mypy"]
+warn_unreachable = true
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers --cov=kernelon_api --cov-report=term-missing --cov-fail-under=85"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+  "integration: tests requiring a running PostgreSQL instance",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["kernelon_api"]
+
+[tool.coverage.report]
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+]
+
+[tool.importlinter]
+root_packages = ["kernelon_api"]
+
+[[tool.importlinter.contracts]]
+name = "Infrastructure and platform do not depend on HTTP presentation"
+type = "forbidden"
+source_modules = ["kernelon_api.infrastructure", "kernelon_api.platform"]
+forbidden_modules = ["kernelon_api.modules.system.presentation"]

@@ -113,8 +113,9 @@
 | UI primitives  | `shadcn/ui` 思路 + `Radix Primitives`                     | Dialog、Popover、Slot、可访问性交互组件优先基于成熟 primitives 封装，不重复造基础交互轮子。                                                   |
 | 动效           | `Motion`                                                  | 默认动效方案，用于窗口、启动台、Dock、Spotlight 等与 Web OS 隐喻强相关的交互。`GSAP`、`Three.js` 仅在高级时间线动画或 3D 场景明确需要时引入。 |
 | 客户端 UI 状态 | `Zustand`                                                 | 只用于窗口栈、Dock、启动台、Spotlight、桌面屏幕、小组件布局等本地 Shell 状态。                                                                |
-| 服务端数据     | `Server Components` / `Server Actions` / `Route Handlers` | 读写边界优先放在服务端，后续复杂客户端缓存或乐观更新再引入 TanStack Query。                                                                   |
-| 数据层         | `PostgreSQL + Drizzle ORM`                                | 后续承载新员工、导师、成长档案、任务、考核、通知、资源等结构化数据。                                                                          |
+| Web 服务端装配 | `Server Components` / `Server Actions` / `Route Handlers` | 负责 SSR、Web 特有装配与 BFF 边界，通过 REST API 访问业务事实，不直接持有业务数据库访问。                                                      |
+| 业务后端       | `Python 3.12 + Litestar 2`                                | 独立模块化单体 REST API，承载身份、组织、权限、业务事务、审计、集成和 AI 适配边界。                                                           |
+| 数据层         | `PostgreSQL + SQLAlchemy 2 + Advanced Alchemy`             | 通过异步 Session 与 Alembic 迁移承载新员工、导师、成长档案、任务、考核、通知、资源等结构化数据。                                              |
 | AI 能力        | 服务端 AI SDK / provider adapter                          | AI Spotlight、智能匹配、总结与 Agent 能力都走服务端适配层，不在客户端暴露模型密钥。                                                           |
 | 包管理         | `pnpm workspace`                                          | 支撑 monorepo 下 Web、未来桌面端、核心模型、UI 系统、Shell 与后续数据/AI 包的清晰边界。                                                       |
 
@@ -125,7 +126,8 @@
 - `packages/modules` 是可动态加载的业务模块层。App 窗口和 Widget 通过运行时注册表按 `loaderKey` 懒加载，支持未来按组织、角色、用户个性化配置裁剪加载范围。
 - `packages/ui` 是设计系统原语层，沉淀 Button、IconButton、Surface、WindowFrame 等可复用组件，并逐步接入 shadcn/Radix 风格的可访问性基础组件。
 - `packages/shell` 是客户端 Web OS 壳层，承载桌面、Dock、启动台、窗口层、Spotlight 与本地 UI store。Shell 不直接绑定具体业务 App，而是消费 manifest、桌面布局和运行时注册表。
-- `apps/web` 是 Next.js 应用装配层，负责路由、布局、服务端数据入口、权限边界和业务 App 组合。
+- `apps/web` 是 Next.js 应用装配层，负责路由、布局、SSR、Web 特有入口和业务 App 组合，通过 Litestar API 获取和提交远端业务数据。
+- `apps/api` 是独立 Litestar 模块化单体，负责业务事实、权限、事务、审计、持久化和外部集成，并通过 OpenAPI 3.1 向 Web 与桌面端提供稳定 REST 契约。
 - `apps/desktop` 是 Tauri + Vite 桌面壳层，负责窗口容器、桌面构建、原生能力桥接和共享模块装配；除原生集成外，不重复实现 Web 已有业务组件。
 - Zustand 不管理远端列表缓存、复杂表单工作流、审批流状态机或跨用户协同状态；这些能力后续分别由服务端模型、数据库事务、工作流建模或专用协同方案承载。
 

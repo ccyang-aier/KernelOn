@@ -6,3 +6,5 @@ coverage/
 *.tsbuildinfo
 apps/web/next-env.d.ts
 pnpm-lock.yaml
+apps/api/uv.lock
+apps/api/migrations/
