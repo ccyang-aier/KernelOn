@@ -44,7 +44,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
       <form className="mx-auto w-full max-w-[360px]" onSubmit={handleSubmit}>
         <img
           alt="未登录用户"
-          className="mx-auto h-[68px] w-[68px] rounded-full border border-white/45 object-cover shadow-[0_10px_28px_rgba(7,30,35,0.12)]"
+          className="mx-auto h-[62px] w-[62px] rounded-full border-2 border-white/70 object-cover shadow-[0_10px_30px_rgba(0,0,0,0.18)]"
           src="/kernelon-assets/avatars/login-placeholder.png"
         />
         <strong className="mt-3 block text-[16px] font-semibold tracking-[-0.01em] drop-shadow-md">
@@ -55,10 +55,10 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
         </p>
 
         <div className="mt-5 grid gap-3">
-          <label className="flex h-11 items-center rounded-[15px] border border-white/30 bg-white/12 px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.08)] backdrop-blur-[20px] transition-colors hover:bg-white/16 focus-within:border-white/50 focus-within:bg-white/16">
+          <label className="flex h-10 items-center rounded-full border border-white/35 bg-white/15 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-[14px] transition-colors focus-within:border-white/60">
             <svg
               aria-hidden="true"
-              className="h-4 w-4 shrink-0 text-white/60"
+              className="mr-2 h-3.5 w-3.5 shrink-0 text-white/70"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -74,7 +74,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
               aria-label="邮箱"
               autoComplete="email"
               autoFocus
-              className="h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-[13px] text-white outline-none placeholder:text-white/55"
+              className="h-full min-w-0 flex-1 border-0 bg-transparent text-[12px] text-white outline-none placeholder:text-white/55"
               inputMode="email"
               onChange={(event) => setEmail(event.currentTarget.value)}
               placeholder="邮箱"
@@ -83,10 +83,10 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
               value={email}
             />
           </label>
-          <label className="flex h-11 items-center rounded-[15px] border border-white/30 bg-white/12 px-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_rgba(0,0,0,0.08)] backdrop-blur-[20px] transition-colors hover:bg-white/16 focus-within:border-white/50 focus-within:bg-white/16">
+          <label className="flex h-10 items-center rounded-full border border-white/35 bg-white/15 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-[14px] transition-colors focus-within:border-white/60">
             <svg
               aria-hidden="true"
-              className="h-4 w-4 shrink-0 text-white/60"
+              className="mr-2 h-3.5 w-3.5 shrink-0 text-white/70"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -101,7 +101,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
             <input
               aria-label="密码"
               autoComplete="current-password"
-              className="h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-[13px] text-white outline-none placeholder:text-white/55"
+              className="h-full min-w-0 flex-1 border-0 bg-transparent text-[12px] text-white outline-none placeholder:text-white/55"
               onChange={(event) => setPassword(event.currentTarget.value)}
               placeholder="密码"
               required
@@ -111,7 +111,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
           </label>
           <button
             aria-label="登录"
-            className="mt-1 h-11 w-full rounded-[15px] border border-white/40 bg-white/22 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_10px_26px_rgba(0,0,0,0.1)] backdrop-blur-[20px] transition-colors hover:bg-white/30 active:bg-white/20 disabled:cursor-wait disabled:opacity-60"
+            className="mt-1 h-10 w-full rounded-full border border-white/35 bg-white/15 text-[12px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-[14px] transition-colors hover:bg-white/25 active:bg-white/15 disabled:cursor-wait disabled:opacity-60"
             disabled={submitting}
             type="submit"
           >
