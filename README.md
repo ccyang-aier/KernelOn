@@ -4,7 +4,7 @@ KernelOn 是一个面向新员工运作的 Web OS 式管理平台。它把入职
 
 本仓库当前处于工程骨架阶段：优先建立清晰、可扩展、可验证的前后端架构，不提前锁死完整视觉稿或完整 MVP 交互。
 
-项目文档从 [`docs/README.md`](docs/README.md) 进入；agent 执行规则按目录拆分在根目录及各子系统的 `AGENTS.md`。普通任务只需读取对应子系统文档，不需要同时加载产品、前端视觉和后端架构全文。
+项目文档从 [`docs/README.md`](docs/README.md) 进入；agent 执行规则按目录拆分在根目录及各子系统的 `AGENTS.md`。普通任务使用路径级规则，结构性变更再查阅对应架构文档。
 
 ## 技术栈
 
@@ -66,7 +66,7 @@ pnpm check
 
 数据库可使用本机/远程 PostgreSQL，也可在装有 Docker 的环境运行 `docker compose up --build` 启动 PostgreSQL 17 与 API。迁移通过 `pnpm db:upgrade` 执行。
 
-Compose PostgreSQL 默认映射到宿主机标准端口 `5432`，可通过 `KERNELON_POSTGRES_PORT` 覆盖。WSL2 可使用 `scripts/api/check-wsl.sh` 在 Conda `v20` 环境中完成 PostgreSQL 17 迁移、集成测试、全仓检查和 Linux OCI 构建验证。
+Compose PostgreSQL 默认映射到宿主机标准端口 `5432`，可通过 `KERNELON_POSTGRES_PORT` 覆盖。后端环境准备和完整验证说明见 `apps/api/README.md`。
 
 ## 架构原则
 

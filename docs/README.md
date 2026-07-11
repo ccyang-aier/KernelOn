@@ -2,23 +2,27 @@
 
 本目录按“稳定事实、架构规则、决策记录、专题手册”分层。任务只读取与改动相关的入口，避免把全部产品、前端和后端背景同时装入上下文。
 
-## 任务阅读矩阵
+## 查阅触发条件
 
-| 任务                         | 首要文档                                 | 按需补充                                              |
-| ---------------------------- | ---------------------------------------- | ----------------------------------------------------- |
-| 产品规划、业务范围、跨端体验 | `product_planning_overview.md`           | 具体 UX 参考                                          |
-| 前端总体架构、包边界         | `frontend_architecture.md`               | `app_frame_architecture.md`、`url_deeplink_design.md` |
-| 后端、数据库、API            | `backend_architecture.md`                | `adr/0001-litestar-modular-monolith.md`               |
-| App 窗口与统一框架           | `app_frame_architecture.md`              | `frontend-design/` 中对应视觉手册                     |
-| URL 与深链                   | `url_deeplink_design.md`                 | 前端架构                                              |
-| Liquid Glass 与视觉实现      | `frontend-design/liquid-glass-design.md` | integration playbook、样式专题、问题记录              |
+普通局部任务通常只需路径级 `AGENTS.md`、相关代码和测试。发生下列变化时再查阅专题资料：
+
+| 变更类型                                                | 查阅文档                       |
+| ------------------------------------------------------- | ------------------------------ |
+| 产品范围、业务能力、用户旅程或跨端产品边界              | `product_planning_overview.md` |
+| 前端分层、共享包职责、渲染/数据边界或跨端复用           | `frontend_architecture.md`     |
+| 后端模块、事务、权限、数据策略、HTTP 契约或基础设施边界 | `backend_architecture.md`      |
+| 重新评估已经确定的技术方向                              | `adr/` 中对应记录              |
+| App 窗口结构                                            | `app_frame_architecture.md`    |
+| URL 与深链                                              | `url_deeplink_design.md`       |
+
+Liquid Glass 资料按用途选择：设计原则查看 `frontend-design/liquid-glass-design.md`，新页面接入查看 `frontend-design/liquid-glass-integration-playbook.md`，具体样式查看 `frontend-design/styles-playbook/`，排查已知问题查看 `agents/` 与 `liquid-glass/`。不要求顺序读取整套资料。
 
 ## 文档分层
 
 - `product_planning_overview.md`：产品目标、范围和长期产品隐喻；不是普通工程任务的默认必读材料。
 - `frontend_architecture.md`：Web、Desktop 和共享包的稳定工程边界。
 - `backend_architecture.md`：Litestar 模块化单体、数据、权限、契约和 WSL2 验证基线。
-- `adr/`：已经做出的重要技术决策及其取舍。
+- `adr/`：已经做出的重要技术决策及其取舍，仅在重新评估相关方向时作为依据，不是普通开发任务的前置材料。
 - `frontend-design/`：视觉系统、动效和具体实现手册。
 - `agents/`：对 agent 有价值的已知问题与排障记录，不是通用架构入口。
 - `ux-references/` 与仓库 `ux/`：设计参考和研究材料，不作为代码契约。

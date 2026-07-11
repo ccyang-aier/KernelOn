@@ -1,6 +1,6 @@
 # packages 共享前端包开发指引
 
-修改共享包前阅读 `docs/frontend_architecture.md`。若修改 `packages/ui` 的 Liquid Glass 实现，再按 `docs/README.md` 读取相应视觉专题。
+包内局部修改直接遵循本文件和现有代码。改变包职责、跨包依赖、`loaderKey` 或 runtime registry 时，查阅 `docs/frontend_architecture.md`。修改 Liquid Glass 时，从 `docs/README.md` 按任务选择设计、接入、样式或排障文档，不默认读取整套资料。
 
 ## 包边界
 

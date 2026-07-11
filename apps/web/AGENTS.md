@@ -1,6 +1,6 @@
 # apps/web Web 开发指引
 
-本文件约束 Next.js Web 应用装配。开始前阅读 `docs/frontend_architecture.md`；涉及具体框架、窗口或深链时，再读取其中链接的专题文档。
+本文件约束 Next.js Web 应用装配。普通页面、组件、测试和样式任务直接遵循本文件。新增 App/Widget，或改变应用装配、Server/Client 边界、远端数据流、共享包职责时，查阅 `docs/frontend_architecture.md`；AppFrame、深链或视觉系统任务只补充对应专题文档。
 
 ## 定位与边界
 

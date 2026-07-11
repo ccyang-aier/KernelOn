@@ -1,6 +1,6 @@
 # apps/desktop 开发指引
 
-本文件只约束 KernelOn 桌面端壳层。根目录 `AGENTS.md` 仍是仓库级规则；桌面端实现前阅读 `docs/frontend_architecture.md`。
+本文件只约束 KernelOn 桌面端壳层。普通宿主和原生桥接任务直接遵循本文件；改变 Web/Desktop 复用策略、共享包职责或宿主边界时，查阅 `docs/frontend_architecture.md`。
 
 ## 定位
 

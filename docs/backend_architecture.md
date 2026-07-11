@@ -44,11 +44,9 @@ Litestar Guard 只处理认证和粗粒度进入权限。组织上下文和 Prin
 
 后端以 Linux 作为唯一交付验证基线。所有后端任务只需在 WSL2 Ubuntu 中验证，不要求在 Windows Python 环境重复执行；Windows 只作为编辑与 WSL2 宿主环境。
 
-- 使用 `$HOME/miniforge3` 中的 Conda `v20` 环境，Python 必须为 3.12.x。
-- `uv` 安装在 `v20`；Docker Engine、Compose、Node 与 pnpm 在 WSL2 内执行。
+- 使用 Conda `v20` 环境，Python 必须为 3.12.x。
 - PostgreSQL 17 由根目录 Compose 管理，真实数据库检查必须覆盖迁移 Head 和 readiness。
-- 完整验证复制到 `/tmp/kernelon-wsl-validation`，并使用 `/tmp/kernelon-api-v20` 虚拟环境，避免 `/mnt/c` 文件系统性能损耗及跨平台依赖污染。
-- 标准入口为 `./scripts/api/check-wsl.sh`；镜像源覆盖和定向验证规则见 `apps/api/AGENTS.md`。
+- 标准入口为 `./scripts/api/check-wsl.sh`；环境搭建和运行细节见 `apps/api/README.md`。
 
 ## 7. 未来模块
 

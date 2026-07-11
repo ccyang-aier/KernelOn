@@ -7,21 +7,23 @@
 - KernelOn 是面向新员工运作的 Web OS 式管理平台，覆盖入职、导师匹配、成长档案、培训、考核、数据看板和资源沉淀。
 - 当前主交付面是 Web；Tauri 桌面端是后续扩展与共享能力验证面；移动端不在当前阶段。
 - Next.js 负责 Web 与 BFF 装配，Litestar 是业务事实、权限、事务和持久化的来源，Tauri 作为独立宿主复用共享包。
+- 后端采用模块化单体；未经明确的扩缩容、故障隔离或所有权需求，不拆分微服务。
+- `packages/core` 是纯 TypeScript 内核，`catalog` 保存可序列化 manifest，`modules` 承载业务 App/Widget，`shell` 承载 Web OS 客户端壳层，`ui` 提供共享组件。
+- Next.js 和 Tauri 通过 Litestar API 获取业务事实，不直接访问业务数据库；远端业务状态不进入 Zustand。
 
-## 按任务读取文档
+## 上下文路由
 
-先判断任务范围，再读取相应入口；不要为无关任务加载整套文档。
+普通任务应用本文件、所在路径最近的 `AGENTS.md` 以及相关代码和测试，不要求预读架构文档。只有任务可能改变下列系统边界时，才补充对应文档：
 
-| 任务范围                         | 必读入口                                                  |
-| -------------------------------- | --------------------------------------------------------- |
-| 产品范围、业务能力或跨端架构决策 | `docs/product_planning_overview.md`、`docs/README.md`     |
-| 后端、数据库、API、迁移          | `apps/api/AGENTS.md`、`docs/backend_architecture.md`      |
-| Next.js Web 装配                 | `apps/web/AGENTS.md`、`docs/frontend_architecture.md`     |
-| 共享 Shell、App/Widget、UI 包    | `packages/AGENTS.md`、`docs/frontend_architecture.md`     |
-| Tauri 桌面端                     | `apps/desktop/AGENTS.md`、`docs/frontend_architecture.md` |
-| 具体视觉系统或交互专题           | 由 `docs/README.md` 选择对应专题文档                      |
+| 变更类型                                                   | 补充查阅                            |
+| ---------------------------------------------------------- | ----------------------------------- |
+| 产品定位、业务范围、用户旅程或跨端产品边界                 | `docs/product_planning_overview.md` |
+| 前端分层、共享包职责、渲染/数据边界或 Web/Desktop 复用策略 | `docs/frontend_architecture.md`     |
+| 后端模块、持久化、事务、权限、HTTP 契约或基础设施边界      | `docs/backend_architecture.md`      |
+| 重新评估已经确定的技术方向                                 | 对应的 `docs/adr/` 记录             |
+| AppFrame、深链、视觉系统或动效专题                         | 从 `docs/README.md` 选择对应专题    |
 
-只有在改变产品定位、业务边界、用户旅程或跨端架构时，才必须阅读产品规划。修复局部测试、脚本、数据库迁移或纯工程问题不要求读取整份产品规划。
+结构性变更通常包括改变模块或包职责、跨层依赖、数据/事务/权限模型、公开契约、跨端边界，或引入新的基础设施类型。局部修复、测试、文案、样式和不改变行为的工程维护通常不属于结构性变更。
 
 ## 全局工程规则
 
@@ -36,7 +38,7 @@
 ## 文档维护规则
 
 - `README.md` 只承担项目入口、快速开始和常用命令，不堆放完整设计规范。
-- `docs/README.md` 是文档导航和任务阅读矩阵。
+- `docs/README.md` 是文档导航和查阅触发条件索引。
 - 稳定架构规则放在对应架构文档；具体技术决策放在 `docs/adr/`；视觉研究与实现手册放在 `docs/frontend-design/`。
 - 路径级执行约束写入最近的 `AGENTS.md`，不要把仅适用于某个子系统的规则上提到根目录。
 - 文档移动或重命名时同步修复仓库内引用，避免复制出多个事实来源。
