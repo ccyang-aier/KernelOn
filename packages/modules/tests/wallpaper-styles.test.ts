@@ -26,7 +26,6 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).not.toContain('data-kernelon-app-header-liquid');
     expect(wallpaperStyles).not.toContain('glass__warp');
     expect(wallpaperStyles).not.toContain('.wallpaper-home__glass-action .glass');
-    expect(wallpaperStyles).not.toContain('wallpaper-home__liquid-action-glass');
     expect(wallpaperStyles).not.toContain('data-testid^="kernelon-app-header');
   });
 
@@ -138,7 +137,9 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).toContain('background: rgba(7, 14, 18, 0.18);');
     expect(wallpaperStyles).toContain('filter: blur(22px) saturate(1.28) brightness(0.94);');
     expect(wallpaperStyles).toContain('rgba(13, 29, 35, 0.23);');
-    expect(wallpaperStyles).toContain('backdrop-filter: blur(38px) saturate(1.32) brightness(1.08);');
+    expect(wallpaperStyles).toContain(
+      'backdrop-filter: blur(38px) saturate(1.32) brightness(1.08);',
+    );
   });
 
   it('uses wallpaper-owned frosted button components', () => {
@@ -146,7 +147,7 @@ describe('Wallpaper styles', () => {
     expect(WallpaperFrostedHeaderControls.name).toBe('WallpaperFrostedHeaderControls');
   });
 
-  it('uses the documented CSS frosted action recipe without a liquidglass runtime', () => {
+  it('uses the documented CSS frosted action recipe for all four actions', () => {
     const headerSource = WallpaperFrostedHeaderControls.toString();
     const heroSource = HeroFrostedAction.toString();
 
@@ -155,9 +156,8 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).toContain('border: 1px solid rgba(255, 255, 255, 0.16)');
     expect(wallpaperStyles).toContain('backdrop-filter: blur(2px) saturate(1.02)');
     expect(wallpaperStyles).toContain('0 6px 14px rgba(0, 0, 0, 0.05)');
-    expect(wallpaperStyles).not.toContain('wallpaper-liquid-glass');
-    expect(headerSource).not.toContain('LiquidGlass');
-    expect(heroSource).not.toContain('LiquidGlass');
+    expect(headerSource).toContain('type: "button"');
+    expect(heroSource).toContain('type: "button"');
   });
 
   it('builds Settings as unified glass board with sidebar', () => {

@@ -18,9 +18,7 @@ export function HeroFrostedAction({
   variant: HeroFrostedActionVariant;
 }>) {
   return (
-    <span
-      className={`wallpaper-home__frosted-action wallpaper-home__frosted-action--${variant}`}
-    >
+    <span className={`wallpaper-home__frosted-action wallpaper-home__frosted-action--${variant}`}>
       <button
         aria-label={label}
         aria-pressed={pressed}

@@ -27,7 +27,7 @@ Or skip the install and import directly from a CDN:
 ```html
 <div id="root">
   <!-- Background image (sibling of the glass, captured by the shader) -->
-  <img class="bg" src="background.jpg" alt="">
+  <img class="bg" src="background.jpg" alt="" />
 
   <!-- Static content -->
   <h1 class="title">Hello World</h1>
@@ -71,11 +71,11 @@ Or skip the install and import directly from a CDN:
 
 Async — creates and starts a LiquidGlass instance. Resolves once the page's webfonts have been pre-fetched and every glass element's content has been pre-captured.
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `root` | `HTMLElement` | *(required)* | The container element. Glass elements must be **direct children** of this element. |
-| `glassElements` | `NodeList \| HTMLElement[]` | `[]` | Elements to apply the glass effect to. |
-| `defaults` | `Partial<GlassConfig>` | `{}` | Override the default per-element configuration values for this instance. |
+| Option          | Type                        | Default      | Description                                                                        |
+| --------------- | --------------------------- | ------------ | ---------------------------------------------------------------------------------- |
+| `root`          | `HTMLElement`               | _(required)_ | The container element. Glass elements must be **direct children** of this element. |
+| `glassElements` | `NodeList \| HTMLElement[]` | `[]`         | Elements to apply the glass effect to.                                             |
+| `defaults`      | `Partial<GlassConfig>`      | `{}`         | Override the default per-element configuration values for this instance.           |
 
 **Returns** a `Promise<LiquidGlass>` resolving to the instance, which exposes:
 
@@ -114,27 +114,27 @@ The library re-reads `data-config` whenever it changes (via a MutationObserver),
 
 ### Available Options
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `blurAmount` | `number` | `0.00` | Background blur strength (0 = sharp, 1 = maximum blur) |
-| `refraction` | `number` | `0.69` | How much the glass bends the image behind it |
-| `chromAberration` | `number` | `0.05` | Chromatic aberration / colour fringing at edges |
-| `edgeHighlight` | `number` | `0.05` | Edge glow / rim lighting intensity |
-| `specular` | `number` | `0.00` | Specular highlight intensity (multi-light Blinn-Phong) |
-| `fresnel` | `number` | `1.00` | Fresnel reflection at grazing angles |
-| `distortion` | `number` | `0.00` | Micro-distortion noise strength |
-| `cornerRadius` | `number` | `65` | Corner radius in CSS pixels |
-| `zRadius` | `number` | `40` | Bevel depth — controls the curvature of the pill's cross-section |
-| `opacity` | `number` | `1.00` | Overall glass panel opacity |
-| `saturation` | `number` | `0.00` | Saturation adjustment (-1 = grayscale, 0 = normal, 1 = vivid) |
-| `tintStrength` | `number` | `0.00` | Cool blue glass tint strength |
-| `brightness` | `number` | `0.00` | Brightness adjustment (-0.5 to 0.5) |
-| `shadowOpacity` | `number` | `0.30` | Drop shadow opacity |
-| `shadowSpread` | `number` | `10` | Drop shadow spread in CSS pixels |
-| `shadowOffsetY` | `number` | `1` | Shadow vertical offset in CSS pixels |
-| `floating` | `boolean` | `false` | Enable drag-to-move via Pointer Events |
-| `button` | `boolean` | `false` | Button mode — hovering brightens the panel; pressing flattens the bevel and deepens the shadow |
-| `bevelMode` | `0 \| 1` | `0` | `0` = biconvex pill (default). `1` = dome / plano-convex; pair with `cornerRadius === zRadius` for a half-sphere magnifier. |
+| Option            | Type      | Default | Description                                                                                                                 |
+| ----------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `blurAmount`      | `number`  | `0.00`  | Background blur strength (0 = sharp, 1 = maximum blur)                                                                      |
+| `refraction`      | `number`  | `0.69`  | How much the glass bends the image behind it                                                                                |
+| `chromAberration` | `number`  | `0.05`  | Chromatic aberration / colour fringing at edges                                                                             |
+| `edgeHighlight`   | `number`  | `0.05`  | Edge glow / rim lighting intensity                                                                                          |
+| `specular`        | `number`  | `0.00`  | Specular highlight intensity (multi-light Blinn-Phong)                                                                      |
+| `fresnel`         | `number`  | `1.00`  | Fresnel reflection at grazing angles                                                                                        |
+| `distortion`      | `number`  | `0.00`  | Micro-distortion noise strength                                                                                             |
+| `cornerRadius`    | `number`  | `65`    | Corner radius in CSS pixels                                                                                                 |
+| `zRadius`         | `number`  | `40`    | Bevel depth — controls the curvature of the pill's cross-section                                                            |
+| `opacity`         | `number`  | `1.00`  | Overall glass panel opacity                                                                                                 |
+| `saturation`      | `number`  | `0.00`  | Saturation adjustment (-1 = grayscale, 0 = normal, 1 = vivid)                                                               |
+| `tintStrength`    | `number`  | `0.00`  | Cool blue glass tint strength                                                                                               |
+| `brightness`      | `number`  | `0.00`  | Brightness adjustment (-0.5 to 0.5)                                                                                         |
+| `shadowOpacity`   | `number`  | `0.30`  | Drop shadow opacity                                                                                                         |
+| `shadowSpread`    | `number`  | `10`    | Drop shadow spread in CSS pixels                                                                                            |
+| `shadowOffsetY`   | `number`  | `1`     | Shadow vertical offset in CSS pixels                                                                                        |
+| `floating`        | `boolean` | `false` | Enable drag-to-move via Pointer Events                                                                                      |
+| `button`          | `boolean` | `false` | Button mode — hovering brightens the panel; pressing flattens the bevel and deepens the shadow                              |
+| `bevelMode`       | `0 \| 1`  | `0`     | `0` = biconvex pill (default). `1` = dome / plano-convex; pair with `cornerRadius === zRadius` for a half-sphere magnifier. |
 
 ## Element Attributes
 
@@ -144,8 +144,10 @@ Add `data-dynamic` to any **direct child of the root** whose contents change eve
 
 ```html
 <div id="root">
-  <div class="static-bg">...</div>          <!-- captured once, cached -->
-  <div class="counter" data-dynamic>...</div> <!-- re-captured every frame -->
+  <div class="static-bg">...</div>
+  <!-- captured once, cached -->
+  <div class="counter" data-dynamic>...</div>
+  <!-- re-captured every frame -->
   <div class="glass">...</div>
 </div>
 ```
@@ -206,7 +208,7 @@ If you put an overlay above a background image and the glass shows the bg but no
 ### Structural
 
 - **Glass elements must be direct children of the root.** Nested glass is rejected at init with a console warning. If you need glass inside a wrapper, give the wrapper its own `LiquidGlass.init()` call.
-- **The root itself is never captured.** The shader samples the root's *children*, so any background image, padding, or border on the root is invisible to the glass effect. Put backgrounds in a sibling element *inside* the root.
+- **The root itself is never captured.** The shader samples the root's _children_, so any background image, padding, or border on the root is invisible to the glass effect. Put backgrounds in a sibling element _inside_ the root.
 - **A `<canvas>` is injected as the glass element's first child** for shader output. Avoid `:first-child` selectors on glass elements.
 - **Multiple LiquidGlass roots cannot share refraction.** A glass element in one root cannot see what another root's glass elements are rendering — they each have their own compositing canvas.
 - **The shadow halo extends beyond the glass element.** The injected canvas overflows its parent's box and will be clipped by any ancestor with `overflow: hidden`.
@@ -229,6 +231,13 @@ If you put an overlay above a background image and the glass shows the bg but no
 - **`LiquidGlass.init()` is async.** It resolves only after the font CSS prefetch, glass content pre-capture, and static-content pre-warm have all completed (typically 100–500 ms on a fresh page).
 - **`data-dynamic` only catches direct children of the root.** Live content nested inside a wrapper that lacks `data-dynamic` will not trigger re-captures.
 - **`destroy()` does not restore an element's original `position: static`** if the library overwrote it with `relative`. Re-init on the same elements is fine; exotic external mutation in between is not.
+
+## Classic Examples
+
+- [`examples/WallpaperHeroLiquidGlassExample.tsx`](./examples/WallpaperHeroLiquidGlassExample.tsx)：来自 KernelOn Wallpaper Hero 双按钮的完整动态背景示例。
+- [`examples/README.md`](./examples/README.md)：记录局部 cover 取样、双缓冲、ready 判定、`markChanged()`、有限 RAF、页面级背景切换和 WebGL context 成本等实战经验。
+
+Examples 不从包入口导出，避免进入业务 bundle；复制或改造前必须同时阅读同目录说明。
 
 ## Browser Support
 

@@ -121,8 +121,8 @@ function ExampleGlassButton({
     let instance: LiquidGlass | null = null;
     let readinessFrame = 0;
 
-    void LiquidGlass.init({ root, glassElements: [surface], prefetchFonts: false }).then(
-      (nextInstance) => {
+    void LiquidGlass.init({ root, glassElements: [surface], prefetchFonts: false })
+      .then((nextInstance) => {
         if (cancelled) {
           nextInstance.destroy();
           return;
@@ -146,8 +146,8 @@ function ExampleGlassButton({
           if (attempts < 12) readinessFrame = window.requestAnimationFrame(verify);
         };
         readinessFrame = window.requestAnimationFrame(verify);
-      },
-    );
+      })
+      .catch(() => setGlassReady(false));
 
     return () => {
       cancelled = true;
@@ -163,11 +163,7 @@ function ExampleGlassButton({
       data-glass-ready={glassReady ? 'true' : 'false'}
       ref={rootRef}
     >
-      <canvas
-        aria-hidden="true"
-        className="liquidglass-hero-example__backdrop"
-        ref={backdropRef}
-      />
+      <canvas aria-hidden="true" className="liquidglass-hero-example__backdrop" ref={backdropRef} />
       <span
         aria-hidden="true"
         className="liquidglass-hero-example__surface"
@@ -391,16 +387,19 @@ const EXAMPLE_STYLES = `
 .liquidglass-hero-example { position: relative; min-height: 360px; overflow: hidden; }
 .liquidglass-hero-example__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .liquidglass-hero-example__actions { position: absolute; left: 48px; bottom: 48px; display: flex; gap: 24px; }
-.liquidglass-hero-example__control { position: relative; display: block; height: 42px; border-radius: 999px; }
+.liquidglass-hero-example__control { position: relative; display: block; height: 42px; border-radius: 999px; isolation: isolate; }
+.liquidglass-hero-example__control::after { position: absolute; inset: 0; z-index: 2; box-sizing: border-box; border: 1px solid rgba(239,249,255,.34); border-radius: inherit; content: ''; pointer-events: none; }
 .liquidglass-hero-example__control--preview { width: 190px; }
 .liquidglass-hero-example__control--like { width: 80px; }
 .liquidglass-hero-example__backdrop,
 .liquidglass-hero-example__surface,
 .liquidglass-hero-example__button { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: inherit; }
 .liquidglass-hero-example__backdrop { opacity: 0; pointer-events: none; }
-.liquidglass-hero-example__surface { opacity: 0; pointer-events: none; }
+.liquidglass-hero-example__surface { z-index: 1; opacity: 0; pointer-events: none; }
 .liquidglass-hero-example__control[data-glass-ready="true"] .liquidglass-hero-example__surface { opacity: 1; }
-.liquidglass-hero-example__button { z-index: 3; border: 0; background: transparent; color: white; cursor: pointer; }
+.liquidglass-hero-example__button { z-index: 3; border: 0; background: transparent; color: white; cursor: pointer; isolation: isolate; }
+.liquidglass-hero-example__button::before { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: radial-gradient(circle at 30% 18%,rgba(255,255,255,.14),transparent 38%),rgba(255,255,255,.018); box-shadow: inset 0 -4px 10px rgba(255,255,255,.025),0 6px 14px rgba(3,8,12,.12); content: ''; backdrop-filter: blur(.4px) saturate(1.08); transition: opacity 120ms ease; }
+.liquidglass-hero-example__control[data-glass-ready="true"] .liquidglass-hero-example__button::before { opacity: 0; }
 .liquidglass-hero-example__content { display: inline-flex; align-items: center; gap: 8px; font: 800 15px/1 system-ui; }
 .liquidglass-hero-example__button:focus-visible { outline: 2px solid rgba(255,255,255,.8); outline-offset: 3px; }
 `;

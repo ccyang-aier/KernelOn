@@ -13,6 +13,8 @@
 - 轮播 transition 只在 620ms 跟随窗口内使用 RAF；静止后停止，不使用永久 `data-dynamic`。
 - resize、scroll、图片 load 都会重新计算几何位置。
 - ready 检查只检测输出 canvas 中央 50% 核心区，并要求连续两帧通过；shadow padding 不再误伤小按钮。
+- 唯一的 1px 结构边框由 root `::after` 持有；等待态不再自带 inset ring，避免 ready 切换前后叠成双边框。
+- 初始化失败时保留轻量 CSS fallback，原生按钮与事件仍然可用，不能让 WebGL 失败变成空白花瓶。
 - 每个实例在卸载时销毁 WebGL、RAF、ResizeObserver 和事件监听。
 
 ## DOM 契约

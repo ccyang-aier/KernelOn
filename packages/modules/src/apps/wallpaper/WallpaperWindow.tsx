@@ -17,7 +17,13 @@ import {
 } from './data';
 import { createWallpaperHeader } from './header';
 import { wallpaperStyles } from './styles';
-import type { CategoryId, ExploreSort, WallpaperAsset, WallpaperView, WallpaperSource } from './types';
+import type {
+  CategoryId,
+  ExploreSort,
+  WallpaperAsset,
+  WallpaperView,
+  WallpaperSource,
+} from './types';
 
 const sortSequence: ExploreSort[] = ['newest', 'liked', 'duration'];
 
@@ -241,13 +247,11 @@ export default function WallpaperWindow() {
       next.delete(wallpaperId);
       return next;
     });
-    setSelectedWallpaperId((currentId) => currentId === wallpaperId ? 'retrowaves' : currentId);
+    setSelectedWallpaperId((currentId) => (currentId === wallpaperId ? 'retrowaves' : currentId));
   }, []);
 
   const handleToggleSource = useCallback((sourceId: string) => {
-    setSources((prev) =>
-      prev.map((s) => (s.id === sourceId ? { ...s, enabled: !s.enabled } : s)),
-    );
+    setSources((prev) => prev.map((s) => (s.id === sourceId ? { ...s, enabled: !s.enabled } : s)));
   }, []);
 
   const handleAddSource = useCallback((newSource: WallpaperSource) => {

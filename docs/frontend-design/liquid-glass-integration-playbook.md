@@ -1,6 +1,6 @@
 # Liquid Glass 组件接入实战手册
 
-> **Wallpaper 当前决策（2026-07-11）**：四个业务按钮已经全部统一为 `packages/ui/src/components/liquidglass`（Ybouane）WebGL 路线，并采用官方文档的 Frosted Panel 基线。当前验收存档点在此基础上增加由业务 root 独占的单层 1px 浅色外沿，以增强复杂背景下的可辨识度；等待态不再单独绘制 inset ring。Wallpaper 不再导入或实例化 `packages/ui/src/components/liquid-glass`（Samasante）；下文 Samasante 内容仅保留为失败实验与避坑记录，不代表当前实现建议。
+> **Wallpaper 当前决策（2026-07-11）**：Wallpaper 的四个业务按钮已统一回退为 [`styles-playbook/frosted-glass-actions.md`](./styles-playbook/frosted-glass-actions.md) 所述的 CSS 清透磨砂玻璃，产品代码不再导入或实例化任一 Liquid Glass 引擎。Ybouane `liquidglass` 的最终可运行 Hero 双按钮方案与完整踩坑记录已归档到 `packages/ui/src/components/liquidglass/examples/WallpaperHeroLiquidGlassExample.tsx` 和同目录 `README.md`；本文其余内容作为历史实验与选型依据保留，不代表 Wallpaper 当前运行时实现。
 
 本文沉淀 Wallpaper App 顶栏两个 42px 圆形按钮的多轮接入与视觉验收经验，覆盖：
 
