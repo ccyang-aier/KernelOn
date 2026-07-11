@@ -185,7 +185,6 @@ export function SettingsView({
             onClick={() => setActiveTab('favorites')}
             type="button"
           >
-            {activeTab === 'favorites' && <span className="active-indicator" />}
             <Heart className="wallpaper-sidebar-item__icon" />
             <span>我的收藏</span>
             {favoriteWallpapers.length > 0 && (
@@ -198,7 +197,6 @@ export function SettingsView({
             onClick={() => setActiveTab('uploads')}
             type="button"
           >
-            {activeTab === 'uploads' && <span className="active-indicator" />}
             <Upload className="wallpaper-sidebar-item__icon" />
             <span>壁纸上传管理</span>
             {customWallpapers.length > 0 && (
@@ -211,7 +209,6 @@ export function SettingsView({
             onClick={() => setActiveTab('sources')}
             type="button"
           >
-            {activeTab === 'sources' && <span className="active-indicator" />}
             <Cloud className="wallpaper-sidebar-item__icon" />
             <span>壁纸源管理</span>
           </button>

@@ -1710,30 +1710,28 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-sidebar-item.is-active {
   color: #fff;
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: rgba(45, 212, 191, 0.04);
+  border: 1px dashed rgba(45, 212, 191, 0.42);
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 0 rgba(45, 212, 191, 0),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: sidebarItemActivate 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.active-indicator {
-  position: absolute;
-  left: 0;
-  top: 10px;
-  bottom: 10px;
-  width: 3px;
-  background: #2dd4bf;
-  border-radius: 0 4px 4px 0;
-  box-shadow: 0 0 12px rgba(45, 212, 191, 0.8);
-  animation: activeIndicatorIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes activeIndicatorIn {
+@keyframes sidebarItemActivate {
   from {
-    transform: scaleY(0.4);
-    opacity: 0;
+    opacity: 0.5;
+    transform: scale(0.96);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.2);
+  }
+  60% {
+    box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.14);
   }
   to {
-    transform: scaleY(1);
     opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(45, 212, 191, 0);
   }
 }
 
@@ -2391,6 +2389,72 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .add-source-form__header .close-btn:hover {
   background: rgba(255, 255, 255, 0.04);
   color: #fff;
+}
+
+/* 新增来源表单 - 字段网格 */
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.col-span-2 {
+  /* 单列布局中无需 span，保留类名兼容性 */
+}
+
+/* 表单操作按钮行 */
+.add-source-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 20px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.add-source-form__actions .cancel-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.68);
+  transition: all 180ms ease;
+}
+
+.add-source-form__actions .cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.add-source-form__actions .submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+  border: 0;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.28);
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.add-source-form__actions .submit-btn:hover {
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  box-shadow: 0 4px 20px rgba(13, 148, 136, 0.38);
+  transform: translateY(-1px);
+}
+
+.add-source-form__actions .submit-btn:active {
+  transform: translateY(0);
 }
 
 /* 动效 */
