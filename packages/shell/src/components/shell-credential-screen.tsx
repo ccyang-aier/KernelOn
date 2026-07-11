@@ -43,6 +43,7 @@ export function ShellCredentialScreen({
         alt=""
         aria-hidden="true"
         className="absolute inset-0 h-full w-full scale-[1.02] select-none object-cover"
+        data-credential-wallpaper="true"
         draggable={false}
         src={wallpaper}
       />
