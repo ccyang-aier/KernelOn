@@ -645,7 +645,10 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   opacity: 0;
 }
 
-.wallpaper-ux--explore,
+.wallpaper-ux--explore {
+  background: rgba(7, 14, 18, 0.18);
+}
+
 .wallpaper-ux--settings {
   background: rgba(7, 14, 18, 0.18);
 }
@@ -1761,12 +1764,107 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   text-wrap: pretty;
 }
 
+.wallpaper-settings-container {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 26px;
+  margin-top: 28px;
+  align-items: start;
+}
+
+.wallpaper-settings-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+}
+
+.wallpaper-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12.5px;
+  font-weight: 680;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wallpaper-sidebar-item:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.07);
+  transform: translate3d(2px, 0, 0);
+}
+
+.wallpaper-sidebar-item.is-active {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 8px 16px rgba(0, 0, 0, 0.1);
+  transform: scale(1.01);
+}
+
+.wallpaper-sidebar-item__icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+}
+
+.wallpaper-sidebar-item__badge {
+  margin-left: auto;
+  padding: 2px 7px;
+  font-size: 9.5px;
+  font-weight: 780;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.wallpaper-settings-main-content {
+  min-height: 480px;
+}
+
+.wallpaper-settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.wallpaper-settings-panel__header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+.wallpaper-settings-panel__header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.wallpaper-settings-panel__header p {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.44);
+  margin: 4px 0 0;
+}
+
 .wallpaper-settings-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.32fr) minmax(290px, 0.68fr);
-  align-items: stretch;
-  gap: 22px;
-  margin-top: 30px;
+  align-items: start;
+  gap: 20px;
 }
 
 .wallpaper-settings-card,
@@ -1784,33 +1882,33 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .wallpaper-settings-card {
-  min-height: 358px;
+  min-height: 320px;
   padding: 12px;
 }
 
 .wallpaper-settings-card__heading {
   display: flex;
-  min-height: 62px;
+  min-height: 54px;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 7px 12px 12px;
+  padding: 4px 12px 8px;
 }
 
 .wallpaper-settings-card__heading > div {
   display: grid;
-  gap: 3px;
+  gap: 2px;
 }
 
 .wallpaper-settings-card__heading > div > span {
   color: #fff;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 720;
 }
 
 .wallpaper-settings-card__heading > div > strong {
   color: rgba(255, 255, 255, 0.42);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 560;
 }
 
@@ -1819,15 +1917,15 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.055);
   color: rgba(255, 255, 255, 0.56);
-  padding: 6px 10px;
-  font-size: 10px;
+  padding: 5px 9px;
+  font-size: 9.5px;
   font-weight: 680;
 }
 
 .wallpaper-settings-row {
   display: grid;
   width: 100%;
-  min-height: 70px;
+  min-height: 66px;
   grid-template-columns: 42px minmax(0, 1fr) auto;
   align-items: center;
   gap: 13px;
@@ -1859,11 +1957,11 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-settings-row__icon {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 13px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.065);
   color: rgba(255, 255, 255, 0.66);
   transition: background 180ms ease, color 180ms ease;
@@ -1875,8 +1973,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .wallpaper-settings-row__icon svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   stroke-width: 2.15;
 }
 
@@ -1910,8 +2008,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.055);
   color: rgba(255, 255, 255, 0.62);
-  padding: 7px 10px;
-  font-size: 10px;
+  padding: 6px 9px;
+  font-size: 9.5px;
   font-weight: 720;
   text-align: center;
   transition: background 180ms ease, color 180ms ease;
@@ -1925,8 +2023,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-settings-current {
   display: grid;
-  min-height: 358px;
-  grid-template-rows: minmax(168px, 1.2fr) minmax(150px, 0.8fr);
+  min-height: 320px;
+  grid-template-rows: minmax(150px, 1.2fr) minmax(130px, 0.8fr);
 }
 
 .wallpaper-settings-current__media {
@@ -1966,7 +2064,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-settings-current__content {
   min-width: 0;
-  padding: 18px 20px 20px;
+  padding: 14px 18px 18px;
 }
 
 .wallpaper-settings-current__content > span {
@@ -1978,10 +2076,10 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-settings-current__content h2 {
   overflow: hidden;
-  margin: 5px 0 0;
+  margin: 4px 0 0;
   color: #fff;
   font-family: var(--wallpaper-display);
-  font-size: clamp(23px, 2.2vw, 31px);
+  font-size: clamp(20px, 2vw, 26px);
   line-height: 1.05;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1989,9 +2087,9 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-settings-current__content p {
   overflow: hidden;
-  margin: 7px 0 0;
+  margin: 6px 0 0;
   color: rgba(255, 255, 255, 0.46);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 520;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2001,7 +2099,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
-  margin-top: 14px;
+  margin-top: 12px;
 }
 
 .wallpaper-settings-current__chips span {
@@ -2009,9 +2107,703 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.045);
   color: rgba(255, 255, 255, 0.56);
-  padding: 6px 8px;
+  padding: 5px 7px;
   font-size: 9px;
   font-weight: 650;
+}
+
+/* 我的收藏与上传壁纸网格 */
+.wallpaper-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.wallpaper-settings-grid-item {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.wallpaper-settings-grid-item:hover {
+  transform: translateY(-3px) scale(1.005);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.wallpaper-settings-grid-item__media {
+  position: relative;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 15px 15px 0 0;
+}
+
+.wallpaper-settings-grid-item__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wallpaper-settings-grid-item:hover .wallpaper-settings-grid-item__media img {
+  transform: scale(1.04);
+}
+
+.wallpaper-settings-grid-item__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 12, 16, 0.55);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  opacity: 0;
+  backdrop-filter: blur(4px);
+  transition: opacity 220ms ease;
+}
+
+.wallpaper-settings-grid-item:hover .wallpaper-settings-grid-item__overlay {
+  opacity: 1;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 88%;
+  padding: 7px 12px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 680;
+  cursor: pointer;
+  transition: all 180ms ease;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.action-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.action-btn--apply {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.action-btn--apply:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.36);
+  transform: scale(1.02);
+}
+
+.action-btn--apply.applied {
+  background: rgba(45, 212, 191, 0.16);
+  border-color: rgba(45, 212, 191, 0.34);
+  color: #2dd4bf;
+  cursor: default;
+}
+
+.action-btn--apply.applied:hover {
+  transform: none;
+}
+
+.action-btn--unlike {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.26);
+  color: #fca5a5;
+}
+
+.action-btn--unlike:hover {
+  background: rgba(244, 63, 94, 0.22);
+  border-color: rgba(244, 63, 94, 0.36);
+  color: #fff;
+  transform: scale(1.02);
+}
+
+.action-btn--delete {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.26);
+  color: #fca5a5;
+}
+
+.action-btn--delete:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.36);
+  color: #fff;
+  transform: scale(1.02);
+}
+
+.wallpaper-settings-grid-item__info {
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.wallpaper-settings-grid-item__info h4 {
+  font-size: 11.5px;
+  font-weight: 680;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.wallpaper-settings-grid-item__info p {
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.42);
+  margin: 4px 0 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Empty states */
+.wallpaper-settings-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 24px;
+  text-align: center;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  margin: 10px 0;
+}
+
+.wallpaper-settings-empty__icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.wallpaper-settings-empty__icon svg {
+  width: 24px;
+  height: 24px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.wallpaper-settings-empty__icon svg.heart-broken {
+  animation: heartbeat 1.5s ease infinite;
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.12); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.12); }
+  70% { transform: scale(1); }
+}
+
+.wallpaper-settings-empty h3 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+}
+
+.wallpaper-settings-empty p {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.44);
+  margin: 8px 0 0;
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+/* 上传区 */
+.wallpaper-upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 46px 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  transition: all 220ms ease;
+  margin-bottom: 16px;
+}
+
+.wallpaper-upload-zone:hover,
+.wallpaper-upload-zone.is-dragover {
+  border-color: rgba(45, 212, 191, 0.5);
+  background: rgba(45, 212, 191, 0.03);
+}
+
+.wallpaper-upload-zone__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.wallpaper-upload-zone__content h3 {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0;
+}
+
+.wallpaper-upload-zone__content h3 span {
+  color: #2dd4bf;
+  text-decoration: underline;
+  margin-left: 4px;
+}
+
+.wallpaper-upload-zone__content p {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0;
+}
+
+.wallpaper-upload-form {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  margin-bottom: 24px;
+}
+
+.wallpaper-upload-form__layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 20px;
+}
+
+.wallpaper-upload-form__preview {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 16/10;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.25);
+  height: fit-content;
+}
+
+.wallpaper-upload-form__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wallpaper-upload-form__preview .info-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.65);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 9px;
+  font-family: monospace;
+}
+
+.wallpaper-upload-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 680;
+  color: rgba(255, 255, 255, 0.44);
+}
+
+.form-group input,
+.form-group select {
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 11.5px;
+  outline: none;
+  transition: all 180ms ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: rgba(45, 212, 191, 0.36);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.08);
+}
+
+.form-group select option {
+  background: #121822;
+  color: #fff;
+}
+
+.wallpaper-upload-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.cancel-btn,
+.submit-btn {
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 11.5px;
+  font-weight: 680;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+}
+
+.submit-btn:hover {
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3);
+  transform: translateY(-1px);
+}
+
+.wallpaper-settings-sub-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px;
+  text-align: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.wallpaper-settings-sub-empty svg {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.wallpaper-settings-sub-empty p {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0;
+}
+
+/* 壁纸源卡片 */
+.wallpaper-sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wallpaper-source-card {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wallpaper-source-card.is-enabled {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.wallpaper-source-card.is-disabled {
+  opacity: 0.44;
+  border-color: rgba(255, 255, 255, 0.03);
+}
+
+.wallpaper-source-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.source-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.source-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+}
+
+.source-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.source-info h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sys-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+  background: rgba(45, 212, 191, 0.15);
+  color: #2dd4bf;
+  border-radius: 4px;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  font-weight: 600;
+}
+
+.source-url {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: monospace;
+  word-break: break-all;
+  display: block;
+  margin-top: 2px;
+}
+
+.source-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.source-delete-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 180ms ease;
+  display: grid;
+  place-items: center;
+}
+
+.source-delete-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.source-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+.source-description {
+  margin: 10px 0 0 48px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.44);
+  line-height: 1.5;
+}
+
+/* Glass Switch */
+.glass-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  padding: 0;
+  transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.glass-switch__handle {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-switch.active {
+  background: rgba(45, 212, 191, 0.28);
+  border-color: rgba(45, 212, 191, 0.4);
+}
+
+.glass-switch.active .glass-switch__handle {
+  transform: translateX(16px);
+  background: #fff;
+  box-shadow: 0 1px 5px rgba(20, 184, 166, 0.4);
+}
+
+/* 添加源板块 */
+.wallpaper-sources-add-section {
+  margin-top: 16px;
+}
+
+.add-source-trigger {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 200ms ease;
+}
+
+.add-source-trigger svg {
+  width: 15px;
+  height: 15px;
+}
+
+.add-source-trigger:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #fff;
+}
+
+.add-source-form {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 20px;
+  backdrop-filter: blur(20px);
+}
+
+.add-source-form__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.add-source-form__header h3 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.add-source-form__header .close-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.4);
+  display: grid;
+  place-items: center;
+}
+
+.add-source-form__header .close-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.col-span-2 {
+  grid-column: span 2;
+}
+
+.add-source-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.add-source-form__actions .cancel-btn,
+.add-source-form__actions .submit-btn {
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 11.5px;
+  font-weight: 680;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.add-source-form__actions .submit-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* 动效 */
+.anime-fade-in {
+  animation: settingsPanelFadeIn 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes settingsPanelFadeIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 @keyframes wallpaperHeaderControlIn {

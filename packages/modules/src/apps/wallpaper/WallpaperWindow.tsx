@@ -17,9 +17,36 @@ import {
 } from './data';
 import { createWallpaperHeader } from './header';
 import { wallpaperStyles } from './styles';
-import type { CategoryId, ExploreSort, WallpaperAsset, WallpaperView } from './types';
+import type { CategoryId, ExploreSort, WallpaperAsset, WallpaperView, WallpaperSource } from './types';
 
 const sortSequence: ExploreSort[] = ['newest', 'liked', 'duration'];
+
+const defaultSources: WallpaperSource[] = [
+  {
+    id: 'system',
+    name: '系统内置壁纸库',
+    url: 'local://system-library',
+    enabled: true,
+    isSystem: true,
+    description: 'KernelOn 系统精选的高清静态与动态壁纸。',
+  },
+  {
+    id: 'unsplash',
+    name: 'Unsplash 精选源',
+    url: 'https://api.unsplash.com/photos',
+    enabled: true,
+    isSystem: false,
+    description: '源自全球创作者的高质量免版权图片库。',
+  },
+  {
+    id: 'wallhaven',
+    name: 'Wallhaven 动态站',
+    url: 'https://wallhaven.cc/api/v1',
+    enabled: false,
+    isSystem: false,
+    description: '知名的壁纸分享社区，提供丰富的二次元及创意视觉作品。',
+  },
+];
 
 export default function WallpaperWindow() {
   const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
@@ -33,9 +60,49 @@ export default function WallpaperWindow() {
   const [selectedPopularTag, setSelectedPopularTag] = useState('4K');
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('All');
   const [sort, setSort] = useState<ExploreSort>('newest');
-  const [likedIds, setLikedIds] = useState<ReadonlySet<string>>(
-    () => new Set(wallpaperLibrary.filter((item) => item.liked).map((item) => item.id)),
-  );
+
+  const [customWallpapers, setCustomWallpapers] = useState<WallpaperAsset[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('kernelon_custom_wallpapers');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
+  const [sources, setSources] = useState<WallpaperSource[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('kernelon_wallpaper_sources');
+      return saved ? JSON.parse(saved) : defaultSources;
+    }
+    return defaultSources;
+  });
+
+  const [likedIds, setLikedIds] = useState<ReadonlySet<string>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('kernelon_liked_wallpaper_ids');
+      if (saved) {
+        return new Set(JSON.parse(saved));
+      }
+    }
+    return new Set(wallpaperLibrary.filter((item) => item.liked).map((item) => item.id));
+  });
+
+  const allWallpapers = useMemo(() => {
+    return [...wallpaperLibrary, ...customWallpapers];
+  }, [customWallpapers]);
+
+  useEffect(() => {
+    localStorage.setItem('kernelon_custom_wallpapers', JSON.stringify(customWallpapers));
+  }, [customWallpapers]);
+
+  useEffect(() => {
+    localStorage.setItem('kernelon_wallpaper_sources', JSON.stringify(sources));
+  }, [sources]);
+
+  useEffect(() => {
+    localStorage.setItem('kernelon_liked_wallpaper_ids', JSON.stringify(Array.from(likedIds)));
+  }, [likedIds]);
+
   const [selectedWallpaperId, setSelectedWallpaperId] = useState('retrowaves');
   const [isHeroAutoplayEnabled, setIsHeroAutoplayEnabled] = useState(true);
   const [isHeroDetailsVisible, setIsHeroDetailsVisible] = useState(true);
@@ -44,10 +111,11 @@ export default function WallpaperWindow() {
   const [headerActionNotice, setHeaderActionNotice] = useState<string | null>(null);
 
   const assetById = useMemo(
-    () => new Map(wallpaperLibrary.map((wallpaper) => [wallpaper.id, wallpaper])),
-    [],
+    () => new Map(allWallpapers.map((wallpaper) => [wallpaper.id, wallpaper])),
+    [allWallpapers],
   );
-  const selectedWallpaper = assetById.get(selectedWallpaperId) ?? wallpaperLibrary[0]!;
+  const selectedWallpaper = assetById.get(selectedWallpaperId) ?? allWallpapers[0]!;
+
   const previewWallpaper = previewWallpaperId ? assetById.get(previewWallpaperId) : null;
   const activeWallpaper = previewWallpaper ?? selectedWallpaper;
   const displayedView = previewWallpaper ? 'preview' : activeView;
@@ -83,7 +151,7 @@ export default function WallpaperWindow() {
 
   const visibleExploreWallpapers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    const filteredWallpapers = wallpaperLibrary.filter((wallpaper) => {
+    const filteredWallpapers = allWallpapers.filter((wallpaper) => {
       const matchesCategory = selectedCategory === 'All' || wallpaper.category === selectedCategory;
       const matchesPopularTag = !selectedPopularTag || wallpaper.tags.includes(selectedPopularTag);
       const matchesSearch =
@@ -96,12 +164,12 @@ export default function WallpaperWindow() {
     });
 
     return filteredWallpapers.sort((left, right) => compareWallpapers(left, right, sort));
-  }, [query, selectedCategory, selectedPopularTag, sort]);
+  }, [allWallpapers, query, selectedCategory, selectedPopularTag, sort]);
 
   const resultLabel =
-    visibleExploreWallpapers.length === wallpaperLibrary.length
-      ? '共 2,523 张壁纸'
-      : `${visibleExploreWallpapers.length} / 2,523 张壁纸`;
+    visibleExploreWallpapers.length === allWallpapers.length
+      ? `共 ${allWallpapers.length} 张壁纸`
+      : `${visibleExploreWallpapers.length} / ${allWallpapers.length} 张壁纸`;
 
   const selectHeroByIndex = useCallback((index: number) => {
     const normalizedIndex = normalizeIndex(index, heroSlides.length);
@@ -166,6 +234,34 @@ export default function WallpaperWindow() {
 
       return nextIds;
     });
+  }, []);
+
+  const handleUploadWallpaper = useCallback((wallpaper: WallpaperAsset) => {
+    setCustomWallpapers((prev) => [wallpaper, ...prev]);
+  }, []);
+
+  const handleDeleteUploadedWallpaper = useCallback((wallpaperId: string) => {
+    setCustomWallpapers((prev) => prev.filter((w) => w.id !== wallpaperId));
+    setLikedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(wallpaperId);
+      return next;
+    });
+    setSelectedWallpaperId((currentId) => currentId === wallpaperId ? 'retrowaves' : currentId);
+  }, []);
+
+  const handleToggleSource = useCallback((sourceId: string) => {
+    setSources((prev) =>
+      prev.map((s) => (s.id === sourceId ? { ...s, enabled: !s.enabled } : s)),
+    );
+  }, []);
+
+  const handleAddSource = useCallback((newSource: WallpaperSource) => {
+    setSources((prev) => [...prev, newSource]);
+  }, []);
+
+  const handleRemoveSource = useCallback((sourceId: string) => {
+    setSources((prev) => prev.filter((s) => s.id !== sourceId));
   }, []);
 
   const cycleSort = useCallback(() => {
@@ -303,6 +399,17 @@ export default function WallpaperWindow() {
                 }
                 previewFitMode={previewFitMode}
                 selectedWallpaper={selectedWallpaper}
+                allWallpapers={allWallpapers}
+                customWallpapers={customWallpapers}
+                likedIds={likedIds}
+                sources={sources}
+                onLike={toggleLike}
+                onApply={applyWallpaper}
+                onUploadWallpaper={handleUploadWallpaper}
+                onDeleteUploadedWallpaper={handleDeleteUploadedWallpaper}
+                onToggleSource={handleToggleSource}
+                onAddSource={handleAddSource}
+                onRemoveSource={handleRemoveSource}
               />
             ) : null}
           </div>

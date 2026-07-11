@@ -62,3 +62,12 @@ export interface RecommendedWallpaperSection {
   title: string;
   items: RecommendedWallpaper[];
 }
+
+export interface WallpaperSource {
+  id: string;
+  name: string;
+  url: string;
+  enabled: boolean;
+  isSystem: boolean;
+  description: string;
+}

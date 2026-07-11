@@ -191,14 +191,16 @@ Wallpaper 的 Frosted preset 以官方站点和随组件移植的 README 为准�
   opacity: 1,
   saturation: 0,
   brightness: 0,
-  shadowOpacity: 0.3,
-  shadowSpread: 10,
+  shadowOpacity: 0.1,
+  shadowSpread: 5,
   button: true,
   bevelMode: 0,
 }
 ```
 
 `cornerRadius` 与 `zRadius` 均取按钮高度的一半，使 42px 圆形按钮与胶囊按钮使用一致的 biconvex 横截面。`button: true` 必须保留，以获得官方实现的 hover/press shader 反馈。背景 canvas 属于一次性或事件驱动更新，应继续调用 `instance.markChanged(canvas)`；不要改成永久 `data-dynamic`，否则会绕过空闲帧短路优化。
+
+Wallpaper 将官方默认阴影收敛为 `shadowOpacity: 0.1`、`shadowSpread: 5`，由浅色业务外沿承担复杂背景上的轮廓识别，避免高亮背景把 shader 阴影放大成明显悬浮黑边。页面级背景切换必须作为独立背景源处理：Home/Preview 继续按 Hero 图片几何取样；Explore/Settings 则从桌面壁纸、伪元素的实时 blur/opacity/scale 与对应渐变共同合成。`activeView` 变化只触发一次 staging canvas 更新，新帧完整后再 `markChanged(canvas)`，禁止因为页面切换恢复永久 RAF 或全 DOM 截图。
 
 输出 ready 不能按整个注入 canvas 的 alpha 占比判断，因为 `shadowSpread` 会让 canvas 比玻璃本体大：42px 圆形玻璃在带 halo 的 canvas 中面积占比可能只有约 36%，固定要求全画布 55% 会把正常输出永久判成 fallback。Wallpaper 检查画布中央 50% 核心区，要求连续两帧至少 80% 像素有效；这样既排除只渲染出底部月牙的残缺首帧，也适配圆形、短胶囊和宽胶囊。
 
