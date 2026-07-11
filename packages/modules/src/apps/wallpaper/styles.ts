@@ -645,17 +645,24 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   opacity: 0;
 }
 
-.wallpaper-ux--settings::after {
-  background:
-    radial-gradient(circle at 76% 18%, rgba(112, 196, 218, 0.26), rgba(112, 196, 218, 0) 38%),
-    radial-gradient(circle at 18% 68%, rgba(194, 69, 104, 0.28), rgba(194, 69, 104, 0) 46%),
-    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 31%),
-    linear-gradient(112deg, rgba(18, 42, 48, 0.62), rgba(24, 27, 30, 0.68), rgba(80, 24, 42, 0.48));
+.wallpaper-ux--explore,
+.wallpaper-ux--settings {
+  background: rgba(7, 14, 18, 0.18);
 }
 
+.wallpaper-ux--explore::before,
 .wallpaper-ux--settings::before {
-  filter: blur(42px) saturate(1.22) brightness(0.66);
-  opacity: 0.98;
+  filter: blur(22px) saturate(1.28) brightness(0.94);
+  opacity: 1;
+  transform: scale(1.055);
+}
+
+.wallpaper-ux--explore::after,
+.wallpaper-ux--settings::after {
+  background:
+    radial-gradient(circle at 18% 8%, rgba(230, 250, 255, 0.18), rgba(230, 250, 255, 0) 34%),
+    radial-gradient(circle at 84% 78%, rgba(177, 219, 232, 0.12), rgba(177, 219, 232, 0) 42%),
+    linear-gradient(118deg, rgba(14, 28, 34, 0.08), rgba(15, 30, 35, 0.14));
 }
 
 .wallpaper-ux[data-wallpaper-glass-depth="soft"]:not(.wallpaper-ux--home)::before {
@@ -1306,17 +1313,32 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-page--explore {
   padding: 126px clamp(46px, 5.5vw, 76px) 130px;
+  background:
+    radial-gradient(circle at 16% 5%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 31%),
+    radial-gradient(circle at 82% 82%, rgba(191, 232, 244, 0.13), rgba(191, 232, 244, 0) 43%),
+    linear-gradient(122deg, rgba(240, 251, 255, 0.14), rgba(220, 244, 250, 0.055) 46%, rgba(177, 225, 239, 0.11)),
+    rgba(13, 29, 35, 0.23);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 140px rgba(218, 244, 250, 0.08);
+  -webkit-backdrop-filter: blur(38px) saturate(1.32) brightness(1.08);
+  backdrop-filter: blur(38px) saturate(1.32) brightness(1.08);
 }
 
 .wallpaper-page--settings {
   padding: 104px clamp(52px, 5vw, 72px) 90px;
   background:
-    radial-gradient(circle at 48% 10%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 32%),
-    linear-gradient(112deg, rgba(20, 64, 72, 0.18), rgba(16, 21, 24, 0.18), rgba(92, 28, 48, 0.16));
+    radial-gradient(circle at 16% 5%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 31%),
+    radial-gradient(circle at 82% 82%, rgba(191, 232, 244, 0.13), rgba(191, 232, 244, 0) 43%),
+    linear-gradient(122deg, rgba(240, 251, 255, 0.14), rgba(220, 244, 250, 0.055) 46%, rgba(177, 225, 239, 0.11)),
+    rgba(13, 29, 35, 0.23);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 0 120px rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px) saturate(1.28);
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 140px rgba(218, 244, 250, 0.08);
+  -webkit-backdrop-filter: blur(38px) saturate(1.32) brightness(1.08);
+  backdrop-filter: blur(38px) saturate(1.32) brightness(1.08);
 }
 
 .wallpaper-page__intro p {

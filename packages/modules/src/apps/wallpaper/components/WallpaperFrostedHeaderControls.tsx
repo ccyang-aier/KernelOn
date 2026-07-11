@@ -182,26 +182,28 @@ export function WallpaperFrostedHeaderControls({
     () => (
       <WallpaperLiquidGlassButton
         backdropImage={glassBackdropImage}
+        backdropView={activeView}
         label="License"
         onClick={onLicense}
       >
         <KeyRound aria-hidden="true" />
       </WallpaperLiquidGlassButton>
     ),
-    [glassBackdropImage, onLicense],
+    [activeView, glassBackdropImage, onLicense],
   );
 
   const shareControl = useMemo(
     () => (
       <WallpaperLiquidGlassButton
         backdropImage={glassBackdropImage}
+        backdropView={activeView}
         label="Share"
         onClick={onShare}
       >
         <Share2 aria-hidden="true" />
       </WallpaperLiquidGlassButton>
     ),
-    [glassBackdropImage, onShare],
+    [activeView, glassBackdropImage, onShare],
   );
 
   const settingsControl = useMemo(

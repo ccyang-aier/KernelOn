@@ -57,7 +57,7 @@ export default function WallpaperWindow() {
       ? resolveWallpaperImage(previewWallpaper)
       : activeView === 'home'
         ? heroSlides[heroIndex]?.image
-        : resolveWallpaperImage(selectedWallpaper)) ?? desktopWallpaper;
+        : desktopWallpaper) ?? desktopWallpaper;
   const wallpaperRootStyle = useMemo(
     () =>
       ({

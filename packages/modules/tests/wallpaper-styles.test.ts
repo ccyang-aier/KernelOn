@@ -137,6 +137,14 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).toContain('font-weight: 520;');
   });
 
+  it('uses a transparent frosted glass surface for the Explore page', () => {
+    expect(wallpaperStyles).toContain('.wallpaper-ux--explore {');
+    expect(wallpaperStyles).toContain('background: rgba(7, 14, 18, 0.18);');
+    expect(wallpaperStyles).toContain('filter: blur(22px) saturate(1.28) brightness(0.94);');
+    expect(wallpaperStyles).toContain('rgba(13, 29, 35, 0.23);');
+    expect(wallpaperStyles).toContain('backdrop-filter: blur(38px) saturate(1.32) brightness(1.08);');
+  });
+
   it('uses wallpaper-owned frosted button components', () => {
     expect(HeroFrostedAction.name).toBe('HeroFrostedAction');
     expect(WallpaperFrostedHeaderControls.name).toBe('WallpaperFrostedHeaderControls');
@@ -170,7 +178,11 @@ describe('Wallpaper styles', () => {
       zRadius: 21,
       button: true,
       bevelMode: 0,
+      shadowOpacity: 0.1,
+      shadowSpread: 5,
     });
+    expect(liquidGlassSource).toContain('backdropView = "home"');
+    expect(headerSource).toContain('backdropView: activeView');
   });
 
   it('builds Settings as preferences plus a current wallpaper preview', () => {
