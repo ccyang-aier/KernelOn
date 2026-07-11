@@ -1639,15 +1639,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-settings-board {
   display: grid;
   grid-template-columns: 220px 1fr;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  background: rgba(10, 16, 22, 0.62);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 32px 72px rgba(2, 6, 12, 0.44);
-  backdrop-filter: blur(38px) saturate(1.28);
-  overflow: hidden;
-  height: calc(100% - 40px);
+  gap: 40px;
+  height: 100%;
   min-height: 480px;
 }
 
@@ -1655,9 +1648,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 26px 14px;
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
-  background: rgba(0, 0, 0, 0.18);
+  padding: 12px 0;
+  background: transparent;
   position: relative;
 }
 
@@ -1696,7 +1688,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   font-size: 12px;
   font-weight: 500;
   text-align: left;
-  border: 0;
+  border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
   position: relative;
@@ -1759,11 +1751,11 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .wallpaper-settings-main-content {
-  padding: 28px 36px;
+  padding: 12px 0 28px;
   overflow-y: auto;
   height: 100%;
   scrollbar-width: none;
-  background: rgba(255, 255, 255, 0.01);
+  background: transparent;
 }
 
 .wallpaper-settings-panel {
@@ -2004,11 +1996,12 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 /* 壁纸上传表单 */
 .wallpaper-upload-form {
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.35);
-  padding: 20px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(15, 23, 30, 0.45);
+  backdrop-filter: blur(20px);
+  padding: 24px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
 }
 
 .wallpaper-upload-form__layout {
@@ -2171,30 +2164,30 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-sources-list {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* 加大卡片上下间距 */
+  gap: 16px;
 }
 
 .wallpaper-source-card {
-  padding: 18px 20px;
+  padding: 20px 24px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(0, 0, 0, 0.32);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 30, 0.45);
+  backdrop-filter: blur(20px);
   transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
 }
 
 .wallpaper-source-card.is-enabled {
-  border-color: rgba(45, 212, 191, 0.12);
+  border-color: rgba(45, 212, 191, 0.16);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
-    0 8px 24px rgba(0, 0, 0, 0.22);
+    0 12px 36px rgba(0, 0, 0, 0.3);
 }
 
 .wallpaper-source-card.is-disabled {
   opacity: 0.44;
   border-color: rgba(255, 255, 255, 0.02);
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(15, 23, 30, 0.22);
 }
 
 .wallpaper-source-card__header {
@@ -2355,17 +2348,18 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .add-source-form {
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(15, 23, 30, 0.45);
+  backdrop-filter: blur(20px);
   padding: 24px;
   margin-top: 14px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
 }
 
 .add-source-form__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px; /* 增加表单头部下边距 */
+  margin-bottom: 20px;
 }
 
 .add-source-form__header h3 {
