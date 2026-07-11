@@ -90,7 +90,7 @@ export function RegularLiquidGlass({
 
   return (
     <span
-      className={`relative isolate block rounded-[inherit] ${className}`}
+      className={`group relative isolate block rounded-[inherit] ${interactive ? 'transition-[transform,filter] duration-200 ease-out hover:-translate-y-0.5 hover:drop-shadow-[0_8px_18px_rgba(255,255,255,0.16)] active:translate-y-0 active:scale-[0.995]' : ''} ${className}`}
       data-glass-ready={glassReady ? 'true' : 'false'}
       ref={rootRef}
     >
@@ -108,11 +108,16 @@ export function RegularLiquidGlass({
       />
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 z-[2] rounded-[inherit] border border-white/30 bg-[radial-gradient(circle_at_30%_18%,rgba(255,255,255,0.14),transparent_38%)] shadow-[0_6px_14px_rgba(3,8,12,0.12)] backdrop-blur-[1px] transition-opacity duration-150 ${glassReady ? 'opacity-0' : 'opacity-100'}`}
+        className={`pointer-events-none absolute inset-0 z-[2] rounded-[inherit] bg-[radial-gradient(circle_at_30%_18%,rgba(255,255,255,0.14),transparent_38%)] shadow-[0_6px_14px_rgba(3,8,12,0.12)] backdrop-blur-[1px] transition-opacity duration-150 ${glassReady ? 'opacity-0' : 'opacity-100'}`}
         data-liquid-glass-skip-capture="true"
       />
       <span
-        className="absolute inset-0 z-[3] block rounded-[inherit]"
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 z-[3] rounded-[inherit] border border-white/45 bg-white/[0.015] shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] transition-[background-color,border-color,box-shadow] duration-200 ${interactive ? 'group-hover:border-white/75 group-hover:bg-white/10 group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_0_18px_rgba(255,255,255,0.12)]' : 'group-focus-within:border-white/65'}`}
+        data-liquid-glass-skip-capture="true"
+      />
+      <span
+        className="absolute inset-0 z-[4] block rounded-[inherit]"
         data-liquid-glass-skip-capture="true"
       >
         {children}
