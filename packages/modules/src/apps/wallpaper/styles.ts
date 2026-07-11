@@ -104,23 +104,27 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   gap: 10px;
 }
 
-.wallpaper-frosted-button,
-.wallpaper-frosted-menu-button,
-.wallpaper-frosted-search,
-.wallpaper-frosted-segment,
-.wallpaper-home__frosted-button {
+.wallpaper-frosted-surface {
+  --wallpaper-frosted-border: rgba(218, 238, 255, 0.3);
+  --wallpaper-frosted-fill-top: rgba(255, 255, 255, 0.075);
+  --wallpaper-frosted-fill-bottom: rgba(255, 255, 255, 0.012);
+  --wallpaper-frosted-base: rgba(255, 255, 255, 0.025);
+  --wallpaper-frosted-inset-top: rgba(255, 255, 255, 0.28);
+  --wallpaper-frosted-inset-bottom: rgba(255, 255, 255, 0.03);
+  --wallpaper-frosted-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+  --wallpaper-frosted-backdrop: blur(2px) saturate(1.02);
   position: relative;
   isolation: isolate;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--wallpaper-frosted-border);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.012)),
-    rgba(255, 255, 255, 0.025);
+    linear-gradient(180deg, var(--wallpaper-frosted-fill-top), var(--wallpaper-frosted-fill-bottom)),
+    var(--wallpaper-frosted-base);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
-    0 6px 14px rgba(0, 0, 0, 0.05);
-  -webkit-backdrop-filter: blur(2px) saturate(1.02);
-  backdrop-filter: blur(2px) saturate(1.02);
+    inset 0 1px 0 var(--wallpaper-frosted-inset-top),
+    inset 0 -1px 0 var(--wallpaper-frosted-inset-bottom),
+    var(--wallpaper-frosted-shadow);
+  -webkit-backdrop-filter: var(--wallpaper-frosted-backdrop);
+  backdrop-filter: var(--wallpaper-frosted-backdrop);
 }
 
 .wallpaper-frosted-button {
@@ -143,11 +147,13 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
     transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.wallpaper-frosted-button:hover {
-  border-color: rgba(255, 255, 255, 0.24);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025)),
-    rgba(255, 255, 255, 0.04);
+.wallpaper-frosted-button:hover,
+.wallpaper-frosted-menu-button:hover,
+.wallpaper-home__frosted-button:hover {
+  --wallpaper-frosted-border: rgba(231, 246, 255, 0.42);
+  --wallpaper-frosted-fill-top: rgba(255, 255, 255, 0.11);
+  --wallpaper-frosted-fill-bottom: rgba(255, 255, 255, 0.025);
+  --wallpaper-frosted-base: rgba(255, 255, 255, 0.04);
   color: #fff;
 }
 
@@ -242,11 +248,11 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .wallpaper-frosted-search[data-wallpaper-search-open="true"] {
+  --wallpaper-frosted-border: rgba(218, 238, 255, 0.34);
+  --wallpaper-frosted-fill-top: rgba(255, 255, 255, 0.06);
+  --wallpaper-frosted-fill-bottom: rgba(255, 255, 255, 0.01);
+  --wallpaper-frosted-base: rgba(255, 255, 255, 0.018);
   width: clamp(232px, 31vw, 392px);
-  border-color: rgba(255, 255, 255, 0.18);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01)),
-    rgba(255, 255, 255, 0.018);
 }
 
 .wallpaper-frosted-primary[data-wallpaper-search-open="true"] .wallpaper-frosted-search {
@@ -369,14 +375,6 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
     box-shadow 180ms ease,
     color 180ms ease,
     transform 360ms cubic-bezier(0.22, 1, 0.36, 1) 100ms;
-}
-
-.wallpaper-frosted-menu-button:hover {
-  border-color: rgba(255, 255, 255, 0.24);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025)),
-    rgba(255, 255, 255, 0.04);
-  color: #fff;
 }
 
 .wallpaper-frosted-menu-button:active {
@@ -748,14 +746,6 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
     transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.wallpaper-home__frosted-button:hover {
-  border-color: rgba(255, 255, 255, 0.24);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025)),
-    rgba(255, 255, 255, 0.04);
-  color: #fff;
-}
-
 .wallpaper-home__frosted-button:active {
   transform: scale(0.985);
 }
@@ -781,6 +771,13 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .wallpaper-home__arrow {
+  --wallpaper-frosted-border: rgba(218, 238, 255, 0.32);
+  --wallpaper-frosted-fill-top: rgba(255, 255, 255, 0.13);
+  --wallpaper-frosted-fill-bottom: rgba(255, 255, 255, 0.035);
+  --wallpaper-frosted-base: rgba(7, 12, 17, 0.18);
+  --wallpaper-frosted-inset-top: rgba(255, 255, 255, 0.18);
+  --wallpaper-frosted-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  --wallpaper-frosted-backdrop: blur(12px) saturate(1.14);
   position: absolute;
   top: 50%;
   z-index: 4;
@@ -788,18 +785,10 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   width: 46px;
   height: 46px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.17);
   border-radius: 999px;
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035)),
-    rgba(7, 12, 17, 0.18);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 10px 24px rgba(0, 0, 0, 0.16);
   color: rgba(255, 255, 255, 0.88);
   cursor: pointer;
   transform: translateY(-50%);
-  backdrop-filter: blur(12px) saturate(1.14);
   transition:
     background 180ms ease,
     border-color 180ms ease,
@@ -809,10 +798,10 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .wallpaper-home__arrow:hover {
-  border-color: rgba(255, 255, 255, 0.28);
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05)),
-    rgba(7, 12, 17, 0.16);
+  --wallpaper-frosted-border: rgba(231, 246, 255, 0.46);
+  --wallpaper-frosted-fill-top: rgba(255, 255, 255, 0.18);
+  --wallpaper-frosted-fill-bottom: rgba(255, 255, 255, 0.05);
+  --wallpaper-frosted-base: rgba(7, 12, 17, 0.16);
   color: #fff;
   transform: translateY(-50%) scale(1.04);
 }
@@ -1135,28 +1124,19 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .wallpaper-card-glass-label {
+  --wallpaper-frosted-backdrop: none;
   position: absolute;
   bottom: 14px;
   left: 50%;
   min-width: 154px;
   max-width: calc(100% - 36px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.012)),
-    rgba(255, 255, 255, 0.025);
   padding: 11px 20px;
   color: rgba(255, 255, 255, 0.94);
   font-size: 13px;
   font-weight: 900;
   line-height: 1;
   text-align: center;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
-    0 6px 14px rgba(0, 0, 0, 0.05);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
   opacity: 0;
   transform: translate(-50%, 8px) scale(0.98);
   transition:
@@ -1166,8 +1146,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-carousel-card:hover .wallpaper-card-glass-label,
 .wallpaper-carousel-card:focus-visible .wallpaper-card-glass-label {
-  -webkit-backdrop-filter: blur(2px) saturate(1.02);
-  backdrop-filter: blur(2px) saturate(1.02);
+  --wallpaper-frosted-backdrop: blur(2px) saturate(1.02);
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
 }
@@ -1487,29 +1466,20 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 }
 
 .wallpaper-explore-card__view {
+  --wallpaper-frosted-backdrop: none;
   position: absolute;
   left: 50%;
   bottom: 88px;
   z-index: 2;
   min-width: 132px;
   max-width: calc(100% - 34px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.012)),
-    rgba(255, 255, 255, 0.025);
   color: rgba(255, 255, 255, 0.94);
   padding: 10px 18px;
   font-size: 12px;
   font-weight: 660;
   line-height: 1;
   text-align: center;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
-    0 6px 14px rgba(0, 0, 0, 0.05);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
   opacity: 0;
   transform: translate(-50%, 8px) scale(0.98);
   transition:
@@ -1519,8 +1489,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-explore-card:hover .wallpaper-explore-card__view,
 .wallpaper-explore-card:focus-visible .wallpaper-explore-card__view {
-  -webkit-backdrop-filter: blur(2px) saturate(1.02);
-  backdrop-filter: blur(2px) saturate(1.02);
+  --wallpaper-frosted-backdrop: blur(2px) saturate(1.02);
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
 }
@@ -1702,11 +1671,11 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-sidebar-item.is-active {
   color: #fff;
-  background: rgba(45, 212, 191, 0.04);
-  border: 1px dashed rgba(45, 212, 191, 0.42);
+  background: rgba(45, 212, 191, 0.06);
+  border: 1px dashed rgba(45, 212, 191, 0.52);
   border-radius: 10px;
   box-shadow:
-    0 0 0 0 rgba(45, 212, 191, 0),
+    0 0 8px rgba(45, 212, 191, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   animation: sidebarItemActivate 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -1953,8 +1922,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 /* 壁纸上传区 */
 .wallpaper-upload-zone {
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.015);
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.22);
   border-radius: 16px;
   padding: 40px 20px;
   text-align: center;
@@ -1964,8 +1933,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-upload-zone:hover,
 .wallpaper-upload-zone.is-dragover {
-  border-color: rgba(45, 212, 191, 0.4);
-  background: rgba(45, 212, 191, 0.02);
+  border-color: rgba(45, 212, 191, 0.52);
+  background: rgba(45, 212, 191, 0.04);
 }
 
 .wallpaper-upload-zone__content {
@@ -1990,16 +1959,16 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .wallpaper-upload-zone__content p {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.32);
+  color: rgba(255, 255, 255, 0.35);
   margin: 0;
 }
 
 /* 壁纸上传表单 */
 .wallpaper-upload-form {
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(15, 23, 30, 0.45);
-  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18, 24, 30, 0.62);
+  backdrop-filter: blur(24px);
   padding: 24px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
 }
@@ -2146,17 +2115,17 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   padding: 36px;
   text-align: center;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px dashed rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
 }
 
 .wallpaper-settings-sub-empty svg {
-  color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.22);
 }
 
 .wallpaper-settings-sub-empty p {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.32);
+  color: rgba(255, 255, 255, 0.35);
   margin: 0;
 }
 
@@ -2165,14 +2134,15 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-width: 800px;
 }
 
 .wallpaper-source-card {
   padding: 20px 24px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(15, 23, 30, 0.45);
-  backdrop-filter: blur(20px);
+  background: rgba(18, 24, 30, 0.62);
+  backdrop-filter: blur(24px);
   transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
 }
@@ -2187,7 +2157,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-source-card.is-disabled {
   opacity: 0.44;
   border-color: rgba(255, 255, 255, 0.02);
-  background: rgba(15, 23, 30, 0.22);
+  background: rgba(18, 24, 30, 0.35);
 }
 
 .wallpaper-source-card__header {
@@ -2320,6 +2290,7 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 /* 添加源板块 */
 .wallpaper-sources-add-section {
   margin-top: 20px;
+  max-width: 800px;
 }
 
 .add-source-trigger {
@@ -2347,9 +2318,9 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 
 .add-source-form {
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(15, 23, 30, 0.45);
-  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18, 24, 30, 0.62);
+  backdrop-filter: blur(24px);
   padding: 24px;
   margin-top: 14px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
@@ -2402,9 +2373,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  padding-top: 20px;
-  margin-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 24px;
+  margin-top: 24px;
 }
 
 .add-source-form__actions .cancel-btn {

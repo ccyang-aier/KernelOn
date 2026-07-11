@@ -29,11 +29,14 @@ describe('Wallpaper styles', () => {
     expect(wallpaperStyles).not.toContain('data-testid^="kernelon-app-header');
   });
 
-  it('defines custom clear frosted controls for wallpaper chrome', () => {
-    expect(wallpaperStyles).toContain('.wallpaper-frosted-button');
+  it('defines one shared frosted material core for wallpaper controls', () => {
+    expect(wallpaperStyles).toContain('.wallpaper-frosted-surface');
+    expect(wallpaperStyles).toContain('--wallpaper-frosted-border: rgba(218, 238, 255, 0.3);');
+    expect(wallpaperStyles).toContain('border: 1px solid var(--wallpaper-frosted-border);');
+    expect(wallpaperStyles).toContain('--wallpaper-frosted-backdrop: blur(2px) saturate(1.02);');
     expect(wallpaperStyles).toContain('.wallpaper-frosted-segment');
     expect(wallpaperStyles).toContain('.wallpaper-home__frosted-button');
-    expect(wallpaperStyles).toContain('backdrop-filter: blur(2px) saturate(1.02);');
+    expect(wallpaperStyles).toContain('backdrop-filter: var(--wallpaper-frosted-backdrop);');
   });
 
   it('places Home carousel pagination near the lower hero edge', () => {
@@ -59,7 +62,7 @@ describe('Wallpaper styles', () => {
       '.wallpaper-explore-card.is-selected .wallpaper-explore-card__view',
     );
     expect(wallpaperStyles).toContain('.wallpaper-carousel-card:hover .wallpaper-card-glass-label');
-    expect(wallpaperStyles).toContain('backdrop-filter: blur(2px) saturate(1.02);');
+    expect(wallpaperStyles).toContain('--wallpaper-frosted-backdrop: blur(2px) saturate(1.02);');
   });
 
   it('defines the expanding header search state without switching views', () => {
@@ -153,8 +156,9 @@ describe('Wallpaper styles', () => {
 
     expect(headerSource).toContain('wallpaper-frosted-button--action');
     expect(heroSource).toContain('wallpaper-home__frosted-button');
-    expect(wallpaperStyles).toContain('border: 1px solid rgba(255, 255, 255, 0.16)');
-    expect(wallpaperStyles).toContain('backdrop-filter: blur(2px) saturate(1.02)');
+    expect(wallpaperStyles).toContain('wallpaper-frosted-surface');
+    expect(wallpaperStyles).toContain('border: 1px solid var(--wallpaper-frosted-border)');
+    expect(wallpaperStyles).toContain('--wallpaper-frosted-backdrop: blur(2px) saturate(1.02)');
     expect(wallpaperStyles).toContain('0 6px 14px rgba(0, 0, 0, 0.05)');
     expect(headerSource).toContain('type: "button"');
     expect(heroSource).toContain('type: "button"');

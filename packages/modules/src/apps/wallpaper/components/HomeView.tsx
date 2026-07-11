@@ -206,7 +206,7 @@ export function HomeView({
 
         <button
           aria-label="Previous wallpaper"
-          className="wallpaper-home__arrow wallpaper-home__arrow--prev"
+          className="wallpaper-home__arrow wallpaper-frosted-surface wallpaper-home__arrow--prev"
           onClick={() => onHeroNav(-1)}
           type="button"
         >
@@ -214,7 +214,7 @@ export function HomeView({
         </button>
         <button
           aria-label="Next wallpaper"
-          className="wallpaper-home__arrow wallpaper-home__arrow--next"
+          className="wallpaper-home__arrow wallpaper-frosted-surface wallpaper-home__arrow--next"
           onClick={() => onHeroNav(1)}
           type="button"
         >
@@ -260,7 +260,9 @@ export function HomeView({
                     type="button"
                   >
                     <img alt="" draggable={false} src={item.image} />
-                    <span className="wallpaper-card-glass-label">View Wallpaper</span>
+                    <span className="wallpaper-card-glass-label wallpaper-frosted-surface">
+                      View Wallpaper
+                    </span>
                   </button>
                 );
               })}

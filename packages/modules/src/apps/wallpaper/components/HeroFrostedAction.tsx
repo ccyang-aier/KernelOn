@@ -22,7 +22,7 @@ export function HeroFrostedAction({
       <button
         aria-label={label}
         aria-pressed={pressed}
-        className={`wallpaper-home__frosted-button wallpaper-home__frosted-button--${variant}`}
+        className={`wallpaper-home__frosted-button wallpaper-frosted-surface wallpaper-home__frosted-button--${variant}`}
         onClick={onClick}
         type="button"
       >

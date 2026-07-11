@@ -58,7 +58,7 @@ export function WallpaperFrostedHeaderControls({
     () => (
       <button
         aria-label="Back"
-        className="wallpaper-frosted-button wallpaper-frosted-button--icon"
+        className="wallpaper-frosted-button wallpaper-frosted-surface wallpaper-frosted-button--icon"
         onClick={onBack}
         type="button"
       >
@@ -71,7 +71,7 @@ export function WallpaperFrostedHeaderControls({
   const searchControl = useMemo(
     () => (
       <div
-        className="wallpaper-frosted-search"
+        className="wallpaper-frosted-search wallpaper-frosted-surface"
         data-wallpaper-search-open={isSearchOpen ? 'true' : 'false'}
       >
         <button
@@ -118,7 +118,7 @@ export function WallpaperFrostedHeaderControls({
         <button
           aria-hidden={isSearchOpen ? undefined : true}
           aria-label="Show wallpaper navigation"
-          className="wallpaper-frosted-menu-button"
+          className="wallpaper-frosted-menu-button wallpaper-frosted-surface"
           onClick={() => onSearchOpenChange(false)}
           tabIndex={isSearchOpen ? 0 : -1}
           type="button"
@@ -131,7 +131,7 @@ export function WallpaperFrostedHeaderControls({
         >
           <div
             aria-label="Wallpaper views"
-            className="wallpaper-frosted-segment"
+            className="wallpaper-frosted-segment wallpaper-frosted-surface"
             data-wallpaper-view={segmentView}
             role="group"
           >
@@ -179,7 +179,7 @@ export function WallpaperFrostedHeaderControls({
     () => (
       <button
         aria-label="License"
-        className="wallpaper-frosted-button wallpaper-frosted-button--icon wallpaper-frosted-button--action"
+        className="wallpaper-frosted-button wallpaper-frosted-surface wallpaper-frosted-button--icon wallpaper-frosted-button--action"
         onClick={onLicense}
         type="button"
       >
@@ -193,7 +193,7 @@ export function WallpaperFrostedHeaderControls({
     () => (
       <button
         aria-label="Share"
-        className="wallpaper-frosted-button wallpaper-frosted-button--icon wallpaper-frosted-button--action"
+        className="wallpaper-frosted-button wallpaper-frosted-surface wallpaper-frosted-button--icon wallpaper-frosted-button--action"
         onClick={onShare}
         type="button"
       >
@@ -207,7 +207,7 @@ export function WallpaperFrostedHeaderControls({
     () => (
       <button
         aria-label="Settings"
-        className="wallpaper-frosted-button wallpaper-frosted-button--icon"
+        className="wallpaper-frosted-button wallpaper-frosted-surface wallpaper-frosted-button--icon"
         onClick={onSettings}
         type="button"
       >

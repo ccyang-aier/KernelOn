@@ -1,17 +1,9 @@
 'use client';
 
 import { ArrowDownUp, Heart, Search } from 'lucide-react';
-import type {
-  KeyboardEvent as ReactKeyboardEvent,
-  RefObject,
-} from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from 'react';
 
-import type {
-  CategoryId,
-  CategoryOption,
-  ExploreSort,
-  WallpaperAsset,
-} from '../types';
+import type { CategoryId, CategoryOption, ExploreSort, WallpaperAsset } from '../types';
 
 const sortLabels: Record<ExploreSort, string> = {
   duration: '时长',
@@ -82,10 +74,7 @@ export function ExploreView({
   wallpapers: WallpaperAsset[];
 }>) {
   return (
-    <section
-      aria-label="探索壁纸库"
-      className="wallpaper-page wallpaper-page--explore"
-    >
+    <section aria-label="探索壁纸库" className="wallpaper-page wallpaper-page--explore">
       <div className="wallpaper-page__intro">
         <p>
           今晚好 <span aria-hidden="true">{'\u{1F44B}'}</span>
@@ -198,7 +187,7 @@ function ExploreCard({
       ) : (
         <img alt="" draggable={false} src={wallpaper.image} />
       )}
-      <span className="wallpaper-explore-card__view">查看壁纸</span>
+      <span className="wallpaper-explore-card__view wallpaper-frosted-surface">查看壁纸</span>
       <div className="wallpaper-explore-card__info">
         <h2>{wallpaper.title}</h2>
         <div className="wallpaper-explore-card__meta">
