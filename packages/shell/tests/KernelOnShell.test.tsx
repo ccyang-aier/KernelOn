@@ -206,7 +206,6 @@ describe('KernelOnShell', () => {
     render(<KernelOnShell initialState={initialState} runtime={runtime} />);
 
     const statusBar = screen.getByTestId('kernelon-status-bar');
-    const statusFrame = statusBar.firstElementChild;
     const statusGlass = screen.getByTestId('kernelon-status-glass');
     const statusBrand = screen.getByTestId('kernelon-status-brand');
     const statusBrandLogoButton = screen.getByTestId('kernelon-status-brand-logo-button');
@@ -214,42 +213,26 @@ describe('KernelOnShell', () => {
     const statusControls = screen.getByTestId('kernelon-status-controls');
     const statusBrandLogo = screen.getByTestId('kernelon-status-brand-logo');
     const statusBrandWordmark = screen.getByTestId('kernelon-status-brand-wordmark');
-    const statusSurface = statusGlass.closest('.glass');
-    const statusChrome = statusSurface?.parentElement;
-    const statusWarp = statusSurface?.querySelector('.glass__warp');
-
     expect(statusBar).toHaveClass('fixed', 'inset-x-0', 'top-0');
     expect(statusBar).not.toHaveClass('top-[2px]');
     expect(statusBar.getAttribute('style')).toContain('40px');
-    expect(statusFrame).toHaveAttribute('data-slot', 'liquid-glass-svg-filter');
-    expect(statusFrame).toHaveStyle({
-      height: '0px',
-      left: '0px',
-      overflow: 'visible',
-      position: 'absolute',
-      top: '0px',
-      width: '0px',
-    });
     expect(statusGlass).toHaveClass(
+      'pointer-events-auto',
       'h-[40px]',
-      'w-screen',
+      'w-full',
       'justify-between',
+      'border-white/20',
+      'bg-white/[0.06]',
       'px-[14px]',
       'pt-[2px]',
+      'backdrop-blur-xl',
+      'backdrop-saturate-150',
     );
-    expect(statusGlass).toHaveStyle({
-      boxShadow: 'inset 0 -1px 0 rgba(232,248,250,0.16), inset 0 1px 0 rgba(255,255,255,0.06)',
-    });
-    expect(statusSurface).toHaveStyle({ borderRadius: '0px', padding: '0px' });
-    expect(statusChrome).toHaveClass(
-      '[--ko-liquid-glass-border-strong:transparent]',
-      '[--ko-liquid-glass-border-soft:transparent]',
-    );
-    expect(statusFrame?.querySelectorAll('[data-liquid-glass-container-border]')).toHaveLength(2);
-    expect(statusWarp).toHaveAttribute('data-liquid-glass-render-mode', 'full');
-    expect(statusWarp?.getAttribute('style')).toContain('filter: url(');
-    expect(statusWarp?.getAttribute('style')).toContain('backdrop-filter: blur(');
-    expect(statusWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 0px)');
+    expect(statusGlass).toHaveAttribute('data-kernelon-status-material', 'css-frosted');
+    expect(statusGlass.querySelector('.glass__warp')).not.toBeInTheDocument();
+    expect(
+      statusBar.querySelector('[data-slot="liquid-glass-svg-filter"]'),
+    ).not.toBeInTheDocument();
     expect(statusBrand).toHaveClass('h-[38px]', 'justify-start', 'gap-[4px]');
     expect(statusBrand).not.toHaveAttribute('data-kernelon-status-feedback', 'gsap-press');
     expect(statusBrand).toHaveTextContent('KernelOn');
