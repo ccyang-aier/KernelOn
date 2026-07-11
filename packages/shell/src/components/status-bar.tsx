@@ -1,6 +1,5 @@
 'use client';
 
-import { LiquidGlassSvgFilter } from '@kernelon/ui';
 import {
   useCallback,
   useEffect,
@@ -32,24 +31,11 @@ export function KernelOnStatusBar({
       data-testid="kernelon-status-bar"
       style={statusBarShellStyle}
     >
-      <LiquidGlassSvgFilter
-        displacementScale={48}
-        blurAmount={0.22}
-        saturation={155}
-        aberrationIntensity={1.25}
-        elasticity={0}
-        cornerRadius={0}
-        appearanceClassName="[--ko-liquid-glass-border-strong:transparent] [--ko-liquid-glass-border-soft:transparent]"
-        className="pointer-events-auto h-[40px] w-screen text-white"
-        mode="standard"
-        padding="0px"
-        style={{ position: 'absolute', left: '50vw', top: 20 }}
+      <div
+        className="pointer-events-auto flex h-[40px] w-full items-start justify-between border-b border-white/20 bg-white/[0.06] px-[14px] pt-[2px] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl backdrop-saturate-150"
+        data-kernelon-status-material="css-frosted"
+        data-testid="kernelon-status-glass"
       >
-        <div
-          className="flex h-[40px] w-screen items-start justify-between px-[14px] pt-[2px]"
-          data-testid="kernelon-status-glass"
-          style={statusBarExternalChromeStyle}
-        >
           <span
             aria-label="KernelOn product identity"
             className="-ml-[4px] flex h-[38px] min-w-0 items-center justify-start gap-[4px]"
@@ -144,8 +130,7 @@ export function KernelOnStatusBar({
             />
             <StatusBarTime />
           </span>
-        </div>
-      </LiquidGlassSvgFilter>
+      </div>
     </header>
   );
 }
@@ -628,11 +613,6 @@ function formatStatusBarTime(date: Date): string {
 
 const statusBarShellStyle = {
   height: 40,
-} as CSSProperties;
-
-const statusBarExternalChromeStyle = {
-  boxShadow:
-    'inset 0 -1px 0 rgba(232,248,250,0.16), inset 0 1px 0 rgba(255,255,255,0.06)',
 } as CSSProperties;
 
 const statusBrandLogoStyle = {
