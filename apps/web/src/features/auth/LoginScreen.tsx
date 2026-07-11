@@ -41,23 +41,25 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
 
   return (
     <ShellCredentialScreen ariaLabel="KernelOn 登录" wallpaper={kernelOnDesktopWallpaper}>
-      <form className="mx-auto w-full max-w-[340px]" onSubmit={handleSubmit}>
+      <form className="mx-auto w-full max-w-[360px]" onSubmit={handleSubmit}>
         <img
-          alt="KernelOn"
-          className="mx-auto h-[62px] w-[62px] rounded-full border-2 border-white/70 object-cover shadow-[0_10px_30px_rgba(0,0,0,0.18)]"
-          src="/kernelon-assets/avatars/current-user.png"
+          alt="未登录用户"
+          className="mx-auto h-[68px] w-[68px] rounded-full border border-white/60 object-cover shadow-[0_12px_32px_rgba(0,0,0,0.2)] ring-4 ring-white/10"
+          src="/kernelon-assets/avatars/login-placeholder.png"
         />
-        <strong className="mt-2.5 block text-[14px] font-semibold drop-shadow-md">
+        <strong className="mt-3 block text-[16px] font-semibold tracking-[-0.01em] drop-shadow-md">
           登录 KernelOn
         </strong>
-        <p className="mt-1 text-[10px] text-white/70 drop-shadow-md">使用组织账号进入你的工作台</p>
+        <p className="mt-1.5 text-[11px] text-white/75 drop-shadow-md">
+          使用组织账号进入你的工作台
+        </p>
 
-        <div className="mt-3 overflow-hidden rounded-[20px] border border-white/35 bg-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-[14px] focus-within:border-white/60">
+        <div className="mt-5 grid gap-3">
           <input
             aria-label="邮箱"
             autoComplete="email"
             autoFocus
-            className="h-10 w-full border-0 border-b border-white/20 bg-transparent px-4 text-[12px] text-white outline-none placeholder:text-white/55"
+            className="h-11 w-full rounded-[15px] border border-white/30 bg-white/14 px-4 text-[13px] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_24px_rgba(0,0,0,0.1)] outline-none backdrop-blur-[16px] transition placeholder:text-white/55 hover:bg-white/18 focus:border-white/65 focus:bg-white/20 focus:ring-2 focus:ring-white/15"
             inputMode="email"
             onChange={(event) => setEmail(event.currentTarget.value)}
             placeholder="邮箱"
@@ -65,29 +67,27 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
             type="email"
             value={email}
           />
-          <div className="flex h-10 items-center px-4">
-            <input
-              aria-label="密码"
-              autoComplete="current-password"
-              className="min-w-0 flex-1 border-0 bg-transparent text-[12px] text-white outline-none placeholder:text-white/55"
-              onChange={(event) => setPassword(event.currentTarget.value)}
-              placeholder="密码"
-              required
-              type="password"
-              value={password}
-            />
-            <button
-              aria-label="登录"
-              className="grid h-7 w-7 place-items-center rounded-full border border-white/25 bg-white/15 text-sm text-white transition-colors hover:bg-white/25 disabled:cursor-wait disabled:opacity-50"
-              disabled={submitting}
-              type="submit"
-            >
-              →
-            </button>
-          </div>
+          <input
+            aria-label="密码"
+            autoComplete="current-password"
+            className="h-11 w-full rounded-[15px] border border-white/30 bg-white/14 px-4 text-[13px] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_24px_rgba(0,0,0,0.1)] outline-none backdrop-blur-[16px] transition placeholder:text-white/55 hover:bg-white/18 focus:border-white/65 focus:bg-white/20 focus:ring-2 focus:ring-white/15"
+            onChange={(event) => setPassword(event.currentTarget.value)}
+            placeholder="密码"
+            required
+            type="password"
+            value={password}
+          />
+          <button
+            aria-label="登录"
+            className="mt-1 h-11 w-full rounded-[15px] border border-white/60 bg-white/90 text-[13px] font-semibold text-slate-800 shadow-[0_10px_28px_rgba(0,0,0,0.16)] transition hover:-translate-y-0.5 hover:bg-white active:translate-y-0 disabled:cursor-wait disabled:opacity-60"
+            disabled={submitting}
+            type="submit"
+          >
+            {submitting ? '正在登录…' : '登录'}
+          </button>
         </div>
-        <p className="mt-2 min-h-4 text-[10px] text-white drop-shadow-md" role="alert">
-          {submitting ? '正在安全登录…' : error}
+        <p className="mt-2.5 min-h-4 text-[11px] text-white drop-shadow-md" role="alert">
+          {error}
         </p>
       </form>
     </ShellCredentialScreen>

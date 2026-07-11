@@ -50,7 +50,7 @@ export function ShellCredentialScreen({
       <div className="relative flex h-full flex-col items-center px-6 pt-[7vh] pb-[5vh] text-center">
         <div className="drop-shadow-[0_3px_20px_rgba(0,0,0,0.28)]">
           <p className="m-0 text-[15px] font-semibold tracking-[0.01em]">{date}</p>
-          <time className="mt-[-4px] block text-[clamp(88px,12vw,154px)] font-semibold leading-none tracking-[-0.07em]">
+          <time className="mt-[-4px] block text-[clamp(88px,12vw,154px)] font-semibold leading-none tracking-[-0.01em] [font-variant-numeric:tabular-nums]">
             {time}
           </time>
         </div>
