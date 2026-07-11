@@ -5,10 +5,6 @@ import { ExploreView } from '../src/apps/wallpaper/components/ExploreView';
 import { HomeView } from '../src/apps/wallpaper/components/HomeView';
 import { SettingsView } from '../src/apps/wallpaper/components/SettingsView';
 import { WallpaperFrostedHeaderControls } from '../src/apps/wallpaper/components/WallpaperFrostedHeaderControls';
-import {
-  createFrostedGlassConfig,
-  WallpaperLiquidGlassButton,
-} from '../src/apps/wallpaper/components/WallpaperHeaderGlassButtons';
 import { createWallpaperHeader } from '../src/apps/wallpaper/header';
 import { wallpaperStyles } from '../src/apps/wallpaper/styles';
 
@@ -150,39 +146,18 @@ describe('Wallpaper styles', () => {
     expect(WallpaperFrostedHeaderControls.name).toBe('WallpaperFrostedHeaderControls');
   });
 
-  it('uses the documented liquidglass Frosted preset for every wallpaper glass button', () => {
+  it('uses the documented CSS frosted action recipe without a liquidglass runtime', () => {
     const headerSource = WallpaperFrostedHeaderControls.toString();
     const heroSource = HeroFrostedAction.toString();
-    const liquidGlassSource = WallpaperLiquidGlassButton.toString();
 
-    expect(headerSource).toContain('WallpaperLiquidGlassButton');
-    expect(heroSource).toContain('WallpaperLiquidGlassButton');
-    expect(liquidGlassSource).toContain('ybouane-liquidglass');
-    expect(liquidGlassSource).toContain('LiquidGlass.init');
-    expect(wallpaperStyles).toContain('.wallpaper-header-glass-root');
-    expect(wallpaperStyles).toContain('.wallpaper-liquid-glass-root--frosted');
-    expect(wallpaperStyles).toContain('.wallpaper-liquid-glass-root::after');
-    expect(wallpaperStyles).toContain('border: 1px solid rgba(239, 249, 255, 0.34)');
-    expect(wallpaperStyles).not.toContain('inset 0 0 0 1px rgba(255, 255, 255, 0.38)');
-    expect(wallpaperStyles).not.toContain('wallpaper-frosted-button--liquid-glass');
-    expect(wallpaperStyles).not.toContain('[data-wallpaper-glass-ready="true"]::after');
-    expect(wallpaperStyles).not.toContain('samasante');
-    expect(JSON.parse(createFrostedGlassConfig(21))).toMatchObject({
-      blurAmount: 0.25,
-      refraction: 0.69,
-      chromAberration: 0.05,
-      edgeHighlight: 0.05,
-      specular: 0,
-      fresnel: 1,
-      cornerRadius: 21,
-      zRadius: 21,
-      button: true,
-      bevelMode: 0,
-      shadowOpacity: 0.1,
-      shadowSpread: 5,
-    });
-    expect(liquidGlassSource).toContain('backdropView = "home"');
-    expect(headerSource).toContain('backdropView: activeView');
+    expect(headerSource).toContain('wallpaper-frosted-button--action');
+    expect(heroSource).toContain('wallpaper-home__frosted-button');
+    expect(wallpaperStyles).toContain('border: 1px solid rgba(255, 255, 255, 0.16)');
+    expect(wallpaperStyles).toContain('backdrop-filter: blur(2px) saturate(1.02)');
+    expect(wallpaperStyles).toContain('0 6px 14px rgba(0, 0, 0, 0.05)');
+    expect(wallpaperStyles).not.toContain('wallpaper-liquid-glass');
+    expect(headerSource).not.toContain('LiquidGlass');
+    expect(heroSource).not.toContain('LiquidGlass');
   });
 
   it('builds Settings as unified glass board with sidebar', () => {
@@ -192,7 +167,7 @@ describe('Wallpaper styles', () => {
     expect(settingsSource).toContain('wallpaper-settings-sidebar');
     expect(settingsSource).toContain('我的收藏');
     expect(wallpaperStyles).toContain('.wallpaper-settings-board {');
-    expect(wallpaperStyles).toContain('grid-template-columns: 200px 1fr;');
+    expect(wallpaperStyles).toContain('grid-template-columns: 220px 1fr;');
   });
 
   it('defines preview header placement and preview entrance motion', () => {

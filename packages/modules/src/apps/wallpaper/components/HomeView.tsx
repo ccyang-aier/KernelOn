@@ -178,7 +178,6 @@ export function HomeView({
           ) : null}
           <div className="wallpaper-home__actions">
             <HeroFrostedAction
-              backdropImage={activeHero.image}
               label="View Wallpaper"
               onClick={() => onPreview(activeHero.id)}
               variant="preview"
@@ -187,7 +186,6 @@ export function HomeView({
               <span>View Wallpaper</span>
             </HeroFrostedAction>
             <HeroFrostedAction
-              backdropImage={activeHero.image}
               label="Like wallpaper"
               onClick={() => onLike(activeHero.id)}
               pressed={likedIds.has(activeHero.id)}

@@ -120,12 +120,6 @@ export default function WallpaperWindow() {
   const activeWallpaper = previewWallpaper ?? selectedWallpaper;
   const displayedView = previewWallpaper ? 'preview' : activeView;
   const wallpaperHeader = useMemo(() => createWallpaperHeader(displayedView), [displayedView]);
-  const headerGlassBackdropImage =
-    (previewWallpaper
-      ? resolveWallpaperImage(previewWallpaper)
-      : activeView === 'home'
-        ? heroSlides[heroIndex]?.image
-        : desktopWallpaper) ?? desktopWallpaper;
   const wallpaperRootStyle = useMemo(
     () =>
       ({
@@ -309,7 +303,6 @@ export default function WallpaperWindow() {
   return (
     <WallpaperFrostedHeaderControls
       activeView={displayedView}
-      glassBackdropImage={headerGlassBackdropImage}
       isSearchOpen={isHeaderSearchOpen}
       onBack={closePreview}
       onLicense={showLicense}

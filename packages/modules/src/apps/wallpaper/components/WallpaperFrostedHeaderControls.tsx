@@ -5,14 +5,12 @@ import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
 
 import { viewLabels } from '../data';
 import type { WallpaperView } from '../types';
-import { WallpaperLiquidGlassButton } from './WallpaperHeaderGlassButtons';
 
 type WallpaperHeaderView = WallpaperView | 'preview';
 
 export function WallpaperFrostedHeaderControls({
   activeView,
   children,
-  glassBackdropImage,
   isSearchOpen,
   onBack,
   onLicense,
@@ -25,7 +23,6 @@ export function WallpaperFrostedHeaderControls({
 }: Readonly<{
   activeView: WallpaperHeaderView;
   children(slots: Readonly<Record<string, ReactNode>>): ReactNode;
-  glassBackdropImage: string;
   isSearchOpen: boolean;
   onBack(): void;
   onLicense(): void;
@@ -180,30 +177,30 @@ export function WallpaperFrostedHeaderControls({
 
   const licenseControl = useMemo(
     () => (
-      <WallpaperLiquidGlassButton
-        backdropImage={glassBackdropImage}
-        backdropView={activeView}
-        label="License"
+      <button
+        aria-label="License"
+        className="wallpaper-frosted-button wallpaper-frosted-button--icon wallpaper-frosted-button--action"
         onClick={onLicense}
+        type="button"
       >
         <KeyRound aria-hidden="true" />
-      </WallpaperLiquidGlassButton>
+      </button>
     ),
-    [activeView, glassBackdropImage, onLicense],
+    [onLicense],
   );
 
   const shareControl = useMemo(
     () => (
-      <WallpaperLiquidGlassButton
-        backdropImage={glassBackdropImage}
-        backdropView={activeView}
-        label="Share"
+      <button
+        aria-label="Share"
+        className="wallpaper-frosted-button wallpaper-frosted-button--icon wallpaper-frosted-button--action"
         onClick={onShare}
+        type="button"
       >
         <Share2 aria-hidden="true" />
-      </WallpaperLiquidGlassButton>
+      </button>
     ),
-    [activeView, glassBackdropImage, onShare],
+    [onShare],
   );
 
   const settingsControl = useMemo(
