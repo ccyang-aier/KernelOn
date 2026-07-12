@@ -51,7 +51,8 @@ const navItems = [
 const avatarUrl = '/kernelon-assets/avatars/current-user.png';
 const spriteUrl = '/kernelon-assets/weekly-show/works-sprite.png';
 
-export default function WeeklyShowWindow(_props: AppWindowSurfaceProps) {
+export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
+  void props;
   const [activeCategory, setActiveCategory] = useState<WeeklyShowCategory>('全部');
   const [activeNav, setActiveNav] = useState<(typeof navItems)[number]['id']>('stage');
   const [query, setQuery] = useState('');
