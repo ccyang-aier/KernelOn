@@ -16,8 +16,26 @@ describe('Shell lock screen', () => {
     expect(store.getState().isDesktopLocked).toBe(false);
     expect(JSON.parse(localStorage.getItem('kernelon_wallpaper_lock_screen') ?? '{}')).toEqual({
       enabled: true,
+      idleMinutes: 15,
       password: '2580',
-      version: 1,
+      version: 2,
     });
+  });
+
+  it('restores configuration without locking and supports idle and disable controls', () => {
+    localStorage.clear();
+    const store = createShellStore({ apps: [] });
+
+    store.getState().restoreDesktopLock('2580', 20);
+    expect(store.getState().isDesktopLocked).toBe(false);
+    expect(store.getState().desktopLockIdleMinutes).toBe(20);
+
+    store.getState().activateDesktopLock();
+    expect(store.getState().isDesktopLocked).toBe(true);
+
+    store.getState().disableDesktopLock();
+    expect(store.getState().desktopLockPassword).toBeNull();
+    expect(store.getState().isDesktopLocked).toBe(false);
+    expect(localStorage.getItem('kernelon_wallpaper_lock_screen')).toBeNull();
   });
 });

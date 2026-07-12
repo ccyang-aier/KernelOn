@@ -1,17 +1,23 @@
 'use client';
 
-import { Eye, EyeOff, LockKeyhole, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, LockKeyhole, ShieldCheck, TimerOff } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 
-const lockScreenStorageKey = 'kernelon_wallpaper_lock_screen';
-
 export function LockScreenSetup({
+  idleMinutes,
+  isEnabled,
   isOpen,
   onApplyLock,
+  onDisableLock,
+  onIdleMinutesChange,
   wallpaper,
 }: Readonly<{
+  idleMinutes: number;
+  isEnabled: boolean;
   isOpen: boolean;
-  onApplyLock(password: string): void;
+  onApplyLock(password: string, idleMinutes: number): void;
+  onDisableLock(): void;
+  onIdleMinutesChange(idleMinutes: number): void;
   wallpaper: string;
 }>) {
   const [password, setPassword] = useState('');
@@ -57,15 +63,11 @@ export function LockScreenSetup({
         return;
       }
 
-      localStorage.setItem(
-        lockScreenStorageKey,
-        JSON.stringify({ enabled: true, password, version: 1 }),
-      );
-      onApplyLock(password);
+      onApplyLock(password, idleMinutes);
       setPassword('');
       setError('');
     },
-    [onApplyLock, password],
+    [idleMinutes, onApplyLock, password],
   );
 
   if (!isOpen) {
@@ -124,6 +126,26 @@ export function LockScreenSetup({
           </div>
         </label>
 
+        <label className="wallpaper-lock-field wallpaper-lock-field--idle">
+          <span>闲置后锁屏（分钟）</span>
+          <div>
+            <input
+              aria-label="闲置后锁屏分钟数"
+              max={120}
+              min={1}
+              onChange={(event) => {
+                const nextValue = Number(event.currentTarget.value);
+
+                if (Number.isFinite(nextValue) && nextValue >= 1 && nextValue <= 120) {
+                  onIdleMinutesChange(nextValue);
+                }
+              }}
+              type="number"
+              value={idleMinutes}
+            />
+          </div>
+        </label>
+
         <div className="wallpaper-lock-setup__hint">
           <ShieldCheck aria-hidden="true" />
           <span>密码仅保存在此浏览器中，不会上传或同步。</span>
@@ -135,6 +157,16 @@ export function LockScreenSetup({
         ) : null}
 
         <div className="wallpaper-lock-setup__actions">
+          {isEnabled ? (
+            <button
+              className="wallpaper-lock-button wallpaper-lock-button--secondary"
+              onClick={onDisableLock}
+              type="button"
+            >
+              <TimerOff aria-hidden="true" />
+              关闭锁屏
+            </button>
+          ) : null}
           <button className="wallpaper-lock-button wallpaper-lock-button--primary" type="submit">
             <LockKeyhole aria-hidden="true" />
             应用锁屏

@@ -182,6 +182,8 @@ describe('Wallpaper styles', () => {
 
     expect(headerSource).toContain('设置锁屏');
     expect(lockScreenSource).toContain('应用锁屏');
+    expect(lockScreenSource).toContain('关闭锁屏');
+    expect(lockScreenSource).toContain('闲置后锁屏');
     expect(lockScreenSource).not.toContain('确认密码');
     expect(lockScreenSource).not.toContain('稍后设置');
     expect(lockScreenSource).toContain('/kernelon-assets/avatars/current-user.png');

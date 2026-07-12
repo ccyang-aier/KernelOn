@@ -44,6 +44,8 @@ import { ShellLockScreen, type ShellCredentialUser } from './components/shell-lo
 import type { ShellRuntimeRegistry } from './runtime';
 import {
   createShellStore,
+  defaultDesktopLockIdleMinutes,
+  normalizeDesktopLockIdleMinutes,
   type ShellInitialState,
   type ShellState,
   type ShellStore,
@@ -102,6 +104,9 @@ function KernelOnShellView({
   const windows = useShellSelector((state) => state.windows);
   const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
   const isDesktopLocked = useShellSelector((state) => state.isDesktopLocked);
+  const desktopLockPassword = useShellSelector((state) => state.desktopLockPassword);
+  const desktopLockIdleMinutes = useShellSelector((state) => state.desktopLockIdleMinutes);
+  const activateDesktopLock = useShellSelector((state) => state.activateDesktopLock);
   const restoreDesktopLock = useShellSelector((state) => state.restoreDesktopLock);
   const unlockDesktop = useShellSelector((state) => state.unlockDesktop);
   const dockAppIds = useShellSelector((state) => state.dockAppIds);
@@ -150,16 +155,48 @@ function KernelOnShellView({
 
       const config = JSON.parse(saved) as {
         enabled?: boolean;
+        idleMinutes?: number;
         password?: string;
       };
 
       if (config.enabled && config.password) {
-        restoreDesktopLock(config.password, true);
+        restoreDesktopLock(
+          config.password,
+          normalizeDesktopLockIdleMinutes(config.idleMinutes ?? defaultDesktopLockIdleMinutes),
+        );
       }
     } catch {
       // Ignore invalid legacy lock-screen settings and keep the desktop available.
     }
   }, [restoreDesktopLock]);
+
+  useEffect(() => {
+    if (!desktopLockPassword || isDesktopLocked) {
+      return undefined;
+    }
+
+    let idleTimer = window.setTimeout(activateDesktopLock, desktopLockIdleMinutes * 60_000);
+    const restartIdleTimer = () => {
+      window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(activateDesktopLock, desktopLockIdleMinutes * 60_000);
+    };
+    const activityEvents = [
+      'pointerdown',
+      'pointermove',
+      'keydown',
+      'wheel',
+      'touchstart',
+    ] as const;
+
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, restartIdleTimer));
+
+    return () => {
+      window.clearTimeout(idleTimer);
+      activityEvents.forEach((eventName) =>
+        window.removeEventListener(eventName, restartIdleTimer),
+      );
+    };
+  }, [activateDesktopLock, desktopLockIdleMinutes, desktopLockPassword, isDesktopLocked]);
 
   useEffect(() => {
     const element = desktopSurfaceRef.current;

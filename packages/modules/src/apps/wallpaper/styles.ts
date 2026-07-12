@@ -2711,6 +2711,11 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   color: rgba(255, 255, 255, 0.3);
 }
 
+.wallpaper-lock-field--idle input {
+  padding-inline: 16px;
+  text-align: center;
+}
+
 .wallpaper-lock-field button {
   display: grid;
   place-items: center;
@@ -3175,6 +3180,7 @@ section[data-app-id="wallpaper"]:has(.wallpaper-lock-screen)
 
 .wallpaper-lock-setup__actions {
   justify-content: center;
+  gap: 10px;
   margin-top: 13px;
 }
 

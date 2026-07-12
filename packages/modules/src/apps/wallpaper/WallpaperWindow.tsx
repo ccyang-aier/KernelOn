@@ -59,6 +59,10 @@ export default function WallpaperWindow() {
   const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
   const setDesktopWallpaper = useShellSelector((state) => state.setDesktopWallpaper);
   const lockDesktop = useShellSelector((state) => state.lockDesktop);
+  const disableDesktopLock = useShellSelector((state) => state.disableDesktopLock);
+  const desktopLockIdleMinutes = useShellSelector((state) => state.desktopLockIdleMinutes);
+  const desktopLockPassword = useShellSelector((state) => state.desktopLockPassword);
+  const setDesktopLockIdleMinutes = useShellSelector((state) => state.setDesktopLockIdleMinutes);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [activeView, setActiveView] = useState<WallpaperView>('home');
   const [previewWallpaperId, setPreviewWallpaperId] = useState<string | null>(null);
@@ -336,11 +340,18 @@ export default function WallpaperWindow() {
           >
             <style>{wallpaperStyles}</style>
             <LockScreenSetup
+              idleMinutes={desktopLockIdleMinutes}
+              isEnabled={Boolean(desktopLockPassword)}
               isOpen={isLockScreenOpen}
-              onApplyLock={(password) => {
+              onApplyLock={(password, idleMinutes) => {
                 setIsLockScreenOpen(false);
-                lockDesktop(password);
+                lockDesktop(password, idleMinutes);
               }}
+              onDisableLock={() => {
+                disableDesktopLock();
+                setIsLockScreenOpen(false);
+              }}
+              onIdleMinutesChange={setDesktopLockIdleMinutes}
               wallpaper={desktopWallpaper}
             />
             {headerActionNotice ? (

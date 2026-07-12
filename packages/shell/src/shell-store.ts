@@ -32,6 +32,7 @@ import { createStore } from 'zustand/vanilla';
 import { kernelOnDesktopWallpaper } from './visual-assets';
 
 const desktopLockStorageKey = 'kernelon_wallpaper_lock_screen';
+export const defaultDesktopLockIdleMinutes = 15;
 
 export interface ShellInitialState {
   currentScreenId?: string;
@@ -64,6 +65,7 @@ export interface ShellState {
   screens: DesktopScreen[];
   desktopWallpaper: string;
   desktopLockPassword: string | null;
+  desktopLockIdleMinutes: number;
   isDesktopLocked: boolean;
   activeDraggedDesktopItemId: string | null;
   pendingWidgetPlacement: PendingWidgetPlacement | null;
@@ -72,8 +74,11 @@ export interface ShellState {
   removeDesktopItem(screenId: string, itemId: string): void;
   setActiveDraggedDesktopItemId(itemId: string | null): void;
   setDesktopWallpaper(wallpaper: string): void;
-  lockDesktop(password: string): void;
-  restoreDesktopLock(password: string, locked: boolean): void;
+  lockDesktop(password: string, idleMinutes?: number): void;
+  activateDesktopLock(): void;
+  disableDesktopLock(): void;
+  restoreDesktopLock(password: string, idleMinutes?: number): void;
+  setDesktopLockIdleMinutes(idleMinutes: number): void;
   unlockDesktop(password: string): boolean;
   setPendingWidgetPlacement(item: PendingWidgetPlacement | null): void;
   openApp(appId: string, options?: OpenShellAppOptions): void;
@@ -111,6 +116,7 @@ export function createShellStore(initialState: ShellInitialState) {
     commands: initialState.commands ?? createAppOpenCommands(appRegistry.all()),
     desktopWallpaper: initialState.desktopWallpaper ?? kernelOnDesktopWallpaper,
     desktopLockPassword: null,
+    desktopLockIdleMinutes: defaultDesktopLockIdleMinutes,
     isDesktopLocked: false,
     screens: initialState.screens ?? [
       createDefaultDesktopScreen([], {
@@ -164,12 +170,45 @@ export function createShellStore(initialState: ShellInitialState) {
     setDesktopWallpaper: (wallpaper) => {
       set({ desktopWallpaper: wallpaper });
     },
-    lockDesktop: (password) => {
-      set({ desktopLockPassword: password, isDesktopLocked: true });
-      persistDesktopLock(password);
+    lockDesktop: (password, idleMinutes = get().desktopLockIdleMinutes) => {
+      const normalizedIdleMinutes = normalizeDesktopLockIdleMinutes(idleMinutes);
+      set({
+        desktopLockIdleMinutes: normalizedIdleMinutes,
+        desktopLockPassword: password,
+        isDesktopLocked: true,
+      });
+      persistDesktopLock(password, normalizedIdleMinutes);
     },
-    restoreDesktopLock: (password, locked) => {
-      set({ desktopLockPassword: password, isDesktopLocked: locked });
+    activateDesktopLock: () => {
+      if (get().desktopLockPassword) {
+        set({ isDesktopLocked: true });
+      }
+    },
+    disableDesktopLock: () => {
+      set({
+        desktopLockIdleMinutes: defaultDesktopLockIdleMinutes,
+        desktopLockPassword: null,
+        isDesktopLocked: false,
+      });
+      removePersistedDesktopLock();
+    },
+    restoreDesktopLock: (password, idleMinutes = defaultDesktopLockIdleMinutes) => {
+      const normalizedIdleMinutes = normalizeDesktopLockIdleMinutes(idleMinutes);
+      set({
+        desktopLockIdleMinutes: normalizedIdleMinutes,
+        desktopLockPassword: password,
+        isDesktopLocked: false,
+      });
+      persistDesktopLock(password, normalizedIdleMinutes);
+    },
+    setDesktopLockIdleMinutes: (idleMinutes) => {
+      const normalizedIdleMinutes = normalizeDesktopLockIdleMinutes(idleMinutes);
+      const password = get().desktopLockPassword;
+      set({ desktopLockIdleMinutes: normalizedIdleMinutes });
+
+      if (password) {
+        persistDesktopLock(password, normalizedIdleMinutes);
+      }
     },
     unlockDesktop: (password) => {
       if (password !== get().desktopLockPassword) {
@@ -256,13 +295,27 @@ export function createShellStore(initialState: ShellInitialState) {
   }));
 }
 
-function persistDesktopLock(password: string) {
+export function normalizeDesktopLockIdleMinutes(idleMinutes: number) {
+  if (!Number.isFinite(idleMinutes)) {
+    return defaultDesktopLockIdleMinutes;
+  }
+
+  return Math.min(120, Math.max(1, Math.round(idleMinutes)));
+}
+
+function persistDesktopLock(password: string, idleMinutes: number) {
   if (typeof window === 'undefined') {
     return;
   }
 
   localStorage.setItem(
     desktopLockStorageKey,
-    JSON.stringify({ enabled: true, password, version: 1 }),
+    JSON.stringify({ enabled: true, idleMinutes, password, version: 2 }),
   );
+}
+
+function removePersistedDesktopLock() {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(desktopLockStorageKey);
+  }
 }
