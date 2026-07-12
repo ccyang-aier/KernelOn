@@ -1,6 +1,8 @@
 param(
   [Parameter(Mandatory = $true)][string]$RepoRoot,
-  [Parameter(Mandatory = $true)][int]$BackendPort
+  [Parameter(Mandatory = $true)][int]$BackendPort,
+  [ValidateSet('Development', 'Production')]
+  [string]$Mode = 'Production'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -26,5 +28,6 @@ else {
 }
 
 Set-Location $RepoRoot
-& $filePath @prefix --filter '@kernelon/web' start
+$webCommand = if ($Mode -eq 'Development') { 'dev' } else { 'start' }
+& $filePath @prefix --filter '@kernelon/web' $webCommand
 exit $LASTEXITCODE

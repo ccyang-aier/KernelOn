@@ -13,6 +13,7 @@
     "dev:api": "uv run --project apps/api litestar --app kernelon_api.asgi:app run --reload --host 127.0.0.1 --port 8000",
     "dev:desktop": "pnpm --filter @kernelon/desktop dev",
     "dev:web": "pnpm --filter @kernelon/web dev",
+    "dev:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-kernelon.ps1 -Mode Development",
     "start:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-kernelon.ps1",
     "build": "pnpm build:web && pnpm build:api",
     "build:api": "uv build --project apps/api",

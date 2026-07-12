@@ -1,6 +1,8 @@
 param(
   [ValidateRange(1, 65535)]
-  [int]$BackendPort = 8000
+  [int]$BackendPort = 8000,
+  [ValidateSet('Development', 'Production')]
+  [string]$Mode = 'Production'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -153,14 +155,19 @@ Stop-PortOwner -Port $BackendPort
 Write-Host 'Preparing PostgreSQL, backend dependencies, and migrations...' -ForegroundColor Cyan
 Invoke-CheckedCommand -FilePath 'wsl.exe' -Arguments @('bash', $wslApiHelper, 'prepare', "$BackendPort")
 
-Write-Host 'Building the latest frontend...' -ForegroundColor Cyan
-$buildArguments = @($pnpmCommand.Prefix) + @('--filter', '@kernelon/web', 'build')
-Push-Location $RepoRoot
-try {
-  Invoke-CheckedCommand -FilePath $pnpmCommand.FilePath -Arguments $buildArguments
+if ($Mode -eq 'Production') {
+  Write-Host 'Building the latest frontend...' -ForegroundColor Cyan
+  $buildArguments = @($pnpmCommand.Prefix) + @('--filter', '@kernelon/web', 'build')
+  Push-Location $RepoRoot
+  try {
+    Invoke-CheckedCommand -FilePath $pnpmCommand.FilePath -Arguments $buildArguments
+  }
+  finally {
+    Pop-Location
+  }
 }
-finally {
-  Pop-Location
+else {
+  Write-Host 'Development mode: Fast Refresh and backend reload are enabled.' -ForegroundColor Cyan
 }
 
 $backendOut = Join-Path $LogRoot 'backend.out.log'
@@ -170,8 +177,9 @@ $frontendErr = Join-Path $LogRoot 'frontend.err.log'
 Remove-Item $backendOut, $backendErr, $frontendOut, $frontendErr -Force -ErrorAction SilentlyContinue
 
 Write-Host "Starting backend on port $BackendPort..." -ForegroundColor Cyan
+$backendMode = if ($Mode -eq 'Development') { 'serve-dev' } else { 'serve' }
 $backendProcess = Start-Process -FilePath 'wsl.exe' `
-  -ArgumentList @('bash', $wslApiHelper, 'serve', "$BackendPort") `
+  -ArgumentList @('bash', $wslApiHelper, $backendMode, "$BackendPort") `
   -RedirectStandardOutput $backendOut -RedirectStandardError $backendErr `
   -WindowStyle Hidden -PassThru
 
@@ -179,7 +187,7 @@ Write-Host "Starting frontend on port $FrontendPort..." -ForegroundColor Cyan
 $frontendProcess = Start-Process -FilePath 'powershell.exe' `
   -ArgumentList @(
     '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $WebHelper,
-    '-RepoRoot', $RepoRoot, '-BackendPort', "$BackendPort"
+    '-RepoRoot', $RepoRoot, '-BackendPort', "$BackendPort", '-Mode', $Mode
   ) `
   -RedirectStandardOutput $frontendOut -RedirectStandardError $frontendErr `
   -WindowStyle Hidden -PassThru
@@ -195,6 +203,7 @@ catch {
 
 Write-Host ''
 Write-Host 'KernelOn started successfully.' -ForegroundColor Green
+Write-Host "Mode:     $Mode"
 Write-Host "Frontend: http://127.0.0.1:$FrontendPort"
 Write-Host "Backend:  http://127.0.0.1:$BackendPort"
 Write-Host "Logs:     $LogRoot"

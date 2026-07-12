@@ -34,8 +34,12 @@ case "$MODE" in
     exec "$CONDA_EXE" run -n "$CONDA_ENV" uv run --project apps/api \
       litestar --app kernelon_api.asgi:app run --host 0.0.0.0 --port "$PORT"
     ;;
+  serve-dev)
+    exec "$CONDA_EXE" run -n "$CONDA_ENV" uv run --project apps/api \
+      litestar --app kernelon_api.asgi:app run --reload --host 0.0.0.0 --port "$PORT"
+    ;;
   *)
-    echo "Usage: $0 {prepare|serve} [port]" >&2
+    echo "Usage: $0 {prepare|serve|serve-dev} [port]" >&2
     exit 2
     ;;
 esac
