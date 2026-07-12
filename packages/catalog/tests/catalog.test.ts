@@ -4,8 +4,24 @@ import { defaultDesktopScreens, defaultShellInitialState, kernelApps, kernelWidg
 
 describe('KernelOn built-in catalog', () => {
   it('keeps catalog metadata separate from desktop placement', () => {
-    expect(kernelApps).toHaveLength(9);
+    expect(kernelApps).toHaveLength(10);
     expect(defaultDesktopScreens[0]?.items).toHaveLength(0);
+  });
+
+  it('declares Weekly Show as a docked app-owned window', () => {
+    expect(kernelApps).toContainEqual(
+      expect.objectContaining({
+        dockedByDefault: true,
+        id: 'weekly-show',
+        name: 'Weekly Show',
+        runtime: {
+          window: {
+            frameOwner: 'app',
+            loaderKey: 'app:weekly-show-window',
+          },
+        },
+      }),
+    );
   });
 
   it('declares runtime loader keys for apps and widgets', () => {

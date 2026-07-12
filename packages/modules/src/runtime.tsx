@@ -18,6 +18,7 @@ const appWindowLoaders = {
   'app:assessment-window': () => import('./apps/assessment/AssessmentWindow'),
   'app:dashboard-window': () => import('./apps/dashboard/DashboardWindow'),
   'app:resources-window': () => import('./apps/resources/ResourcesWindow'),
+  'app:weekly-show-window': () => import('./apps/weekly-show/WeeklyShowWindow'),
   'app:wallpaper-window': () => import('./apps/wallpaper/WallpaperWindow'),
   'app:widget-manager-window': () => import('./apps/widget-manager/WidgetManagerWindow'),
 } satisfies Record<string, () => Promise<AppWindowModule>>;

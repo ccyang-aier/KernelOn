@@ -8,3 +8,80 @@
 [data-kernelon-cursor-scope] [role='menuitem'] {
   cursor: var(--ko-cursor-default);
 }
+
+.ko-control-panel {
+  -webkit-backdrop-filter: blur(34px) saturate(190%);
+}
+
+.ko-control-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+.ko-glass-button {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background:
+    radial-gradient(circle at 18% 0%, rgb(255 255 255 / 0.1), transparent 42%),
+    rgb(255 255 255 / 0.075);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    inset 0 -1px 0 rgb(0 0 0 / 0.08),
+    0 4px 12px rgb(4 18 24 / 0.06);
+  color: rgb(255 255 255 / 0.92);
+  transition:
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 260ms ease;
+}
+
+.ko-glass-button:hover {
+  border-color: rgb(255 255 255 / 0.2);
+  background-color: rgb(255 255 255 / 0.13);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 8px 20px rgb(4 18 24 / 0.1);
+  transform: translateY(-1px);
+}
+
+.ko-glass-button:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.72);
+  outline-offset: 2px;
+}
+
+.ko-glass-button-active {
+  border-color: rgb(128 225 255 / 0.24);
+  background-color: rgb(92 163 207 / 0.18);
+}
+
+.ko-status-dot {
+  box-shadow: 0 0 0 0 rgb(52 199 89 / 0.62);
+  animation: ko-control-status-pulse 2.2s ease-out infinite;
+}
+
+.ko-control-slider input:focus-visible + * {
+  outline: none;
+}
+
+.ko-control-slider:focus-within {
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.54),
+    inset 0 2px 5px rgb(0 0 0 / 0.16);
+}
+
+@keyframes ko-control-status-pulse {
+  70% {
+    box-shadow: 0 0 0 6px rgb(52 199 89 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(52 199 89 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ko-glass-button,
+  .ko-status-dot {
+    animation: none;
+    transition-duration: 1ms;
+  }
+}

@@ -487,7 +487,11 @@ function KernelOnShellView({
         aria-hidden="true"
         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_92%,rgba(255,255,255,0.20),transparent_34%),linear-gradient(180deg,rgba(4,19,12,0.02),rgba(4,19,12,0.08))]"
       />
-      <KernelOnStatusBar onToggleSpotlight={toggleSpotlight} spotlightOpen={spotlightOpen} />
+      <KernelOnStatusBar
+        currentUser={currentUser}
+        onToggleSpotlight={toggleSpotlight}
+        spotlightOpen={spotlightOpen}
+      />
       <section
         ref={desktopSurfaceRef}
         aria-label="KernelOn desktop"

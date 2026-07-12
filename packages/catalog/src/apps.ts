@@ -128,6 +128,25 @@ export const kernelApps: KernelAppManifest[] = [
     },
   },
   {
+    id: 'weekly-show',
+    name: 'Weekly Show',
+    description: '每周优秀作品投稿、互动投票与展台沉淀',
+    priority: 'P1',
+    category: 'growth',
+    icon: 'Presentation',
+    dockedByDefault: true,
+    runtime: {
+      window: {
+        frameOwner: 'app',
+        loaderKey: 'app:weekly-show-window',
+      },
+    },
+    defaultWindow: {
+      title: 'Weekly Show',
+      bounds: { x: 32, y: 6, width: 1710, height: 960 },
+    },
+  },
+  {
     id: 'widget-manager',
     name: '小组件管理',
     description: 'KernelOn 小组件管理中心，预览、搜索并放置桌面小组件',

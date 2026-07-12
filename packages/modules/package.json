@@ -32,6 +32,10 @@
       "types": "./src/apps/resources/ResourcesWindow.tsx",
       "import": "./src/apps/resources/ResourcesWindow.tsx"
     },
+    "./weekly-show-window": {
+      "types": "./src/apps/weekly-show/WeeklyShowWindow.tsx",
+      "import": "./src/apps/weekly-show/WeeklyShowWindow.tsx"
+    },
     "./wallpaper-window": {
       "types": "./src/apps/wallpaper/WallpaperWindow.tsx",
       "import": "./src/apps/wallpaper/WallpaperWindow.tsx"

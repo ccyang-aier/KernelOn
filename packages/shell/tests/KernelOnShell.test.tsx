@@ -302,6 +302,64 @@ describe('KernelOnShell', () => {
     expect(spotlightButton).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('opens the business-aligned system control panel and keeps its controls interactive', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+
+    render(
+      <KernelOnShell
+        currentUser={{ displayName: '陈思源' }}
+        initialState={initialState}
+        runtime={runtime}
+      />,
+    );
+
+    const controlCenterButton = screen.getByRole('button', { name: 'Control Center' });
+    await user.click(controlCenterButton);
+
+    const panel = screen.getByRole('dialog', { name: 'KernelOn 系统控制面板' });
+    expect(controlCenterButton).toHaveAttribute('aria-pressed', 'true');
+    expect(within(panel).getByText('陈思源')).toBeInTheDocument();
+    expect(within(panel).getByText('KO-20260713')).toBeInTheDocument();
+    expect(within(panel).getByText('产品运营部 · 入职第 12 天')).toBeInTheDocument();
+    expect(within(panel).getByText('导师：林澈')).toBeInTheDocument();
+    expect(within(panel).getByText('09:18 已签到')).toBeInTheDocument();
+    expect(within(panel).queryByText('锁定')).not.toBeInTheDocument();
+    expect(within(panel).queryByText('外观')).not.toBeInTheDocument();
+
+    fireEvent.change(within(panel).getByRole('slider', { name: '音量' }), {
+      target: { value: '63' },
+    });
+    expect(within(panel).getByText('63%')).toBeInTheDocument();
+
+    await user.click(within(panel).getByRole('button', { name: /Spotlight/ }));
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: 'KernelOn 系统控制面板' }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(
+      within(screen.getByTestId('kernelon-status-bar')).getByRole('button', {
+        name: 'AI Spotlight',
+      }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('closes the system control panel from its backdrop', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+
+    render(<KernelOnShell initialState={initialState} runtime={runtime} />);
+    await user.click(screen.getByRole('button', { name: 'Control Center' }));
+    await user.click(screen.getByRole('button', { name: '关闭 KernelOn 系统控制面板' }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: 'KernelOn 系统控制面板' }),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
   it('lazy-loads a widget only when it is present in the desktop layout', async () => {
     const runtime = createRuntime();
 

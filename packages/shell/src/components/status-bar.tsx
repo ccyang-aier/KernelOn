@@ -12,121 +12,140 @@ import {
 } from 'react';
 
 import { kernelOnBrandLogo } from '../visual-assets';
+import type { ShellCredentialUser } from './shell-lock-screen';
+import { SystemControlPanel } from './system-control-panel';
 
 export interface KernelOnStatusBarProps {
+  currentUser?: ShellCredentialUser;
   spotlightOpen: boolean;
   onToggleSpotlight(): void;
 }
 
-export function KernelOnStatusBar({ spotlightOpen, onToggleSpotlight }: KernelOnStatusBarProps) {
+export function KernelOnStatusBar({
+  currentUser,
+  spotlightOpen,
+  onToggleSpotlight,
+}: KernelOnStatusBarProps) {
+  const [controlCenterOpen, setControlCenterOpen] = useState(false);
+
   return (
-    <header
-      aria-label="KernelOn status bar"
-      className="pointer-events-none fixed inset-x-0 top-0 z-30 w-full"
-      data-testid="kernelon-status-bar"
-      style={statusBarShellStyle}
-    >
-      <div
-        className="pointer-events-auto flex h-[40px] w-full items-start justify-between border-b border-white/20 bg-white/[0.06] px-[14px] pt-[2px] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl backdrop-saturate-150"
-        data-kernelon-status-material="css-frosted"
-        data-testid="kernelon-status-glass"
+    <>
+      <header
+        aria-label="KernelOn status bar"
+        className="pointer-events-none fixed inset-x-0 top-0 z-30 w-full"
+        data-testid="kernelon-status-bar"
+        style={statusBarShellStyle}
       >
-        <span
-          aria-label="KernelOn product identity"
-          className="-ml-[4px] flex h-[38px] min-w-0 items-center justify-start gap-[4px]"
-          data-testid="kernelon-status-brand"
+        <div
+          className="pointer-events-auto flex h-[40px] w-full items-start justify-between border-b border-white/20 bg-white/[0.06] px-[14px] pt-[2px] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl backdrop-saturate-150"
+          data-kernelon-status-material="css-frosted"
+          data-testid="kernelon-status-glass"
         >
-          <StatusBarFeedbackButton
-            aria-label="KernelOn logo"
-            className="flex h-[38px] w-[32px] items-center justify-center"
-            data-testid="kernelon-status-brand-logo-button"
-            label="KernelOn logo"
+          <span
+            aria-label="KernelOn product identity"
+            className="-ml-[4px] flex h-[38px] min-w-0 items-center justify-start gap-[4px]"
+            data-testid="kernelon-status-brand"
           >
-            <img
-              alt=""
-              className="h-[30px] w-[30px] shrink-0 object-contain"
-              data-testid="kernelon-status-brand-logo"
-              draggable={false}
-              src={kernelOnBrandLogo}
-              style={statusBrandLogoStyle}
-            />
-          </StatusBarFeedbackButton>
-          <StatusBarFeedbackButton
-            aria-label="KernelOn wordmark"
-            className="flex h-[38px] min-w-0 items-center justify-start px-[2px]"
-            data-testid="kernelon-status-brand-wordmark-button"
-            label="KernelOn wordmark"
-          >
-            <span
-              className="truncate text-[14px] font-semibold leading-none text-white/96"
-              data-testid="kernelon-status-brand-wordmark"
-              style={statusBrandTextStyle}
+            <StatusBarFeedbackButton
+              aria-label="KernelOn logo"
+              className="flex h-[38px] w-[32px] items-center justify-center"
+              data-testid="kernelon-status-brand-logo-button"
+              label="KernelOn logo"
             >
-              KernelOn
-            </span>
-          </StatusBarFeedbackButton>
-        </span>
-        <span
-          className="flex h-[38px] w-[500px] shrink-0 items-center justify-end gap-[17px] max-[720px]:w-auto max-[720px]:gap-[11px] max-[560px]:gap-[8px]"
-          data-testid="kernelon-status-controls"
-        >
-          <StatusBarIconButton
-            Icon={StatusThemeIcon}
-            buttonClassName="w-[28px] max-[680px]:hidden"
-            iconClassName="h-[24px] w-[24px]"
-            label="Theme"
-          />
-          <StatusBarIconButton
-            Icon={StatusVolumeIcon}
-            buttonClassName="w-[27px] max-[680px]:hidden"
-            iconClassName="h-[24px] w-[25px]"
-            label="Volume"
-          />
-          <StatusBarIconButton
-            Icon={StatusBluetoothIcon}
-            buttonClassName="w-[27px] max-[680px]:hidden"
-            iconClassName="h-[23px] w-[23px]"
-            label="Bluetooth"
-          />
-          <StatusBarIconButton
-            Icon={StatusWifiIcon}
-            iconClassName="h-[25px] w-[25px]"
-            label="Wi-Fi"
-          />
-          <StatusBarIconButton
-            Icon={StatusBatteryIcon}
-            buttonClassName="w-[34px]"
-            iconClassName="h-[24px] w-[30px]"
-            label="Battery"
-          />
-          <StatusBarIconButton
-            Icon={StatusSearchIcon}
-            iconClassName="h-[24px] w-[24px]"
-            label="AI Spotlight"
-            onClick={onToggleSpotlight}
-            pressed={spotlightOpen}
-          />
-          <StatusBarIconButton
-            Icon={StatusBellIcon}
-            badge={
-              <span
-                className="pointer-events-none absolute top-[3px] right-[-3px] size-[6.6px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
-                data-testid="kernelon-notification-dot"
+              <img
+                alt=""
+                className="h-[30px] w-[30px] shrink-0 object-contain"
+                data-testid="kernelon-status-brand-logo"
+                draggable={false}
+                src={kernelOnBrandLogo}
+                style={statusBrandLogoStyle}
               />
-            }
-            buttonClassName="mr-[4px] w-[27px]"
-            iconClassName="h-[23px] w-[23px]"
-            label="Notifications"
-          />
-          <StatusBarIconButton
-            Icon={StatusControlCenterIcon}
-            iconClassName="h-[23px] w-[23px]"
-            label="Control Center"
-          />
-          <StatusBarTime />
-        </span>
-      </div>
-    </header>
+            </StatusBarFeedbackButton>
+            <StatusBarFeedbackButton
+              aria-label="KernelOn wordmark"
+              className="flex h-[38px] min-w-0 items-center justify-start px-[2px]"
+              data-testid="kernelon-status-brand-wordmark-button"
+              label="KernelOn wordmark"
+            >
+              <span
+                className="truncate text-[14px] font-semibold leading-none text-white/96"
+                data-testid="kernelon-status-brand-wordmark"
+                style={statusBrandTextStyle}
+              >
+                KernelOn
+              </span>
+            </StatusBarFeedbackButton>
+          </span>
+          <span
+            className="flex h-[38px] w-[500px] shrink-0 items-center justify-end gap-[17px] max-[720px]:w-auto max-[720px]:gap-[11px] max-[560px]:gap-[8px]"
+            data-testid="kernelon-status-controls"
+          >
+            <StatusBarIconButton
+              Icon={StatusThemeIcon}
+              buttonClassName="w-[28px] max-[680px]:hidden"
+              iconClassName="h-[24px] w-[24px]"
+              label="Theme"
+            />
+            <StatusBarIconButton
+              Icon={StatusVolumeIcon}
+              buttonClassName="w-[27px] max-[680px]:hidden"
+              iconClassName="h-[24px] w-[25px]"
+              label="Volume"
+            />
+            <StatusBarIconButton
+              Icon={StatusBluetoothIcon}
+              buttonClassName="w-[27px] max-[680px]:hidden"
+              iconClassName="h-[23px] w-[23px]"
+              label="Bluetooth"
+            />
+            <StatusBarIconButton
+              Icon={StatusWifiIcon}
+              iconClassName="h-[25px] w-[25px]"
+              label="Wi-Fi"
+            />
+            <StatusBarIconButton
+              Icon={StatusBatteryIcon}
+              buttonClassName="w-[34px]"
+              iconClassName="h-[24px] w-[30px]"
+              label="Battery"
+            />
+            <StatusBarIconButton
+              Icon={StatusSearchIcon}
+              iconClassName="h-[24px] w-[24px]"
+              label="AI Spotlight"
+              onClick={onToggleSpotlight}
+              pressed={spotlightOpen}
+            />
+            <StatusBarIconButton
+              Icon={StatusBellIcon}
+              badge={
+                <span
+                  className="pointer-events-none absolute top-[3px] right-[-3px] size-[6.6px] rounded-full bg-white shadow-[0_0_4px_rgba(255,255,255,0.96),0_1px_2px_rgba(64,112,131,0.22)]"
+                  data-testid="kernelon-notification-dot"
+                />
+              }
+              buttonClassName="mr-[4px] w-[27px]"
+              iconClassName="h-[23px] w-[23px]"
+              label="Notifications"
+            />
+            <StatusBarIconButton
+              Icon={StatusControlCenterIcon}
+              iconClassName="h-[23px] w-[23px]"
+              label="Control Center"
+              onClick={() => setControlCenterOpen((open) => !open)}
+              pressed={controlCenterOpen}
+            />
+            <StatusBarTime />
+          </span>
+        </div>
+      </header>
+      <SystemControlPanel
+        onClose={() => setControlCenterOpen(false)}
+        onOpenSpotlight={onToggleSpotlight}
+        open={controlCenterOpen}
+        user={currentUser}
+      />
+    </>
   );
 }
 

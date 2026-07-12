@@ -23,6 +23,7 @@ export const dockIconAssets = {
   resources: `${ASSET_ROOT}/dock-icons/resources.png`,
   training: `${ASSET_ROOT}/dock-icons/training.png`,
   trash: `${ASSET_ROOT}/dock-icons/trash.png`,
+  'weekly-show': `${ASSET_ROOT}/dock-icons/weekly-show.png`,
   'widget-manager': `${ASSET_ROOT}/dock-icons/widget-manager.png`,
 } as const;
 
