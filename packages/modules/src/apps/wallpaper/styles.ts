@@ -2714,6 +2714,51 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
 .wallpaper-lock-field--idle input {
   padding-inline: 16px;
   text-align: center;
+  appearance: textfield;
+}
+
+.wallpaper-lock-field--idle input::-webkit-inner-spin-button,
+.wallpaper-lock-field--idle input::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.wallpaper-lock-stepper {
+  display: grid;
+  flex: 0 0 25px;
+  align-self: stretch;
+  margin: 4px -5px 4px 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(238, 250, 250, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px) saturate(1.06);
+}
+
+.wallpaper-lock-stepper button {
+  min-height: 0;
+  color: rgba(255, 255, 255, 0.76);
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.wallpaper-lock-stepper button + button {
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.wallpaper-lock-stepper button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.wallpaper-lock-stepper button:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.72);
+  outline-offset: -2px;
+}
+
+.wallpaper-lock-stepper svg {
+  width: 11px;
+  height: 11px;
 }
 
 .wallpaper-lock-field button {
@@ -3162,7 +3207,10 @@ section[data-app-id="wallpaper"]:has(.wallpaper-lock-screen)
 }
 
 .wallpaper-lock-setup__hint {
-  justify-content: center;
+  justify-content: flex-start;
+  width: min(340px, 100%);
+  margin-right: auto;
+  margin-left: auto;
   margin-top: 10px;
   color: rgba(255, 255, 255, 0.68);
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
@@ -3181,13 +3229,31 @@ section[data-app-id="wallpaper"]:has(.wallpaper-lock-screen)
 .wallpaper-lock-setup__actions {
   justify-content: center;
   gap: 10px;
+  width: min(340px, 100%);
+  margin-right: auto;
+  margin-left: auto;
   margin-top: 13px;
 }
 
 .wallpaper-lock-button {
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   height: 38px;
+  padding-inline: 13px;
   border-radius: 99px;
+  font-size: 9px;
+  line-height: 1;
+  white-space: nowrap;
   backdrop-filter: blur(14px) saturate(1.08);
+}
+
+.wallpaper-lock-button svg {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
 }
 
 .wallpaper-lock-button--secondary {

@@ -1,6 +1,14 @@
 'use client';
 
-import { Eye, EyeOff, LockKeyhole, ShieldCheck, TimerOff } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  EyeOff,
+  LockKeyhole,
+  ShieldCheck,
+  TimerOff,
+} from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 
 export function LockScreenSetup({
@@ -24,6 +32,12 @@ export function LockScreenSetup({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [now, setNow] = useState(() => new Date());
+  const updateIdleMinutes = useCallback(
+    (nextValue: number) => {
+      onIdleMinutesChange(Math.min(120, Math.max(1, nextValue)));
+    },
+    [onIdleMinutesChange],
+  );
 
   useEffect(() => {
     if (!isOpen) {
@@ -137,12 +151,28 @@ export function LockScreenSetup({
                 const nextValue = Number(event.currentTarget.value);
 
                 if (Number.isFinite(nextValue) && nextValue >= 1 && nextValue <= 120) {
-                  onIdleMinutesChange(nextValue);
+                  updateIdleMinutes(nextValue);
                 }
               }}
               type="number"
               value={idleMinutes}
             />
+            <span className="wallpaper-lock-stepper">
+              <button
+                aria-label="增加闲置时间"
+                onClick={() => updateIdleMinutes(idleMinutes + 1)}
+                type="button"
+              >
+                <ChevronUp aria-hidden="true" />
+              </button>
+              <button
+                aria-label="减少闲置时间"
+                onClick={() => updateIdleMinutes(idleMinutes - 1)}
+                type="button"
+              >
+                <ChevronDown aria-hidden="true" />
+              </button>
+            </span>
           </div>
         </label>
 
