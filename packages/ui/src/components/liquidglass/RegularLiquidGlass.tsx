@@ -42,6 +42,7 @@ export function RegularLiquidGlass({
     onFirstCommit: markFirstCommit,
     rootRef,
   });
+  useInteractiveGlassPulse({ interactive, instanceRef, radius, rootRef, surfaceRef });
 
   useEffect(() => {
     const root = rootRef.current;
@@ -92,6 +93,7 @@ export function RegularLiquidGlass({
     <span
       className={`group relative isolate block rounded-[inherit] ${interactive ? 'transition-transform duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.995]' : ''} ${className}`}
       data-glass-ready={glassReady ? 'true' : 'false'}
+      data-interactive-liquid-glass={interactive ? 'true' : undefined}
       ref={rootRef}
       style={{ borderRadius: radius }}
     >
@@ -128,7 +130,11 @@ export function RegularLiquidGlass({
 }
 
 export function createRegularGlassConfig(radius: number, interactive: boolean): string {
-  return JSON.stringify({
+  return JSON.stringify(createRegularGlassValues(radius, interactive));
+}
+
+function createRegularGlassValues(radius: number, interactive: boolean) {
+  return {
     blurAmount: 0.25,
     refraction: 0.69,
     chromAberration: 0.05,
@@ -148,8 +154,146 @@ export function createRegularGlassConfig(radius: number, interactive: boolean): 
     floating: false,
     button: interactive,
     bevelMode: 0,
-  });
+  };
 }
+
+function useInteractiveGlassPulse({
+  interactive,
+  instanceRef,
+  radius,
+  rootRef,
+  surfaceRef,
+}: Readonly<{
+  interactive: boolean;
+  instanceRef: RefObject<LiquidGlass | null>;
+  radius: number;
+  rootRef: RefObject<HTMLSpanElement | null>;
+  surfaceRef: RefObject<HTMLSpanElement | null>;
+}>): void {
+  const frameRef = useRef(0);
+  const pulseRef = useRef<PulseValues>(PULSE_MODES[0]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    const surface = surfaceRef.current;
+    if (!interactive || !root || !surface) return undefined;
+
+    const base = createRegularGlassValues(radius, true);
+    const commit = (pulse: PulseValues) => {
+      pulseRef.current = pulse;
+      surface.dataset.config = JSON.stringify({ ...base, ...pulse });
+      instanceRef.current?.markChanged(surface);
+    };
+    const stop = () => window.cancelAnimationFrame(frameRef.current);
+    const reducedMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const enter = () => {
+      stop();
+      if (reducedMotion) {
+        commit(PULSE_MODES[1]);
+        return;
+      }
+
+      const startedAt = window.performance.now();
+      const tick = (now: number) => {
+        const position = (now - startedAt) / 1150;
+        const index = Math.floor(position) % PULSE_MODES.length;
+        const progress = smoothStep(position - Math.floor(position));
+        commit(
+          interpolatePulse(
+            PULSE_MODES[index] ?? PULSE_MODES[0],
+            PULSE_MODES[(index + 1) % PULSE_MODES.length] ?? PULSE_MODES[0],
+            progress,
+          ),
+        );
+        frameRef.current = window.requestAnimationFrame(tick);
+      };
+      frameRef.current = window.requestAnimationFrame(tick);
+    };
+
+    const leave = () => {
+      stop();
+      if (reducedMotion) {
+        commit(PULSE_MODES[0]);
+        return;
+      }
+
+      const from = pulseRef.current;
+      const startedAt = window.performance.now();
+      const settle = (now: number) => {
+        const progress = Math.min(1, (now - startedAt) / 280);
+        commit(interpolatePulse(from, PULSE_MODES[0], 1 - Math.pow(1 - progress, 3)));
+        if (progress < 1) frameRef.current = window.requestAnimationFrame(settle);
+      };
+      frameRef.current = window.requestAnimationFrame(settle);
+    };
+
+    root.addEventListener('pointerenter', enter);
+    root.addEventListener('pointerleave', leave);
+    return () => {
+      stop();
+      root.removeEventListener('pointerenter', enter);
+      root.removeEventListener('pointerleave', leave);
+    };
+  }, [interactive, instanceRef, radius, rootRef, surfaceRef]);
+}
+
+function interpolatePulse(from: PulseValues, to: PulseValues, progress: number): PulseValues {
+  return {
+    blurAmount: mix(from.blurAmount, to.blurAmount, progress),
+    brightness: mix(from.brightness, to.brightness, progress),
+    chromAberration: mix(from.chromAberration, to.chromAberration, progress),
+    edgeHighlight: mix(from.edgeHighlight, to.edgeHighlight, progress),
+    refraction: mix(from.refraction, to.refraction, progress),
+    tintStrength: mix(from.tintStrength, to.tintStrength, progress),
+  };
+}
+
+function mix(from: number, to: number, progress: number): number {
+  return from + (to - from) * progress;
+}
+
+function smoothStep(progress: number): number {
+  return progress * progress * (3 - 2 * progress);
+}
+
+const PULSE_MODES: readonly PulseValues[] = [
+  {
+    blurAmount: 0.25,
+    brightness: 0,
+    chromAberration: 0.05,
+    edgeHighlight: 0.05,
+    refraction: 0.69,
+    tintStrength: 0,
+  },
+  {
+    blurAmount: 0.38,
+    brightness: 0.045,
+    chromAberration: 0.075,
+    edgeHighlight: 0.11,
+    refraction: 0.82,
+    tintStrength: 0.035,
+  },
+  {
+    blurAmount: 0.18,
+    brightness: 0.015,
+    chromAberration: 0.035,
+    edgeHighlight: 0.075,
+    refraction: 0.58,
+    tintStrength: 0.015,
+  },
+];
+
+type PulseValues = Readonly<{
+  blurAmount: number;
+  brightness: number;
+  chromAberration: number;
+  edgeHighlight: number;
+  refraction: number;
+  tintStrength: number;
+}>;
 
 function useRegularGlassBackdrop({
   backdropImageSelector,

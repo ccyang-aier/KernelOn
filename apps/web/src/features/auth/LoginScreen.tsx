@@ -65,7 +65,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
             <label className="flex h-full w-full items-center px-3">
               <svg
                 aria-hidden="true"
-                className="mr-2 h-3.5 w-3.5 shrink-0 text-white/70"
+                className="mr-2.5 h-4 w-4 shrink-0 text-white/70"
                 fill="none"
                 viewBox="0 0 24 24"
               >
@@ -81,7 +81,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
                 aria-label="邮箱"
                 autoComplete="email"
                 autoFocus
-                className="h-full min-w-0 flex-1 border-0 bg-transparent text-[12px] text-white outline-none placeholder:text-white/55"
+                className="h-full min-w-0 flex-1 border-0 bg-transparent text-[12px] text-white outline-none placeholder:text-[10.5px] placeholder:text-white/55"
                 inputMode="email"
                 onChange={(event) => setEmail(event.currentTarget.value)}
                 placeholder="Email address"
@@ -99,7 +99,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
             <label className="flex h-full w-full items-center px-3">
               <svg
                 aria-hidden="true"
-                className="mr-2 h-3.5 w-3.5 shrink-0 text-white/70"
+                className="mr-2.5 h-4 w-4 shrink-0 text-white/70"
                 fill="none"
                 viewBox="0 0 24 24"
               >
@@ -114,7 +114,7 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
               <input
                 aria-label="密码"
                 autoComplete="current-password"
-                className="h-full min-w-0 flex-1 border-0 bg-transparent text-[12px] text-white outline-none placeholder:text-white/55"
+                className="h-full min-w-0 flex-1 border-0 bg-transparent text-[12px] text-white outline-none placeholder:text-[10.5px] placeholder:text-white/55"
                 onChange={(event) => setPassword(event.currentTarget.value)}
                 placeholder="Password"
                 required
@@ -167,11 +167,27 @@ export function LoginScreen({ nextPath }: Readonly<{ nextPath: string }>) {
           >
             <button
               aria-label="登录"
-              className="h-full w-full rounded-[14px] border-0 bg-transparent text-[12px] font-semibold text-white outline-none disabled:cursor-wait disabled:opacity-60"
+              className="flex h-full w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] border-0 bg-transparent text-[12px] font-semibold text-white outline-none disabled:cursor-wait disabled:opacity-60"
               disabled={submitting}
               type="submit"
             >
-              {submitting ? '正在登录…' : '登录'}
+              <span>{submitting ? '正在登录…' : '登录'}</span>
+              {!submitting && (
+                <svg
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M5 12h13m-5-5 5 5-5 5"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.7"
+                  />
+                </svg>
+              )}
             </button>
           </RegularLiquidGlass>
         </div>
