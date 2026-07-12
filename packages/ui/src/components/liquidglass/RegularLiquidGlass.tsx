@@ -29,6 +29,7 @@ export function RegularLiquidGlass({
 }: Readonly<RegularLiquidGlassProps>) {
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const backdropRef = useRef<HTMLCanvasElement | null>(null);
+  const edgeRef = useRef<HTMLSpanElement | null>(null);
   const surfaceRef = useRef<HTMLSpanElement | null>(null);
   const instanceRef = useRef<LiquidGlass | null>(null);
   const [backdropReady, setBackdropReady] = useState(false);
@@ -42,7 +43,7 @@ export function RegularLiquidGlass({
     onFirstCommit: markFirstCommit,
     rootRef,
   });
-  useInteractiveGlassPulse({ interactive, instanceRef, radius, rootRef, surfaceRef });
+  useInteractiveGlassPulse({ edgeRef, interactive, instanceRef, radius, rootRef, surfaceRef });
 
   useEffect(() => {
     const root = rootRef.current;
@@ -117,7 +118,9 @@ export function RegularLiquidGlass({
       <span
         aria-hidden="true"
         className={`pointer-events-none absolute inset-0 z-[3] rounded-[inherit] border border-white/45 bg-white/[0.015] shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] transition-colors duration-200 ${interactive ? 'group-hover:bg-white/10' : 'group-focus-within:border-white/65'}`}
+        data-liquid-glass-sheen={interactive ? 'true' : undefined}
         data-liquid-glass-skip-capture="true"
+        ref={edgeRef}
       />
       <span
         className="absolute inset-0 z-[4] block rounded-[inherit]"
@@ -158,12 +161,14 @@ function createRegularGlassValues(radius: number, interactive: boolean) {
 }
 
 function useInteractiveGlassPulse({
+  edgeRef,
   interactive,
   instanceRef,
   radius,
   rootRef,
   surfaceRef,
 }: Readonly<{
+  edgeRef: RefObject<HTMLSpanElement | null>;
   interactive: boolean;
   instanceRef: RefObject<LiquidGlass | null>;
   radius: number;
@@ -176,12 +181,16 @@ function useInteractiveGlassPulse({
   useEffect(() => {
     const root = rootRef.current;
     const surface = surfaceRef.current;
-    if (!interactive || !root || !surface) return undefined;
+    const edge = edgeRef.current;
+    if (!interactive || !root || !surface || !edge) return undefined;
 
     const base = createRegularGlassValues(radius, true);
-    const commit = (pulse: PulseValues) => {
+    const commit = (pulse: PulseValues, sweepProgress = 0, sheenOpacity = 0) => {
       pulseRef.current = pulse;
       surface.dataset.config = JSON.stringify({ ...base, ...pulse });
+      edge.style.backgroundImage = `linear-gradient(105deg, transparent 22%, rgba(255,255,255,${0.24 * sheenOpacity}) 47%, rgba(220,249,255,${0.12 * sheenOpacity}) 54%, transparent 76%)`;
+      edge.style.backgroundPosition = `${-110 + sweepProgress * 220}% center`;
+      edge.style.backgroundSize = '220% 100%';
       instanceRef.current?.markChanged(surface);
     };
     const stop = () => window.cancelAnimationFrame(frameRef.current);
@@ -192,22 +201,14 @@ function useInteractiveGlassPulse({
     const enter = () => {
       stop();
       if (reducedMotion) {
-        commit(PULSE_MODES[1]);
+        commit(PULSE_MODES[1], 0.5, 0.72);
         return;
       }
 
       const startedAt = window.performance.now();
       const tick = (now: number) => {
-        const position = (now - startedAt) / 1150;
-        const index = Math.floor(position) % PULSE_MODES.length;
-        const progress = smoothStep(position - Math.floor(position));
-        commit(
-          interpolatePulse(
-            PULSE_MODES[index] ?? PULSE_MODES[0],
-            PULSE_MODES[(index + 1) % PULSE_MODES.length] ?? PULSE_MODES[0],
-            progress,
-          ),
-        );
+        const position = (now - startedAt) / 700;
+        commit(resolvePulse(position), (position % PULSE_MODES.length) / PULSE_MODES.length, 0.82);
         frameRef.current = window.requestAnimationFrame(tick);
       };
       frameRef.current = window.requestAnimationFrame(tick);
@@ -224,7 +225,8 @@ function useInteractiveGlassPulse({
       const startedAt = window.performance.now();
       const settle = (now: number) => {
         const progress = Math.min(1, (now - startedAt) / 280);
-        commit(interpolatePulse(from, PULSE_MODES[0], 1 - Math.pow(1 - progress, 3)));
+        const eased = 1 - Math.pow(1 - progress, 3);
+        commit(interpolatePulse(from, PULSE_MODES[0], eased), 1, 0.82 * (1 - eased));
         if (progress < 1) frameRef.current = window.requestAnimationFrame(settle);
       };
       frameRef.current = window.requestAnimationFrame(settle);
@@ -237,7 +239,21 @@ function useInteractiveGlassPulse({
       root.removeEventListener('pointerenter', enter);
       root.removeEventListener('pointerleave', leave);
     };
-  }, [interactive, instanceRef, radius, rootRef, surfaceRef]);
+  }, [edgeRef, interactive, instanceRef, radius, rootRef, surfaceRef]);
+}
+
+export function createInteractiveGlassPulseConfig(radius: number, position: number): string {
+  return JSON.stringify({ ...createRegularGlassValues(radius, true), ...resolvePulse(position) });
+}
+
+function resolvePulse(position: number): PulseValues {
+  const index = Math.floor(position) % PULSE_MODES.length;
+  const progress = smoothStep(position - Math.floor(position));
+  return interpolatePulse(
+    PULSE_MODES[index] ?? PULSE_MODES[0],
+    PULSE_MODES[(index + 1) % PULSE_MODES.length] ?? PULSE_MODES[0],
+    progress,
+  );
 }
 
 function interpolatePulse(from: PulseValues, to: PulseValues, progress: number): PulseValues {
@@ -247,6 +263,7 @@ function interpolatePulse(from: PulseValues, to: PulseValues, progress: number):
     chromAberration: mix(from.chromAberration, to.chromAberration, progress),
     edgeHighlight: mix(from.edgeHighlight, to.edgeHighlight, progress),
     refraction: mix(from.refraction, to.refraction, progress),
+    saturation: mix(from.saturation, to.saturation, progress),
     tintStrength: mix(from.tintStrength, to.tintStrength, progress),
   };
 }
@@ -266,23 +283,26 @@ const PULSE_MODES: readonly PulseValues[] = [
     chromAberration: 0.05,
     edgeHighlight: 0.05,
     refraction: 0.69,
+    saturation: 0,
     tintStrength: 0,
   },
   {
-    blurAmount: 0.38,
-    brightness: 0.045,
-    chromAberration: 0.075,
-    edgeHighlight: 0.11,
-    refraction: 0.82,
-    tintStrength: 0.035,
+    blurAmount: 0.52,
+    brightness: 0.085,
+    chromAberration: 0.13,
+    edgeHighlight: 0.18,
+    refraction: 0.96,
+    saturation: 0.18,
+    tintStrength: 0.09,
   },
   {
-    blurAmount: 0.18,
-    brightness: 0.015,
-    chromAberration: 0.035,
-    edgeHighlight: 0.075,
-    refraction: 0.58,
-    tintStrength: 0.015,
+    blurAmount: 0.08,
+    brightness: -0.025,
+    chromAberration: 0.018,
+    edgeHighlight: 0.12,
+    refraction: 0.42,
+    saturation: -0.08,
+    tintStrength: 0.025,
   },
 ];
 
@@ -292,6 +312,7 @@ type PulseValues = Readonly<{
   chromAberration: number;
   edgeHighlight: number;
   refraction: number;
+  saturation: number;
   tintStrength: number;
 }>;
 

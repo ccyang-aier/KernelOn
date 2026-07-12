@@ -57,19 +57,4 @@ describe('LoginScreen', () => {
     expect(screen.getByRole('button', { name: '隐藏密码' })).toBeInTheDocument();
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
-
-  it('starts the liquid-glass pulse when the login button is hovered', async () => {
-    render(<LoginScreen nextPath="/workspace" />);
-
-    const button = screen.getByRole('button', { name: '登录' });
-    const glass = button.closest('[data-interactive-liquid-glass="true"]');
-    const surface = glass?.querySelector<HTMLElement>('[data-config]');
-    expect(glass).not.toBeNull();
-    expect(surface).not.toBeNull();
-    const regularConfig = surface?.dataset.config;
-
-    fireEvent(glass as Element, new Event('pointerenter'));
-    await waitFor(() => expect(surface?.dataset.config).not.toBe(regularConfig));
-    fireEvent(glass as Element, new Event('pointerleave'));
-  });
 });

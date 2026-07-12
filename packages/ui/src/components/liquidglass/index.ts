@@ -23,5 +23,9 @@ export type { LiquidGlassOptions } from './LiquidGlass.js';
 export { DEFAULTS } from './defaults.js';
 export type { GlassConfig } from './defaults.js';
 export { invalidateFontEmbedCache } from './HtmlCapture.js';
-export { RegularLiquidGlass, createRegularGlassConfig } from './RegularLiquidGlass.js';
+export {
+  RegularLiquidGlass,
+  createInteractiveGlassPulseConfig,
+  createRegularGlassConfig,
+} from './RegularLiquidGlass.js';
 export type { RegularLiquidGlassProps } from './RegularLiquidGlass.js';
