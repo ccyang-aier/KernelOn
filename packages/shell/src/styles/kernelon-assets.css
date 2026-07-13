@@ -9,11 +9,6 @@
   cursor: var(--ko-cursor-default);
 }
 
-.ko-control-panel-liquid-host {
-  contain: layout paint style;
-  will-change: transform, opacity;
-}
-
 .ko-control-panel-liquid-host > [data-slot='liquid-glass-svg-filter'] {
   width: 100% !important;
   height: 100% !important;
@@ -26,10 +21,6 @@
   box-shadow:
     0 24px 64px rgb(3 17 23 / 0.27),
     0 5px 16px rgb(3 17 23 / 0.13);
-}
-
-.ko-control-panel-liquid-root .glass {
-  background: rgb(23 43 50 / 0.08);
 }
 
 .ko-glass-button {
