@@ -327,18 +327,18 @@ describe('KernelOnShell', () => {
     expect(within(panel).queryByText('锁定')).not.toBeInTheDocument();
     expect(within(panel).queryByText('外观')).not.toBeInTheDocument();
 
-    const liquidGlass = panel.querySelector('[data-slot="liquid-glass-svg-filter"]');
-    const liquidGlassWarp = liquidGlass?.querySelector('.glass__warp');
-    const liquidGlassContainer = screen
-      .getByTestId('kernelon-control-panel-liquid-content')
-      .closest('.glass');
-    expect(liquidGlass).not.toBeNull();
+    const liquidGlassContainer = panel.closest('.glass');
+    const liquidGlassRoot = liquidGlassContainer?.parentElement;
+    const liquidGlassWarp = liquidGlassContainer?.querySelector('.glass__warp');
+    expect(liquidGlassRoot).toHaveStyle({ position: 'fixed', top: '314px' });
+    expect(liquidGlassRoot?.parentElement).toHaveAttribute('data-slot', 'liquid-glass-svg-filter');
     expect(liquidGlassContainer).toHaveStyle({ borderRadius: '26px', padding: '17px' });
     expect(liquidGlassWarp?.getAttribute('style')).toContain('filter: url(');
     expect(liquidGlassWarp?.getAttribute('style')).toContain(
-      'backdrop-filter: blur(20px) saturate(155%)',
+      'backdrop-filter: blur(31.2px) saturate(145%)',
     );
     expect(liquidGlassWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 26px)');
+    expect(liquidGlassRoot?.querySelector('feDisplacementMap')).toHaveAttribute('scale', '-56');
 
     const actionGrid = panel.querySelector('.ko-control-action-grid');
     expect(actionGrid?.children).toHaveLength(7);
