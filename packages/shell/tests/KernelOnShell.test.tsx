@@ -327,6 +327,25 @@ describe('KernelOnShell', () => {
     expect(within(panel).queryByText('锁定')).not.toBeInTheDocument();
     expect(within(panel).queryByText('外观')).not.toBeInTheDocument();
 
+    const actionGrid = panel.querySelector('.ko-control-action-grid');
+    expect(actionGrid).toHaveClass('grid-cols-4', 'auto-rows-[52px]');
+    expect(within(panel).getByRole('button', { name: '全屏' })).toHaveClass(
+      'col-span-1',
+      'row-span-1',
+    );
+    expect(within(panel).getByRole('button', { name: '下载客户端' })).toHaveClass(
+      'col-span-2',
+      'row-span-1',
+    );
+    expect(within(panel).getByRole('button', { name: /今日签到/ })).toHaveClass(
+      'col-span-2',
+      'row-span-2',
+    );
+    expect(within(panel).getByRole('button', { name: /专注模式/ })).toHaveClass(
+      'col-span-2',
+      'row-span-1',
+    );
+
     fireEvent.change(within(panel).getByRole('slider', { name: '音量' }), {
       target: { value: '63' },
     });

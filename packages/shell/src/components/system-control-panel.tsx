@@ -101,10 +101,10 @@ export function SystemControlPanel({
             style={{ transformOrigin: 'calc(100% - 44px) -16px' }}
             transition={{ damping: 28, mass: 0.72, stiffness: 360, type: 'spring' }}
           >
-            <div className="ko-control-panel relative overflow-hidden rounded-[26px] border border-white/[0.2] bg-[linear-gradient(145deg,rgba(25,48,55,0.52),rgba(20,38,48,0.34))] p-[17px] shadow-[0_24px_70px_rgba(5,20,28,0.28),0_6px_20px_rgba(5,20,28,0.18),inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-1px_0_rgba(0,0,0,0.14)] backdrop-blur-[34px] backdrop-saturate-[190%]">
+            <div className="ko-control-panel relative overflow-hidden rounded-[26px] p-[17px]">
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(255,255,255,0.17),transparent_36%),linear-gradient(110deg,rgba(255,255,255,0.05),transparent_44%,rgba(114,214,215,0.06))]"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_-4%,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_94%_76%,rgba(110,218,222,0.1),transparent_42%)]"
               />
               <div
                 aria-hidden="true"
@@ -208,21 +208,27 @@ export function SystemControlPanel({
 
                 <section className="space-y-2" aria-label="快捷操作">
                   <p className="m-0 px-1 text-[10px] font-medium text-white/48">快捷操作</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="ko-control-action-grid grid grid-cols-4 auto-rows-[52px] gap-2">
                     <ActionButton
+                      className="col-span-1 row-span-1 flex-col gap-1"
                       icon={<Expand />}
                       label="全屏"
                       onClick={() => void toggleFullscreen()}
                     />
                     <ActionButton
+                      className="col-span-2 row-span-1"
                       icon={<Download />}
                       label="下载客户端"
                       onClick={() => setFeedback('客户端即将开放下载')}
                     />
-                  </div>
-                  <div className="grid grid-cols-5 gap-2">
+                    <ActionButton
+                      className="col-span-1 row-span-1 flex-col gap-1"
+                      icon={<Bell />}
+                      label="通知"
+                      onClick={() => setFeedback('暂无新未读提醒')}
+                    />
                     <motion.button
-                      className="ko-glass-button group relative col-span-3 min-h-[62px] overflow-hidden rounded-[15px] px-3 py-2.5 text-left"
+                      className="ko-glass-button group relative col-span-2 row-span-2 overflow-hidden rounded-[16px] px-3 py-3 text-left"
                       onClick={() => {
                         setCheckedIn(true);
                         setFeedback(checkedIn ? '今日已完成签到' : '签到成功');
@@ -239,23 +245,17 @@ export function SystemControlPanel({
                       </span>
                       <Check
                         aria-hidden
-                        className="absolute right-3 bottom-2 h-6 w-6 text-white/10 transition-transform group-hover:scale-110"
+                        className="absolute right-3 bottom-3 h-8 w-8 text-white/12 transition-transform duration-300 group-hover:scale-110"
                       />
                     </motion.button>
                     <ActionButton
-                      className="col-span-2 min-h-[62px] flex-col items-start justify-between"
-                      icon={<Bell />}
-                      label="通知"
-                      onClick={() => setFeedback('暂无新未读提醒')}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <ActionButton
+                      className="col-span-1 row-span-1 flex-col gap-1"
                       icon={<Settings />}
                       label="系统设置"
                       onClick={() => setFeedback('系统设置即将开放')}
                     />
                     <ActionButton
+                      className="col-span-1 row-span-1 flex-col gap-1"
                       icon={<Search />}
                       label="Spotlight"
                       onClick={() => {
@@ -263,36 +263,38 @@ export function SystemControlPanel({
                         onOpenSpotlight();
                       }}
                     />
-                  </div>
-                  <motion.button
-                    aria-pressed={focusMode}
-                    className={`ko-glass-button flex w-full items-center justify-between rounded-[16px] p-3 text-left ${focusMode ? 'ko-glass-button-active' : ''}`}
-                    onClick={() => {
-                      setFocusMode((value) => !value);
-                      setFeedback(focusMode ? '专注模式已关闭' : '专注模式已开启');
-                    }}
-                    whileTap={{ scale: 0.985 }}
-                    type="button"
-                  >
-                    <span className="flex items-center gap-2.5">
-                      <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-white/10 text-indigo-200">
-                        <Focus aria-hidden className="h-4 w-4" />
-                      </span>
-                      <span>
-                        <strong className="block text-[11px] font-semibold">专注模式</strong>
-                        <small className="block text-[9px] text-white/48">
-                          减少不必要的日常干扰弹窗
-                        </small>
-                      </span>
-                    </span>
-                    <span
-                      className={`relative h-5 w-9 rounded-full p-0.5 transition-colors ${focusMode ? 'bg-[#46c96f]' : 'bg-white/18'}`}
+                    <motion.button
+                      aria-pressed={focusMode}
+                      className={`ko-glass-button col-span-2 row-span-1 flex items-center justify-between rounded-[16px] px-3 py-2 text-left ${focusMode ? 'ko-glass-button-active' : ''}`}
+                      onClick={() => {
+                        setFocusMode((value) => !value);
+                        setFeedback(focusMode ? '专注模式已关闭' : '专注模式已开启');
+                      }}
+                      whileTap={{ scale: 0.975 }}
+                      type="button"
                     >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="ko-control-icon-well grid h-7 w-7 shrink-0 place-items-center rounded-[9px] text-indigo-100">
+                          <Focus aria-hidden className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="min-w-0">
+                          <strong className="block truncate text-[10px] font-semibold">
+                            专注模式
+                          </strong>
+                          <small className="block truncate text-[8px] text-white/48">
+                            减少日常干扰
+                          </small>
+                        </span>
+                      </span>
                       <span
-                        className={`block h-4 w-4 rounded-full bg-white shadow-md transition-transform ${focusMode ? 'translate-x-4' : ''}`}
-                      />
-                    </span>
-                  </motion.button>
+                        className={`relative h-[18px] w-8 shrink-0 rounded-full p-0.5 transition-colors ${focusMode ? 'bg-[#46c96f]' : 'bg-white/18'}`}
+                      >
+                        <span
+                          className={`block h-3.5 w-3.5 rounded-full bg-white shadow-md transition-transform ${focusMode ? 'translate-x-3.5' : ''}`}
+                        />
+                      </span>
+                    </motion.button>
+                  </div>
                 </section>
 
                 <div className="h-px bg-white/10" />
