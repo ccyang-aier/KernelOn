@@ -148,13 +148,16 @@ export function SearchPanel({
 }
 
 export function Cover({ artwork, title }: Readonly<{ artwork: string; title: string }>) {
-  const [hasError, setHasError] = useState(false);
+  const [failedArtwork, setFailedArtwork] = useState('');
 
-  useEffect(() => setHasError(false), [artwork]);
-
-  if (artwork && !hasError) {
+  if (artwork && failedArtwork !== artwork) {
     return (
-      <img alt="" className="music-cover-image" onError={() => setHasError(true)} src={artwork} />
+      <img
+        alt=""
+        className="music-cover-image"
+        onError={() => setFailedArtwork(artwork)}
+        src={artwork}
+      />
     );
   }
   return (
