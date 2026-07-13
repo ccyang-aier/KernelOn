@@ -13,7 +13,7 @@ import {
   Volume2,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
 import type { ShellCredentialUser } from './shell-lock-screen';
 
@@ -45,7 +45,10 @@ export function SystemControlPanel({
   const [status, setStatus] = useState<(typeof statuses)[number]>(statuses[0]);
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const [checkedIn, setCheckedIn] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [pressedAction, setPressedAction] = useState<string>();
   const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
@@ -63,6 +66,21 @@ export function SystemControlPanel({
     const timer = window.setTimeout(() => setFeedback(''), 2200);
     return () => window.clearTimeout(timer);
   }, [feedback]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => setFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const flashAction = (action: string, message: string) => {
+    setPressedAction(action);
+    setFeedback(message);
+    window.setTimeout(
+      () => setPressedAction((current) => (current === action ? undefined : current)),
+      720,
+    );
+  };
 
   const toggleFullscreen = async () => {
     try {
@@ -94,12 +112,12 @@ export function SystemControlPanel({
             aria-modal="true"
             className="fixed top-[48px] right-[14px] z-40 w-[min(368px,calc(100vw-20px))] select-none overflow-visible text-white"
             data-testid="kernelon-system-control-panel"
-            exit={{ filter: 'blur(7px)', opacity: 0, scale: 0.94, y: -12 }}
-            initial={{ filter: 'blur(8px)', opacity: 0, scale: 0.9, y: -18 }}
+            exit={{ opacity: 0, scale: 0.965, y: -8 }}
+            initial={{ opacity: 0, scale: 0.94, y: -10 }}
             role="dialog"
-            animate={{ filter: 'blur(0px)', opacity: 1, scale: 1, y: 0 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             style={{ transformOrigin: 'calc(100% - 44px) -16px' }}
-            transition={{ damping: 28, mass: 0.72, stiffness: 360, type: 'spring' }}
+            transition={{ damping: 30, mass: 0.55, stiffness: 440, type: 'spring' }}
           >
             <div className="ko-control-panel relative overflow-hidden rounded-[26px] p-[17px]">
               <div
@@ -208,92 +226,70 @@ export function SystemControlPanel({
 
                 <section className="space-y-2" aria-label="快捷操作">
                   <p className="m-0 px-1 text-[10px] font-medium text-white/48">快捷操作</p>
-                  <div className="ko-control-action-grid grid grid-cols-4 auto-rows-[52px] gap-2">
-                    <ActionButton
-                      className="col-span-1 row-span-1 flex-col gap-1"
+                  <div className="ko-control-action-grid">
+                    <RoundActionButton
+                      active={fullscreen}
+                      activeColor="#007aff"
                       icon={<Expand />}
                       label="全屏"
                       onClick={() => void toggleFullscreen()}
                     />
-                    <ActionButton
-                      className="col-span-2 row-span-1"
+                    <RoundActionButton
+                      active={pressedAction === 'download'}
+                      activeColor="#0a84ff"
                       icon={<Download />}
                       label="下载客户端"
-                      onClick={() => setFeedback('客户端即将开放下载')}
+                      onClick={() => flashAction('download', '客户端即将开放下载')}
                     />
-                    <ActionButton
-                      className="col-span-1 row-span-1 flex-col gap-1"
-                      icon={<Bell />}
-                      label="通知"
-                      onClick={() => setFeedback('暂无新未读提醒')}
-                    />
-                    <motion.button
-                      className="ko-glass-button group relative col-span-2 row-span-2 overflow-hidden rounded-[16px] px-3 py-3 text-left"
+                    <RoundActionButton
+                      active={checkedIn}
+                      activeColor="#30b96b"
+                      icon={<Check />}
+                      label="今日签到"
                       onClick={() => {
                         setCheckedIn(true);
                         setFeedback(checkedIn ? '今日已完成签到' : '签到成功');
                       }}
-                      whileTap={{ scale: 0.97 }}
-                      type="button"
-                    >
-                      <span className="flex items-center gap-2 text-[11px] font-semibold">
-                        <span className="ko-status-dot h-2 w-2 rounded-full bg-emerald-400" />
-                        今日签到
-                      </span>
-                      <span className="mt-1 block text-[10px] font-medium text-emerald-300">
-                        {checkedIn ? '09:18 已签到' : '点击完成签到'}
-                      </span>
-                      <Check
-                        aria-hidden
-                        className="absolute right-3 bottom-3 h-8 w-8 text-white/12 transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </motion.button>
-                    <ActionButton
-                      className="col-span-1 row-span-1 flex-col gap-1"
+                      secondaryLabel={checkedIn ? '09:18 已签到' : '点击签到'}
+                    />
+                    <RoundActionButton
+                      active={notificationsEnabled}
+                      activeColor="#ff375f"
+                      icon={<Bell />}
+                      label="通知"
+                      onClick={() => {
+                        setNotificationsEnabled((value) => !value);
+                        setFeedback(notificationsEnabled ? '通知已关闭' : '通知已开启');
+                      }}
+                    />
+                    <RoundActionButton
+                      active={pressedAction === 'settings'}
+                      activeColor="#636366"
                       icon={<Settings />}
                       label="系统设置"
-                      onClick={() => setFeedback('系统设置即将开放')}
+                      onClick={() => flashAction('settings', '系统设置即将开放')}
                     />
-                    <ActionButton
-                      className="col-span-1 row-span-1 flex-col gap-1"
+                    <RoundActionButton
+                      active={pressedAction === 'spotlight'}
+                      activeColor="#af52de"
                       icon={<Search />}
                       label="Spotlight"
                       onClick={() => {
+                        setPressedAction('spotlight');
                         onClose();
                         onOpenSpotlight();
                       }}
                     />
-                    <motion.button
-                      aria-pressed={focusMode}
-                      className={`ko-glass-button col-span-2 row-span-1 flex items-center justify-between rounded-[16px] px-3 py-2 text-left ${focusMode ? 'ko-glass-button-active' : ''}`}
+                    <RoundActionButton
+                      active={focusMode}
+                      activeColor="#5856d6"
+                      icon={<Focus />}
+                      label="专注模式"
                       onClick={() => {
                         setFocusMode((value) => !value);
                         setFeedback(focusMode ? '专注模式已关闭' : '专注模式已开启');
                       }}
-                      whileTap={{ scale: 0.975 }}
-                      type="button"
-                    >
-                      <span className="flex min-w-0 items-center gap-2">
-                        <span className="ko-control-icon-well grid h-7 w-7 shrink-0 place-items-center rounded-[9px] text-indigo-100">
-                          <Focus aria-hidden className="h-3.5 w-3.5" />
-                        </span>
-                        <span className="min-w-0">
-                          <strong className="block truncate text-[10px] font-semibold">
-                            专注模式
-                          </strong>
-                          <small className="block truncate text-[8px] text-white/48">
-                            减少日常干扰
-                          </small>
-                        </span>
-                      </span>
-                      <span
-                        className={`relative h-[18px] w-8 shrink-0 rounded-full p-0.5 transition-colors ${focusMode ? 'bg-[#46c96f]' : 'bg-white/18'}`}
-                      >
-                        <span
-                          className={`block h-3.5 w-3.5 rounded-full bg-white shadow-md transition-transform ${focusMode ? 'translate-x-3.5' : ''}`}
-                        />
-                      </span>
-                    </motion.button>
+                    />
                   </div>
                 </section>
 
@@ -383,26 +379,47 @@ function ControlSlider({
   );
 }
 
-function ActionButton({
-  className = '',
+function RoundActionButton({
+  active = false,
+  activeColor,
   icon,
   label,
   onClick,
+  secondaryLabel,
 }: {
-  className?: string;
+  active?: boolean;
+  activeColor: string;
   icon: ReactNode;
   label: string;
   onClick(): void;
+  secondaryLabel?: string;
 }) {
   return (
-    <motion.button
-      className={`ko-glass-button flex min-h-10 items-center justify-center gap-2 rounded-[14px] px-3 py-2 text-[11px] font-semibold ${className}`}
-      onClick={onClick}
-      whileTap={{ scale: 0.965 }}
-      type="button"
-    >
-      <span className="[&>svg]:h-[14px] [&>svg]:w-[14px] [&>svg]:text-cyan-200">{icon}</span>
-      {label}
-    </motion.button>
+    <div className="ko-round-action">
+      <motion.button
+        aria-label={secondaryLabel ? `${label}，${secondaryLabel}` : label}
+        aria-pressed={active}
+        className={`ko-round-action-button ${active ? 'is-active' : ''}`}
+        onClick={onClick}
+        style={{ '--ko-action-color': activeColor } as CSSProperties}
+        transition={{ damping: 22, stiffness: 520, type: 'spring' }}
+        type="button"
+        whileTap={{ scale: 0.86 }}
+      >
+        <motion.span
+          animate={{ rotate: active ? [0, -8, 7, 0] : 0, scale: active ? 1.08 : 1 }}
+          className="ko-round-action-icon"
+          transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {icon}
+        </motion.span>
+      </motion.button>
+      <span className="ko-round-action-label">{label}</span>
+      {secondaryLabel ? (
+        <span className={`ko-round-action-state ${active ? 'is-active' : ''}`}>
+          {secondaryLabel}
+        </span>
+      ) : null}
+    </div>
   );
 }
