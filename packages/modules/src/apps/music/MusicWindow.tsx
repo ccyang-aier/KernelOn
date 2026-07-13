@@ -658,6 +658,7 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
         data-drop-active={dropActive}
         data-home={showHome}
         data-immersive={immersive}
+        data-library-open={isLibraryOpen}
         onDragEnter={(event: DragEvent) => {
           event.preventDefault();
           setDropActive(true);
