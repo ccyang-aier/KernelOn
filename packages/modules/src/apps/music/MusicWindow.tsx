@@ -688,6 +688,7 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
         <ParticleStage
           analyserRef={audio.analyserRef}
           frequencyDataRef={audio.frequencyDataRef}
+          isHome={showHome}
           isPlaying={audio.isPlaying}
           track={currentTrack}
           visual={persisted.visual}

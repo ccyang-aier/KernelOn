@@ -43,6 +43,9 @@ describe('WeeklyShowWindow', () => {
       'data-surface',
       'stacked-content-panel',
     );
+    expect(screen.getByTestId('weekly-show-sidebar')).not.toHaveClass('backdrop-blur-[30px]');
+    expect(screen.getByTestId('weekly-show-content-panel')).not.toHaveClass('ml-[-24px]');
+    expect(screen.getByRole('button', { name: '本周舞台' })).toHaveClass('z-10');
     expect(screen.getByTestId('weekly-show-timeline')).toBeInTheDocument();
     expect(screen.getByTestId('weekly-show-grid').querySelectorAll('article')).toHaveLength(6);
     expect(screen.getByRole('heading', { name: 'Weekly Show 第 21 期' })).toBeInTheDocument();

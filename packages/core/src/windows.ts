@@ -31,6 +31,7 @@ export function openWindow(
 ): WindowDescriptor[] {
   const zIndex = nextZIndex(windows);
   const id = options.id ?? createWindowId(app.id, windows.length + 1);
+  const defaultMode = app.defaultWindow.mode;
 
   const nextWindow: WindowDescriptor = {
     id,
@@ -41,6 +42,8 @@ export function openWindow(
       ? { header: options.header ?? app.defaultWindow.header }
       : {}),
     ...(options.intent ? { intent: options.intent } : {}),
+    ...(defaultMode ? { mode: defaultMode } : {}),
+    ...(defaultMode === 'fullscreen' ? { restoreBounds: app.defaultWindow.bounds } : {}),
     zIndex,
     status: 'active',
     createdAt: options.createdAt ?? Date.now(),

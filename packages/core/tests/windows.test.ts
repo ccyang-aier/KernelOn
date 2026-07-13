@@ -49,6 +49,21 @@ const archiveApp: KernelAppManifest = {
 };
 
 describe('window model helpers', () => {
+  it('opens an app in its declared default fullscreen mode and preserves restore bounds', () => {
+    const fullscreenApp: KernelAppManifest = {
+      ...mentorApp,
+      defaultWindow: { ...mentorApp.defaultWindow, mode: 'fullscreen' },
+    };
+
+    const windows = openWindow([], fullscreenApp, { id: 'mentor-window', createdAt: 1 });
+
+    expect(windows[0]).toMatchObject({
+      bounds: mentorApp.defaultWindow.bounds,
+      mode: 'fullscreen',
+      restoreBounds: mentorApp.defaultWindow.bounds,
+    });
+  });
+
   it('copies the app header descriptor into a newly opened window', () => {
     const appHeader = {
       mode: 'standard',

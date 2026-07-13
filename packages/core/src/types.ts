@@ -40,6 +40,7 @@ export interface KernelAppManifest {
     title?: string;
     bounds: WindowBounds;
     header?: AppHeaderDescriptor;
+    mode?: WindowMode;
   };
 }
 

@@ -231,7 +231,7 @@ export function SystemControlPanel({
           <section className="flex items-center gap-3 px-1" aria-label="用户信息">
             <button
               aria-label="更换头像"
-              className="ko-profile-avatar group relative h-[56px] w-[56px] shrink-0 rounded-full p-[2px]"
+              className="ko-profile-avatar group relative h-[56px] w-[56px] shrink-0 rounded-full p-px"
               disabled={profileSaving}
               onClick={() => avatarInputRef.current?.click()}
               type="button"
@@ -272,32 +272,32 @@ export function SystemControlPanel({
                 导师：{user?.mentorName || '待匹配'}
               </p>
             </div>
-            <div className="relative flex shrink-0 flex-col items-end gap-2">
+            <div className="relative flex shrink-0 flex-col items-end gap-1.5">
               <span className="rounded-full border border-white/15 bg-white/10 px-2 py-[3px] text-[9px] font-semibold text-white/78 shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
                 {employeeLabel(user?.joinedAt)}
               </span>
               <button
                 aria-label={`在线状态：${status.label}`}
                 aria-expanded={statusMenuOpen}
-                className="ko-glass-button flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[10px] font-medium"
+                className="ko-glass-button ko-profile-presence-button flex h-6 items-center gap-1 rounded-full px-2 font-medium"
                 onClick={() => setStatusMenuOpen((value) => !value)}
                 type="button"
               >
                 <span
-                  className="ko-status-dot h-2 w-2 rounded-full"
+                  className="ko-status-dot h-1.5 w-1.5 rounded-full"
                   style={{ backgroundColor: status.color }}
                 />
                 {status.label}
                 <ChevronDown
                   aria-hidden
-                  className={`h-3 w-3 text-white/55 transition-transform ${statusMenuOpen ? 'rotate-180' : ''}`}
+                  className={`h-2.5 w-2.5 text-white/55 transition-transform ${statusMenuOpen ? 'rotate-180' : ''}`}
                 />
               </button>
               <AnimatePresence>
                 {statusMenuOpen ? (
                   <motion.div
                     animate={{ opacity: 1 }}
-                    className="absolute top-[66px] right-0 z-20 w-[108px] overflow-hidden rounded-[14px] border border-white/15 bg-[#24434b]/95 p-1.5 shadow-2xl"
+                    className="absolute top-[60px] right-0 z-20 w-[100px] overflow-hidden rounded-[13px] border border-white/15 bg-[#24434b]/95 p-1 shadow-2xl"
                     exit={{ opacity: 0 }}
                     initial={{ opacity: 0 }}
                   >

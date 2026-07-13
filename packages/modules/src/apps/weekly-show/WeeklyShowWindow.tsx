@@ -84,11 +84,10 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
         data-testid="weekly-show-window"
       >
         <aside
-          className="relative overflow-hidden px-4 pb-6 pt-[82px] shadow-[inset_0_1px_0_rgba(255,255,255,0.74)] backdrop-blur-[30px]"
+          className="relative z-10 overflow-hidden px-4 pb-6 pt-[82px] shadow-[inset_0_1px_0_rgba(255,255,255,0.74)]"
           data-surface="frosted-sidebar"
           data-testid="weekly-show-sidebar"
         >
-          <div className="pointer-events-none absolute -left-20 top-16 size-64 rounded-full bg-[#80c7ff]/22 blur-3xl" />
           <div className="relative flex h-full flex-col">
             <div className="mb-6 flex items-center gap-3 px-3 py-2">
               <img
@@ -107,9 +106,9 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
                 return (
                   <button
                     aria-current={active ? 'page' : undefined}
-                    className={`flex h-[58px] w-full items-center gap-4 rounded-[29px] px-[22px] text-[17px] font-semibold transition-all duration-200 ${
+                    className={`relative flex h-[58px] w-full items-center gap-4 rounded-[29px] px-[22px] text-[17px] font-semibold transition-all duration-200 ${
                       active
-                        ? 'bg-white/74 text-[#438cf2] shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_12px_28px_rgba(69,113,160,0.10)] backdrop-blur-2xl'
+                        ? 'z-10 bg-white/84 text-[#438cf2] shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_10px_24px_rgba(69,113,160,0.09)]'
                         : 'text-[#647181] hover:bg-white/38 hover:text-[#354253]'
                     }`}
                     key={id}
@@ -134,7 +133,7 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
         </aside>
 
         <main
-          className="relative z-10 ml-[-24px] min-h-0 overflow-y-auto rounded-l-[28px] bg-white px-[clamp(34px,4vw,64px)] pb-10 pt-[96px] shadow-[-12px_0_38px_rgba(75,112,145,0.10),inset_1px_0_0_rgba(255,255,255,0.96)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative min-h-0 overflow-y-auto rounded-l-[28px] bg-white px-[clamp(34px,4vw,64px)] pb-10 pt-[96px] shadow-[-8px_0_28px_rgba(75,112,145,0.08),inset_1px_0_0_rgba(255,255,255,0.96)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           data-surface="stacked-content-panel"
           data-testid="weekly-show-content-panel"
         >
@@ -381,7 +380,7 @@ function useWeeklyShowHeaderSlots(query: string, onQueryChange: (value: string) 
   return useMemo(
     () => ({
       'weekly-show-leading': (
-        <div className="absolute left-[280px] top-1/2 flex -translate-y-1/2 items-center gap-2.5">
+        <div className="absolute left-[304px] top-1/2 flex -translate-y-1/2 items-center gap-2.5">
           <button
             aria-label="切换侧栏"
             className="flex size-9 items-center justify-center rounded-[12px] border border-white/65 bg-white/64 text-[#3d434a] shadow-[0_6px_15px_rgba(39,55,72,0.06)]"
@@ -409,7 +408,7 @@ function useWeeklyShowHeaderSlots(query: string, onQueryChange: (value: string) 
         </div>
       ),
       'weekly-show-title': (
-        <div className="absolute left-[262px] right-0 top-1/2 -translate-y-1/2 text-center text-[16px] font-bold tracking-[-0.01em] text-[#202328]">
+        <div className="absolute left-[286px] right-0 top-1/2 -translate-y-1/2 text-center text-[16px] font-bold tracking-[-0.01em] text-[#202328]">
           本周舞台
         </div>
       ),

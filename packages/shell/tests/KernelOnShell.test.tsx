@@ -334,9 +334,14 @@ describe('KernelOnShell', () => {
     expect(within(panel).getByText('产品运营部 · 入职第 12 天')).toBeInTheDocument();
     expect(within(panel).getByText('导师：林澈')).toBeInTheDocument();
     expect(within(panel).queryByRole('region', { name: '在线状态' })).not.toBeInTheDocument();
-    expect(within(panel).getByRole('button', { name: '在线状态：在线' })).toBeInTheDocument();
+    expect(within(panel).getByRole('button', { name: '在线状态：在线' })).toHaveClass(
+      'ko-profile-presence-button',
+      'h-6',
+      'px-2',
+    );
     expect(within(panel).getByRole('button', { name: '更换头像' })).toHaveClass(
       'ko-profile-avatar',
+      'p-px',
     );
     const avatarInput = within(panel).getByTestId('kernelon-avatar-input');
     expect(avatarInput).toHaveAttribute('accept', 'image/jpeg,image/png,image/webp');

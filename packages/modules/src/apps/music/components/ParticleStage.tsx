@@ -7,6 +7,7 @@ import type { MusicTrack, VisualPresetId, VisualSettings } from '../types';
 interface ParticleStageProps {
   analyserRef: RefObject<AnalyserNode | null>;
   frequencyDataRef: RefObject<Uint8Array<ArrayBuffer> | null>;
+  isHome: boolean;
   isPlaying: boolean;
   track: MusicTrack | null;
   visual: VisualSettings;
@@ -23,14 +24,20 @@ interface Point3D {
 export function ParticleStage({
   analyserRef,
   frequencyDataRef,
+  isHome,
   isPlaying,
   track,
   visual,
 }: ParticleStageProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rotationRef = useRef({ x: -0.08, y: 0, targetX: -0.08, targetY: 0 });
+  const dragRef = useRef({ active: false, lastX: 0, lastY: 0, lastTime: 0 });
+  const spinVelocityRef = useRef({ x: 0, y: 0 });
   const zoomRef = useRef(1);
-  const points = useMemo(() => createPoints(visual.preset), [visual.preset]);
+  const points = useMemo(
+    () => (isHome ? createHomeStarfieldPoints(2800) : createPoints(visual.preset)),
+    [isHome, visual.preset],
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -75,9 +82,19 @@ export function ParticleStage({
       const idlePulse = 0.15 + Math.sin(now * 0.0007) * 0.04;
       const pulse = isPlaying ? Math.max(idlePulse, bass * visual.intensity) : idlePulse;
       const rotation = rotationRef.current;
+      const spinVelocity = spinVelocityRef.current;
 
       rotation.targetY +=
-        (isPlaying && visual.cinema ? delta * (0.08 + mid * 0.18) : delta * 0.018) * visual.speed;
+        (isHome
+          ? delta * 0.012
+          : isPlaying && visual.cinema
+            ? delta * (0.08 + mid * 0.18)
+            : delta * 0.018) * visual.speed;
+      rotation.targetX += spinVelocity.x * delta;
+      rotation.targetY += spinVelocity.y * delta;
+      const damping = Math.pow(0.9, delta * 60);
+      spinVelocity.x *= damping;
+      spinVelocity.y *= damping;
       rotation.x += (rotation.targetX - rotation.x) * Math.min(1, delta * 5);
       rotation.y += (rotation.targetY - rotation.y) * Math.min(1, delta * 4);
       transition = Math.min(1, transition + delta * 2.8);
@@ -85,7 +102,9 @@ export function ParticleStage({
       context.clearRect(0, 0, width, height);
       drawAmbientField(context, width, height, now, pulse, visual);
 
-      if (track?.kind === 'podcast') {
+      if (isHome) {
+        drawHomeStarfield({ context, height, now, points, pulse, rotation, visual, width, zoom: zoomRef.current });
+      } else if (track?.kind === 'podcast') {
         drawPodcastField(context, width, height, now, frequencyData, visual);
       } else if (visual.preset !== 3) {
         drawPointCloud({
@@ -113,18 +132,46 @@ export function ParticleStage({
     };
     document.addEventListener('visibilitychange', handleVisibility);
 
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.button === 2 || reducedMotion) return;
+      dragRef.current = {
+        active: true,
+        lastX: event.clientX,
+        lastY: event.clientY,
+        lastTime: performance.now(),
+      };
+      spinVelocityRef.current = { x: 0, y: 0 };
+      canvas.setPointerCapture(event.pointerId);
+    };
     const handlePointerMove = (event: PointerEvent) => {
-      if (event.buttons !== 1 || reducedMotion) return;
-      rotationRef.current.targetY += event.movementX * 0.006;
+      const drag = dragRef.current;
+      if (!drag.active || reducedMotion) return;
+      const now = performance.now();
+      const deltaSeconds = Math.max(1 / 120, Math.min(0.08, (now - drag.lastTime) / 1000));
+      const deltaX = event.clientX - drag.lastX;
+      const deltaY = event.clientY - drag.lastY;
+      const rotateX = deltaY * 0.0032;
+      const rotateY = deltaX * 0.0034;
+      rotationRef.current.targetY += rotateY;
       rotationRef.current.targetX = clamp(
-        rotationRef.current.targetX + event.movementY * 0.004,
-        -0.85,
-        0.85,
+        rotationRef.current.targetX + rotateX,
+        -1.28,
+        1.28,
       );
+      spinVelocityRef.current.x = clamp((rotateX / deltaSeconds) * 0.46, -6.2, 6.2);
+      spinVelocityRef.current.y = clamp((rotateY / deltaSeconds) * 0.46, -6.2, 6.2);
+      drag.lastX = event.clientX;
+      drag.lastY = event.clientY;
+      drag.lastTime = now;
+    };
+    const handlePointerUp = (event: PointerEvent) => {
+      dragRef.current.active = false;
+      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
     };
     const handleDoubleClick = () => {
       rotationRef.current.targetX = visual.preset === 6 ? -0.26 : -0.08;
       rotationRef.current.targetY = visual.preset === 5 ? -0.52 : visual.preset === 6 ? 0.18 : 0;
+      spinVelocityRef.current = { x: 0, y: 0 };
       zoomRef.current = 1;
     };
     const handleWheel = (event: WheelEvent) => {
@@ -132,7 +179,10 @@ export function ParticleStage({
       zoomRef.current = clamp(zoomRef.current - event.deltaY * 0.0008, 0.72, 1.45);
     };
 
+    canvas.addEventListener('pointerdown', handlePointerDown);
     canvas.addEventListener('pointermove', handlePointerMove);
+    canvas.addEventListener('pointerup', handlePointerUp);
+    canvas.addEventListener('pointercancel', handlePointerUp);
     canvas.addEventListener('dblclick', handleDoubleClick);
     canvas.addEventListener('wheel', handleWheel, { passive: false });
 
@@ -140,16 +190,20 @@ export function ParticleStage({
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       document.removeEventListener('visibilitychange', handleVisibility);
+      canvas.removeEventListener('pointerdown', handlePointerDown);
       canvas.removeEventListener('pointermove', handlePointerMove);
+      canvas.removeEventListener('pointerup', handlePointerUp);
+      canvas.removeEventListener('pointercancel', handlePointerUp);
       canvas.removeEventListener('dblclick', handleDoubleClick);
       canvas.removeEventListener('wheel', handleWheel);
     };
-  }, [analyserRef, frequencyDataRef, isPlaying, points, track?.kind, visual]);
+  }, [analyserRef, frequencyDataRef, isHome, isPlaying, points, track?.kind, visual]);
 
   return (
     <canvas
       aria-label={`${track?.title ?? 'Mineradio'} 粒子视觉舞台`}
       className="music-particle-stage"
+      data-home={isHome}
       data-preset={visual.preset}
       ref={canvasRef}
       role="img"
@@ -323,6 +377,111 @@ function drawAmbientField(
     context.fillStyle = `rgba(190,220,228,${Math.max(0.03, flicker)})`;
     context.fillRect(x, y, index % 11 === 0 ? 1.4 : 0.7, index % 11 === 0 ? 1.4 : 0.7);
   }
+}
+
+function drawHomeStarfield({
+  context,
+  height,
+  now,
+  points,
+  pulse,
+  rotation,
+  visual,
+  width,
+  zoom,
+}: {
+  context: CanvasRenderingContext2D;
+  height: number;
+  now: number;
+  points: Point3D[];
+  pulse: number;
+  rotation: { x: number; y: number };
+  visual: VisualSettings;
+  width: number;
+  zoom: number;
+}) {
+  const centerX = width * 0.5;
+  const centerY = height * 0.5;
+  const focalLength = Math.min(width, height) * 0.76 * zoom;
+  const aspect = width / Math.max(1, height);
+  const cosY = Math.cos(rotation.y);
+  const sinY = Math.sin(rotation.y);
+  const cosX = Math.cos(rotation.x);
+  const sinX = Math.sin(rotation.x);
+  const cool = parseHex(visual.visualTintColor);
+  const warm = { r: 239, g: 218, b: 146 };
+
+  const haze = context.createRadialGradient(
+    centerX,
+    centerY * 0.94,
+    0,
+    centerX,
+    centerY,
+    Math.max(width, height) * 0.67,
+  );
+  haze.addColorStop(0, `rgba(${cool.r},${cool.g},${cool.b},${0.035 + pulse * 0.045})`);
+  haze.addColorStop(0.38, `rgba(${cool.r},${cool.g},${cool.b},0.012)`);
+  haze.addColorStop(1, 'rgba(0,0,0,0)');
+  context.fillStyle = haze;
+  context.fillRect(0, 0, width, height);
+
+  context.save();
+  context.globalCompositeOperation = visual.bloom ? 'lighter' : 'source-over';
+  points.forEach((point, index) => {
+    const drift = now * 0.000035 * visual.speed;
+    const sourceX = point.x * aspect;
+    const sourceY = point.y + Math.sin(drift * 11 + index * 0.37) * 0.018;
+    const sourceZ = point.z + Math.sin(drift + index * 0.011) * 0.045;
+    const rotatedX = sourceX * cosY - sourceZ * sinY;
+    const rotatedZ = sourceX * sinY + sourceZ * cosY;
+    const rotatedY = sourceY * cosX - rotatedZ * sinX;
+    const finalZ = sourceY * sinX + rotatedZ * cosX;
+    const cameraDepth = Math.max(1.35, 7.2 + finalZ);
+    const perspective = focalLength / cameraDepth;
+    const px = centerX + rotatedX * perspective;
+    const py = centerY + rotatedY * perspective;
+    if (px < -8 || px > width + 8 || py < -8 || py > height + 8) return;
+
+    const depth = clamp(1.2 - cameraDepth / 10.5, 0.1, 1);
+    const twinkle = 0.68 + Math.sin(now * 0.0014 + index * 1.71) * 0.3;
+    const alpha = clamp((0.2 + depth * 0.72) * twinkle, 0.08, 0.92);
+    const color = mixColor(cool, warm, point.colorMix * 0.42);
+    const size = clamp(point.size * visual.pointSize * (0.42 + depth * 0.9), 0.45, 2.45);
+    context.fillStyle = `rgba(${color.r},${color.g},${color.b},${alpha})`;
+
+    if (size > 1.55 && index % 9 === 0) {
+      const glow = context.createRadialGradient(px, py, 0, px, py, size * 4.2);
+      glow.addColorStop(0, `rgba(${color.r},${color.g},${color.b},${alpha})`);
+      glow.addColorStop(0.24, `rgba(${color.r},${color.g},${color.b},${alpha * 0.32})`);
+      glow.addColorStop(1, `rgba(${color.r},${color.g},${color.b},0)`);
+      context.fillStyle = glow;
+      context.beginPath();
+      context.arc(px, py, size * 4.2, 0, Math.PI * 2);
+      context.fill();
+    } else if (size < 0.85) {
+      context.fillRect(px, py, size, size);
+    } else {
+      context.beginPath();
+      context.arc(px, py, size, 0, Math.PI * 2);
+      context.fill();
+    }
+  });
+  context.restore();
+}
+
+function createHomeStarfieldPoints(count: number) {
+  return Array.from({ length: count }, (_, index): Point3D => {
+    const radialBias = Math.pow(seeded(index * 2.71 + 9.3), 0.72);
+    const angle = seeded(index * 7.17 + 2.1) * Math.PI * 2;
+    const radius = 0.28 + radialBias * 4.45;
+    return {
+      colorMix: seeded(index * 13.13 + 4.7),
+      size: 0.48 + Math.pow(seeded(index * 5.91 + 1.4), 3.1) * 1.85,
+      x: Math.cos(angle) * radius + (seeded(index * 19.3) - 0.5) * 1.8,
+      y: (seeded(index * 23.71 + 8.4) - 0.5) * 8.8,
+      z: Math.sin(angle) * radius + (seeded(index * 31.11) - 0.5) * 3.4,
+    };
+  });
 }
 
 function createPoints(preset: VisualPresetId) {

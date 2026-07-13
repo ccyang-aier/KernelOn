@@ -15,6 +15,7 @@ describe('KernelOn built-in catalog', () => {
         icon: 'Music',
         id: 'music',
         name: '音乐',
+        defaultWindow: expect.objectContaining({ mode: 'fullscreen' }),
         runtime: {
           window: {
             frameOwner: 'app',

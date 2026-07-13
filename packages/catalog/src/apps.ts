@@ -18,6 +18,7 @@ export const kernelApps: KernelAppManifest[] = [
     defaultWindow: {
       title: 'Mineradio',
       bounds: { x: 36, y: 28, width: 1440, height: 850 },
+      mode: 'fullscreen',
     },
   },
   {
