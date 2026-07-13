@@ -67,6 +67,41 @@ final result: passed
 
 ---
 
+## Weekly Show 侧栏接缝与激活态
+
+### 验收目标与证据
+
+- 用户问题截图：`C:/Users/17335/AppData/Local/Temp/codex-clipboard-329f896a-995d-48fb-b1c2-f4dd7071f5b4.png`
+- 修复后截图：`C:/Users/17335/AppData/Local/Temp/kernelon-weekly-show-seam-fixed.png`
+- 验收页面：`http://127.0.0.1:3000/qa-weekly-show`（仅验收期间使用，交付前删除）
+- 浏览器视口：1280 × 720，DPR 1.5，全屏 Weekly Show。
+
+### 根因与修复
+
+- 主内容面板原先使用 `margin-left: -24px` 并带更高层级，实际覆盖侧栏 24px，导致激活菜单胶囊右半部分被遮挡。
+- 侧栏、装饰光斑和主面板在接缝顶部同时进行玻璃模糊与层叠，造成顶部连接区域发糊。
+- 删除主面板负边距，让 286px 侧栏与主内容建立明确相邻边界；同步校准顶部导航和标题的横向位置。
+- 移除侧栏整面 `backdrop-filter` 与接缝附近的模糊装饰光斑，保留清晰的浅蓝材质与主面板边界阴影。
+- 激活菜单改为不依赖背景模糊的半透明白色胶囊，并提升自身层级，保证完整轮廓。
+
+### 浏览器检查
+
+- 侧栏右边界：286.67px；主面板左边界：286.67px；两者无重叠。
+- 激活胶囊宽度：254px；右侧距侧栏边界：16px；完整可见。
+- 侧栏计算样式 `backdrop-filter: none`；主面板无覆盖层级；激活项 `z-index: 10`。
+- 点击“我的投稿”后，`aria-current="page"` 正确切换，胶囊宽度仍为 254px，右侧仍保留 16px。
+- 修复前后截图已在同一视觉比较输入中并排检查；接缝清晰，激活态无裁切。
+
+### 工程检查
+
+- `pnpm --filter @kernelon/modules test -- weekly-show-window.test.tsx`：通过，2 个测试。
+- `pnpm --filter @kernelon/web build`：通过。
+- `pnpm --filter @kernelon/modules typecheck`：被工作树中另一处 `ParticleStage.tsx` 未完成改动阻断，缺少 `createHomeStarfieldPoints` 与 `drawHomeStarfield`；与本次 Weekly Show 改动无关。
+
+final result: passed
+
+---
+
 ## Mineradio 首页与首次引导
 
 ## 验收目标与来源
