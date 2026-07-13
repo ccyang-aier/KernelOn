@@ -327,6 +327,19 @@ describe('KernelOnShell', () => {
     expect(within(panel).queryByText('锁定')).not.toBeInTheDocument();
     expect(within(panel).queryByText('外观')).not.toBeInTheDocument();
 
+    const liquidGlass = panel.querySelector('[data-slot="liquid-glass-svg-filter"]');
+    const liquidGlassWarp = liquidGlass?.querySelector('.glass__warp');
+    const liquidGlassContainer = screen
+      .getByTestId('kernelon-control-panel-liquid-content')
+      .closest('.glass');
+    expect(liquidGlass).not.toBeNull();
+    expect(liquidGlassContainer).toHaveStyle({ borderRadius: '26px', padding: '17px' });
+    expect(liquidGlassWarp?.getAttribute('style')).toContain('filter: url(');
+    expect(liquidGlassWarp?.getAttribute('style')).toContain(
+      'backdrop-filter: blur(20px) saturate(155%)',
+    );
+    expect(liquidGlassWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 26px)');
+
     const actionGrid = panel.querySelector('.ko-control-action-grid');
     expect(actionGrid?.children).toHaveLength(7);
     expect(within(panel).getByRole('button', { name: '全屏' })).toHaveClass(

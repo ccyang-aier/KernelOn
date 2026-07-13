@@ -15,6 +15,8 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
+import { LiquidGlassSvgFilter } from '@kernelon/ui';
+
 import type { ShellCredentialUser } from './shell-lock-screen';
 
 const fallbackAvatar = '/kernelon-assets/avatars/current-user.png';
@@ -110,7 +112,7 @@ export function SystemControlPanel({
             ref={panelRef}
             aria-label="KernelOn 系统控制面板"
             aria-modal="true"
-            className="fixed top-[48px] right-[14px] z-40 w-[min(368px,calc(100vw-20px))] select-none overflow-visible text-white"
+            className="ko-control-panel-liquid-host fixed top-[48px] right-[14px] z-40 h-[532px] w-[min(368px,calc(100vw-20px))] select-none overflow-visible text-white"
             data-testid="kernelon-system-control-panel"
             exit={{ opacity: 0, scale: 0.965, y: -8 }}
             initial={{ opacity: 0, scale: 0.94, y: -10 }}
@@ -119,17 +121,24 @@ export function SystemControlPanel({
             style={{ transformOrigin: 'calc(100% - 44px) -16px' }}
             transition={{ damping: 30, mass: 0.55, stiffness: 440, type: 'spring' }}
           >
-            <div className="ko-control-panel relative overflow-hidden rounded-[26px] p-[17px]">
+            <LiquidGlassSvgFilter
+              aberrationIntensity={2}
+              appearanceClassName="ko-control-panel-liquid-appearance"
+              blurAmount={0.5}
+              className="ko-control-panel-liquid-root"
+              cornerRadius={26}
+              displacementScale={92}
+              elasticity={0}
+              mode="standard"
+              mouseContainer={panelRef}
+              padding="17px"
+              saturation={155}
+              style={{ position: 'absolute', left: '50%', top: '50%' }}
+            >
               <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_-4%,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_94%_76%,rgba(110,218,222,0.1),transparent_42%)]"
-              />
-              <div
-                aria-hidden="true"
-                className="ko-control-noise pointer-events-none absolute inset-0 opacity-[0.035]"
-              />
-
-              <div className="relative z-10 flex flex-col gap-[13px]">
+                className="flex w-[min(334px,calc(100vw-54px))] flex-col gap-[13px]"
+                data-testid="kernelon-control-panel-liquid-content"
+              >
                 <section className="flex items-center gap-3 px-1" aria-label="用户信息">
                   <div className="relative h-[52px] w-[52px] shrink-0 rounded-full p-[2px] shadow-[0_8px_18px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.5)] [background:linear-gradient(145deg,rgba(255,255,255,.76),rgba(255,255,255,.12))]">
                     <img
@@ -319,7 +328,7 @@ export function SystemControlPanel({
                   </span>
                 </footer>
               </div>
-            </div>
+            </LiquidGlassSvgFilter>
 
             <AnimatePresence>
               {feedback ? (

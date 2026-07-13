@@ -9,43 +9,27 @@
   cursor: var(--ko-cursor-default);
 }
 
-.ko-control-panel {
-  isolation: isolate;
-  border: 1px solid rgb(255 255 255 / 0.32);
-  background:
-    linear-gradient(
-      148deg,
-      rgb(255 255 255 / 0.17),
-      rgb(255 255 255 / 0.055) 45%,
-      rgb(255 255 255 / 0.09)
-    ),
-    rgb(27 48 55 / 0.24);
-  box-shadow:
-    0 24px 64px rgb(3 17 23 / 0.26),
-    0 5px 16px rgb(3 17 23 / 0.12),
-    inset 0 1px 0 rgb(255 255 255 / 0.56),
-    inset 1px 0 0 rgb(255 255 255 / 0.16),
-    inset 0 -1px 0 rgb(5 22 28 / 0.14);
-  -webkit-backdrop-filter: blur(30px) saturate(160%);
-  backdrop-filter: blur(30px) saturate(160%);
-  transform: translateZ(0);
+.ko-control-panel-liquid-host {
+  contain: layout paint style;
   will-change: transform, opacity;
 }
 
-.ko-control-panel::after {
-  position: absolute;
-  inset: 1px;
-  z-index: 0;
-  pointer-events: none;
-  content: '';
-  border: 1px solid rgb(255 255 255 / 0.07);
-  border-radius: 25px;
-  background: linear-gradient(125deg, rgb(255 255 255 / 0.095), transparent 34%);
+.ko-control-panel-liquid-host > [data-slot='liquid-glass-svg-filter'] {
+  width: 100% !important;
+  height: 100% !important;
 }
 
-.ko-control-noise {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
-  mix-blend-mode: soft-light;
+.ko-control-panel-liquid-appearance {
+  --ko-liquid-glass-border-strong: rgb(255 255 255 / 0.44);
+  --ko-liquid-glass-border-soft: rgb(255 255 255 / 0.12);
+  border-radius: 26px;
+  box-shadow:
+    0 24px 64px rgb(3 17 23 / 0.27),
+    0 5px 16px rgb(3 17 23 / 0.13);
+}
+
+.ko-control-panel-liquid-root .glass {
+  background: rgb(23 43 50 / 0.08);
 }
 
 .ko-glass-button {
