@@ -112,12 +112,12 @@ export function SystemControlPanel({
 
       {open ? (
         <LiquidGlassSvgFilter
-          aberrationIntensity={1.2}
+          aberrationIntensity={0}
           appearanceClassName="ko-control-panel-liquid-appearance"
           blurAmount={0.85}
           className="z-40"
           cornerRadius={26}
-          displacementScale={56}
+          displacementScale={36}
           elasticity={0}
           mode="standard"
           padding="17px"

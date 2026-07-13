@@ -338,7 +338,11 @@ describe('KernelOnShell', () => {
       'backdrop-filter: blur(31.2px) saturate(145%)',
     );
     expect(liquidGlassWarp?.getAttribute('style')).toContain('clip-path: inset(0 round 26px)');
-    expect(liquidGlassRoot?.querySelector('feDisplacementMap')).toHaveAttribute('scale', '-56');
+    expect(
+      Array.from(liquidGlassRoot?.querySelectorAll('feDisplacementMap') ?? []).map((node) =>
+        node.getAttribute('scale'),
+      ),
+    ).toEqual(['-36', '-36', '-36']);
 
     const actionGrid = panel.querySelector('.ko-control-action-grid');
     expect(actionGrid?.children).toHaveLength(7);
