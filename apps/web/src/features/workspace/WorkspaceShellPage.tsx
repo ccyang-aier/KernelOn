@@ -21,10 +21,5 @@ export async function WorkspaceShellPage({ searchParams }: WorkspacePageProps = 
     redirect('/change-password');
   }
 
-  return (
-    <KernelOnModuleRuntime
-      currentUser={{ avatarUrl: user.avatarUrl, displayName: user.displayName }}
-      initialState={initialState}
-    />
-  );
+  return <KernelOnModuleRuntime currentUser={user} initialState={initialState} />;
 }

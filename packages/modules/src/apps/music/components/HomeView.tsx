@@ -1,15 +1,4 @@
-import {
-  AudioLines,
-  CloudSun,
-  Disc3,
-  Library,
-  ListMusic,
-  Mic2,
-  Radio,
-  Search,
-  Sparkles,
-  Upload,
-} from 'lucide-react';
+import { Library, Search, Sparkles, Upload } from 'lucide-react';
 
 import type { MusicPlaylist, MusicTrack, WeatherRadio } from '../types';
 import { Cover } from './SearchPanel';
@@ -37,110 +26,119 @@ export function HomeView({
   onOpenVisuals,
   onPlay,
   onPlayPlaylist,
-  onPlayWeather,
   onSearch,
   playlists,
   songs,
-  weather,
 }: HomeViewProps) {
   const leadPlaylist = playlists[0];
-  const latest = history[0] ?? songs[0];
+  const latest = history[0] ?? songs[3] ?? songs[0];
+  const recommendations = songs.slice(0, 5);
 
   return (
     <section aria-label="Mineradio home" className="music-home">
       <div className="music-home-grid">
         <HomeCard
-          Icon={CloudSun}
-          eyebrow="WEATHER RADIO"
-          onClick={weather?.songs.length ? onPlayWeather : onOpenLibrary}
-          title={weather ? `${weather.city} · ${weather.temperature}°` : '天气电台'}
-          subtitle={weather ? `${weather.condition} · ${weather.mood}` : '正在感知城市天气'}
+          artwork={leadPlaylist?.coverUrl ?? songs[0]?.coverUrl}
+          eyebrow="LIBRARY"
+          onClick={onOpenLibrary}
+          title="我的歌单"
+          subtitle={
+            leadPlaylist ? `${leadPlaylist.trackCount} 首 · 云音乐私人雷达` : '打开资料库浏览歌单'
+          }
         />
         <HomeCard
-          Icon={Disc3}
+          artwork={songs[0]?.coverUrl}
           eyebrow="DAILY"
           onClick={() => songs[0] && onPlay(songs[0])}
-          title="每日推荐"
-          subtitle={isLoading ? '正在整理今日歌曲' : '从精选推荐开始播放'}
-          artwork={songs[0]?.coverUrl}
+          title={songs[0]?.title ?? '每日推荐'}
+          subtitle={isLoading ? '正在整理今日歌曲' : (songs[0]?.artist ?? '点击播放今日队列')}
         />
         <HomeCard
-          Icon={Radio}
+          artwork={songs[1]?.coverUrl}
           eyebrow="SONG"
           onClick={() => songs[1] && onPlay(songs[1])}
-          title="私人电台"
-          subtitle="从推荐和歌单里开播"
-          artwork={songs[1]?.coverUrl}
+          title={songs[1]?.title ?? '私人电台'}
+          subtitle={songs[1]?.artist ?? '从推荐和歌单里开播'}
         />
         <HomeCard
-          Icon={AudioLines}
+          artwork={latest?.coverUrl}
           eyebrow="CONTINUE"
           onClick={() => latest && onPlay(latest)}
           title="继续听"
           subtitle={latest ? `${latest.title} · ${latest.artist}` : '最近播放会出现在这里'}
-          artwork={latest?.coverUrl}
         />
         <HomeCard
-          Icon={Sparkles}
+          artwork={songs[2]?.coverUrl}
           eyebrow="PROFILE"
           onClick={() => songs[2] && onPlay(songs[2])}
           title="听歌画像"
           subtitle="播放几首后生成偏好"
-          artwork={songs[2]?.coverUrl}
         />
         <HomeCard
-          Icon={ListMusic}
+          artwork={leadPlaylist?.coverUrl ?? songs[4]?.coverUrl}
           eyebrow="PLAYLIST"
           onClick={() => leadPlaylist && onPlayPlaylist(leadPlaylist)}
-          title={leadPlaylist?.name ?? '更多歌曲'}
-          subtitle={
-            leadPlaylist ? `${leadPlaylist.trackCount} 首 · 精选歌单` : '播放后会继续补全推荐'
-          }
-          artwork={leadPlaylist?.coverUrl}
+          title={leadPlaylist?.name ?? '那些被单曲循环无数次的歌'}
+          subtitle={leadPlaylist ? `${leadPlaylist.trackCount} 首 · 精选歌单` : '从热门歌单开始'}
         />
       </div>
 
-      <div className="music-home-start">
-        <div>
-          <strong>先从这里开始</strong>
-          <span>搜索、导入或从推荐歌单进入视觉舞台</span>
+      <section aria-label="你的歌单与推荐" className="music-home-recommendations">
+        <header className="music-home-section-head">
+          <div>
+            <strong>你的歌单与推荐</strong>
+            <span>{isLoading ? '正在更新推荐' : '刚刚更新 · 点击即可播放'}</span>
+          </div>
+          <nav aria-label="首页快捷操作" className="music-home-quick-actions">
+            <button aria-label="搜索歌曲" onClick={onSearch} type="button">
+              <Search />
+            </button>
+            <button aria-label="导入本地音乐" onClick={onImport} type="button">
+              <Upload />
+            </button>
+            <button aria-label="打开视觉控制台" onClick={onOpenVisuals} type="button">
+              <Sparkles />
+            </button>
+          </nav>
+        </header>
+        <div className="music-home-tile-row">
+          {recommendations.length
+            ? recommendations.map((track) => (
+                <button
+                  className="music-home-tile"
+                  key={`${track.provider}:${track.id}`}
+                  onClick={() => onPlay(track)}
+                  type="button"
+                >
+                  <Cover artwork={track.coverUrl} title={track.title} />
+                  <strong>{track.title}</strong>
+                  <span>{track.artist}</span>
+                </button>
+              ))
+            : Array.from({ length: 5 }, (_, index) => (
+                <button
+                  className="music-home-tile music-home-tile-skeleton"
+                  disabled
+                  key={index}
+                  type="button"
+                >
+                  <span aria-hidden="true" />
+                  <strong>正在整理推荐</strong>
+                </button>
+              ))}
         </div>
-        <div className="music-home-actions">
-          <button onClick={onOpenLibrary} type="button">
-            <Library />
-            浏览歌单
-          </button>
-          <button onClick={onSearch} type="button">
-            <Search />
-            搜索一首歌
-          </button>
-          <button onClick={onImport} type="button">
-            <Upload />
-            导入本地音乐
-          </button>
-          <button onClick={onOpenLibrary} type="button">
-            <Mic2 />
-            搜索播客
-          </button>
-          <button onClick={onOpenVisuals} type="button">
-            <Sparkles />
-            看看视觉舞台
-          </button>
-        </div>
-      </div>
+      </section>
     </section>
   );
 }
 
 function HomeCard({
-  Icon,
   artwork,
   eyebrow,
   onClick,
   subtitle,
   title,
 }: Readonly<{
-  Icon: typeof CloudSun;
   artwork?: string;
   eyebrow: string;
   onClick(): void;
@@ -155,7 +153,7 @@ function HomeCard({
         <span>{subtitle}</span>
       </span>
       <span className="music-home-card-art">
-        {artwork ? <Cover artwork={artwork} title={title} /> : <Icon />}
+        {artwork ? <Cover artwork={artwork} title={title} /> : <Library />}
       </span>
     </button>
   );

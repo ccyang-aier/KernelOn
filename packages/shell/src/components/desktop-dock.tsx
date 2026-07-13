@@ -130,7 +130,7 @@ export function DesktopDock({
   return (
     <motion.nav
       aria-label="KernelOn Dock"
-      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-[70] flex h-[var(--dock-rail-height)] w-max max-w-[calc(100vw-20px)] -translate-x-1/2 items-end gap-[var(--dock-gap)] overflow-visible rounded-[clamp(20px,2.2vw,32px)] border border-white/40 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)]"
+      className="fixed bottom-[clamp(12px,2.2vh,24px)] left-1/2 z-[30] flex h-[var(--dock-rail-height)] w-max max-w-[calc(100vw-20px)] -translate-x-1/2 items-end gap-[var(--dock-gap)] overflow-visible rounded-[clamp(20px,2.2vw,32px)] border border-white/40 px-[var(--dock-pad-x)] py-[var(--dock-pad-y)]"
       data-kernelon-dock-interacting={String(isDockInteracting)}
       data-testid="kernelon-dock"
       onBlur={handleDockBlur}

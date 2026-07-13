@@ -20,6 +20,7 @@ class UserModel(OrmBase):
     normalized_email: Mapped[str] = mapped_column(String(320), unique=True, index=True)
     display_name: Mapped[str] = mapped_column(String(120))
     avatar_url: Mapped[str | None] = mapped_column(Text())
+    presence_status: Mapped[str] = mapped_column(String(20), default="online")
     password_hash: Mapped[str] = mapped_column(Text())
     status: Mapped[str] = mapped_column(String(20), default="active", index=True)
     must_change_password: Mapped[bool] = mapped_column(Boolean(), default=True)

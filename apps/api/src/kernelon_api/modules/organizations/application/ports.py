@@ -8,6 +8,7 @@ from kernelon_api.modules.organizations.domain import Principal
 
 @runtime_checkable
 class OrganizationService(Protocol):
+    async def get_current_profile(self, user_id: UUID) -> dict[str, Any]: ...
     async def principal(
         self, user_id: UUID, organization_id: UUID, permission: str
     ) -> Principal: ...

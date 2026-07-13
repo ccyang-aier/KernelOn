@@ -17,12 +17,14 @@ import { SystemControlPanel } from './system-control-panel';
 
 export interface KernelOnStatusBarProps {
   currentUser?: ShellCredentialUser;
+  onCurrentUserChange(user: ShellCredentialUser): void;
   spotlightOpen: boolean;
   onToggleSpotlight(): void;
 }
 
 export function KernelOnStatusBar({
   currentUser,
+  onCurrentUserChange,
   spotlightOpen,
   onToggleSpotlight,
 }: KernelOnStatusBarProps) {
@@ -141,6 +143,7 @@ export function KernelOnStatusBar({
       </header>
       <SystemControlPanel
         onClose={() => setControlCenterOpen(false)}
+        onUserChange={onCurrentUserChange}
         onOpenSpotlight={onToggleSpotlight}
         open={controlCenterOpen}
         user={currentUser}

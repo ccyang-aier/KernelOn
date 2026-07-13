@@ -162,7 +162,7 @@ export const kernelApps: KernelAppManifest[] = [
     },
     defaultWindow: {
       title: 'Weekly Show',
-      bounds: { x: 32, y: 6, width: 1710, height: 960 },
+      bounds: { x: 76, y: 42, width: 1440, height: 820 },
     },
   },
   {

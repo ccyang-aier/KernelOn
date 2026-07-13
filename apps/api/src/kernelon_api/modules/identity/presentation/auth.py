@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from litestar import Controller, Request, get, patch, post
 from litestar.di import NamedDependency  # noqa: TC002
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from kernelon_api.modules.identity.application.ports import IdentityService  # noqa: TC001
+from kernelon_api.modules.organizations.application.ports import OrganizationService  # noqa: TC001
 
 
 class StrictModel(BaseModel):
@@ -32,6 +33,25 @@ class PasswordRequest(StrictModel):
 class ProfileRequest(StrictModel):
     display_name: str = Field(alias="displayName", min_length=1, max_length=120)
     avatar_url: str | None = Field(default=None, alias="avatarUrl")
+    presence_status: Literal["online", "away", "busy", "invisible"] | None = Field(
+        default=None, alias="presenceStatus"
+    )
+
+    @field_validator("avatar_url")
+    @classmethod
+    def validate_avatar_url(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if value.startswith(("https://", "http://")) and len(value) <= 2048:
+            return value
+        allowed_data_urls = (
+            "data:image/webp;base64,",
+            "data:image/jpeg;base64,",
+            "data:image/png;base64,",
+        )
+        if value.startswith(allowed_data_urls) and len(value) <= 1_500_000:
+            return value
+        raise ValueError("avatarUrl must be an approved image URL under the size limit")
 
 
 class AuthController(Controller):
@@ -73,10 +93,14 @@ class AuthController(Controller):
 
     @get("/me", operation_id="identity_get_me")
     async def me(
-        self, request: Request[Any, Any, Any], identity_service: NamedDependency[IdentityService]
+        self,
+        request: Request[Any, Any, Any],
+        identity_service: NamedDependency[IdentityService],
+        organization_service: NamedDependency[OrganizationService],
     ) -> dict[str, Any]:
         user_id = await identity_service.authenticate(request.headers.get("Authorization"))
-        return await identity_service.get_me(user_id)
+        identity = await identity_service.get_me(user_id)
+        return {**identity, **(await organization_service.get_current_profile(user_id))}
 
     @patch("/me", operation_id="identity_update_me")
     async def update_me(
@@ -84,9 +108,13 @@ class AuthController(Controller):
         data: ProfileRequest,
         request: Request[Any, Any, Any],
         identity_service: NamedDependency[IdentityService],
+        organization_service: NamedDependency[OrganizationService],
     ) -> dict[str, Any]:
         user_id = await identity_service.authenticate(request.headers.get("Authorization"))
-        return await identity_service.update_me(user_id, data.display_name, data.avatar_url)
+        identity = await identity_service.update_me(
+            user_id, data.display_name, data.avatar_url, data.presence_status
+        )
+        return {**identity, **(await organization_service.get_current_profile(user_id))}
 
     @post("/change-password", operation_id="identity_change_password", status_code=204)
     async def change_password(

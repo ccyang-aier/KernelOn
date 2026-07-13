@@ -148,6 +148,7 @@ describe('KernelOnShell', () => {
     );
 
     const appContainer = await screen.findByTestId('kernelon-app-container-window:composed');
+    const dock = screen.getByTestId('kernelon-dock');
 
     expect(within(appContainer).getByText('Composed title')).toBeInTheDocument();
     expect(within(appContainer).getByText('Composed app body')).toBeInTheDocument();
@@ -156,6 +157,8 @@ describe('KernelOnShell', () => {
     ).toBe(
       within(appContainer).getByText('Composed app body').closest('[data-kernelon-app-frame]'),
     );
+    expect(Number(appContainer.style.zIndex)).toBeGreaterThan(30);
+    expect(dock).toHaveClass('z-[30]');
   });
 
   it('emits a water ripple only when clicking the empty desktop surface', () => {
@@ -308,7 +311,14 @@ describe('KernelOnShell', () => {
 
     render(
       <KernelOnShell
-        currentUser={{ displayName: '陈思源' }}
+        currentUser={{
+          departmentName: '产品运营部',
+          displayName: '陈思源',
+          employeeNo: 'KO-20260713',
+          joinedAt: new Date(Date.now() - 11 * 86_400_000).toISOString(),
+          mentorName: '林澈',
+          presenceStatus: 'online',
+        }}
         initialState={initialState}
         runtime={runtime}
       />,
@@ -323,6 +333,17 @@ describe('KernelOnShell', () => {
     expect(within(panel).getByText('KO-20260713')).toBeInTheDocument();
     expect(within(panel).getByText('产品运营部 · 入职第 12 天')).toBeInTheDocument();
     expect(within(panel).getByText('导师：林澈')).toBeInTheDocument();
+    expect(within(panel).queryByRole('region', { name: '在线状态' })).not.toBeInTheDocument();
+    expect(within(panel).getByRole('button', { name: '在线状态：在线' })).toBeInTheDocument();
+    expect(within(panel).getByRole('button', { name: '更换头像' })).toHaveClass(
+      'ko-profile-avatar',
+    );
+    const avatarInput = within(panel).getByTestId('kernelon-avatar-input');
+    expect(avatarInput).toHaveAttribute('accept', 'image/jpeg,image/png,image/webp');
+    const avatarInputClick = vi.spyOn(avatarInput, 'click');
+    await user.click(within(panel).getByRole('button', { name: '更换头像' }));
+    expect(avatarInputClick).toHaveBeenCalledOnce();
+    avatarInputClick.mockRestore();
     expect(within(panel).getByText('09:18 已签到')).toBeInTheDocument();
     expect(within(panel).queryByText('锁定')).not.toBeInTheDocument();
     expect(within(panel).queryByText('外观')).not.toBeInTheDocument();
@@ -330,7 +351,8 @@ describe('KernelOnShell', () => {
     const liquidGlassContainer = panel.closest('.glass');
     const liquidGlassRoot = liquidGlassContainer?.parentElement;
     const liquidGlassWarp = liquidGlassContainer?.querySelector('.glass__warp');
-    expect(liquidGlassRoot).toHaveStyle({ position: 'fixed', top: '314px' });
+    expect(liquidGlassRoot).toHaveStyle({ position: 'fixed', top: '292px' });
+    expect(liquidGlassRoot).toHaveClass('ko-control-panel-is-open');
     expect(liquidGlassRoot?.parentElement).toHaveAttribute('data-slot', 'liquid-glass-svg-filter');
     expect(liquidGlassContainer).toHaveStyle({ borderRadius: '26px', padding: '17px' });
     expect(liquidGlassWarp?.getAttribute('style')).toContain('filter: url(');
@@ -373,6 +395,52 @@ describe('KernelOnShell', () => {
         name: 'AI Spotlight',
       }),
     ).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('persists an online-status change through the profile endpoint', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+    const profileRequest = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          displayName: '陈思源',
+          employeeNo: 'KO-20260713',
+          presenceStatus: 'busy',
+        }),
+        { headers: { 'Content-Type': 'application/json' }, status: 200 },
+      ),
+    );
+
+    render(
+      <KernelOnShell
+        currentUser={{
+          displayName: '陈思源',
+          employeeNo: 'KO-20260713',
+          presenceStatus: 'online',
+        }}
+        initialState={initialState}
+        runtime={runtime}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Control Center' }));
+    await user.click(screen.getByRole('button', { name: '在线状态：在线' }));
+    await user.click(screen.getByRole('button', { name: '忙碌' }));
+
+    await waitFor(() => expect(profileRequest).toHaveBeenCalledOnce());
+    expect(profileRequest).toHaveBeenCalledWith(
+      '/api/profile',
+      expect.objectContaining({
+        body: JSON.stringify({
+          avatarUrl: null,
+          displayName: '陈思源',
+          presenceStatus: 'busy',
+        }),
+        method: 'PATCH',
+      }),
+    );
+    expect(screen.getByRole('button', { name: '在线状态：忙碌' })).toBeInTheDocument();
+    profileRequest.mockRestore();
   });
 
   it('closes the system control panel from its backdrop', async () => {
@@ -1054,8 +1122,8 @@ describe('KernelOnShell', () => {
       }),
     );
     expect(appContainer).toHaveAttribute('data-window-layer', 'top');
-    expect(Number(appContainer.style.zIndex)).toBeGreaterThan(70);
-    expect(dock).toHaveClass('z-[70]');
+    expect(Number(appContainer.style.zIndex)).toBeGreaterThan(30);
+    expect(dock).toHaveClass('z-[30]');
   });
 
   it('waits for the Wallpaper module before mounting the top-layer window shell', async () => {

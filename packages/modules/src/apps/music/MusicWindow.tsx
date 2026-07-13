@@ -32,6 +32,7 @@ import { PlaylistShelf } from './components/PlaylistShelf';
 import { SearchPanel } from './components/SearchPanel';
 import { TrackDetailModal } from './components/TrackDetailModal';
 import { VisualConsole } from './components/VisualConsole';
+import { useFirstEntryMusicGuide, VisualGuide } from './components/VisualGuide';
 import { useAudioEngine } from './hooks/useAudioEngine';
 import { defaultPersistedMusicState, readMusicState, writeMusicState } from './storage';
 import { musicStyles } from './styles';
@@ -84,6 +85,7 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
   const [toast, setToast] = useState('');
   const [dropActive, setDropActive] = useState(false);
   const [isTrackDetailOpen, setIsTrackDetailOpen] = useState(false);
+  const musicGuide = useFirstEntryMusicGuide(showHome);
   const localFileInputRef = useRef<HTMLInputElement | null>(null);
   const backgroundInputRef = useRef<HTMLInputElement | null>(null);
   const archiveInputRef = useRef<HTMLInputElement | null>(null);
@@ -767,6 +769,8 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
             />
           </section>
         )}
+
+        {showHome && musicGuide.isOpen ? <VisualGuide onComplete={musicGuide.complete} /> : null}
 
         <PlaylistDrawer
           activeTrackId={currentTrack?.id}

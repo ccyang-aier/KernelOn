@@ -11,10 +11,17 @@ const apiBaseUrl = process.env.KERNELON_API_URL ?? 'http://127.0.0.1:8000';
 
 export interface SessionUser {
   avatarUrl: string | null;
+  departmentName: string | null;
   displayName: string;
   email: string;
+  employeeNo: string | null;
   id: string;
+  jobTitle: string | null;
+  joinedAt: string | null;
+  mentorName: string | null;
   mustChangePassword: boolean;
+  organizationName: string | null;
+  presenceStatus: 'online' | 'away' | 'busy' | 'invisible';
   status: string;
 }
 

@@ -185,13 +185,19 @@ class SQLAlchemyIdentityService:
         return self._user_dict(user)
 
     async def update_me(
-        self, user_id: UUID, display_name: str, avatar_url: str | None
+        self,
+        user_id: UUID,
+        display_name: str,
+        avatar_url: str | None,
+        presence_status: str | None,
     ) -> dict[str, Any]:
         user = await self.session.get(UserModel, user_id)
         if user is None:
             raise ApplicationError("USER_NOT_FOUND", "User was not found.", 404)
         user.display_name = display_name.strip()
         user.avatar_url = avatar_url
+        if presence_status is not None:
+            user.presence_status = presence_status
         await self.session.commit()
         return self._user_dict(user)
 
@@ -216,6 +222,7 @@ class SQLAlchemyIdentityService:
             "email": user.email,
             "displayName": user.display_name,
             "avatarUrl": user.avatar_url,
+            "presenceStatus": user.presence_status,
             "status": user.status,
             "mustChangePassword": user.must_change_password,
             "lastLoginAt": user.last_login_at,

@@ -31,9 +31,14 @@ describe('WeeklyShowWindow', () => {
       'data-surface',
       'frosted-sidebar',
     );
+    expect(screen.getByTestId('weekly-show-content-panel')).toHaveAttribute(
+      'data-surface',
+      'stacked-content-panel',
+    );
     expect(screen.getByTestId('weekly-show-timeline')).toBeInTheDocument();
     expect(screen.getByTestId('weekly-show-grid').querySelectorAll('article')).toHaveLength(6);
     expect(screen.getByRole('heading', { name: 'Weekly Show 第 21 期' })).toBeInTheDocument();
+    expect(screen.getByText('当巨鲸穿过云海，人与自然在辽阔天际相遇。')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('搜索作品、作者或内容')).toBeInTheDocument();
   });
 

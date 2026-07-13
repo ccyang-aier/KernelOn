@@ -4,6 +4,7 @@ export interface WeeklyShowEntry {
   author: string;
   category: Exclude<WeeklyShowCategory, '全部'>;
   coffees: number;
+  description: string;
   employeeId: string;
   flowers: number;
   id: string;
@@ -27,6 +28,7 @@ export const weeklyShowEntries: WeeklyShowEntry[] = [
     author: '林深不知处',
     category: '产品创意',
     coffees: 128,
+    description: '当巨鲸穿过云海，人与自然在辽阔天际相遇。',
     employeeId: '10025',
     flowers: 86,
     id: 'whale-realm',
@@ -39,6 +41,7 @@ export const weeklyShowEntries: WeeklyShowEntry[] = [
     author: '廖与森',
     category: '文化生活',
     coffees: 92,
+    description: '沿湖而行的列车，收藏盛夏最明亮的风景。',
     employeeId: '10038',
     flowers: 64,
     id: 'summer-train',
@@ -51,6 +54,7 @@ export const weeklyShowEntries: WeeklyShowEntry[] = [
     author: '云中漫步',
     category: '文化生活',
     coffees: 76,
+    description: '一只守望城市暮色的猫，等候远方来信。',
     employeeId: '10012',
     flowers: 58,
     id: 'dusk-mail',
@@ -63,6 +67,7 @@ export const weeklyShowEntries: WeeklyShowEntry[] = [
     author: '一格设计',
     category: '设计作品',
     coffees: 62,
+    description: '以透明几何与光影，探索空间的秩序和呼吸。',
     employeeId: '10045',
     flowers: 48,
     id: 'light-composition',
@@ -75,6 +80,7 @@ export const weeklyShowEntries: WeeklyShowEntry[] = [
     author: '念白',
     category: '产品创意',
     coffees: 55,
+    description: '让流动建筑连接知识、城市与未来生活。',
     employeeId: '10031',
     flowers: 41,
     id: 'future-library',
@@ -87,6 +93,7 @@ export const weeklyShowEntries: WeeklyShowEntry[] = [
     author: '苏小暖',
     category: '文化生活',
     coffees: 44,
+    description: '在清晨花园里，捕捉露珠与花瓣的细微光芒。',
     employeeId: '10017',
     flowers: 36,
     id: 'morning-light',

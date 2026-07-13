@@ -148,7 +148,15 @@ export function SearchPanel({
 }
 
 export function Cover({ artwork, title }: Readonly<{ artwork: string; title: string }>) {
-  if (artwork) return <img alt="" className="music-cover-image" src={artwork} />;
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => setHasError(false), [artwork]);
+
+  if (artwork && !hasError) {
+    return (
+      <img alt="" className="music-cover-image" onError={() => setHasError(true)} src={artwork} />
+    );
+  }
   return (
     <span aria-hidden="true" className="music-cover-fallback">
       {title.slice(0, 1).toUpperCase()}

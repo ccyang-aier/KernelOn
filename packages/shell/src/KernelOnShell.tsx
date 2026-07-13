@@ -90,11 +90,13 @@ function KernelOnShellView({
   currentUser,
   runtime,
 }: Readonly<{ currentUser?: ShellCredentialUser; runtime: ShellRuntimeRegistry }>) {
+  const [resolvedCurrentUser, setResolvedCurrentUser] = useState(currentUser);
   const liquidGlassContextContainerRef = useRef<HTMLElement>(null);
   const desktopSurfaceRef = useRef<HTMLElement>(null);
   const genieEffectLayerRef = useRef<GenieEffectLayerHandle>(null);
   const genieSnapshotsRef = useRef<Map<string, HTMLCanvasElement>>(new Map());
   const genieTransitioningAppIdRef = useRef<string | null>(null);
+
   const { layerRef: desktopClickRippleLayerRef, playRipple: playDesktopClickRipple } =
     useDesktopClickRipple();
   const apps = useShellSelector((state) => state.apps);
@@ -462,7 +464,11 @@ function KernelOnShellView({
         className="relative min-h-screen overflow-hidden bg-[#5f8789] text-white"
         data-testid="kernelon-shell"
       >
-        <ShellLockScreen onUnlock={unlockDesktop} user={currentUser} wallpaper={desktopWallpaper} />
+        <ShellLockScreen
+          onUnlock={unlockDesktop}
+          user={resolvedCurrentUser}
+          wallpaper={desktopWallpaper}
+        />
       </main>
     );
   }
@@ -488,7 +494,8 @@ function KernelOnShellView({
         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_92%,rgba(255,255,255,0.20),transparent_34%),linear-gradient(180deg,rgba(4,19,12,0.02),rgba(4,19,12,0.08))]"
       />
       <KernelOnStatusBar
-        currentUser={currentUser}
+        currentUser={resolvedCurrentUser}
+        onCurrentUserChange={setResolvedCurrentUser}
         onToggleSpotlight={toggleSpotlight}
         spotlightOpen={spotlightOpen}
       />

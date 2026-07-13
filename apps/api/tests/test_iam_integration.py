@@ -43,7 +43,12 @@ async def test_complete_identity_and_organization_management_flow() -> None:
         organization = OrganizationModel(name="Integration Organization", code=f"org-{suffix}")
         session.add_all([user, organization])
         await session.flush()
-        membership = MembershipModel(organization_id=organization.id, user_id=user.id)
+        membership = MembershipModel(
+            organization_id=organization.id,
+            user_id=user.id,
+            employee_no=f"KO-{suffix}",
+            job_title="Product Operator",
+        )
         owner_role = RoleModel(
             organization_id=organization.id,
             key="owner",
@@ -81,12 +86,23 @@ async def test_complete_identity_and_organization_management_flow() -> None:
 
         me = await client.get("/api/v1/auth/me", headers=headers)
         assert me.status_code == 200 and me.json()["email"] == owner_email
+        assert me.json()["presenceStatus"] == "online"
+        assert me.json()["employeeNo"] == f"KO-{suffix}"
+        assert me.json()["departmentName"] == "Integration Organization"
+        assert me.json()["joinedAt"] is not None
+        assert me.json()["mentorName"] is None
         profile = await client.patch(
             "/api/v1/auth/me",
             headers=headers,
-            json={"displayName": "Owner Updated", "avatarUrl": "https://example.com/avatar.png"},
+            json={
+                "displayName": "Owner Updated",
+                "avatarUrl": "data:image/webp;base64,UklGRg==",
+                "presenceStatus": "busy",
+            },
         )
         assert profile.status_code == 200
+        assert profile.json()["presenceStatus"] == "busy"
+        assert profile.json()["avatarUrl"] == "data:image/webp;base64,UklGRg=="
 
         organizations = await client.get("/api/v1/organizations", headers=headers)
         assert organizations.status_code == 200 and len(organizations.json()) == 1

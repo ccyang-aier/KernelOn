@@ -263,6 +263,10 @@ async function proxyMedia(
 
   const target = new URL(remote);
 
+  if (target.protocol === 'http:' && hostAllowed(target.hostname, allowedHosts)) {
+    target.protocol = 'https:';
+  }
+
   if (target.protocol !== 'https:' || !hostAllowed(target.hostname, allowedHosts)) {
     return NextResponse.json({ error: 'Media host is not allowed' }, { status: 400 });
   }

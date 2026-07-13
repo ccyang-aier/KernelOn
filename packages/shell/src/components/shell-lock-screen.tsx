@@ -9,7 +9,14 @@ const currentUserAvatar = '/kernelon-assets/avatars/current-user.png';
 
 export interface ShellCredentialUser {
   avatarUrl?: string | null;
+  departmentName?: string | null;
   displayName: string;
+  employeeNo?: string | null;
+  jobTitle?: string | null;
+  joinedAt?: string | null;
+  mentorName?: string | null;
+  organizationName?: string | null;
+  presenceStatus?: 'online' | 'away' | 'busy' | 'invisible';
 }
 
 export function ShellLockScreen({

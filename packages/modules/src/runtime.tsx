@@ -3,6 +3,7 @@
 import {
   KernelOnShell,
   type AppWindowModule,
+  type ShellCredentialUser,
   type ShellInitialState,
   type ShellRuntimeRegistry,
   type WidgetModule,
@@ -48,7 +49,7 @@ export function KernelOnModuleRuntime({
   currentUser,
   initialState,
 }: Readonly<{
-  currentUser?: { avatarUrl?: string | null; displayName: string };
+  currentUser?: ShellCredentialUser;
   initialState: ShellInitialState;
 }>) {
   return (

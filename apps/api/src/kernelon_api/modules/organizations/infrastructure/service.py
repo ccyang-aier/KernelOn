@@ -33,6 +33,50 @@ class SQLAlchemyOrganizationService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
+    async def get_current_profile(self, user_id: UUID) -> dict[str, Any]:
+        result = await self.session.execute(
+            select(MembershipModel, OrganizationModel)
+            .join(
+                OrganizationModel,
+                OrganizationModel.id == MembershipModel.organization_id,
+            )
+            .where(MembershipModel.user_id == user_id, MembershipModel.status == "active")
+            .order_by(MembershipModel.joined_at)
+            .limit(1)
+        )
+        row = result.first()
+        if row is None:
+            return {
+                "departmentName": None,
+                "employeeNo": None,
+                "jobTitle": None,
+                "joinedAt": None,
+                "mentorName": None,
+                "organizationName": None,
+            }
+
+        membership, organization = row
+        groups = (
+            await self.session.scalars(
+                select(GroupModel)
+                .join(MembershipGroupModel, MembershipGroupModel.group_id == GroupModel.id)
+                .where(
+                    MembershipGroupModel.membership_id == membership.id,
+                    GroupModel.status == "active",
+                )
+                .order_by(GroupModel.name)
+            )
+        ).all()
+        department = next((group.name for group in groups if group.kind == "department"), None)
+        return {
+            "departmentName": department or organization.name,
+            "employeeNo": membership.employee_no,
+            "jobTitle": membership.job_title,
+            "joinedAt": membership.joined_at,
+            "mentorName": None,
+            "organizationName": organization.name,
+        }
+
     async def principal(self, user_id: UUID, organization_id: UUID, permission: str) -> Principal:
         membership = await self.session.scalar(
             select(MembershipModel).where(

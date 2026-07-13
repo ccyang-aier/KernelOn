@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type CSSProperties } from 'react';
+import { useMemo, useState } from 'react';
 import {
   BarChart3,
   Bell,
@@ -70,26 +70,21 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
     );
   }, [activeCategory, query]);
   const headerSlots = useWeeklyShowHeaderSlots(query, setQuery);
-  const frameStyle = {
-    '--ko-app-header-surface':
-      'linear-gradient(90deg,rgba(226,241,255,0.91) 0 clamp(264px,20.1%,344px),rgba(255,255,255,0.94) clamp(264px,20.1%,344px))',
-  } as CSSProperties;
 
   return (
     <AppFrame
-      contentClassName="!bg-white"
-      className="[&_[data-app-header-row=primary]]:min-h-[82px] [&_[data-app-window-controls=true]]:top-[41px] [&_[data-kernelon-app-header=true]]:min-h-[82px]"
+      contentClassName="!bg-transparent"
+      className="relative [&_[data-app-header-row=primary]]:min-h-[64px] [&_[data-app-window-controls=true]]:top-8 [&_[data-kernelon-app-header=true]]:absolute [&_[data-kernelon-app-header=true]]:inset-x-0 [&_[data-kernelon-app-header=true]]:top-0 [&_[data-kernelon-app-header=true]]:z-30 [&_[data-kernelon-app-header=true]]:h-16 [&_[data-kernelon-app-header=true]]:min-h-16 [&_[data-kernelon-app-header=true]]:overflow-visible [&_[data-kernelon-app-header=true]]:border-0 [&_[data-kernelon-app-header=true]]:bg-transparent [&_[data-kernelon-app-header=true]]:shadow-none [&_[data-kernelon-app-header=true]]:backdrop-blur-0"
       header={weeklyShowHeader}
       headerSlots={headerSlots}
       scroll="hidden"
-      style={frameStyle}
     >
       <div
-        className="grid h-full min-h-0 grid-cols-[clamp(264px,20.1%,344px)_minmax(0,1fr)] bg-white text-[#202124]"
+        className="grid h-full min-h-0 grid-cols-[286px_minmax(0,1fr)] overflow-hidden bg-[linear-gradient(145deg,rgba(214,237,255,0.96),rgba(234,244,252,0.86)_48%,rgba(207,225,241,0.92))] text-[#202124]"
         data-testid="weekly-show-window"
       >
         <aside
-          className="relative overflow-hidden border-r border-white/58 bg-[linear-gradient(145deg,rgba(219,239,255,0.88),rgba(233,242,250,0.66)_46%,rgba(211,226,240,0.78))] px-4 pb-6 pt-2 shadow-[inset_-1px_0_0_rgba(255,255,255,0.64),inset_0_1px_0_rgba(255,255,255,0.74)] backdrop-blur-[28px]"
+          className="relative overflow-hidden px-4 pb-6 pt-[82px] shadow-[inset_0_1px_0_rgba(255,255,255,0.74)] backdrop-blur-[30px]"
           data-surface="frosted-sidebar"
           data-testid="weekly-show-sidebar"
         >
@@ -134,11 +129,15 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
           </div>
         </aside>
 
-        <main className="min-h-0 overflow-y-auto bg-white px-[clamp(42px,4.8vw,84px)] pb-10 pt-[50px] [scrollbar-width:thin] [scrollbar-color:rgba(0,0,0,0.15)_transparent]">
+        <main
+          className="relative z-10 ml-[-24px] min-h-0 overflow-y-auto rounded-l-[28px] bg-white px-[clamp(34px,4vw,64px)] pb-10 pt-[96px] shadow-[-12px_0_38px_rgba(75,112,145,0.10),inset_1px_0_0_rgba(255,255,255,0.96)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          data-surface="stacked-content-panel"
+          data-testid="weekly-show-content-panel"
+        >
           <section className="w-full max-w-[1170px]" data-testid="weekly-show-stage">
             <div className="flex items-start justify-between gap-6">
               <div>
-                <h1 className="text-[34px] font-bold leading-tight tracking-[-0.035em] text-[#111317]">
+                <h1 className="text-[32px] font-bold leading-tight tracking-[-0.035em] text-[#111317]">
                   Weekly Show 第 {21 + weekOffset} 期
                 </h1>
                 <p className="mt-2 text-[17px] font-medium text-[#7e8187]">
@@ -266,8 +265,11 @@ function EntryCard({ entry, onReact, rank, reactionBonus }: Readonly<{ entry: We
           <span className="truncate">{entry.author} · {entry.employeeId}</span>
           <span className={`ml-1 rounded-[4px] px-1.5 py-0.5 text-[10px] font-medium ${categoryStyles[entry.category]}`}>{entry.category}</span>
         </div>
-        <div className="mt-2 flex items-end justify-between">
-          <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[#2b2e32]">{entry.title}</h2>
+        <div className="mt-2 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[#2b2e32]">{entry.title}</h2>
+            <p className="mt-1.5 line-clamp-2 text-[12px] leading-[1.55] text-[#858a91]">{entry.description}</p>
+          </div>
           <div className="text-right">
             <strong className="block text-[22px] leading-none text-[#ef4d47]">{formatScore(entry.score + reactionBonus)}</strong>
             <span className="mt-1 block text-[10px] text-[#96999d]">互动得分</span>
@@ -293,7 +295,7 @@ function useWeeklyShowHeaderSlots(query: string, onQueryChange: (value: string) 
   return useMemo(
     () => ({
       'weekly-show-leading': (
-        <div className="absolute left-[calc(clamp(264px,20.1%,344px)+16px)] top-1/2 flex -translate-y-1/2 items-center gap-3">
+        <div className="absolute left-[280px] top-1/2 flex -translate-y-1/2 items-center gap-2.5">
           <button aria-label="切换侧栏" className="flex size-9 items-center justify-center rounded-[12px] border border-white/65 bg-white/64 text-[#3d434a] shadow-[0_6px_15px_rgba(39,55,72,0.06)]" type="button"><PanelLeft className="size-[18px]" /></button>
           <div className="flex h-9 items-center overflow-hidden rounded-[12px] border border-white/65 bg-white/64 shadow-[0_6px_15px_rgba(39,55,72,0.06)]">
             <button aria-label="后退" className="flex h-full w-9 items-center justify-center text-[#353a40] hover:bg-white" type="button"><ChevronLeft className="size-[18px]" /></button>
@@ -302,16 +304,16 @@ function useWeeklyShowHeaderSlots(query: string, onQueryChange: (value: string) 
           </div>
         </div>
       ),
-      'weekly-show-title': <div className="text-[18px] font-bold tracking-[-0.01em] text-[#202328]">本周舞台</div>,
+      'weekly-show-title': <div className="absolute left-[262px] right-0 top-1/2 -translate-y-1/2 text-center text-[16px] font-bold tracking-[-0.01em] text-[#202328]">本周舞台</div>,
       'weekly-show-trailing': (
         <div className="contents">
-          <label className="absolute right-[205px] top-1/2 flex h-14 w-[380px] -translate-y-1/2 items-center gap-2 rounded-[28px] border border-[#edf0f3] bg-white/82 px-5 text-[#7a8189] shadow-[0_6px_18px_rgba(30,45,61,0.035)]">
+          <label className="absolute right-[180px] top-1/2 flex h-10 w-[330px] -translate-y-1/2 items-center gap-2 rounded-[20px] border border-[#edf0f3] bg-[#fafbfc]/92 px-4 text-[#7a8189] shadow-[0_5px_14px_rgba(30,45,61,0.03)]">
             <Search className="size-[17px] shrink-0" />
             <input className="min-w-0 flex-1 bg-transparent text-[13px] font-medium text-[#30343a] outline-none placeholder:text-[#8e949b]" onChange={(event) => onQueryChange(event.currentTarget.value)} placeholder="搜索作品、作者或内容" type="search" value={query} />
             <span className="text-[12px] font-semibold text-[#9ca1a7]">⌘K</span>
           </label>
-          <button aria-label="通知" className="absolute right-[135px] top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full hover:bg-black/[0.04]" type="button"><Bell className="size-[20px]" strokeWidth={2} /><span className="absolute right-[7px] top-[6px] size-1.5 rounded-full bg-[#ef5750] ring-2 ring-white" /></button>
-          <button aria-label="用户菜单" className="absolute right-[35px] top-1/2 flex -translate-y-1/2 items-center gap-2" type="button"><img alt="当前用户" className="size-12 rounded-full object-cover ring-1 ring-black/5" src={avatarUrl} /><ChevronDown className="size-4" /></button>
+          <button aria-label="通知" className="absolute right-[120px] top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full hover:bg-black/[0.04]" type="button"><Bell className="size-[19px]" strokeWidth={2} /><span className="absolute right-[7px] top-[6px] size-1.5 rounded-full bg-[#ef5750] ring-2 ring-white" /></button>
+          <button aria-label="用户菜单" className="absolute right-[30px] top-1/2 flex -translate-y-1/2 items-center gap-2" type="button"><img alt="当前用户" className="size-10 rounded-full object-cover ring-1 ring-black/5" src={avatarUrl} /><ChevronDown className="size-4" /></button>
         </div>
       ),
     }),
