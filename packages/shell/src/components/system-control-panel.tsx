@@ -273,38 +273,38 @@ export function SystemControlPanel({
               </p>
             </div>
             <div className="relative flex shrink-0 flex-col items-end gap-1.5">
-              <span className="rounded-full border border-white/15 bg-white/10 px-2 py-[3px] text-[9px] font-semibold text-white/78 shadow-[inset_0_1px_0_rgba(255,255,255,.12)]">
+              <span className="ko-employee-badge rounded-full font-semibold">
                 {employeeLabel(user?.joinedAt)}
               </span>
               <button
                 aria-label={`在线状态：${status.label}`}
                 aria-expanded={statusMenuOpen}
-                className="ko-glass-button ko-profile-presence-button flex h-6 items-center gap-1 rounded-full px-2 font-medium"
+                className="ko-glass-button ko-profile-presence-button flex h-5 items-center gap-1 rounded-full px-1.5 font-medium"
                 onClick={() => setStatusMenuOpen((value) => !value)}
                 type="button"
               >
                 <span
-                  className="ko-status-dot h-1.5 w-1.5 rounded-full"
+                  className="ko-status-dot h-[5px] w-[5px] rounded-full"
                   style={{ backgroundColor: status.color }}
                 />
                 {status.label}
                 <ChevronDown
                   aria-hidden
-                  className={`h-2.5 w-2.5 text-white/55 transition-transform ${statusMenuOpen ? 'rotate-180' : ''}`}
+                  className={`h-2 w-2 text-white/55 transition-transform ${statusMenuOpen ? 'rotate-180' : ''}`}
                 />
               </button>
               <AnimatePresence>
                 {statusMenuOpen ? (
                   <motion.div
                     animate={{ opacity: 1 }}
-                    className="absolute top-[60px] right-0 z-20 w-[100px] overflow-hidden rounded-[13px] border border-white/15 bg-[#24434b]/95 p-1 shadow-2xl"
+                    className="ko-profile-status-menu absolute top-[54px] right-0 z-20 w-[92px] overflow-hidden rounded-[12px] border border-white/15 bg-[#24434b]/95 p-1 shadow-2xl"
                     exit={{ opacity: 0 }}
                     initial={{ opacity: 0 }}
                   >
                     {statuses.map((option) => (
                       <button
                         aria-pressed={status.value === option.value}
-                        className="flex w-full items-center gap-2 rounded-[9px] px-2 py-1.5 text-left text-[10px] transition-colors hover:bg-white/12"
+                        className="ko-profile-status-option flex w-full items-center gap-1.5 rounded-[8px] px-1.5 py-1 text-left transition-colors hover:bg-white/12"
                         key={option.value}
                         onClick={() => void selectStatus(option)}
                         type="button"

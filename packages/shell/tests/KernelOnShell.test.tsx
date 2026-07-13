@@ -336,9 +336,10 @@ describe('KernelOnShell', () => {
     expect(within(panel).queryByRole('region', { name: '在线状态' })).not.toBeInTheDocument();
     expect(within(panel).getByRole('button', { name: '在线状态：在线' })).toHaveClass(
       'ko-profile-presence-button',
-      'h-6',
-      'px-2',
+      'h-5',
+      'px-1.5',
     );
+    expect(within(panel).getByText('新员工')).toHaveClass('ko-employee-badge');
     expect(within(panel).getByRole('button', { name: '更换头像' })).toHaveClass(
       'ko-profile-avatar',
       'p-px',
@@ -461,6 +462,25 @@ describe('KernelOnShell', () => {
         screen.queryByRole('dialog', { name: 'KernelOn 系统控制面板' }),
       ).not.toBeInTheDocument(),
     );
+  });
+
+  it('closes the system control panel immediately when toggled from the status bar', async () => {
+    const runtime = createRuntime();
+    const user = userEvent.setup();
+
+    render(<KernelOnShell initialState={initialState} runtime={runtime} />);
+    const controlCenterButton = screen.getByRole('button', { name: 'Control Center' });
+    await user.click(controlCenterButton);
+
+    const panel = screen.getByTestId('kernelon-system-control-panel');
+    const liquidGlassRoot = panel.closest('.ko-control-panel-liquid-appearance');
+    expect(liquidGlassRoot).toHaveClass('ko-control-panel-is-open');
+
+    await user.click(controlCenterButton);
+
+    expect(liquidGlassRoot).toHaveClass('ko-control-panel-is-closed');
+    expect(panel).toHaveAttribute('aria-hidden', 'true');
+    expect(controlCenterButton).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('lazy-loads a widget only when it is present in the desktop layout', async () => {
