@@ -31,6 +31,7 @@ interface PlayerBarProps {
   mode: PlaybackMode;
   onCycleMode(): void;
   onNext(): void;
+  onOpenTrackDetail(): void;
   onOpenQueue(): void;
   onPrevious(): void;
   onQualityChange(quality: PlaybackQuality): void;
@@ -55,6 +56,7 @@ export function PlayerBar({
   mode,
   onCycleMode,
   onNext,
+  onOpenTrackDetail,
   onOpenQueue,
   onPrevious,
   onQualityChange,
@@ -77,7 +79,15 @@ export function PlayerBar({
       <div aria-hidden="true" className="music-player-glass-filter" />
       <div className="music-player-bar">
         <div className="music-player-track">
-          <Cover artwork={track?.coverUrl ?? ''} title={track?.title ?? 'M'} />
+          <button
+            aria-label="打开歌曲详情"
+            className="music-track-detail-trigger"
+            disabled={!track}
+            onClick={onOpenTrackDetail}
+            type="button"
+          >
+            <Cover artwork={track?.coverUrl ?? ''} title={track?.title ?? 'M'} />
+          </button>
           <div>
             <strong>{track?.title ?? '当前队列'}</strong>
             <button disabled={!track} onClick={onToggleLike} type="button">

@@ -9,6 +9,7 @@ export const defaultPersistedMusicState: PersistedMusicState = {
   mode: 'sequence',
   quality: 'exhigh',
   queue: [],
+  searchHistory: [],
   visual: defaultVisualSettings,
   volume: 0.82,
 };
@@ -26,6 +27,7 @@ export function readMusicState(): PersistedMusicState {
       likedTrackIds: Array.isArray(parsed.likedTrackIds) ? parsed.likedTrackIds : [],
       listenHistory: Array.isArray(parsed.listenHistory) ? parsed.listenHistory.slice(0, 40) : [],
       queue: Array.isArray(parsed.queue) ? parsed.queue.slice(0, 200) : [],
+      searchHistory: Array.isArray(parsed.searchHistory) ? parsed.searchHistory.slice(0, 12) : [],
       visual: { ...defaultVisualSettings, ...parsed.visual },
       volume: clamp(parsed.volume ?? defaultPersistedMusicState.volume, 0, 1),
     };

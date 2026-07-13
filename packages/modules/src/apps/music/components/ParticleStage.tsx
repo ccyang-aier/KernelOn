@@ -85,7 +85,9 @@ export function ParticleStage({
       context.clearRect(0, 0, width, height);
       drawAmbientField(context, width, height, now, pulse, visual);
 
-      if (visual.preset !== 3) {
+      if (track?.kind === 'podcast') {
+        drawPodcastField(context, width, height, now, frequencyData, visual);
+      } else if (visual.preset !== 3) {
         drawPointCloud({
           bass,
           context,
@@ -142,7 +144,7 @@ export function ParticleStage({
       canvas.removeEventListener('dblclick', handleDoubleClick);
       canvas.removeEventListener('wheel', handleWheel);
     };
-  }, [analyserRef, frequencyDataRef, isPlaying, points, visual]);
+  }, [analyserRef, frequencyDataRef, isPlaying, points, track?.kind, visual]);
 
   return (
     <canvas
@@ -153,6 +155,49 @@ export function ParticleStage({
       role="img"
     />
   );
+}
+
+function drawPodcastField(
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  now: number,
+  frequencyData: Uint8Array<ArrayBuffer> | null,
+  visual: VisualSettings,
+) {
+  const centerX = width * 0.5;
+  const centerY = height * 0.45;
+  const radius = Math.min(width, height) * 0.18;
+  const tint = visual.visualTintColor;
+  const bars = 96;
+  context.save();
+  context.globalCompositeOperation = visual.bloom ? 'lighter' : 'source-over';
+  context.lineCap = 'round';
+  for (let index = 0; index < bars; index += 1) {
+    const angle = (index / bars) * Math.PI * 2 - Math.PI / 2;
+    const sample = frequencyData?.[Math.floor((index / bars) * (frequencyData.length || 1))] ?? 0;
+    const idle = 0.08 + Math.sin(now * 0.0014 + index * 0.31) * 0.035;
+    const energy = Math.max(idle, sample / 255);
+    const length = 6 + energy * radius * 0.42 * visual.intensity;
+    const inner = radius + Math.sin(now * 0.0005 + index * 0.12) * 2;
+    context.beginPath();
+    context.moveTo(centerX + Math.cos(angle) * inner, centerY + Math.sin(angle) * inner);
+    context.lineTo(
+      centerX + Math.cos(angle) * (inner + length),
+      centerY + Math.sin(angle) * (inner + length),
+    );
+    context.strokeStyle = `${tint}${Math.round((0.24 + energy * 0.62) * 255)
+      .toString(16)
+      .padStart(2, '0')}`;
+    context.lineWidth = Math.max(1, visual.pointSize * 1.8);
+    context.stroke();
+  }
+  context.beginPath();
+  context.arc(centerX, centerY, radius * 0.82, 0, Math.PI * 2);
+  context.strokeStyle = 'rgba(255,255,255,.12)';
+  context.lineWidth = 1;
+  context.stroke();
+  context.restore();
 }
 
 function drawPointCloud({

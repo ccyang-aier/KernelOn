@@ -3,10 +3,12 @@ import {
   ChevronRight,
   Download,
   Gauge,
+  ImagePlus,
   Palette,
   RotateCcw,
   Save,
   Sparkles,
+  Trash2,
   Upload,
   X,
 } from 'lucide-react';
@@ -18,6 +20,8 @@ import type { VisualSettings } from '../types';
 interface VisualConsoleProps {
   isOpen: boolean;
   onChange(next: VisualSettings): void;
+  onChooseBackground(): void;
+  onClearBackground(): void;
   onClose(): void;
   onExport(): void;
   onImport(): void;
@@ -29,6 +33,8 @@ interface VisualConsoleProps {
 export function VisualConsole({
   isOpen,
   onChange,
+  onChooseBackground,
+  onClearBackground,
   onClose,
   onExport,
   onImport,
@@ -126,6 +132,16 @@ export function VisualConsole({
               onChange={(value) => set('backgroundColor', value)}
               value={visual.backgroundColor}
             />
+            <div className="music-fx-actions">
+              <button onClick={onChooseBackground} type="button">
+                <ImagePlus />
+                选择背景
+              </button>
+              <button disabled={!visual.backgroundImage} onClick={onClearBackground} type="button">
+                <Trash2 />
+                清除背景
+              </button>
+            </div>
             <SectionLabel>主控</SectionLabel>
             <RangeControl
               label="视觉强度"
@@ -230,6 +246,14 @@ export function VisualConsole({
               value={visual.lyricLetterSpacing}
             />
             <RangeControl
+              label="行高"
+              max={1.8}
+              min={0.8}
+              onChange={(value) => set('lyricLineHeight', value)}
+              step={0.01}
+              value={visual.lyricLineHeight}
+            />
+            <RangeControl
               label="字体重量"
               max={900}
               min={500}
@@ -244,6 +268,47 @@ export function VisualConsole({
               onChange={(value) => set('lyricGlowStrength', value)}
               step={0.01}
               value={visual.lyricGlowStrength}
+            />
+            <SectionLabel>位置与角度</SectionLabel>
+            <RangeControl
+              label="左右位置"
+              max={360}
+              min={-360}
+              onChange={(value) => set('lyricOffsetX', value)}
+              step={1}
+              value={visual.lyricOffsetX}
+            />
+            <RangeControl
+              label="上下位置"
+              max={260}
+              min={-260}
+              onChange={(value) => set('lyricOffsetY', value)}
+              step={1}
+              value={visual.lyricOffsetY}
+            />
+            <RangeControl
+              label="前后景深"
+              max={320}
+              min={-320}
+              onChange={(value) => set('lyricOffsetZ', value)}
+              step={1}
+              value={visual.lyricOffsetZ}
+            />
+            <RangeControl
+              label="上下角度"
+              max={35}
+              min={-35}
+              onChange={(value) => set('lyricTiltX', value)}
+              step={1}
+              value={visual.lyricTiltX}
+            />
+            <RangeControl
+              label="左右角度"
+              max={35}
+              min={-35}
+              onChange={(value) => set('lyricTiltY', value)}
+              step={1}
+              value={visual.lyricTiltY}
             />
             <ToggleControl
               label="歌词辉光"

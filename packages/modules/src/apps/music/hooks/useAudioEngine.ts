@@ -154,7 +154,7 @@ export function useAudioEngine(volume: number): AudioEngine {
         if (controller.signal.aborted) return;
         setIsBuffering(false);
         setIsPlaying(false);
-        setError(caught instanceof Error ? caught.message : '歌曲播放失败');
+        setError(friendlyAudioError(caught));
       }
     },
     [ensureAudioGraph],
@@ -186,6 +186,16 @@ export function useAudioEngine(volume: number): AudioEngine {
     seek,
     setVolume,
   };
+}
+
+function friendlyAudioError(error: unknown) {
+  if (error instanceof DOMException && error.name === 'NotAllowedError') {
+    return '浏览器已阻止自动播放，请点击播放按钮继续';
+  }
+  if (error instanceof Error && /play\(\) failed|user didn't interact/i.test(error.message)) {
+    return '浏览器已阻止自动播放，请点击播放按钮继续';
+  }
+  return error instanceof Error ? error.message : '歌曲播放失败';
 }
 
 async function resolveWithQualityFallback(

@@ -1,4 +1,5 @@
-export type MusicProvider = 'netease' | 'qq' | 'local' | 'demo';
+export type MusicProvider = 'netease' | 'qq' | 'podcast' | 'local' | 'demo';
+export type MusicSearchMode = 'all' | 'netease' | 'qq' | 'podcast';
 export type PlaybackMode = 'sequence' | 'loop-one' | 'shuffle';
 export type PlaybackQuality = 'standard' | 'exhigh' | 'lossless' | 'hires';
 export type VisualPresetId = 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -12,8 +13,13 @@ export interface MusicTrack {
   durationMs: number;
   fee?: number;
   id: string;
+  kind?: 'song' | 'podcast';
   lyrics?: LyricLine[];
+  mediaId?: string;
+  originalCoverUrl?: string;
+  originalLyrics?: LyricLine[];
   provider: MusicProvider;
+  sourceId?: string;
   title: string;
 }
 
@@ -49,6 +55,7 @@ export interface VisualPresetMeta {
 
 export interface VisualSettings {
   backgroundColor: string;
+  backgroundImage: string;
   backgroundOpacity: number;
   bloom: boolean;
   cinema: boolean;
@@ -62,7 +69,13 @@ export interface VisualSettings {
   lyricGlowStrength: number;
   lyricHighlightColor: string;
   lyricLetterSpacing: number;
+  lyricLineHeight: number;
+  lyricOffsetX: number;
+  lyricOffsetY: number;
+  lyricOffsetZ: number;
   lyricScale: number;
+  lyricTiltX: number;
+  lyricTiltY: number;
   lyricWeight: number;
   particleLyrics: boolean;
   pointSize: number;
@@ -85,6 +98,7 @@ export interface PersistedMusicState {
   mode: PlaybackMode;
   quality: PlaybackQuality;
   queue: MusicTrack[];
+  searchHistory: string[];
   visual: VisualSettings;
   volume: number;
 }
@@ -92,6 +106,15 @@ export interface PersistedMusicState {
 export interface MusicDiscoverPayload {
   playlists: MusicPlaylist[];
   songs: MusicTrack[];
+}
+
+export interface WeatherRadio {
+  city: string;
+  condition: string;
+  mood: string;
+  songs: MusicTrack[];
+  temperature: number;
+  title: string;
 }
 
 export interface ResolvedAudio {

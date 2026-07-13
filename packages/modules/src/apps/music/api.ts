@@ -2,22 +2,32 @@ import type {
   LyricLine,
   LyricWord,
   MusicDiscoverPayload,
+  MusicSearchMode,
   MusicPlaylist,
   MusicTrack,
   PlaybackQuality,
   ResolvedAudio,
+  WeatherRadio,
 } from './types';
 
 export async function discoverMusic(signal?: AbortSignal) {
   return apiJson<MusicDiscoverPayload>('/api/music/discover', signal);
 }
 
-export async function searchMusic(query: string, signal?: AbortSignal) {
+export async function searchMusic(
+  query: string,
+  mode: MusicSearchMode = 'all',
+  signal?: AbortSignal,
+) {
   const payload = await apiJson<{ songs: MusicTrack[] }>(
-    `/api/music/search?q=${encodeURIComponent(query)}&limit=30`,
+    `/api/music/search?q=${encodeURIComponent(query)}&limit=30&source=${mode}`,
     signal,
   );
   return payload.songs;
+}
+
+export async function loadWeatherRadio(city = '上海', signal?: AbortSignal) {
+  return apiJson<WeatherRadio>(`/api/music/weather?city=${encodeURIComponent(city)}`, signal);
 }
 
 export async function loadPlaylist(id: string, signal?: AbortSignal) {
@@ -42,17 +52,23 @@ export async function resolveAudio(
     } satisfies ResolvedAudio;
   }
 
-  return apiJson<ResolvedAudio>(
-    `/api/music/url?id=${encodeURIComponent(track.id)}&quality=${quality}`,
-    signal,
-  );
+  const params = new URLSearchParams({
+    id: track.id,
+    provider: track.provider,
+    quality,
+  });
+  if (track.mediaId) params.set('mediaId', track.mediaId);
+
+  return apiJson<ResolvedAudio>(`/api/music/url?${params.toString()}`, signal);
 }
 
 export async function loadLyrics(track: MusicTrack, signal?: AbortSignal) {
   if (track.lyrics?.length) return track.lyrics;
 
+  const params = new URLSearchParams({ id: track.id, provider: track.provider });
+  if (track.sourceId) params.set('sourceId', track.sourceId);
   const payload = await apiJson<{ karaoke: string; lyric: string; translated: string }>(
-    `/api/music/lyric?id=${encodeURIComponent(track.id)}`,
+    `/api/music/lyric?${params.toString()}`,
     signal,
   );
 

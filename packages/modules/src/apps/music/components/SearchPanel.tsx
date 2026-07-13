@@ -1,31 +1,43 @@
 import { LoaderCircle, Plus, Search, X } from 'lucide-react';
 import { useDeferredValue, useEffect, useRef, useState } from 'react';
 
-import type { MusicTrack } from '../types';
+import type { MusicSearchMode, MusicTrack } from '../types';
 
 interface SearchPanelProps {
   error: string;
   isLoading: boolean;
   onAdd(track: MusicTrack): void;
+  onClearHistory(): void;
   onPlay(track: MusicTrack): void;
   onQueryChange(query: string): void;
+  onSearchModeChange(mode: MusicSearchMode): void;
+  onSelectHistory(query: string): void;
   query: string;
   results: MusicTrack[];
+  searchMode: MusicSearchMode;
+  searchHistory: string[];
 }
 
 export function SearchPanel({
   error,
   isLoading,
   onAdd,
+  onClearHistory,
   onPlay,
   onQueryChange,
+  onSearchModeChange,
+  onSelectHistory,
   query,
   results,
+  searchMode,
+  searchHistory,
 }: SearchPanelProps) {
   const [focused, setFocused] = useState(false);
   const deferredResults = useDeferredValue(results);
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const showResults = focused && (query.trim().length > 0 || results.length > 0 || Boolean(error));
+  const showResults =
+    focused &&
+    (query.trim().length > 0 || results.length > 0 || Boolean(error) || searchHistory.length > 0);
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -55,28 +67,47 @@ export function SearchPanel({
         ) : null}
       </div>
       <div className="music-search-mode-tabs" role="tablist" aria-label="搜索平台">
-        <button aria-selected="true" className="active" role="tab" type="button">
-          All
-        </button>
-        <button aria-selected="false" role="tab" type="button">
-          NE
-        </button>
-        <button
-          aria-selected="false"
-          role="tab"
-          title="QQ 音源会在网易云无音源时自动换源"
-          type="button"
-        >
-          QQ
-        </button>
-        <button aria-selected="false" role="tab" title="播客结果通过左侧资料库浏览" type="button">
-          Podcast
-        </button>
+        {(
+          [
+            ['all', 'All'],
+            ['netease', 'NE'],
+            ['qq', 'QQ'],
+            ['podcast', 'Podcast'],
+          ] as const
+        ).map(([mode, label]) => (
+          <button
+            aria-selected={searchMode === mode}
+            className={searchMode === mode ? 'active' : ''}
+            key={mode}
+            onClick={() => onSearchModeChange(mode)}
+            role="tab"
+            type="button"
+          >
+            {label}
+          </button>
+        ))}
       </div>
       {showResults ? (
         <div className="music-search-results" role="listbox" aria-label="搜索结果">
+          {!query.trim() && searchHistory.length ? (
+            <div className="music-search-history">
+              <div>
+                <span>最近搜索</span>
+                <button onClick={onClearHistory} type="button">
+                  清除
+                </button>
+              </div>
+              <nav aria-label="最近搜索">
+                {searchHistory.map((item) => (
+                  <button key={item} onClick={() => onSelectHistory(item)} type="button">
+                    {item}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          ) : null}
           {error ? <div className="music-search-message error">{error}</div> : null}
-          {!error && !isLoading && deferredResults.length === 0 ? (
+          {query.trim() && !error && !isLoading && deferredResults.length === 0 ? (
             <div className="music-search-message">没有找到相关歌曲</div>
           ) : null}
           {deferredResults.map((track) => (
@@ -128,6 +159,7 @@ export function Cover({ artwork, title }: Readonly<{ artwork: string; title: str
 function providerLabel(provider: MusicTrack['provider']) {
   if (provider === 'netease') return 'NE';
   if (provider === 'qq') return 'QQ';
+  if (provider === 'podcast') return 'PODCAST';
   if (provider === 'local') return 'LOCAL';
   return 'RADIO';
 }

@@ -14,7 +14,14 @@ import {
 
 import { AppFrame, type AppFrameProps, type AppWindowSurfaceProps } from '@kernelon/shell';
 
-import { discoverMusic, loadLyrics, loadPlaylist, searchMusic } from './api';
+import {
+  discoverMusic,
+  loadLyrics,
+  loadPlaylist,
+  loadWeatherRadio,
+  parseLyrics,
+  searchMusic,
+} from './api';
 import { defaultVisualSettings, demoPlaylists, demoTracks } from './data';
 import { HomeView } from './components/HomeView';
 import { LyricsStage } from './components/LyricsStage';
@@ -23,18 +30,21 @@ import { PlayerBar } from './components/PlayerBar';
 import { PlaylistDrawer } from './components/PlaylistDrawer';
 import { PlaylistShelf } from './components/PlaylistShelf';
 import { SearchPanel } from './components/SearchPanel';
+import { TrackDetailModal } from './components/TrackDetailModal';
 import { VisualConsole } from './components/VisualConsole';
 import { useAudioEngine } from './hooks/useAudioEngine';
-import { readMusicState, writeMusicState } from './storage';
+import { defaultPersistedMusicState, readMusicState, writeMusicState } from './storage';
 import { musicStyles } from './styles';
 import type {
   LyricLine,
   MusicPlaylist,
+  MusicSearchMode,
   MusicTrack,
   PersistedMusicState,
   PlaybackMode,
   PlaybackQuality,
   VisualSettings,
+  WeatherRadio,
 } from './types';
 
 const musicHeader: AppFrameProps['header'] = {
@@ -51,12 +61,15 @@ const archiveStorageKey = 'kernelon.music.visual-archives.v1';
 
 export default function MusicWindow(props: AppWindowSurfaceProps) {
   void props;
-  const [persisted, setPersisted] = useState<PersistedMusicState>(readMusicState);
+  const [persisted, setPersisted] = useState<PersistedMusicState>(defaultPersistedMusicState);
+  const [hasHydratedState, setHasHydratedState] = useState(false);
   const [discoverSongs, setDiscoverSongs] = useState<MusicTrack[]>(demoTracks);
   const [playlists, setPlaylists] = useState<MusicPlaylist[]>(demoPlaylists);
+  const [weather, setWeather] = useState<WeatherRadio | null>(null);
   const [isDiscoverLoading, setIsDiscoverLoading] = useState(true);
   const [discoverError, setDiscoverError] = useState('');
   const [query, setQuery] = useState('');
+  const [searchMode, setSearchMode] = useState<MusicSearchMode>('all');
   const [searchResults, setSearchResults] = useState<MusicTrack[]>([]);
   const [searchError, setSearchError] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -70,7 +83,9 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
   const [immersive, setImmersive] = useState(false);
   const [toast, setToast] = useState('');
   const [dropActive, setDropActive] = useState(false);
+  const [isTrackDetailOpen, setIsTrackDetailOpen] = useState(false);
   const localFileInputRef = useRef<HTMLInputElement | null>(null);
+  const backgroundInputRef = useRef<HTMLInputElement | null>(null);
   const archiveInputRef = useRef<HTMLInputElement | null>(null);
   const endedHandledRef = useRef(false);
   const currentTrack = persisted.queue[currentIndex] ?? null;
@@ -85,13 +100,22 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
   );
 
   useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setPersisted(readMusicState());
+      setHasHydratedState(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydratedState) return;
     const persistable = {
       ...persisted,
       listenHistory: persisted.listenHistory.filter((track) => track.provider !== 'local'),
       queue: persisted.queue.filter((track) => track.provider !== 'local'),
     };
     writeMusicState(persistable);
-  }, [persisted]);
+  }, [hasHydratedState, persisted]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -109,6 +133,19 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
+    loadWeatherRadio('上海', controller.signal)
+      .then((nextWeather) =>
+        setWeather({
+          ...nextWeather,
+          songs: nextWeather.songs.length ? nextWeather.songs : demoTracks,
+        }),
+      )
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
     const normalized = query.trim();
     if (!normalized) {
       return undefined;
@@ -116,11 +153,14 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
     const controller = new AbortController();
     const timer = window.setTimeout(() => {
       setIsSearching(true);
-      searchMusic(normalized, controller.signal)
+      searchMusic(normalized, searchMode, controller.signal)
         .then((songs) => {
-          const localMatches = demoTracks.filter((track) =>
-            `${track.title} ${track.artist}`.toLowerCase().includes(normalized.toLowerCase()),
-          );
+          const localMatches =
+            searchMode === 'all'
+              ? demoTracks.filter((track) =>
+                  `${track.title} ${track.artist}`.toLowerCase().includes(normalized.toLowerCase()),
+                )
+              : [];
           setSearchResults([
             ...songs,
             ...localMatches.filter((local) => !songs.some((song) => song.id === local.id)),
@@ -128,9 +168,12 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
           setSearchError('');
         })
         .catch((error: unknown) => {
-          const localMatches = demoTracks.filter((track) =>
-            `${track.title} ${track.artist}`.toLowerCase().includes(normalized.toLowerCase()),
-          );
+          const localMatches =
+            searchMode === 'all'
+              ? demoTracks.filter((track) =>
+                  `${track.title} ${track.artist}`.toLowerCase().includes(normalized.toLowerCase()),
+                )
+              : [];
           setSearchResults(localMatches);
           setSearchError(
             localMatches.length ? '' : error instanceof Error ? error.message : '搜索失败',
@@ -142,7 +185,7 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [query]);
+  }, [query, searchMode]);
 
   const playTrack = useCallback(
     async (track: MusicTrack) => {
@@ -165,6 +208,12 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
           track,
           ...current.listenHistory.filter((item) => item.id !== track.id),
         ].slice(0, 40),
+        searchHistory: query.trim()
+          ? [query.trim(), ...current.searchHistory.filter((item) => item !== query.trim())].slice(
+              0,
+              12,
+            )
+          : current.searchHistory,
       }));
 
       const lyricController = new AbortController();
@@ -175,7 +224,7 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
       }
       await audio.playTrack(track, persisted.quality);
     },
-    [audio, persisted.quality, persisted.queue, setPersistedField],
+    [audio, persisted.quality, persisted.queue, query, setPersistedField],
   );
 
   const nextTrack = useCallback(() => {
@@ -299,6 +348,19 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
     [audio, persisted.quality],
   );
 
+  const playWeather = useCallback(() => {
+    if (!weather?.songs.length) return;
+    void playPlaylist({
+      coverUrl: '',
+      description: `${weather.condition} · ${weather.mood}`,
+      id: `weather:${weather.city}`,
+      name: weather.title,
+      playCount: 0,
+      songs: weather.songs,
+      trackCount: weather.songs.length,
+    });
+  }, [playPlaylist, weather]);
+
   const removeTrack = useCallback((index: number) => {
     setPersisted((current) => ({
       ...current,
@@ -328,6 +390,97 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
     [setPersistedField],
   );
   const resetVisual = useCallback(() => setVisual(defaultVisualSettings), [setVisual]);
+
+  const updateTrackEverywhere = useCallback(
+    (target: MusicTrack, update: (track: MusicTrack) => MusicTrack) => {
+      const matches = (track: MusicTrack) =>
+        track.id === target.id && track.provider === target.provider;
+      const mapTrack = (track: MusicTrack) => (matches(track) ? update(track) : track);
+      setPersisted((current) => ({
+        ...current,
+        listenHistory: current.listenHistory.map(mapTrack),
+        queue: current.queue.map(mapTrack),
+      }));
+      setDiscoverSongs((current) => current.map(mapTrack));
+      setSearchResults((current) => current.map(mapTrack));
+      setPlaylists((current) =>
+        current.map((playlist) => ({ ...playlist, songs: playlist.songs?.map(mapTrack) })),
+      );
+      setSelectedPlaylist((current) =>
+        current ? { ...current, songs: current.songs?.map(mapTrack) } : current,
+      );
+    },
+    [],
+  );
+
+  const saveCustomCover = useCallback(
+    (dataUrl: string) => {
+      if (!currentTrack) return;
+      updateTrackEverywhere(currentTrack, (track) => ({
+        ...track,
+        coverUrl: dataUrl,
+        originalCoverUrl: track.originalCoverUrl ?? track.coverUrl,
+      }));
+      showToastMessage('自定义封面已应用', setToast);
+    },
+    [currentTrack, updateTrackEverywhere],
+  );
+
+  const clearCustomCover = useCallback(() => {
+    if (!currentTrack) return;
+    updateTrackEverywhere(currentTrack, (track) => ({
+      ...track,
+      coverUrl: track.originalCoverUrl ?? track.coverUrl,
+      originalCoverUrl: undefined,
+    }));
+  }, [currentTrack, updateTrackEverywhere]);
+
+  const saveCustomLyrics = useCallback(
+    (source: string) => {
+      if (!currentTrack) return;
+      const parsed = parseCustomLyrics(source, currentTrack.durationMs);
+      updateTrackEverywhere(currentTrack, (track) => ({
+        ...track,
+        lyrics: parsed,
+        originalLyrics: track.originalLyrics ?? track.lyrics,
+      }));
+      setLyrics(parsed);
+      showToastMessage('自定义歌词已应用', setToast);
+    },
+    [currentTrack, updateTrackEverywhere],
+  );
+
+  const clearCustomLyrics = useCallback(() => {
+    if (!currentTrack) return;
+    const restored = currentTrack.originalLyrics ?? [];
+    updateTrackEverywhere(currentTrack, (track) => ({
+      ...track,
+      lyrics: track.originalLyrics,
+      originalLyrics: undefined,
+    }));
+    setLyrics(restored);
+    if (!restored.length && currentTrack.provider !== 'local') {
+      void loadLyrics(currentTrack)
+        .then(setLyrics)
+        .catch(() => undefined);
+    }
+  }, [currentTrack, updateTrackEverywhere]);
+
+  const importBackground = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        if (typeof reader.result === 'string') {
+          setVisual({ ...persisted.visual, backgroundImage: reader.result, preset: 3 });
+        }
+      });
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    },
+    [persisted.visual, setVisual],
+  );
 
   const importLocalFiles = useCallback(
     (files: FileList | File[]) => {
@@ -362,7 +515,13 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
         togglePlay();
       } else if (event.code === 'ArrowRight' && event.ctrlKey) nextTrack();
       else if (event.code === 'ArrowLeft' && event.ctrlKey) previousTrack();
-      else if (event.code === 'ArrowRight') audio.seek(audio.currentTime + 5);
+      else if (event.code === 'ArrowUp') {
+        event.preventDefault();
+        setPersistedField('volume', Math.min(1, persisted.volume + 0.05));
+      } else if (event.code === 'ArrowDown') {
+        event.preventDefault();
+        setPersistedField('volume', Math.max(0, persisted.volume - 0.05));
+      } else if (event.code === 'ArrowRight') audio.seek(audio.currentTime + 5);
       else if (event.code === 'ArrowLeft') audio.seek(audio.currentTime - 5);
       else if (event.key.toLowerCase() === 'q') setIsLibraryOpen((value) => !value);
       else if (event.key.toLowerCase() === 'v') setIsVisualConsoleOpen((value) => !value);
@@ -370,7 +529,7 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [audio, nextTrack, previousTrack, togglePlay]);
+  }, [audio, nextTrack, persisted.volume, previousTrack, setPersistedField, togglePlay]);
 
   useEffect(() => {
     if (!('mediaSession' in navigator) || !currentTrack) return;
@@ -507,6 +666,15 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
           if (event.currentTarget === event.target) setDropActive(false);
         }}
         onDragOver={(event: DragEvent) => event.preventDefault()}
+        onContextMenu={(event) => {
+          const target = event.target as HTMLElement;
+          if (target.closest('input,textarea,select')) return;
+          event.preventDefault();
+          setVisual({
+            ...persisted.visual,
+            shelfMode: persisted.visual.shelfMode === 'off' ? 'side' : 'off',
+          });
+        }}
         onDrop={(event: DragEvent) => {
           event.preventDefault();
           setDropActive(false);
@@ -521,15 +689,27 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
           track={currentTrack}
           visual={persisted.visual}
         />
+        {persisted.visual.backgroundImage ? (
+          <div
+            aria-hidden="true"
+            className="music-custom-background"
+            style={{ backgroundImage: `url(${JSON.stringify(persisted.visual.backgroundImage)})` }}
+          />
+        ) : null}
         <div className="music-background-vignette" />
         <SearchPanel
           error={searchError}
           isLoading={isSearching}
           onAdd={addToQueue}
+          onClearHistory={() => setPersistedField('searchHistory', [])}
           onPlay={playTrack}
           onQueryChange={updateQuery}
+          onSearchModeChange={setSearchMode}
+          onSelectHistory={updateQuery}
           query={query}
           results={searchResults}
+          searchMode={searchMode}
+          searchHistory={persisted.searchHistory}
         />
         <div className="music-top-actions">
           <button aria-label="回到 Home" onClick={() => setShowHome(true)} type="button">
@@ -560,9 +740,11 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
             onOpenVisuals={() => setIsVisualConsoleOpen(true)}
             onPlay={playTrack}
             onPlayPlaylist={playPlaylist}
+            onPlayWeather={playWeather}
             onSearch={focusSearch}
             playlists={playlists}
             songs={discoverSongs}
+            weather={weather}
           />
         ) : (
           <section aria-label="音乐视觉舞台" className="music-stage-content">
@@ -610,6 +792,8 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
         <VisualConsole
           isOpen={isVisualConsoleOpen}
           onChange={setVisual}
+          onChooseBackground={() => backgroundInputRef.current?.click()}
+          onClearBackground={() => setVisual({ ...persisted.visual, backgroundImage: '' })}
           onClose={() => setIsVisualConsoleOpen(false)}
           onExport={exportArchive}
           onImport={() => archiveInputRef.current?.click()}
@@ -628,6 +812,7 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
           mode={persisted.mode}
           onCycleMode={cycleMode}
           onNext={nextTrack}
+          onOpenTrackDetail={() => setIsTrackDetailOpen(true)}
           onOpenQueue={() => setIsLibraryOpen(true)}
           onPrevious={previousTrack}
           onQualityChange={(quality: PlaybackQuality) => setPersistedField('quality', quality)}
@@ -650,6 +835,17 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
             {toast}
           </div>
         ) : null}
+        {isTrackDetailOpen && currentTrack ? (
+          <TrackDetailModal
+            key={`${currentTrack.provider}:${currentTrack.id}`}
+            onClearCover={clearCustomCover}
+            onClearLyrics={clearCustomLyrics}
+            onClose={() => setIsTrackDetailOpen(false)}
+            onSaveCover={saveCustomCover}
+            onSaveLyrics={saveCustomLyrics}
+            track={currentTrack}
+          />
+        ) : null}
         {dropActive ? (
           <div className="music-drop-overlay">
             <Upload />
@@ -663,6 +859,13 @@ export default function MusicWindow(props: AppWindowSurfaceProps) {
           multiple
           onChange={(event) => event.target.files && importLocalFiles(event.target.files)}
           ref={localFileInputRef}
+          type="file"
+        />
+        <input
+          accept="image/*"
+          hidden
+          onChange={importBackground}
+          ref={backgroundInputRef}
           type="file"
         />
         <input
@@ -705,4 +908,23 @@ function readVisualArchives(): Array<{ name: string; savedAt: number; visual: Vi
   } catch {
     return [];
   }
+}
+
+function parseCustomLyrics(source: string, durationMs: number): NonNullable<MusicTrack['lyrics']> {
+  const timed = parseLyrics(source);
+  if (timed.length) return timed;
+
+  const lines = source
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (!lines.length) return [];
+
+  const duration = Math.max(30, durationMs / 1000);
+  const step = duration / lines.length;
+  return lines.map((text, index) => ({
+    endTime: (index + 1) * step,
+    text,
+    time: index * step,
+  }));
 }

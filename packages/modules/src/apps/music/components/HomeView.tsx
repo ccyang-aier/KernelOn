@@ -1,5 +1,6 @@
 import {
   AudioLines,
+  CloudSun,
   Disc3,
   Library,
   ListMusic,
@@ -10,7 +11,7 @@ import {
   Upload,
 } from 'lucide-react';
 
-import type { MusicPlaylist, MusicTrack } from '../types';
+import type { MusicPlaylist, MusicTrack, WeatherRadio } from '../types';
 import { Cover } from './SearchPanel';
 
 interface HomeViewProps {
@@ -21,9 +22,11 @@ interface HomeViewProps {
   onOpenVisuals(): void;
   onPlay(track: MusicTrack): void;
   onPlayPlaylist(playlist: MusicPlaylist): void;
+  onPlayWeather(): void;
   onSearch(): void;
   playlists: MusicPlaylist[];
   songs: MusicTrack[];
+  weather: WeatherRadio | null;
 }
 
 export function HomeView({
@@ -34,9 +37,11 @@ export function HomeView({
   onOpenVisuals,
   onPlay,
   onPlayPlaylist,
+  onPlayWeather,
   onSearch,
   playlists,
   songs,
+  weather,
 }: HomeViewProps) {
   const leadPlaylist = playlists[0];
   const latest = history[0] ?? songs[0];
@@ -63,11 +68,11 @@ export function HomeView({
 
       <div className="music-home-grid">
         <HomeCard
-          Icon={Library}
-          eyebrow="LIBRARY"
-          onClick={onOpenLibrary}
-          title="我的歌单"
-          subtitle="打开左侧歌单库"
+          Icon={CloudSun}
+          eyebrow="WEATHER RADIO"
+          onClick={weather?.songs.length ? onPlayWeather : onOpenLibrary}
+          title={weather ? `${weather.city} · ${weather.temperature}°` : '天气电台'}
+          subtitle={weather ? `${weather.condition} · ${weather.mood}` : '正在感知城市天气'}
         />
         <HomeCard
           Icon={Disc3}
@@ -153,7 +158,7 @@ function HomeCard({
   subtitle,
   title,
 }: Readonly<{
-  Icon: typeof Library;
+  Icon: typeof CloudSun;
   artwork?: string;
   eyebrow: string;
   onClick(): void;

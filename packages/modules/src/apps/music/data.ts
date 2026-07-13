@@ -12,6 +12,7 @@ export const visualPresets: VisualPresetMeta[] = [
 
 export const defaultVisualSettings: VisualSettings = {
   backgroundColor: '#000000',
+  backgroundImage: '',
   backgroundOpacity: 1,
   bloom: false,
   cinema: true,
@@ -25,7 +26,13 @@ export const defaultVisualSettings: VisualSettings = {
   lyricGlowStrength: 0.28,
   lyricHighlightColor: '#fac900',
   lyricLetterSpacing: 0,
+  lyricLineHeight: 1.25,
+  lyricOffsetX: 0,
+  lyricOffsetY: 0,
+  lyricOffsetZ: 0,
   lyricScale: 1,
+  lyricTiltX: 0,
+  lyricTiltY: 0,
   lyricWeight: 900,
   particleLyrics: true,
   pointSize: 1,

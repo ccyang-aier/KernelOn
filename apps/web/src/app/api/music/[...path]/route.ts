@@ -1,6 +1,10 @@
 import neteaseApi from 'NeteaseCloudMusicApi';
 import { NextResponse } from 'next/server';
 
+import { discoverPodcasts, loadPodcastPrograms, searchPodcasts } from '../_lib/podcast';
+import { loadQQLyrics, resolveQQAudio, searchQQMusic } from '../_lib/qq';
+import { resolveWeatherMood } from '../_lib/weather';
+
 const { cloudsearch, lyric_new, personalized, personalized_newsong, playlist_detail, song_url_v1 } =
   neteaseApi as typeof import('NeteaseCloudMusicApi');
 
@@ -43,7 +47,7 @@ interface NeteasePlaylist {
   tracks?: NeteaseSong[];
 }
 
-const imageHosts = ['music.126.net', 'music.163.com'];
+const imageHosts = ['music.126.net', 'music.163.com', 'y.qq.com', 'qpic.cn', 'qq.com'];
 const audioHosts = [
   ...imageHosts,
   'music.126.net',
@@ -71,6 +75,8 @@ export async function GET(request: Request, context: RouteContext) {
         return await discoverMusic();
       case 'playlist':
         return await resolvePlaylist(url);
+      case 'weather':
+        return await resolveWeatherRadio(url);
       case 'cover':
         return await proxyMedia(request, url, imageHosts, 'image/jpeg');
       case 'audio':
@@ -90,22 +96,50 @@ export async function GET(request: Request, context: RouteContext) {
 async function searchSongs(url: URL) {
   const keywords = url.searchParams.get('q')?.trim();
   const limit = clampNumber(url.searchParams.get('limit'), 1, 40, 24);
+  const source = url.searchParams.get('source') ?? 'all';
 
   if (!keywords) {
     return NextResponse.json({ songs: [] });
   }
 
-  const response = await cloudsearch({ keywords, limit, offset: 0, type: 1 });
-  const body = asRecord(response.body);
-  const result = asRecord(body.result);
-  const songs = asArray<NeteaseSong>(result.songs).map(toTrack);
+  if (source === 'qq') return NextResponse.json({ songs: await searchQQMusic(keywords, limit) });
+  if (source === 'podcast') {
+    return NextResponse.json({ songs: await searchPodcasts(keywords, limit) });
+  }
+
+  const neteasePromise = searchNeteaseSongs(keywords, limit);
+  if (source === 'netease') return NextResponse.json({ songs: await neteasePromise });
+
+  const [neteaseResult, qqResult] = await Promise.allSettled([
+    neteasePromise,
+    searchQQMusic(keywords, Math.min(limit, 12)),
+  ]);
+  const songs = [
+    ...(neteaseResult.status === 'fulfilled' ? neteaseResult.value : []),
+    ...(qqResult.status === 'fulfilled' ? qqResult.value : []),
+  ];
+
+  if (!songs.length && neteaseResult.status === 'rejected' && qqResult.status === 'rejected') {
+    throw new Error('网易云与 QQ 音乐搜索均暂时不可用');
+  }
 
   return NextResponse.json({ songs });
 }
 
 async function resolveSongUrl(url: URL) {
-  const id = requiredNumber(url, 'id');
+  const provider = url.searchParams.get('provider') ?? 'netease';
   const quality = normalizeQuality(url.searchParams.get('quality'));
+  if (provider === 'qq') {
+    const mid = url.searchParams.get('id') ?? '';
+    const resolved = await resolveQQAudio(mid, url.searchParams.get('mediaId') ?? '', quality);
+    return NextResponse.json({
+      bitrate: null,
+      level: resolved.level,
+      size: null,
+      url: `/api/music/audio?url=${encodeURIComponent(resolved.remoteUrl)}`,
+    });
+  }
+  const id = requiredNumber(url, 'id');
   const response = await song_url_v1({ id, level: quality });
   const body = asRecord(response.body);
   const audio = asRecord(asArray<Record<string, unknown>>(body.data)[0]);
@@ -127,6 +161,14 @@ async function resolveSongUrl(url: URL) {
 }
 
 async function resolveLyrics(url: URL) {
+  const provider = url.searchParams.get('provider') ?? 'netease';
+  if (provider === 'podcast') {
+    return NextResponse.json({ karaoke: '', lyric: '', translated: '' });
+  }
+  if (provider === 'qq') {
+    const lyrics = await loadQQLyrics(url.searchParams.get('id') ?? '');
+    return NextResponse.json({ karaoke: '', ...lyrics });
+  }
   const id = requiredNumber(url, 'id');
   const response = await lyric_new({ id });
   const body = asRecord(response.body);
@@ -142,9 +184,10 @@ async function resolveLyrics(url: URL) {
 }
 
 async function discoverMusic() {
-  const [playlistsResponse, songsResponse] = await Promise.all([
+  const [playlistsResponse, songsResponse, podcastResult] = await Promise.all([
     personalized({ limit: 12 }),
     personalized_newsong({ limit: 18 }),
+    discoverPodcasts(8).catch(() => []),
   ]);
   const playlistBody = asRecord(playlistsResponse.body);
   const songsBody = asRecord(songsResponse.body);
@@ -154,10 +197,26 @@ async function discoverMusic() {
     return song.id ? [toTrack(song)] : [];
   });
 
-  return NextResponse.json({ playlists, songs });
+  return NextResponse.json({ playlists: [...playlists, ...podcastResult], songs });
 }
 
 async function resolvePlaylist(url: URL) {
+  const rawId = url.searchParams.get('id') ?? '';
+  if (rawId.startsWith('podcast:')) {
+    const radioId = rawId.slice('podcast:'.length);
+    const songs = await loadPodcastPrograms(radioId, 40);
+    return NextResponse.json({
+      playlist: {
+        coverUrl: songs[0]?.coverUrl ?? '',
+        description: '声音剧场节目列表',
+        id: rawId,
+        name: songs[0]?.album ?? '播客',
+        playCount: 0,
+        songs,
+        trackCount: songs.length,
+      },
+    });
+  }
   const id = requiredNumber(url, 'id');
   const response = await playlist_detail({ id, s: 0 });
   const body = asRecord(response.body);
@@ -169,6 +228,25 @@ async function resolvePlaylist(url: URL) {
       songs: asArray<NeteaseSong>(playlist.tracks).map(toTrack),
     },
   });
+}
+
+async function resolveWeatherRadio(url: URL) {
+  const weather = await resolveWeatherMood(url.searchParams.get('city') ?? '上海');
+  const settled = await Promise.allSettled(
+    weather.queries.map((query) => searchNeteaseSongs(query, 6)),
+  );
+  const songs = settled
+    .flatMap((entry) => (entry.status === 'fulfilled' ? entry.value : []))
+    .filter((song, index, all) => all.findIndex((candidate) => candidate.id === song.id) === index)
+    .slice(0, 18);
+  return NextResponse.json({ ...weather, songs });
+}
+
+async function searchNeteaseSongs(keywords: string, limit: number) {
+  const response = await cloudsearch({ keywords, limit, offset: 0, type: 1 });
+  const body = asRecord(response.body);
+  const result = asRecord(body.result);
+  return asArray<NeteaseSong>(result.songs).map(toTrack);
 }
 
 async function proxyMedia(
@@ -226,6 +304,7 @@ function toTrack(song: NeteaseSong) {
     durationMs: song.dt ?? song.duration ?? 0,
     fee: song.fee ?? 0,
     id: String(song.id ?? ''),
+    kind: 'song',
     provider: 'netease',
     title: song.name ?? '未命名歌曲',
   };

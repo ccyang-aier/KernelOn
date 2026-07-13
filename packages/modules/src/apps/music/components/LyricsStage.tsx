@@ -23,6 +23,8 @@ export function LyricsStage({ currentTime, lyrics, visual }: LyricsStageProps) {
   );
   const startIndex = Math.max(0, activeIndex - 2);
 
+  if (!visual.particleLyrics) return null;
+
   if (!lyrics.length) {
     return <div className="music-lyrics-empty">纯音乐，请欣赏视觉舞台</div>;
   }
@@ -36,8 +38,14 @@ export function LyricsStage({ currentTime, lyrics, visual }: LyricsStageProps) {
           '--music-lyric-color': visual.lyricColor,
           '--music-lyric-glow': visual.lyricGlowColor,
           '--music-lyric-highlight': visual.lyricHighlightColor,
+          '--music-lyric-line-height': visual.lyricLineHeight,
+          '--music-lyric-offset-x': `${visual.lyricOffsetX}px`,
+          '--music-lyric-offset-y': `${visual.lyricOffsetY}px`,
+          '--music-lyric-offset-z': `${visual.lyricOffsetZ}px`,
           '--music-lyric-scale': visual.lyricScale,
           '--music-lyric-spacing': `${visual.lyricLetterSpacing}em`,
+          '--music-lyric-tilt-x': `${visual.lyricTiltX}deg`,
+          '--music-lyric-tilt-y': `${visual.lyricTiltY}deg`,
           '--music-lyric-weight': visual.lyricWeight,
         } as React.CSSProperties
       }
