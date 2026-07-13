@@ -330,14 +330,13 @@ describe('KernelOnShell', () => {
     const panel = screen.getByRole('dialog', { name: 'KernelOn 系统控制面板' });
     expect(controlCenterButton).toHaveAttribute('aria-pressed', 'true');
     expect(within(panel).getByText('陈思源')).toBeInTheDocument();
-    expect(within(panel).getByText('KO-20260713')).toBeInTheDocument();
+    expect(within(panel).getByText('(KO-20260713)')).toHaveClass('ko-employee-number');
     expect(within(panel).getByText('产品运营部 · 入职第 12 天')).toBeInTheDocument();
     expect(within(panel).getByText('导师：林澈')).toBeInTheDocument();
     expect(within(panel).queryByRole('region', { name: '在线状态' })).not.toBeInTheDocument();
+    expect(within(panel).getByText('状态：')).toBeInTheDocument();
     expect(within(panel).getByRole('button', { name: '在线状态：在线' })).toHaveClass(
-      'ko-profile-presence-button',
-      'h-5',
-      'px-1.5',
+      'ko-profile-status-trigger',
     );
     expect(within(panel).getByText('新员工')).toHaveClass('ko-employee-badge');
     expect(within(panel).getByRole('button', { name: '更换头像' })).toHaveClass(

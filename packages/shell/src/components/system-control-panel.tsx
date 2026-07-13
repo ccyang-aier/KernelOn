@@ -4,7 +4,6 @@ import {
   Bell,
   Camera,
   Check,
-  ChevronDown,
   Download,
   Expand,
   Focus,
@@ -258,13 +257,53 @@ export function SystemControlPanel({
               onChange={(event) => void handleAvatarChange(event)}
               type="file"
             />
-            <div className="min-w-0 flex-1">
-              <strong className="block truncate text-[14px] font-semibold leading-5">
-                {user?.displayName || 'KernelOn 用户'}
-              </strong>
-              <p className="m-0 truncate font-mono text-[10px] leading-[15px] text-white/48">
-                {user?.employeeNo || '工号待分配'}
-              </p>
+            <div className="relative min-w-0 flex-1">
+              <div className="flex min-w-0 items-baseline">
+                <strong className="truncate text-[14px] font-semibold leading-5">
+                  {user?.displayName || 'KernelOn 用户'}
+                </strong>
+                <span className="ko-employee-number shrink-0">
+                  ({user?.employeeNo || '工号待分配'})
+                </span>
+              </div>
+              <div className="ko-profile-status-line flex h-[15px] items-center">
+                <span>状态：</span>
+                <button
+                  aria-label={`在线状态：${status.label}`}
+                  aria-expanded={statusMenuOpen}
+                  className="ko-profile-status-trigger"
+                  onClick={() => setStatusMenuOpen((value) => !value)}
+                  type="button"
+                >
+                  {status.label}
+                </button>
+                <AnimatePresence>
+                  {statusMenuOpen ? (
+                    <motion.div
+                      animate={{ opacity: 1, y: 0 }}
+                      className="ko-profile-status-menu absolute top-[37px] left-[28px] z-20 w-[92px] overflow-hidden rounded-[12px] border border-white/15 bg-[#24434b]/95 p-1 shadow-2xl"
+                      exit={{ opacity: 0, y: -3 }}
+                      initial={{ opacity: 0, y: -3 }}
+                    >
+                      {statuses.map((option) => (
+                        <button
+                          aria-pressed={status.value === option.value}
+                          className="ko-profile-status-option flex w-full items-center gap-1.5 rounded-[8px] px-1.5 py-1 text-left transition-colors hover:bg-white/12"
+                          key={option.value}
+                          onClick={() => void selectStatus(option)}
+                          type="button"
+                        >
+                          <span
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: option.color }}
+                          />
+                          {option.label}
+                        </button>
+                      ))}
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </div>
               <p className="m-0 truncate text-[10px] leading-[15px] text-white/72">
                 {employmentSummary(user)}
               </p>
@@ -272,53 +311,10 @@ export function SystemControlPanel({
                 导师：{user?.mentorName || '待匹配'}
               </p>
             </div>
-            <div className="relative flex shrink-0 flex-col items-end gap-1.5">
+            <div className="flex shrink-0 self-start">
               <span className="ko-employee-badge rounded-full font-semibold">
                 {employeeLabel(user?.joinedAt)}
               </span>
-              <button
-                aria-label={`在线状态：${status.label}`}
-                aria-expanded={statusMenuOpen}
-                className="ko-glass-button ko-profile-presence-button flex h-5 items-center gap-1 rounded-full px-1.5 font-medium"
-                onClick={() => setStatusMenuOpen((value) => !value)}
-                type="button"
-              >
-                <span
-                  className="ko-status-dot h-[5px] w-[5px] rounded-full"
-                  style={{ backgroundColor: status.color }}
-                />
-                {status.label}
-                <ChevronDown
-                  aria-hidden
-                  className={`h-2 w-2 text-white/55 transition-transform ${statusMenuOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
-              <AnimatePresence>
-                {statusMenuOpen ? (
-                  <motion.div
-                    animate={{ opacity: 1 }}
-                    className="ko-profile-status-menu absolute top-[54px] right-0 z-20 w-[92px] overflow-hidden rounded-[12px] border border-white/15 bg-[#24434b]/95 p-1 shadow-2xl"
-                    exit={{ opacity: 0 }}
-                    initial={{ opacity: 0 }}
-                  >
-                    {statuses.map((option) => (
-                      <button
-                        aria-pressed={status.value === option.value}
-                        className="ko-profile-status-option flex w-full items-center gap-1.5 rounded-[8px] px-1.5 py-1 text-left transition-colors hover:bg-white/12"
-                        key={option.value}
-                        onClick={() => void selectStatus(option)}
-                        type="button"
-                      >
-                        <span
-                          className="h-1.5 w-1.5 rounded-full"
-                          style={{ backgroundColor: option.color }}
-                        />
-                        {option.label}
-                      </button>
-                    ))}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
             </div>
           </section>
 

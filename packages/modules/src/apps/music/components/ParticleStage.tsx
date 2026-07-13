@@ -35,7 +35,7 @@ export function ParticleStage({
   const spinVelocityRef = useRef({ x: 0, y: 0 });
   const zoomRef = useRef(1);
   const points = useMemo(
-    () => (isHome ? createHomeStarfieldPoints(2800) : createPoints(visual.preset)),
+    () => (isHome ? createHomeStarfieldPoints(4200) : createPoints(visual.preset)),
     [isHome, visual.preset],
   );
 
@@ -55,7 +55,7 @@ export function ParticleStage({
 
     const resize = () => {
       const bounds = canvas.getBoundingClientRect();
-      const ratio = Math.min(devicePixelRatio || 1, 2);
+      const ratio = Math.min(devicePixelRatio || 1, isHome ? 1.35 : 2);
       width = Math.max(1, bounds.width);
       height = Math.max(1, bounds.height);
       canvas.width = Math.round(width * ratio);
@@ -103,7 +103,17 @@ export function ParticleStage({
       drawAmbientField(context, width, height, now, pulse, visual);
 
       if (isHome) {
-        drawHomeStarfield({ context, height, now, points, pulse, rotation, visual, width, zoom: zoomRef.current });
+        drawHomeStarfield({
+          context,
+          height,
+          now,
+          points,
+          pulse,
+          rotation,
+          visual,
+          width,
+          zoom: zoomRef.current,
+        });
       } else if (track?.kind === 'podcast') {
         drawPodcastField(context, width, height, now, frequencyData, visual);
       } else if (visual.preset !== 3) {
@@ -153,13 +163,10 @@ export function ParticleStage({
       const rotateX = deltaY * 0.0032;
       const rotateY = deltaX * 0.0034;
       rotationRef.current.targetY += rotateY;
-      rotationRef.current.targetX = clamp(
-        rotationRef.current.targetX + rotateX,
-        -1.28,
-        1.28,
-      );
+      rotationRef.current.targetX = clamp(rotationRef.current.targetX + rotateX, -1.28, 1.28);
       spinVelocityRef.current.x = clamp((rotateX / deltaSeconds) * 0.46, -6.2, 6.2);
       spinVelocityRef.current.y = clamp((rotateY / deltaSeconds) * 0.46, -6.2, 6.2);
+      canvas.dataset.orbit = `${rotationRef.current.targetX.toFixed(3)},${rotationRef.current.targetY.toFixed(3)}`;
       drag.lastX = event.clientX;
       drag.lastY = event.clientY;
       drag.lastTime = now;
@@ -172,6 +179,7 @@ export function ParticleStage({
       rotationRef.current.targetX = visual.preset === 6 ? -0.26 : -0.08;
       rotationRef.current.targetY = visual.preset === 5 ? -0.52 : visual.preset === 6 ? 0.18 : 0;
       spinVelocityRef.current = { x: 0, y: 0 };
+      canvas.dataset.orbit = 'reset';
       zoomRef.current = 1;
     };
     const handleWheel = (event: WheelEvent) => {
@@ -403,13 +411,13 @@ function drawHomeStarfield({
   const centerX = width * 0.5;
   const centerY = height * 0.5;
   const focalLength = Math.min(width, height) * 0.76 * zoom;
-  const aspect = width / Math.max(1, height);
   const cosY = Math.cos(rotation.y);
   const sinY = Math.sin(rotation.y);
   const cosX = Math.cos(rotation.x);
   const sinX = Math.sin(rotation.x);
   const cool = parseHex(visual.visualTintColor);
   const warm = { r: 239, g: 218, b: 146 };
+  const coolWhite = mixColor(cool, { r: 230, g: 245, b: 255 }, 0.42);
 
   const haze = context.createRadialGradient(
     centerX,
@@ -429,7 +437,7 @@ function drawHomeStarfield({
   context.globalCompositeOperation = visual.bloom ? 'lighter' : 'source-over';
   points.forEach((point, index) => {
     const drift = now * 0.000035 * visual.speed;
-    const sourceX = point.x * aspect;
+    const sourceX = point.x;
     const sourceY = point.y + Math.sin(drift * 11 + index * 0.37) * 0.018;
     const sourceZ = point.z + Math.sin(drift + index * 0.011) * 0.045;
     const rotatedX = sourceX * cosY - sourceZ * sinY;
@@ -443,22 +451,19 @@ function drawHomeStarfield({
     if (px < -8 || px > width + 8 || py < -8 || py > height + 8) return;
 
     const depth = clamp(1.2 - cameraDepth / 10.5, 0.1, 1);
-    const twinkle = 0.68 + Math.sin(now * 0.0014 + index * 1.71) * 0.3;
-    const alpha = clamp((0.2 + depth * 0.72) * twinkle, 0.08, 0.92);
-    const color = mixColor(cool, warm, point.colorMix * 0.42);
-    const size = clamp(point.size * visual.pointSize * (0.42 + depth * 0.9), 0.45, 2.45);
-    context.fillStyle = `rgba(${color.r},${color.g},${color.b},${alpha})`;
+    const twinkle = 0.82 + Math.sin(now * 0.0014 + index * 1.71) * 0.18;
+    const alpha = clamp((0.42 + depth * 0.72) * twinkle, 0.2, 1);
+    const color = mixColor(coolWhite, warm, point.colorMix * 0.24);
+    const size = clamp(point.size * visual.pointSize * (0.58 + depth * 1.05), 0.58, 2.75);
 
-    if (size > 1.55 && index % 9 === 0) {
-      const glow = context.createRadialGradient(px, py, 0, px, py, size * 4.2);
-      glow.addColorStop(0, `rgba(${color.r},${color.g},${color.b},${alpha})`);
-      glow.addColorStop(0.24, `rgba(${color.r},${color.g},${color.b},${alpha * 0.32})`);
-      glow.addColorStop(1, `rgba(${color.r},${color.g},${color.b},0)`);
-      context.fillStyle = glow;
+    if (size > 1.7 && index % 31 === 0) {
+      context.fillStyle = `rgba(${color.r},${color.g},${color.b},${alpha * 0.13})`;
       context.beginPath();
-      context.arc(px, py, size * 4.2, 0, Math.PI * 2);
+      context.arc(px, py, size * 3.8, 0, Math.PI * 2);
       context.fill();
-    } else if (size < 0.85) {
+    }
+    context.fillStyle = `rgba(${color.r},${color.g},${color.b},${alpha})`;
+    if (size < 0.95) {
       context.fillRect(px, py, size, size);
     } else {
       context.beginPath();
@@ -471,15 +476,15 @@ function drawHomeStarfield({
 
 function createHomeStarfieldPoints(count: number) {
   return Array.from({ length: count }, (_, index): Point3D => {
-    const radialBias = Math.pow(seeded(index * 2.71 + 9.3), 0.72);
-    const angle = seeded(index * 7.17 + 2.1) * Math.PI * 2;
-    const radius = 0.28 + radialBias * 4.45;
+    const depth = seeded(index * 31.11 + 2.9);
+    const horizontalBand = seeded(index * 7.17 + 2.1);
+    const verticalBand = seeded(index * 23.71 + 8.4);
     return {
       colorMix: seeded(index * 13.13 + 4.7),
       size: 0.48 + Math.pow(seeded(index * 5.91 + 1.4), 3.1) * 1.85,
-      x: Math.cos(angle) * radius + (seeded(index * 19.3) - 0.5) * 1.8,
-      y: (seeded(index * 23.71 + 8.4) - 0.5) * 8.8,
-      z: Math.sin(angle) * radius + (seeded(index * 31.11) - 0.5) * 3.4,
+      x: (horizontalBand - 0.5) * 20.8,
+      y: (verticalBand - 0.5) * 10.6,
+      z: (depth - 0.5) * 8.6,
     };
   });
 }

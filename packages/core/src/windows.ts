@@ -38,7 +38,7 @@ export function openWindow(
     appId: app.id,
     title: options.title ?? app.defaultWindow.title ?? app.name,
     bounds: app.defaultWindow.bounds,
-    ...(options.header ?? app.defaultWindow.header
+    ...((options.header ?? app.defaultWindow.header)
       ? { header: options.header ?? app.defaultWindow.header }
       : {}),
     ...(options.intent ? { intent: options.intent } : {}),
