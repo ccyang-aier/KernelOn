@@ -7,6 +7,7 @@ import {
   Handshake,
   Image,
   Milestone,
+  Music,
   UserRoundCheck,
   type LucideIcon,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ const icons: Record<string, LucideIcon> = {
   Handshake,
   Image,
   Milestone,
+  Music,
   UserRoundCheck,
 };
 
@@ -44,6 +46,8 @@ export function AppIcon({ name, ...props }: ComponentProps<LucideIcon> & { name:
       return <Image {...props} />;
     case 'Milestone':
       return <Milestone {...props} />;
+    case 'Music':
+      return <Music {...props} />;
     case 'UserRoundCheck':
       return <UserRoundCheck {...props} />;
     default:

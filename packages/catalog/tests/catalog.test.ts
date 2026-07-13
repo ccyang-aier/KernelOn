@@ -4,8 +4,25 @@ import { defaultDesktopScreens, defaultShellInitialState, kernelApps, kernelWidg
 
 describe('KernelOn built-in catalog', () => {
   it('keeps catalog metadata separate from desktop placement', () => {
-    expect(kernelApps).toHaveLength(10);
+    expect(kernelApps).toHaveLength(11);
     expect(defaultDesktopScreens[0]?.items).toHaveLength(0);
+  });
+
+  it('declares Mineradio as a docked app-owned music window', () => {
+    expect(kernelApps).toContainEqual(
+      expect.objectContaining({
+        dockedByDefault: true,
+        icon: 'Music',
+        id: 'music',
+        name: '音乐',
+        runtime: {
+          window: {
+            frameOwner: 'app',
+            loaderKey: 'app:music-window',
+          },
+        },
+      }),
+    );
   });
 
   it('declares Weekly Show as a docked app-owned window', () => {

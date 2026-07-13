@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./music-window": {
+      "types": "./src/apps/music/MusicWindow.tsx",
+      "import": "./src/apps/music/MusicWindow.tsx"
+    },
     "./onboarding-window": {
       "types": "./src/apps/onboarding/OnboardingWindow.tsx",
       "import": "./src/apps/onboarding/OnboardingWindow.tsx"

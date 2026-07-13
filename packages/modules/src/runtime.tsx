@@ -11,6 +11,7 @@ import {
 export type { ShellInitialState } from '@kernelon/shell';
 
 const appWindowLoaders = {
+  'app:music-window': () => import('./apps/music/MusicWindow'),
   'app:onboarding-window': () => import('./apps/onboarding/OnboardingWindow'),
   'app:mentor-window': () => import('./apps/mentor/MentorWindow'),
   'app:growth-archive-window': () => import('./apps/growth-archive/GrowthArchiveWindow'),

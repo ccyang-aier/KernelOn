@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['NeteaseCloudMusicApi'],
   transpilePackages: [
     '@kernelon/catalog',
     '@kernelon/core',

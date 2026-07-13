@@ -2,6 +2,25 @@ import type { KernelAppManifest } from '@kernelon/core';
 
 export const kernelApps: KernelAppManifest[] = [
   {
+    id: 'music',
+    name: '音乐',
+    description: '沉浸式音乐播放、歌词舞台、粒子视觉与 3D 歌单架',
+    priority: 'P2',
+    category: 'resource',
+    icon: 'Music',
+    dockedByDefault: true,
+    runtime: {
+      window: {
+        frameOwner: 'app',
+        loaderKey: 'app:music-window',
+      },
+    },
+    defaultWindow: {
+      title: 'Mineradio',
+      bounds: { x: 36, y: 28, width: 1440, height: 850 },
+    },
+  },
+  {
     id: 'onboarding',
     name: '新员工运作',
     description: '入职信息、阶段流程、状态跟踪、名册总览',
