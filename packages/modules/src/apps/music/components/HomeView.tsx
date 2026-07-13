@@ -48,24 +48,6 @@ export function HomeView({
 
   return (
     <section aria-label="Mineradio home" className="music-home">
-      <div className="music-home-hero">
-        <div className="music-construction-mark">
-          <span />
-          此处施工
-          <br />
-          请期待
-          <span />
-        </div>
-        <button onClick={onOpenVisuals} type="button">
-          展开播放器控制台
-        </button>
-        <div className="music-home-wave" aria-hidden="true">
-          {Array.from({ length: 24 }, (_, index) => (
-            <span key={index} style={{ animationDelay: `${index * -55}ms` }} />
-          ))}
-        </div>
-      </div>
-
       <div className="music-home-grid">
         <HomeCard
           Icon={CloudSun}
