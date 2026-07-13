@@ -10,10 +10,18 @@ import type { AppWindowSurfaceProps } from '@kernelon/shell';
 import WeeklyShowWindow from '../src/apps/weekly-show/WeeklyShowWindow';
 
 vi.mock('@kernelon/shell', () => ({
-  AppFrame: ({ children, headerSlots }: { children: ReactNode; headerSlots?: Record<string, ReactNode> }) => (
+  AppFrame: ({
+    children,
+    headerSlots,
+  }: {
+    children: ReactNode;
+    headerSlots?: Record<string, ReactNode>;
+  }) => (
     <div data-testid="weekly-show-app-frame">
       {Object.entries(headerSlots ?? {}).map(([id, slot]) => (
-        <div data-testid={`header-slot-${id}`} key={id}>{slot}</div>
+        <div data-testid={`header-slot-${id}`} key={id}>
+          {slot}
+        </div>
       ))}
       {children}
     </div>

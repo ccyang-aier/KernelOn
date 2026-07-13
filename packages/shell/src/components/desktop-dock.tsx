@@ -22,10 +22,7 @@ import {
 
 import type { KernelAppManifest } from '@kernelon/core';
 
-import {
-  resolveDockIconAsset,
-  resolveDockIconAssetScale,
-} from '../visual-assets';
+import { resolveDockIconAsset, resolveDockIconAssetScale } from '../visual-assets';
 
 export interface DesktopDockProps {
   apps: KernelAppManifest[];
@@ -204,13 +201,7 @@ interface DockIconButtonProps {
   reducedMotion: boolean;
 }
 
-function DockIconButton({
-  assetKey,
-  label,
-  mouseX,
-  onClick,
-  reducedMotion,
-}: DockIconButtonProps) {
+function DockIconButton({ assetKey, label, mouseX, onClick, reducedMotion }: DockIconButtonProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const baseIconSizeRef = useRef(DOCK_DEFAULT_ICON_MEASURE);
   const distance = useMotionValue(DOCK_POINTER_RESTING_X);
@@ -268,10 +259,7 @@ function DockIconButton({
   );
 }
 
-function resolveDockItemBaseSize(
-  button: HTMLButtonElement | null,
-  currentScale: number,
-): number {
+function resolveDockItemBaseSize(button: HTMLButtonElement | null, currentScale: number): number {
   if (!button) {
     return DOCK_DEFAULT_ICON_MEASURE;
   }

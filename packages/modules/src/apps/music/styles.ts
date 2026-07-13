@@ -63,7 +63,7 @@ export const musicStyles = String.raw`
 .music-search-area,.music-top-actions{top:62px}.music-home{top:132px}
 
 /* Home rebuilt from the original Mineradio hierarchy, without the construction placeholder. */
-.music-app[data-home=true] .music-particle-stage{opacity:.62;filter:saturate(.82) brightness(.72)}
+.music-app[data-home=true] .music-particle-stage{opacity:.78;filter:saturate(.9) brightness(.88)}
 .music-app[data-home=true] .music-background-vignette{background:radial-gradient(circle at 50% 48%,transparent 8%,rgba(0,0,0,.18) 54%,rgba(0,0,0,.58) 100%),linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.3))}
 .music-app[data-home=true] .music-player-wrap{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(34px)}
 .music-app[data-home=true] .music-search-mode-tabs{opacity:0;pointer-events:none;transform:translate(-50%,-5px);transition:opacity .2s ease,transform .2s ease}

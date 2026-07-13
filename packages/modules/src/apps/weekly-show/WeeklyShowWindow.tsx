@@ -116,7 +116,11 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
                     onClick={() => setActiveNav(id)}
                     type="button"
                   >
-                    <Icon className="size-[23px]" fill={active && id === 'stage' ? 'currentColor' : 'none'} strokeWidth={2} />
+                    <Icon
+                      className="size-[23px]"
+                      fill={active && id === 'stage' ? 'currentColor' : 'none'}
+                      strokeWidth={2}
+                    />
                     {label}
                   </button>
                 );
@@ -145,7 +149,12 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
                 </p>
               </div>
               <div className="flex h-12 min-w-[350px] items-center justify-between rounded-[24px] border border-[#eceef1] bg-[#fafafa] px-3 text-[16px] text-[#666a70] shadow-[inset_0_1px_0_#fff]">
-                <button aria-label="上一周" className="rounded-full p-1.5 hover:bg-white" onClick={() => setWeekOffset((value) => value - 1)} type="button">
+                <button
+                  aria-label="上一周"
+                  className="rounded-full p-1.5 hover:bg-white"
+                  onClick={() => setWeekOffset((value) => value - 1)}
+                  type="button"
+                >
                   <ChevronLeft className="size-[18px]" />
                 </button>
                 <div className="flex items-center gap-2">
@@ -153,7 +162,12 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
                   <strong className="text-[#3f4247]">第 {21 + weekOffset} 周</strong>
                   <span className="ml-2">5.19 - 5.25</span>
                 </div>
-                <button aria-label="下一周" className="rounded-full p-1.5 hover:bg-white" onClick={() => setWeekOffset((value) => value + 1)} type="button">
+                <button
+                  aria-label="下一周"
+                  className="rounded-full p-1.5 hover:bg-white"
+                  onClick={() => setWeekOffset((value) => value + 1)}
+                  type="button"
+                >
                   <ChevronRight className="size-[18px]" />
                 </button>
               </div>
@@ -161,7 +175,10 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
 
             <StageTimeline />
 
-            <div className="mt-[26px] flex items-center justify-between gap-5" data-testid="weekly-show-filters">
+            <div
+              className="mt-[26px] flex items-center justify-between gap-5"
+              data-testid="weekly-show-filters"
+            >
               <div className="flex min-w-0 gap-2.5 overflow-x-auto [scrollbar-width:none]">
                 {weeklyShowCategories.map((category) => {
                   const active = category === activeCategory;
@@ -183,14 +200,20 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
                   );
                 })}
               </div>
-              <button className="flex shrink-0 items-center gap-2 text-[13px] text-[#777b81]" type="button">
+              <button
+                className="flex shrink-0 items-center gap-2 text-[13px] text-[#777b81]"
+                type="button"
+              >
                 排序：<strong className="text-[#4c5055]">互动得分</strong>
                 <ChevronDown className="size-4" />
               </button>
             </div>
 
             {filteredEntries.length > 0 ? (
-              <div className="mt-[22px] grid grid-cols-3 gap-x-5 gap-y-[18px]" data-testid="weekly-show-grid">
+              <div
+                className="mt-[22px] grid grid-cols-3 gap-x-5 gap-y-[18px]"
+                data-testid="weekly-show-grid"
+              >
                 {filteredEntries.map((entry, index) => (
                   <EntryCard
                     entry={entry}
@@ -221,7 +244,10 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
 
 function StageTimeline() {
   return (
-    <div className="mt-[28px] flex h-[114px] items-center rounded-[14px] border border-[#e9ebee] bg-white px-7 shadow-[0_8px_28px_rgba(38,50,62,0.025)]" data-testid="weekly-show-timeline">
+    <div
+      className="mt-[28px] flex h-[114px] items-center rounded-[14px] border border-[#e9ebee] bg-white px-7 shadow-[0_8px_28px_rgba(38,50,62,0.025)]"
+      data-testid="weekly-show-timeline"
+    >
       <TimelineStep Icon={Send} date="5.12 - 5.18" label="投稿阶段" />
       <div className="mx-4 h-px flex-1 bg-[#d9dde1]" />
       <TimelineStep Icon={BarChart3} active date="5.19 - 5.25" label="投票阶段" />
@@ -235,10 +261,17 @@ function StageTimeline() {
   );
 }
 
-function TimelineStep({ Icon, active = false, date, label }: Readonly<{ Icon: typeof Send; active?: boolean; date: string; label: string }>) {
+function TimelineStep({
+  Icon,
+  active = false,
+  date,
+  label,
+}: Readonly<{ Icon: typeof Send; active?: boolean; date: string; label: string }>) {
   return (
     <div className="flex shrink-0 items-center gap-3">
-      <span className={`flex size-[50px] items-center justify-center rounded-full border ${active ? 'border-[#3e9af2] bg-[#2f91ed] text-white shadow-[0_8px_18px_rgba(47,145,237,0.22)]' : 'border-[#eceef0] bg-white text-[#3f444a]'}`}>
+      <span
+        className={`flex size-[50px] items-center justify-center rounded-full border ${active ? 'border-[#3e9af2] bg-[#2f91ed] text-white shadow-[0_8px_18px_rgba(47,145,237,0.22)]' : 'border-[#eceef0] bg-white text-[#3f444a]'}`}
+      >
         <Icon className="size-[23px]" strokeWidth={active ? 2.8 : 1.9} />
       </span>
       <span>
@@ -249,37 +282,84 @@ function TimelineStep({ Icon, active = false, date, label }: Readonly<{ Icon: ty
   );
 }
 
-function EntryCard({ entry, onReact, rank, reactionBonus }: Readonly<{ entry: WeeklyShowEntry; onReact(): void; rank?: number; reactionBonus: number }>) {
+function EntryCard({
+  entry,
+  onReact,
+  rank,
+  reactionBonus,
+}: Readonly<{ entry: WeeklyShowEntry; onReact(): void; rank?: number; reactionBonus: number }>) {
   return (
     <article className="group relative overflow-hidden rounded-[12px] border border-[#e7e9eb] bg-white shadow-[0_6px_20px_rgba(28,39,49,0.045)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(28,39,49,0.09)]">
       <div
         aria-label={`${entry.title}作品封面`}
         className="aspect-[16/6.65] w-full bg-cover"
         role="img"
-        style={{ backgroundImage: `url(${spriteUrl})`, backgroundPosition: entry.spritePosition, backgroundSize: '300% 200%' }}
+        style={{
+          backgroundImage: `url(${spriteUrl})`,
+          backgroundPosition: entry.spritePosition,
+          backgroundSize: '300% 200%',
+        }}
       />
       {rank ? <RankRibbon rank={rank} /> : null}
       <div className="px-3.5 pb-3 pt-3">
         <div className="flex items-center gap-2 text-[13px] text-[#868a90]">
-          <img alt="" className="size-5 rounded-full object-cover ring-1 ring-black/5" src={avatarUrl} />
-          <span className="truncate">{entry.author} · {entry.employeeId}</span>
-          <span className={`ml-1 rounded-[4px] px-1.5 py-0.5 text-[10px] font-medium ${categoryStyles[entry.category]}`}>{entry.category}</span>
+          <img
+            alt=""
+            className="size-5 rounded-full object-cover ring-1 ring-black/5"
+            src={avatarUrl}
+          />
+          <span className="truncate">
+            {entry.author} · {entry.employeeId}
+          </span>
+          <span
+            className={`ml-1 rounded-[4px] px-1.5 py-0.5 text-[10px] font-medium ${categoryStyles[entry.category]}`}
+          >
+            {entry.category}
+          </span>
         </div>
         <div className="mt-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[#2b2e32]">{entry.title}</h2>
-            <p className="mt-1.5 line-clamp-2 text-[12px] leading-[1.55] text-[#858a91]">{entry.description}</p>
+            <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[#2b2e32]">
+              {entry.title}
+            </h2>
+            <p className="mt-1.5 line-clamp-2 text-[12px] leading-[1.55] text-[#858a91]">
+              {entry.description}
+            </p>
           </div>
           <div className="text-right">
-            <strong className="block text-[22px] leading-none text-[#ef4d47]">{formatScore(entry.score + reactionBonus)}</strong>
+            <strong className="block text-[22px] leading-none text-[#ef4d47]">
+              {formatScore(entry.score + reactionBonus)}
+            </strong>
             <span className="mt-1 block text-[10px] text-[#96999d]">互动得分</span>
           </div>
         </div>
       </div>
       <div className="flex h-14 items-center justify-between border-t border-[#eff0f1] px-3.5 text-[13px] text-[#81858a]">
-        <button className="flex items-center gap-1.5 hover:text-[#d88935]" onClick={onReact} type="button"><Coffee className="size-4 text-[#c39454]" />送咖啡 {entry.coffees}</button>
-        <button className="flex items-center gap-1.5 hover:text-[#d85f81]" onClick={onReact} type="button"><Flower2 className="size-4 text-[#df6f8d]" />送鲜花 {entry.flowers}</button>
-        <button aria-label={`点赞 ${entry.title}`} className="flex items-center gap-1.5 hover:text-[#ee5751]" onClick={onReact} type="button"><Heart className="size-4 fill-[#ef5c55] text-[#ef5c55]" />点赞 {entry.likes + reactionBonus}</button>
+        <button
+          className="flex items-center gap-1.5 hover:text-[#d88935]"
+          onClick={onReact}
+          type="button"
+        >
+          <Coffee className="size-4 text-[#c39454]" />
+          送咖啡 {entry.coffees}
+        </button>
+        <button
+          className="flex items-center gap-1.5 hover:text-[#d85f81]"
+          onClick={onReact}
+          type="button"
+        >
+          <Flower2 className="size-4 text-[#df6f8d]" />
+          送鲜花 {entry.flowers}
+        </button>
+        <button
+          aria-label={`点赞 ${entry.title}`}
+          className="flex items-center gap-1.5 hover:text-[#ee5751]"
+          onClick={onReact}
+          type="button"
+        >
+          <Heart className="size-4 fill-[#ef5c55] text-[#ef5c55]" />
+          点赞 {entry.likes + reactionBonus}
+        </button>
       </div>
     </article>
   );
@@ -288,7 +368,13 @@ function EntryCard({ entry, onReact, rank, reactionBonus }: Readonly<{ entry: We
 function RankRibbon({ rank }: Readonly<{ rank: number }>) {
   const tone = rank === 1 ? 'bg-[#ffb526]' : rank === 2 ? 'bg-[#aeb7c1]' : 'bg-[#d87931]';
 
-  return <span className={`absolute -right-[38px] top-[13px] w-[126px] rotate-45 py-1 text-center text-[11px] font-bold tracking-[0.08em] text-white shadow-sm ${tone}`}>TOP {rank}</span>;
+  return (
+    <span
+      className={`absolute -right-[38px] top-[13px] w-[126px] rotate-45 py-1 text-center text-[11px] font-bold tracking-[0.08em] text-white shadow-sm ${tone}`}
+    >
+      TOP {rank}
+    </span>
+  );
 }
 
 function useWeeklyShowHeaderSlots(query: string, onQueryChange: (value: string) => void) {
@@ -296,24 +382,70 @@ function useWeeklyShowHeaderSlots(query: string, onQueryChange: (value: string) 
     () => ({
       'weekly-show-leading': (
         <div className="absolute left-[280px] top-1/2 flex -translate-y-1/2 items-center gap-2.5">
-          <button aria-label="切换侧栏" className="flex size-9 items-center justify-center rounded-[12px] border border-white/65 bg-white/64 text-[#3d434a] shadow-[0_6px_15px_rgba(39,55,72,0.06)]" type="button"><PanelLeft className="size-[18px]" /></button>
+          <button
+            aria-label="切换侧栏"
+            className="flex size-9 items-center justify-center rounded-[12px] border border-white/65 bg-white/64 text-[#3d434a] shadow-[0_6px_15px_rgba(39,55,72,0.06)]"
+            type="button"
+          >
+            <PanelLeft className="size-[18px]" />
+          </button>
           <div className="flex h-9 items-center overflow-hidden rounded-[12px] border border-white/65 bg-white/64 shadow-[0_6px_15px_rgba(39,55,72,0.06)]">
-            <button aria-label="后退" className="flex h-full w-9 items-center justify-center text-[#353a40] hover:bg-white" type="button"><ChevronLeft className="size-[18px]" /></button>
+            <button
+              aria-label="后退"
+              className="flex h-full w-9 items-center justify-center text-[#353a40] hover:bg-white"
+              type="button"
+            >
+              <ChevronLeft className="size-[18px]" />
+            </button>
             <span className="h-4 w-px bg-[#e4e7ea]" />
-            <button aria-label="前进" className="flex h-full w-9 items-center justify-center text-[#a8adb3] hover:bg-white" type="button"><ChevronRight className="size-[18px]" /></button>
+            <button
+              aria-label="前进"
+              className="flex h-full w-9 items-center justify-center text-[#a8adb3] hover:bg-white"
+              type="button"
+            >
+              <ChevronRight className="size-[18px]" />
+            </button>
           </div>
         </div>
       ),
-      'weekly-show-title': <div className="absolute left-[262px] right-0 top-1/2 -translate-y-1/2 text-center text-[16px] font-bold tracking-[-0.01em] text-[#202328]">本周舞台</div>,
+      'weekly-show-title': (
+        <div className="absolute left-[262px] right-0 top-1/2 -translate-y-1/2 text-center text-[16px] font-bold tracking-[-0.01em] text-[#202328]">
+          本周舞台
+        </div>
+      ),
       'weekly-show-trailing': (
         <div className="contents">
           <label className="absolute right-[180px] top-1/2 flex h-10 w-[330px] -translate-y-1/2 items-center gap-2 rounded-[20px] border border-[#edf0f3] bg-[#fafbfc]/92 px-4 text-[#7a8189] shadow-[0_5px_14px_rgba(30,45,61,0.03)]">
             <Search className="size-[17px] shrink-0" />
-            <input className="min-w-0 flex-1 bg-transparent text-[13px] font-medium text-[#30343a] outline-none placeholder:text-[#8e949b]" onChange={(event) => onQueryChange(event.currentTarget.value)} placeholder="搜索作品、作者或内容" type="search" value={query} />
+            <input
+              className="min-w-0 flex-1 bg-transparent text-[13px] font-medium text-[#30343a] outline-none placeholder:text-[#8e949b]"
+              onChange={(event) => onQueryChange(event.currentTarget.value)}
+              placeholder="搜索作品、作者或内容"
+              type="search"
+              value={query}
+            />
             <span className="text-[12px] font-semibold text-[#9ca1a7]">⌘K</span>
           </label>
-          <button aria-label="通知" className="absolute right-[120px] top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full hover:bg-black/[0.04]" type="button"><Bell className="size-[19px]" strokeWidth={2} /><span className="absolute right-[7px] top-[6px] size-1.5 rounded-full bg-[#ef5750] ring-2 ring-white" /></button>
-          <button aria-label="用户菜单" className="absolute right-[30px] top-1/2 flex -translate-y-1/2 items-center gap-2" type="button"><img alt="当前用户" className="size-10 rounded-full object-cover ring-1 ring-black/5" src={avatarUrl} /><ChevronDown className="size-4" /></button>
+          <button
+            aria-label="通知"
+            className="absolute right-[120px] top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full hover:bg-black/[0.04]"
+            type="button"
+          >
+            <Bell className="size-[19px]" strokeWidth={2} />
+            <span className="absolute right-[7px] top-[6px] size-1.5 rounded-full bg-[#ef5750] ring-2 ring-white" />
+          </button>
+          <button
+            aria-label="用户菜单"
+            className="absolute right-[30px] top-1/2 flex -translate-y-1/2 items-center gap-2"
+            type="button"
+          >
+            <img
+              alt="当前用户"
+              className="size-10 rounded-full object-cover ring-1 ring-black/5"
+              src={avatarUrl}
+            />
+            <ChevronDown className="size-4" />
+          </button>
         </div>
       ),
     }),

@@ -1,4 +1,5 @@
-export type WeeklyShowCategory = '全部' | '产品创意' | '技术实践' | '文化生活' | '设计作品' | '经验分享';
+export type WeeklyShowCategory =
+  '全部' | '产品创意' | '技术实践' | '文化生活' | '设计作品' | '经验分享';
 
 export interface WeeklyShowEntry {
   author: string;
