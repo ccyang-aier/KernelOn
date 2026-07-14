@@ -26,7 +26,11 @@ from kernelon_api.modules.wallpapers.infrastructure.providers import (
     WikimediaWallpaperProvider,
     gather_provider_results,
 )
-from kernelon_api.modules.wallpapers.infrastructure.storage import LocalWallpaperStorage
+from kernelon_api.modules.wallpapers.infrastructure.storage import (
+    LocalWallpaperStorage,
+    S3WallpaperStorage,
+    WallpaperStorage,
+)
 from kernelon_api.platform.application_errors import ApplicationError
 
 if TYPE_CHECKING:
@@ -77,11 +81,19 @@ class SQLAlchemyWallpaperService:
     ) -> None:
         self.session = session
         self.settings = settings
-        self.storage_adapter = LocalWallpaperStorage(
-            settings.wallpaper_storage_path,
-            settings.wallpaper_media_limit_bytes,
-            settings.wallpaper_committed_limit_bytes,
-        )
+        self.storage_adapter: WallpaperStorage
+        if settings.wallpaper_storage_backend == "s3":
+            self.storage_adapter = S3WallpaperStorage(
+                str(settings.wallpaper_storage_path),
+                settings.wallpaper_media_limit_bytes,
+                settings.wallpaper_committed_limit_bytes,
+            )
+        else:
+            self.storage_adapter = LocalWallpaperStorage(
+                settings.wallpaper_storage_path,
+                settings.wallpaper_media_limit_bytes,
+                settings.wallpaper_committed_limit_bytes,
+            )
         self.providers: dict[str, HttpProvider] = providers or {
             "nasa": NasaWallpaperProvider(),
             "wikimedia": WikimediaWallpaperProvider(),
@@ -213,9 +225,7 @@ class SQLAlchemyWallpaperService:
             return self._asset_dict(model)
         return await self._provider_asset(asset_id)
 
-    async def import_asset(
-        self, user_id: UUID, asset_id: str, confirm: bool
-    ) -> dict[str, Any]:
+    async def import_asset(self, user_id: UUID, asset_id: str, confirm: bool) -> dict[str, Any]:
         canonical = await self._provider_asset(asset_id)
         if not canonical.get("canImport"):
             raise ApplicationError(
@@ -240,9 +250,7 @@ class SQLAlchemyWallpaperService:
                 "This video requires the production transcoding worker before import.",
                 415,
             )
-        estimated_bytes = min(
-            int(canonical.get("sizeBytes") or 60 * 1024**2), 60 * 1024**2
-        )
+        estimated_bytes = min(int(canonical.get("sizeBytes") or 60 * 1024**2), 60 * 1024**2)
         preview: dict[str, Any] = {
             "assetId": asset_id,
             "licenseName": canonical.get("licenseName"),
@@ -259,9 +267,14 @@ class SQLAlchemyWallpaperService:
             raise ApplicationError(
                 "WALLPAPER_USER_QUOTA_EXCEEDED", "Personal wallpaper quota would be exceeded.", 507
             )
-        if usage["organization"]["usedBytes"] + estimated_bytes > usage["organization"]["limitBytes"]:
+        if (
+            usage["organization"]["usedBytes"] + estimated_bytes
+            > usage["organization"]["limitBytes"]
+        ):
             raise ApplicationError(
-                "WALLPAPER_ORG_QUOTA_EXCEEDED", "Organization wallpaper quota would be exceeded.", 507
+                "WALLPAPER_ORG_QUOTA_EXCEEDED",
+                "Organization wallpaper quota would be exceeded.",
+                507,
             )
         organization_id = await self._organization_id(user_id)
         body = await _download_import(str(source["url"]), content_type)
@@ -611,9 +624,7 @@ class SQLAlchemyWallpaperService:
             "title": job.title,
             "mediaType": job.media_type,
             "posterUrl": (
-                job.poster_url
-                if job.media_type == "video"
-                else f"/wallpaper-media/{job.id}"
+                job.poster_url if job.media_type == "video" else f"/wallpaper-media/{job.id}"
             ),
             "sources": [
                 {
@@ -697,6 +708,10 @@ class SQLAlchemyWallpaperService:
             if model.provider in {"upload", "import"}
             else f"{model.provider}:{model.external_id}"
         )
+        if model.storage_key and (media_url := self.storage_adapter.media_url(model.storage_key)):
+            sources = value.get("sources")
+            if isinstance(sources, list) and sources and isinstance(sources[0], dict):
+                value["sources"] = [{**sources[0], "url": media_url, "mediaPath": None}]
         return value
 
 
@@ -720,20 +735,22 @@ async def _download_import(url: str, content_type: str) -> bytes:
         raise ApplicationError("WALLPAPER_IMPORT_HOST_DENIED", "Import host is not allowed.", 409)
     chunks: list[bytes] = []
     total = 0
-    async with httpx.AsyncClient(timeout=30, follow_redirects=True) as client:
-        async with client.stream("GET", url) as response:
-            response.raise_for_status()
-            if urlparse(str(response.url)).hostname not in allowed_hosts:
+    async with (
+        httpx.AsyncClient(timeout=30, follow_redirects=True) as client,
+        client.stream("GET", url) as response,
+    ):
+        response.raise_for_status()
+        if urlparse(str(response.url)).hostname not in allowed_hosts:
+            raise ApplicationError(
+                "WALLPAPER_IMPORT_HOST_DENIED", "Import redirect host is not allowed.", 409
+            )
+        async for chunk in response.aiter_bytes():
+            total += len(chunk)
+            if total > 60 * 1024**2:
                 raise ApplicationError(
-                    "WALLPAPER_IMPORT_HOST_DENIED", "Import redirect host is not allowed.", 409
+                    "WALLPAPER_IMPORT_TOO_LARGE", "Imported wallpaper exceeds 60 MiB.", 413
                 )
-            async for chunk in response.aiter_bytes():
-                total += len(chunk)
-                if total > 60 * 1024**2:
-                    raise ApplicationError(
-                        "WALLPAPER_IMPORT_TOO_LARGE", "Imported wallpaper exceeds 60 MiB.", 413
-                    )
-                chunks.append(chunk)
+            chunks.append(chunk)
     body = b"".join(chunks)
     if content_type == "video/mp4" and not _looks_like_mp4(body):
         raise ApplicationError("WALLPAPER_UNSUPPORTED_MEDIA", "Imported video is not MP4.", 415)

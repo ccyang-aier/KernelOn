@@ -25,7 +25,9 @@ def load_mappings() -> None:
     from kernelon_api.modules.organizations.infrastructure import (
         models as organization_models,  # noqa: F401
     )
-    from kernelon_api.modules.wallpapers.infrastructure import models as wallpaper_models  # noqa: F401
+    from kernelon_api.modules.wallpapers.infrastructure import (
+        models as wallpaper_models,  # noqa: F401
+    )
 
 
 def create_database_config(settings: Settings) -> SQLAlchemyAsyncConfig:

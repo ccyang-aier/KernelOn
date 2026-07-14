@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from kernelon_api.config import Settings
 from kernelon_api.modules.wallpapers.infrastructure.storage import LocalWallpaperStorage
 from kernelon_api.platform.application_errors import ApplicationError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_local_storage_grows_on_demand_and_enforces_hard_limit(tmp_path: Path) -> None:

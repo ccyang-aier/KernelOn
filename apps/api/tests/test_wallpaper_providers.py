@@ -63,12 +63,12 @@ def test_wikimedia_rejects_unknown_license_and_keeps_attribution() -> None:
             }
         ],
     }
-    value = provider._map_page(base)  # noqa: SLF001 - provider mapping contract
+    value = provider._map_page(base)
     assert value is not None
     assert value.media_type == "video"
     assert value.author == "Ada"
     base["imageinfo"][0]["extmetadata"]["LicenseShortName"]["value"] = "All rights reserved"
-    assert provider._map_page(base) is None  # noqa: SLF001
+    assert provider._map_page(base) is None
 
 
 def test_provider_cache_is_bounded_by_result_count() -> None:

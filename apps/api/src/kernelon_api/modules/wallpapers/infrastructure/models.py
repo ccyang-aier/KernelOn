@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import datetime  # noqa: TC003 - SQLAlchemy resolves mapped annotations at runtime
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
@@ -22,9 +22,6 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from kernelon_api.infrastructure.database import OrmBase
-
-if TYPE_CHECKING:
-    from datetime import datetime
 
 
 class WallpaperSourceModel(OrmBase):
@@ -152,9 +149,7 @@ class WallpaperRenditionModel(OrmBase):
     width: Mapped[int] = mapped_column(Integer(), default=0)
     height: Mapped[int] = mapped_column(Integer(), default=0)
     replaced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class WallpaperStorageUsageModel(OrmBase):

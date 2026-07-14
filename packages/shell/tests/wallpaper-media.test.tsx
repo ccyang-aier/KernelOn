@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WallpaperMedia, type DesktopWallpaperDescriptor } from '../src';
 
@@ -11,6 +11,10 @@ const videoWallpaper: DesktopWallpaperDescriptor = {
 };
 
 describe('WallpaperMedia', () => {
+  beforeEach(() => {
+    vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
+    vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
+  });
   it('renders a muted looping inline video for a dynamic descriptor', () => {
     render(<WallpaperMedia testId="wallpaper" wallpaper={videoWallpaper} />);
     const video = screen.getByTestId('wallpaper');

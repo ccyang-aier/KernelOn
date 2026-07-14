@@ -6,10 +6,12 @@ WORK_ROOT=${KERNELON_WSL_WORK_ROOT:-/tmp/kernelon-wsl-validation}
 CONDA_EXE=${CONDA_EXE:-$HOME/miniforge3/bin/conda}
 CONDA_ENV=${CONDA_ENV:-v20}
 POSTGRES_PORT=${KERNELON_POSTGRES_PORT:-5432}
+API_PORT=${KERNELON_API_PORT:-8000}
 LINUX_VENV=${UV_PROJECT_ENVIRONMENT:-/tmp/kernelon-api-v20}
 PNPM_REGISTRY=${KERNELON_PNPM_REGISTRY:-https://registry.npmjs.org}
 PIP_INDEX_URL=${KERNELON_PIP_INDEX_URL:-https://pypi.org/simple}
 export KERNELON_POSTGRES_PORT=$POSTGRES_PORT
+export KERNELON_API_PORT=$API_PORT
 export KERNELON_DATABASE_URL="postgresql+psycopg://kernelon:kernelon@127.0.0.1:${POSTGRES_PORT}/kernelon"
 export KERNELON_TEST_DATABASE_URL=$KERNELON_DATABASE_URL
 export UV_PROJECT_ENVIRONMENT=$LINUX_VENV
@@ -78,11 +80,11 @@ test "$(docker run --rm --entrypoint id kernelon-api:wsl -u)" != "0"
 docker compose build --build-arg PIP_INDEX_URL="$PIP_INDEX_URL" api
 docker compose up --detach --no-build api
 for _ in $(seq 1 30); do
-  if curl --fail --silent http://127.0.0.1:8000/health/ready >/dev/null 2>&1; then
+  if curl --fail --silent "http://127.0.0.1:${API_PORT}/health/ready" >/dev/null 2>&1; then
     break
   fi
   sleep 1
 done
-curl --fail --show-error http://127.0.0.1:8000/health/ready
+curl --fail --show-error "http://127.0.0.1:${API_PORT}/health/ready"
 
 echo "WSL2 validation completed with Conda environment '$CONDA_ENV'."

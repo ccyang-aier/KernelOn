@@ -19,8 +19,12 @@ export function WallpaperMedia({
   wallpaper: DesktopWallpaper;
 }>) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [failedKey, setFailedKey] = useState<string | null>(null);
   const descriptor = typeof wallpaper === 'string' ? null : wallpaper;
+  const mediaKey = descriptor
+    ? `${descriptor.id}:${descriptor.sources.map((source) => source.url).join('|')}`
+    : null;
+  const failed = mediaKey !== null && failedKey === mediaKey;
   const reducedMotion = useMemo(
     () =>
       typeof window !== 'undefined' &&
@@ -33,10 +37,6 @@ export function WallpaperMedia({
     Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
 
   useEffect(() => {
-    setFailed(false);
-  }, [wallpaper]);
-
-  useEffect(() => {
     const video = videoRef.current;
     if (!video) return undefined;
 
@@ -44,14 +44,15 @@ export function WallpaperMedia({
       if (!active || document.hidden) {
         video.pause();
       } else {
-        void video.play().catch(() => setFailed(true));
+        const playResult = video.play() as Promise<void> | undefined;
+        if (playResult) void playResult.catch(() => setFailedKey(mediaKey));
       }
     };
 
     syncPlayback();
     document.addEventListener('visibilitychange', syncPlayback);
     return () => document.removeEventListener('visibilitychange', syncPlayback);
-  }, [active, descriptor?.id]);
+  }, [active, mediaKey]);
 
   if (!descriptor || descriptor.mediaType === 'image' || failed || reducedMotion || saveData) {
     return (
@@ -73,7 +74,7 @@ export function WallpaperMedia({
       data-testid={testId}
       loop
       muted
-      onError={() => setFailed(true)}
+      onError={() => setFailedKey(mediaKey)}
       playsInline
       poster={descriptor.posterUrl}
       preload="metadata"

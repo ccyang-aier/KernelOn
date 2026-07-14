@@ -107,6 +107,11 @@ class Settings(BaseSettings):
             raise ValueError("wallpaper committed and temporary limits exceed the media limit")
         if self.environment == "production" and self.wallpaper_storage_backend != "s3":
             raise ValueError("production wallpaper storage must use the s3 backend")
+        if (
+            self.environment == "production"
+            and "wallpaper_storage_path" not in self.model_fields_set
+        ):
+            raise ValueError("production wallpaper_storage_path must name the S3 bucket")
 
     @property
     def sqlalchemy_url(self) -> str:

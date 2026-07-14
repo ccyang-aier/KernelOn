@@ -219,7 +219,8 @@ export default function WallpaperWindow() {
 
   const loadRemotePage = useCallback(
     async (page: number, reset: boolean) => {
-      reset ? setIsSearchingRemote(true) : setIsLoadingMoreRemote(true);
+      if (reset) setIsSearchingRemote(true);
+      else setIsLoadingMoreRemote(true);
       setRemoteSearchError(null);
       try {
         const result = await wallpaperApi.search(remoteSearchTerm, 'all', page);
@@ -230,7 +231,8 @@ export default function WallpaperWindow() {
       } catch (error) {
         setRemoteSearchError(error instanceof Error ? error.message : '壁纸来源暂时不可用');
       } finally {
-        reset ? setIsSearchingRemote(false) : setIsLoadingMoreRemote(false);
+        if (reset) setIsSearchingRemote(false);
+        else setIsLoadingMoreRemote(false);
       }
     },
     [remoteSearchTerm, wallpaperApi],
@@ -315,7 +317,7 @@ export default function WallpaperWindow() {
     });
 
     return filteredWallpapers.sort((left, right) => compareWallpapers(left, right, sort));
-  }, [allWallpapers, query, selectedCategory, selectedPopularTag, sort]);
+  }, [allWallpapers, query, selectedCategory, sort]);
 
   const resultLabel =
     visibleExploreWallpapers.length === allWallpapers.length

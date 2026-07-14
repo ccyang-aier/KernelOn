@@ -7,13 +7,15 @@ import html
 import re
 import time
 from collections import OrderedDict
-from collections.abc import Mapping, Sequence
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import quote
 
 import httpx
 
 from kernelon_api.modules.wallpapers.domain import WallpaperAsset
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
 
 ALLOWED_COMMONS_LICENSES = {"CC0", "CC BY", "CC BY-SA", "Public domain"}
 
@@ -71,7 +73,7 @@ class HttpProvider:
                 response = await client.get(url, params=params)
         response.raise_for_status()
         result = response.json()
-        return cast(dict[str, Any], result) if isinstance(result, dict) else {"items": result}
+        return cast("dict[str, Any]", result) if isinstance(result, dict) else {"items": result}
 
 
 class NasaWallpaperProvider(HttpProvider):

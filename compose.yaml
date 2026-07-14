@@ -44,7 +44,7 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - '8000:8000'
+      - '${KERNELON_API_PORT:-8000}:8000'
 
 volumes:
   kernelon-postgres-data:
