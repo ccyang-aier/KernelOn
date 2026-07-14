@@ -37,7 +37,8 @@ vi.mock('../src/apps/music/mineradio/generated/styles', () => ({
 }));
 
 vi.mock('../src/apps/music/mineradio/generated/template', () => ({
-  mineradioTemplate: '<div class="desktop-drag-region"></div>',
+  mineradioTemplate:
+    '<div class="desktop-drag-region"></div><button class="desktop-window-btn">minimize</button><button class="desktop-window-btn close">close</button>',
 }));
 
 vi.mock('../src/apps/music/mineradio/runtime/scoped-browser-environment', () => ({
@@ -56,6 +57,8 @@ describe('Mineradio app window lifecycle', () => {
   it('destroys browser state and releases app-owned native capabilities on unmount', () => {
     const view = render(<MineradioApp window={{ status: 'active' } as never} />);
 
+    const surface = view.container.querySelector<HTMLElement>('[data-mineradio-app-surface]');
+    expect(surface?.shadowRoot?.querySelector('.desktop-window-btn')).toBeNull();
     expect(state.setVisibility).toHaveBeenCalledWith(true);
     view.unmount();
 

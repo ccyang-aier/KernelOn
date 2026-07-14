@@ -213,7 +213,7 @@ class HttpxMusicProvider:
 
     async def login_qr_key(self) -> MusicProviderResponse:
         return await self._request_json_response(
-            "/api/login/qrcode/unikey", {"timestamp": timestamp_ms()}
+            "/api/login/qrcode/unikey", {"type": 1, "timestamp": timestamp_ms()}
         )
 
     async def login_qr_check(self, key: str, *, cookie: str = "") -> MusicProviderResponse:

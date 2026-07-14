@@ -367,6 +367,20 @@ async def test_http_routes_expose_golden_validation_and_logged_out_shapes(
     ).status_code == 401
 
 
+async def test_qr_key_accepts_current_netease_top_level_unikey_shape() -> None:
+    class TopLevelKeyProvider(FakeNeteaseAccountProvider):
+        async def login_qr_key(self) -> MusicProviderResponse:
+            return MusicProviderResponse(payload={"code": 200, "unikey": "top-level-key"})
+
+    service = BaselineNeteaseAccountService(
+        TopLevelKeyProvider(), InMemoryMusicAccountSessionStore()
+    )
+
+    result = await service.create_qr_key(UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
+
+    assert result.payload == {"key": "top-level-key"}
+
+
 async def test_netease_write_routes_validate_parameters_only_after_login(
     account_client: AsyncTestClient[Litestar],
     account_provider: FakeNeteaseAccountProvider,

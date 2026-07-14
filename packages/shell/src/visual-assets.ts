@@ -19,7 +19,7 @@ export const dockIconAssets = {
   'growth-archive': `${ASSET_ROOT}/dock-icons/growth-archive.png`,
   launchpad: `${ASSET_ROOT}/dock-icons/launchpad.png`,
   mentor: `${ASSET_ROOT}/dock-icons/mentor.png`,
-  music: `${ASSET_ROOT}/dock-icons/music.svg`,
+  music: `${ASSET_ROOT}/dock-icons/dashboard.png`,
   onboarding: `${ASSET_ROOT}/dock-icons/onboarding.png`,
   resources: `${ASSET_ROOT}/dock-icons/resources.png`,
   training: `${ASSET_ROOT}/dock-icons/training.png`,

@@ -41,6 +41,7 @@ export function MineradioApp({ window: descriptor }: MineradioAppProps) {
       root.classList.add('simple-mode-preload');
     }
     root.innerHTML = mineradioTemplate;
+    root.querySelectorAll('.desktop-window-btn').forEach((button) => button.remove());
     shadowRoot.replaceChildren(style, root);
     const unbindWindowChrome = host.bindWindowChrome(root);
     const releaseAppCapabilities = host.acquireAppCapabilities();

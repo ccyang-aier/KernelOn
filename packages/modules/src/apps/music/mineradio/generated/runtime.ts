@@ -21106,7 +21106,14 @@ async function openQQWebLogin() {
   if (!api || !api.isDesktop || typeof api.openQQMusicLogin !== 'function') {
     qqManualCookieOpen = true;
     updateLoginProviderUi();
-    if (statusEl) { statusEl.textContent = '当前环境不支持自动网页登录，可先使用手动导入。'; statusEl.className = 'fail'; }
+    try { window.open('https://y.qq.com/', '_blank', 'noopener,noreferrer'); } catch (_) {
+    if (environment.isLifecycleAbort(_)) return;}
+    if (statusEl) {
+      statusEl.textContent = '已打开 QQ 音乐官网。网页登录后，请将 y.qq.com 的 Cookie 粘贴到下方完成导入。';
+      statusEl.className = 'preview';
+    }
+    var cookieInput = window.__mineradioDocument.getElementById('qq-cookie-input');
+    if (cookieInput) window.setTimeout(function(){ cookieInput.focus(); }, 0);
     return;
   }
 

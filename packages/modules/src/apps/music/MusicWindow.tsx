@@ -9,7 +9,6 @@ export default function MusicWindow({ window }: AppWindowSurfaceProps) {
     <AppFrame
       className="bg-black"
       contentClassName="!bg-black"
-      header={false}
       scroll="hidden"
     >
       <MineradioApp window={window} />

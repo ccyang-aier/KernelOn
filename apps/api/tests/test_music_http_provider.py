@@ -107,6 +107,7 @@ async def test_netease_and_external_endpoint_parameters_match_mineradio() -> Non
         "s=radio&type=1009&limit=18&offset=0&total=true",
         cookie,
     )
+    assert "type=1" in calls_by_path["/api/login/qrcode/unikey"][1]
     assert "ids=%5B7%2C%22song-mid%22%5D" in calls_by_path["/api/song/detail/"][1]
     assert "private_cloud=true" in calls_by_path["/api/v1/artist/songs"][1]
     assert "beforeTime=0" in calls_by_path["/api/v1/resource/comments/R_SO_4_7"][1]

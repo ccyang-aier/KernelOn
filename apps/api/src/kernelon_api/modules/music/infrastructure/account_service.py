@@ -85,7 +85,9 @@ class BaselineNeteaseAccountService:
         _ = user_id
         response = await self._provider.login_qr_key()
         data = as_mapping(response.payload.get("data"))
-        return MusicJsonResult(payload={"key": data.get("unikey")})
+        return MusicJsonResult(
+            payload={"key": data.get("unikey") or response.payload.get("unikey")}
+        )
 
     async def create_qr_code(self, user_id: UUID, key: str) -> MusicJsonResult:
         _ = user_id

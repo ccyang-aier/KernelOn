@@ -4,8 +4,13 @@ import { render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
+const appFrame = vi.hoisted(() => vi.fn());
+
 vi.mock('@kernelon/shell', () => ({
-  AppFrame: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  AppFrame: (props: { children: ReactNode }) => {
+    appFrame(props);
+    return <div>{props.children}</div>;
+  },
 }));
 
 vi.mock('../src/apps/music/MineradioApp', () => ({
@@ -20,5 +25,6 @@ describe('Mineradio window adapter', () => {
 
     expect(screen.getByTestId('ported-mineradio-app')).not.toBeNull();
     expect(document.querySelector('iframe')).toBeNull();
+    expect(appFrame.mock.calls[0]?.[0]).not.toHaveProperty('header', false);
   });
 });
