@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+# Development reload verification marker (removed after validation).
+
 from typing import Any
 from uuid import UUID  # noqa: TC003 - Litestar resolves dependency annotations at runtime
 
@@ -49,6 +51,15 @@ from kernelon_api.modules.organizations.application.ports import OrganizationSer
 from kernelon_api.modules.organizations.infrastructure.service import SQLAlchemyOrganizationService
 from kernelon_api.modules.organizations.presentation.controllers import OrganizationController
 from kernelon_api.modules.system.presentation.health import HealthController
+from kernelon_api.modules.wallpapers.application import WallpaperService  # noqa: TC001
+from kernelon_api.modules.wallpapers.infrastructure.providers import (
+    CoverrWallpaperProvider,
+    HttpProvider,
+    NasaWallpaperProvider,
+    WikimediaWallpaperProvider,
+)
+from kernelon_api.modules.wallpapers.infrastructure.service import SQLAlchemyWallpaperService
+from kernelon_api.modules.wallpapers.presentation import WallpaperController
 from kernelon_api.platform.errors import create_exception_handlers
 from kernelon_api.platform.request_id import create_request_context_middleware
 
@@ -69,6 +80,11 @@ def create_app(
     resolved_account_provider = music_account_provider or HttpxMusicProvider()
     resolved_qq_provider = music_qq_provider or HttpxMusicProvider()
     resolved_podcast_provider = music_podcast_provider or HttpxMusicProvider()
+    wallpaper_providers: dict[str, HttpProvider] = {
+        "nasa": NasaWallpaperProvider(),
+        "wikimedia": WikimediaWallpaperProvider(),
+        "coverr": CoverrWallpaperProvider(resolved.wallpaper_coverr_api_key),
+    }
 
     async def provide_identity_service(
         db_session: NamedDependency[Any],
@@ -111,6 +127,11 @@ def create_app(
     ) -> PodcastAccountService:
         return BaselinePodcastAccountService(resolved_podcast_provider, music_account_sessions)
 
+    async def provide_wallpaper_service(
+        db_session: NamedDependency[Any],
+    ) -> WallpaperService:
+        return SQLAlchemyWallpaperService(db_session, resolved, wallpaper_providers)
+
     async def provide_music_user_id(
         request: Request[Any, Any, Any],
         identity_service: NamedDependency[IdentityService],
@@ -119,7 +140,7 @@ def create_app(
 
     api_router = Router(
         path="/api/v1",
-        route_handlers=[AuthController, MusicController, OrganizationController],
+        route_handlers=[AuthController, MusicController, OrganizationController, WallpaperController],
         dependencies={
             "identity_service": Provide(provide_identity_service),
             "music_account_sessions": Provide(provide_music_account_sessions),
@@ -129,6 +150,7 @@ def create_app(
             "podcast_account_service": Provide(provide_podcast_account_service),
             "music_user_id": Provide(provide_music_user_id),
             "organization_service": Provide(provide_organization_service),
+            "wallpaper_service": Provide(provide_wallpaper_service),
         },
     )
     openapi_config = (

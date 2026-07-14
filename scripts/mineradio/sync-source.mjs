@@ -261,7 +261,7 @@ function adaptRuntimeSourceForKernelOn(source) {
 
 function adaptWebLoginFallbacksForKernelOn(source) {
   const adapted = source.replace(
-    /(async function openQQWebLogin\(\) \{[\s\S]*?var api = window\.desktopWindow;)\n  if \(!api \|\| !api\.isDesktop \|\| typeof api\.openQQMusicLogin !== 'function'\) \{[\s\S]*?\n    return;\n  \}/,
+    /(async function openQQWebLogin\(\) \{[\s\S]*?var api = window\.desktopWindow;)\n {2}if \(!api \|\| !api\.isDesktop \|\| typeof api\.openQQMusicLogin !== 'function'\) \{[\s\S]*?\n {4}return;\n {2}\}/,
     `$1
   if (!api || !api.isDesktop || typeof api.openQQMusicLogin !== 'function') {
     qqManualCookieOpen = true;

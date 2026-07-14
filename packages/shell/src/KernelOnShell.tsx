@@ -9,6 +9,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -60,6 +61,7 @@ export interface KernelOnShellProps {
 const ShellStoreContext = createContext<ShellStore | null>(null);
 const systemBrightnessStorageKey = 'kernelon_system_brightness';
 const systemVolumeStorageKey = 'kernelon_system_volume';
+const systemSettingsChangeEvent = 'kernelon:system-settings-change';
 
 function ShellStoreProvider({
   children,
@@ -93,13 +95,22 @@ function KernelOnShellView({
   runtime,
 }: Readonly<{ currentUser?: ShellCredentialUser; runtime: ShellRuntimeRegistry }>) {
   const [resolvedCurrentUser, setResolvedCurrentUser] = useState(currentUser);
-  const [systemBrightness, setSystemBrightness] = useState(72);
-  const [systemVolume, setSystemVolume] = useState(46);
+  const systemBrightness = useSyncExternalStore(
+    subscribeToSystemSettings,
+    () => readStoredPercentage(systemBrightnessStorageKey, 72),
+    () => 72,
+  );
+  const systemVolume = useSyncExternalStore(
+    subscribeToSystemSettings,
+    () => readStoredPercentage(systemVolumeStorageKey, 46),
+    () => 46,
+  );
   const liquidGlassContextContainerRef = useRef<HTMLElement>(null);
   const desktopSurfaceRef = useRef<HTMLElement>(null);
   const genieEffectLayerRef = useRef<GenieEffectLayerHandle>(null);
   const genieSnapshotsRef = useRef<Map<string, HTMLCanvasElement>>(new Map());
   const genieTransitioningAppIdRef = useRef<string | null>(null);
+  const systemVolumeRef = useRef(systemVolume);
 
   const { layerRef: desktopClickRippleLayerRef, playRipple: playDesktopClickRipple } =
     useDesktopClickRipple();
@@ -152,44 +163,38 @@ function KernelOnShellView({
   }, []);
 
   useEffect(() => {
-    setSystemBrightness(readStoredPercentage(systemBrightnessStorageKey, 72));
-    setSystemVolume(readStoredPercentage(systemVolumeStorageKey, 46));
-  }, []);
-
-  useEffect(() => {
     const normalizedVolume = systemVolume / 100;
-    const applyVolume = (root: ParentNode) => {
-      root.querySelectorAll<HTMLMediaElement>('audio, video').forEach((media) => {
-        media.volume = normalizedVolume;
-      });
-    };
-
-    applyVolume(document);
+    systemVolumeRef.current = systemVolume;
+    applyMediaVolume(document, normalizedVolume);
     window.dispatchEvent(
       new CustomEvent('kernelon:system-volume-change', { detail: { volume: normalizedVolume } }),
     );
+  }, [systemVolume]);
+
+  useEffect(() => {
     const observer = new MutationObserver((records) => {
+      const normalizedVolume = systemVolumeRef.current / 100;
       records.forEach((record) => {
         record.addedNodes.forEach((node) => {
           if (node instanceof HTMLMediaElement) node.volume = normalizedVolume;
-          else if (node instanceof Element) applyVolume(node);
+          else if (node instanceof Element) applyMediaVolume(node, normalizedVolume);
         });
       });
     });
     observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
-  }, [systemVolume]);
+  }, []);
 
   const updateSystemBrightness = useCallback((value: number) => {
     const normalized = Math.min(100, Math.max(0, value));
-    setSystemBrightness(normalized);
     localStorage.setItem(systemBrightnessStorageKey, String(normalized));
+    window.dispatchEvent(new Event(systemSettingsChangeEvent));
   }, []);
 
   const updateSystemVolume = useCallback((value: number) => {
     const normalized = Math.min(100, Math.max(0, value));
-    setSystemVolume(normalized);
     localStorage.setItem(systemVolumeStorageKey, String(normalized));
+    window.dispatchEvent(new Event(systemSettingsChangeEvent));
   }, []);
 
   useEffect(() => {
@@ -695,6 +700,26 @@ function readStoredPercentage(key: string, fallback: number): number {
   } catch {
     return fallback;
   }
+}
+
+function subscribeToSystemSettings(onStoreChange: () => void): () => void {
+  const handleStorageChange = (event: StorageEvent) => {
+    if (event.key === systemBrightnessStorageKey || event.key === systemVolumeStorageKey) {
+      onStoreChange();
+    }
+  };
+  window.addEventListener('storage', handleStorageChange);
+  window.addEventListener(systemSettingsChangeEvent, onStoreChange);
+  return () => {
+    window.removeEventListener('storage', handleStorageChange);
+    window.removeEventListener(systemSettingsChangeEvent, onStoreChange);
+  };
+}
+
+function applyMediaVolume(root: ParentNode, volume: number): void {
+  root.querySelectorAll<HTMLMediaElement>('audio, video').forEach((media) => {
+    media.volume = volume;
+  });
 }
 
 function windowBoundsToGenieRect(bounds: WindowBounds, mode?: WindowMode): GenieRect {

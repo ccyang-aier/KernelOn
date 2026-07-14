@@ -35,8 +35,12 @@ case "$MODE" in
       litestar --app kernelon_api.asgi:app run --host 0.0.0.0 --port "$PORT"
     ;;
   serve-dev)
+    # Windows-mounted repositories do not reliably emit filesystem events into WSL.
+    # Force watchfiles to poll so Litestar reload observes edits made on Windows.
+    export WATCHFILES_FORCE_POLLING=${WATCHFILES_FORCE_POLLING:-true}
     exec "$CONDA_EXE" run -n "$CONDA_ENV" uv run --project apps/api \
-      litestar --app kernelon_api.asgi:app run --reload --host 0.0.0.0 --port "$PORT"
+      litestar --app kernelon_api.asgi:app run --reload --reload-dir "$REPO_ROOT/apps/api/src" \
+      --host 0.0.0.0 --port "$PORT"
     ;;
   *)
     echo "Usage: $0 {prepare|serve|serve-dev} [port]" >&2
