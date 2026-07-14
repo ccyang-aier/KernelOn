@@ -457,8 +457,12 @@ function createTrackedConstructor<TArguments extends unknown[], TInstance extend
 }
 
 function createScopedThree(registry: MineradioResourceRegistry): typeof THREE {
+  // Bundlers may expose ESM namespace exports as read-only, non-configurable properties.
+  // A Proxy cannot return a wrapped constructor for such a property, so proxy a mutable
+  // facade instead of the module namespace itself.
+  const facade = Object.assign(Object.create(null) as object, THREE) as typeof THREE;
   const constructors = new Map<PropertyKey, unknown>();
-  return new Proxy(THREE, {
+  return new Proxy(facade, {
     get(target, property, receiver) {
       const value = Reflect.get(target, property, receiver) as unknown;
       if (

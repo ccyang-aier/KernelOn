@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as THREE from 'three';
 
 import type { MineradioHost } from '../src/apps/music/host/contract';
 import { isMineradioLifecycleAbort } from '../src/apps/music/mineradio/runtime/lifecycle-abort';
@@ -236,6 +237,23 @@ describe('MineradioResourceRegistry', () => {
 });
 
 describe('createScopedMineradioEnvironment', () => {
+  it('wraps Three.js constructors through a mutable facade instead of the module namespace', () => {
+    const fixture = createEnvironmentFixture();
+    const descriptor = Object.getOwnPropertyDescriptor(
+      fixture.environment.THREE,
+      'WebGLRenderer',
+    );
+    const ScopedWebGLRenderer = fixture.environment.THREE.WebGLRenderer;
+
+    expect(descriptor).toMatchObject({ configurable: true, writable: true });
+    expect(ScopedWebGLRenderer).not.toBe(THREE.WebGLRenderer);
+    expect(Object.getPrototypeOf(ScopedWebGLRenderer)).toBe(THREE.WebGLRenderer);
+    expect(ScopedWebGLRenderer.prototype).toBe(THREE.WebGLRenderer.prototype);
+    expect(fixture.environment.THREE.Vector3).toBe(THREE.Vector3);
+
+    fixture.environment.abort();
+  });
+
   it('rolls back all pre-finalize resources when runtime mounting aborts', () => {
     const namespaceName = '__kernelonMineradioActions';
     const scopedDocumentName = '__mineradioDocument';
