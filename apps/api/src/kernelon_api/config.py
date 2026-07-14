@@ -55,6 +55,16 @@ class Settings(BaseSettings):
     jwt_audience: str = "kernelon-clients"
     access_token_minutes: int = Field(default=15, ge=1, le=1440)
     refresh_token_days: int = Field(default=30, ge=1, le=365)
+    wallpaper_storage_backend: Literal["local", "s3"] = "local"
+    wallpaper_storage_path: Path = API_ROOT.parent.parent / ".kernelon-data" / "wallpapers"
+    wallpaper_media_limit_bytes: int = Field(default=1024**3, ge=1024**2)
+    wallpaper_committed_limit_bytes: int = Field(default=700 * 1024**2, ge=1024**2)
+    wallpaper_temp_limit_bytes: int = Field(default=300 * 1024**2, ge=1024**2)
+    wallpaper_org_quota_bytes: int = Field(default=500 * 1024**2, ge=1024**2)
+    wallpaper_user_quota_bytes: int = Field(default=100 * 1024**2, ge=1024**2)
+    wallpaper_system_reserve_bytes: int = Field(default=200 * 1024**2, ge=0)
+    wallpaper_processing_mode: Literal["passthrough", "transcode"] = "passthrough"
+    wallpaper_coverr_api_key: str | None = None
 
     @field_validator("allowed_origins", "allowed_hosts")
     @classmethod
@@ -72,6 +82,10 @@ class Settings(BaseSettings):
             raise ValueError("wildcard origins and hosts are not allowed in production")
         if self.environment == "production" and len(self.jwt_secret.encode()) < 32:
             raise ValueError("jwt_secret must contain at least 32 bytes in production")
+        if self.wallpaper_committed_limit_bytes + self.wallpaper_temp_limit_bytes > self.wallpaper_media_limit_bytes:
+            raise ValueError("wallpaper committed and temporary limits exceed the media limit")
+        if self.environment == "production" and self.wallpaper_storage_backend != "s3":
+            raise ValueError("production wallpaper storage must use the s3 backend")
 
     @property
     def sqlalchemy_url(self) -> str:

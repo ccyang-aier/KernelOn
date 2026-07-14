@@ -125,9 +125,7 @@ describe('KernelOnShell', () => {
       />,
     );
 
-    const appContainer = await screen.findByTestId(
-      'kernelon-app-container-window:keep-alive',
-    );
+    const appContainer = await screen.findByTestId('kernelon-app-container-window:keep-alive');
 
     expect(appContainer).toHaveStyle({ display: 'none', pointerEvents: 'none' });
     expect(runtime.loadAppWindow).toHaveBeenCalledTimes(1);
@@ -427,10 +425,10 @@ describe('KernelOnShell', () => {
     const liquidGlassContainer = panel.closest('.glass');
     const liquidGlassRoot = liquidGlassContainer?.parentElement;
     const liquidGlassWarp = liquidGlassContainer?.querySelector('.glass__warp');
-    expect(liquidGlassRoot).toHaveStyle({ position: 'fixed', top: '292px' });
+    expect(liquidGlassRoot).toHaveStyle({ position: 'fixed', top: '296px' });
     expect(liquidGlassRoot).toHaveClass('ko-control-panel-is-open');
     expect(liquidGlassRoot?.parentElement).toHaveAttribute('data-slot', 'liquid-glass-svg-filter');
-    expect(liquidGlassContainer).toHaveStyle({ borderRadius: '26px', padding: '17px' });
+    expect(liquidGlassContainer).toHaveStyle({ borderRadius: '26px', padding: '16px' });
     expect(liquidGlassWarp?.getAttribute('style')).toContain('filter: url(');
     expect(liquidGlassWarp?.getAttribute('style')).toContain(
       'backdrop-filter: blur(31.2px) saturate(145%)',
@@ -444,6 +442,11 @@ describe('KernelOnShell', () => {
 
     const actionGrid = panel.querySelector('.ko-control-action-grid');
     expect(actionGrid?.children).toHaveLength(7);
+    expect(actionGrid?.firstElementChild).toHaveClass('ko-round-action', 'is-wide');
+    expect(within(actionGrid as HTMLElement).getByRole('button', { name: /今日签到/ })).toHaveClass(
+      'ko-round-action-button',
+      'is-wide',
+    );
     expect(within(panel).getByRole('button', { name: '全屏' })).toHaveClass(
       'ko-round-action-button',
     );
@@ -459,6 +462,22 @@ describe('KernelOnShell', () => {
       target: { value: '63' },
     });
     expect(within(panel).getByText('63%')).toBeInTheDocument();
+    const media = document.createElement('audio');
+    document.body.append(media);
+    fireEvent.change(within(panel).getByRole('slider', { name: '音量' }), {
+      target: { value: '58' },
+    });
+    await waitFor(() => expect(media.volume).toBe(0.58));
+    expect(localStorage.getItem('kernelon_system_volume')).toBe('58');
+    media.remove();
+
+    fireEvent.change(within(panel).getByRole('slider', { name: '桌面亮度' }), {
+      target: { value: '50' },
+    });
+    expect(screen.getByTestId('kernelon-system-brightness-overlay')).toHaveStyle({
+      opacity: 0.36,
+    });
+    expect(localStorage.getItem('kernelon_system_brightness')).toBe('50');
 
     await user.click(within(panel).getByRole('button', { name: /Spotlight/ }));
     await waitFor(() =>

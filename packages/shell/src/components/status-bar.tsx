@@ -16,17 +16,25 @@ import type { ShellCredentialUser } from './shell-lock-screen';
 import { SystemControlPanel } from './system-control-panel';
 
 export interface KernelOnStatusBarProps {
+  brightness: number;
   currentUser?: ShellCredentialUser;
+  onBrightnessChange(value: number): void;
   onCurrentUserChange(user: ShellCredentialUser): void;
+  onVolumeChange(value: number): void;
   spotlightOpen: boolean;
   onToggleSpotlight(): void;
+  volume: number;
 }
 
 export function KernelOnStatusBar({
+  brightness,
   currentUser,
+  onBrightnessChange,
   onCurrentUserChange,
+  onVolumeChange,
   spotlightOpen,
   onToggleSpotlight,
+  volume,
 }: KernelOnStatusBarProps) {
   const [controlCenterOpen, setControlCenterOpen] = useState(false);
 
@@ -142,11 +150,15 @@ export function KernelOnStatusBar({
         </div>
       </header>
       <SystemControlPanel
+        brightness={brightness}
         onClose={() => setControlCenterOpen(false)}
+        onBrightnessChange={onBrightnessChange}
         onUserChange={onCurrentUserChange}
         onOpenSpotlight={onToggleSpotlight}
+        onVolumeChange={onVolumeChange}
         open={controlCenterOpen}
         user={currentUser}
+        volume={volume}
       />
     </>
   );

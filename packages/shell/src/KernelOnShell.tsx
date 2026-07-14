@@ -58,6 +58,8 @@ export interface KernelOnShellProps {
 }
 
 const ShellStoreContext = createContext<ShellStore | null>(null);
+const systemBrightnessStorageKey = 'kernelon_system_brightness';
+const systemVolumeStorageKey = 'kernelon_system_volume';
 
 function ShellStoreProvider({
   children,
@@ -91,6 +93,8 @@ function KernelOnShellView({
   runtime,
 }: Readonly<{ currentUser?: ShellCredentialUser; runtime: ShellRuntimeRegistry }>) {
   const [resolvedCurrentUser, setResolvedCurrentUser] = useState(currentUser);
+  const [systemBrightness, setSystemBrightness] = useState(72);
+  const [systemVolume, setSystemVolume] = useState(46);
   const liquidGlassContextContainerRef = useRef<HTMLElement>(null);
   const desktopSurfaceRef = useRef<HTMLElement>(null);
   const genieEffectLayerRef = useRef<GenieEffectLayerHandle>(null);
@@ -145,6 +149,47 @@ function KernelOnShellView({
   );
   const closeDesktopContextMenu = useCallback(() => {
     setDesktopContextMenu(null);
+  }, []);
+
+  useEffect(() => {
+    setSystemBrightness(readStoredPercentage(systemBrightnessStorageKey, 72));
+    setSystemVolume(readStoredPercentage(systemVolumeStorageKey, 46));
+  }, []);
+
+  useEffect(() => {
+    const normalizedVolume = systemVolume / 100;
+    const applyVolume = (root: ParentNode) => {
+      root.querySelectorAll<HTMLMediaElement>('audio, video').forEach((media) => {
+        media.volume = normalizedVolume;
+      });
+    };
+
+    applyVolume(document);
+    window.dispatchEvent(
+      new CustomEvent('kernelon:system-volume-change', { detail: { volume: normalizedVolume } }),
+    );
+    const observer = new MutationObserver((records) => {
+      records.forEach((record) => {
+        record.addedNodes.forEach((node) => {
+          if (node instanceof HTMLMediaElement) node.volume = normalizedVolume;
+          else if (node instanceof Element) applyVolume(node);
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [systemVolume]);
+
+  const updateSystemBrightness = useCallback((value: number) => {
+    const normalized = Math.min(100, Math.max(0, value));
+    setSystemBrightness(normalized);
+    localStorage.setItem(systemBrightnessStorageKey, String(normalized));
+  }, []);
+
+  const updateSystemVolume = useCallback((value: number) => {
+    const normalized = Math.min(100, Math.max(0, value));
+    setSystemVolume(normalized);
+    localStorage.setItem(systemVolumeStorageKey, String(normalized));
   }, []);
 
   useEffect(() => {
@@ -471,152 +516,162 @@ function KernelOnShellView({
         inert={isDesktopLocked ? true : undefined}
         style={{ visibility: isDesktopLocked ? 'hidden' : undefined }}
       >
-      <img
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
-        data-testid="kernelon-desktop-wallpaper"
-        draggable={false}
-        src={desktopWallpaper}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(circle_at_50%_92%,rgba(255,255,255,0.20),transparent_34%),linear-gradient(180deg,rgba(4,19,12,0.02),rgba(4,19,12,0.08))]"
-      />
-      <KernelOnStatusBar
-        currentUser={resolvedCurrentUser}
-        onCurrentUserChange={setResolvedCurrentUser}
-        onToggleSpotlight={toggleSpotlight}
-        spotlightOpen={spotlightOpen}
-      />
-      <section
-        ref={desktopSurfaceRef}
-        aria-label="KernelOn desktop"
-        className="relative min-h-screen"
-        data-testid="kernelon-desktop-surface"
-        onContextMenu={handleDesktopContextMenu}
-        onPointerDown={handleDesktopPointerDown}
-        onPointerMove={handleDesktopPointerMove}
-      >
-        <AnimatePresence>
-          {pendingWidgetPlacement || activeDraggedDesktopItemId ? (
-            <motion.div
-              animate={{ opacity: 1 }}
-              className="pointer-events-none absolute inset-0 z-0"
-              exit={{ opacity: 0 }}
-              initial={{ opacity: 0 }}
+        <img
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+          data-testid="kernelon-desktop-wallpaper"
+          draggable={false}
+          src={desktopWallpaper}
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[radial-gradient(circle_at_50%_92%,rgba(255,255,255,0.20),transparent_34%),linear-gradient(180deg,rgba(4,19,12,0.02),rgba(4,19,12,0.08))]"
+        />
+        <KernelOnStatusBar
+          brightness={systemBrightness}
+          currentUser={resolvedCurrentUser}
+          onBrightnessChange={updateSystemBrightness}
+          onCurrentUserChange={setResolvedCurrentUser}
+          onVolumeChange={updateSystemVolume}
+          onToggleSpotlight={toggleSpotlight}
+          spotlightOpen={spotlightOpen}
+          volume={systemVolume}
+        />
+        <section
+          ref={desktopSurfaceRef}
+          aria-label="KernelOn desktop"
+          className="relative min-h-screen"
+          data-testid="kernelon-desktop-surface"
+          onContextMenu={handleDesktopContextMenu}
+          onPointerDown={handleDesktopPointerDown}
+          onPointerMove={handleDesktopPointerMove}
+        >
+          <AnimatePresence>
+            {pendingWidgetPlacement || activeDraggedDesktopItemId ? (
+              <motion.div
+                animate={{ opacity: 1 }}
+                className="pointer-events-none absolute inset-0 z-0"
+                exit={{ opacity: 0 }}
+                initial={{ opacity: 0 }}
+              >
+                {desktopGridCells.map((cell) => (
+                  <div
+                    className="absolute rounded-[18px] border border-dashed border-white/18 bg-white/[0.035] shadow-[inset_0_0_8px_rgba(255,255,255,0.03)]"
+                    key={`${cell.x}-${cell.y}`}
+                    style={resolveDesktopGridAreaStyle({
+                      height: 1,
+                      width: 1,
+                      x: cell.x,
+                      y: cell.y,
+                    })}
+                  />
+                ))}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+          <DesktopClickRippleLayer layerRef={desktopClickRippleLayerRef} />
+          {desktopItems.map((item) => (
+            <DesktopItemMount
+              item={item}
+              key={item.id}
+              onDragStateChange={setActiveDraggedDesktopItemId}
+              onMoveItem={(itemId, grid) => moveDesktopItem(currentScreenId, itemId, grid)}
+              onRemoveItem={(itemId) => removeDesktopItem(currentScreenId, itemId)}
+              runtime={runtime}
+              widgets={widgets}
+            />
+          ))}
+          {pendingWidgetPlacement && pendingPlacementStyle ? (
+            <div
+              className="pointer-events-none absolute z-10 rounded-[22px] border-2 border-dashed border-ko-ring bg-ko-ring/10 shadow-[0_0_20px_rgba(84,179,153,0.15)]"
+              style={pendingPlacementStyle}
+            />
+          ) : null}
+          {pendingWidgetPlacement && pendingPlacementPointer ? (
+            <div
+              className="pointer-events-none absolute z-50 flex items-center justify-center rounded-[22px] border border-white/60 bg-white/40 font-semibold text-ko-ink/90 shadow-[0_12px_28px_rgba(0,0,0,0.15)] backdrop-blur-[8px]"
+              style={{
+                height: pendingPlacementStyle?.height,
+                left: pendingPlacementPointer.x - Number(pendingPlacementStyle?.width ?? 0) / 2,
+                top: pendingPlacementPointer.y - Number(pendingPlacementStyle?.height ?? 0) / 2,
+                width: pendingPlacementStyle?.width,
+              }}
             >
-              {desktopGridCells.map((cell) => (
-                <div
-                  className="absolute rounded-[18px] border border-dashed border-white/18 bg-white/[0.035] shadow-[inset_0_0_8px_rgba(255,255,255,0.03)]"
-                  key={`${cell.x}-${cell.y}`}
-                  style={resolveDesktopGridAreaStyle({
-                    height: 1,
-                    width: 1,
-                    x: cell.x,
-                    y: cell.y,
-                  })}
-                />
-              ))}
-            </motion.div>
+              <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-white/20 bg-black/48 px-4 py-2.5 text-white shadow-lg backdrop-blur-md">
+                <span className="text-[12px] font-bold">放置小组件</span>
+                <span className="text-[10px] text-white/70">点击桌面确认位置</span>
+              </div>
+            </div>
+          ) : null}
+          <AnimatePresence>
+            {windows
+              .filter((window) => {
+                if (window.status !== 'minimized') {
+                  return true;
+                }
+
+                return (
+                  apps.find((candidate) => candidate.id === window.appId)?.runtime.window
+                    .mountPolicy === 'keep-alive'
+                );
+              })
+              .map((window) => {
+                const app = apps.find((item) => item.id === window.appId);
+
+                return app ? (
+                  <AppWindowMount
+                    app={app}
+                    key={window.id}
+                    onClose={closeWindow}
+                    onFocus={focusWindow}
+                    genieHidden={genieHiddenWindowIds.has(window.id)}
+                    onMinimize={handleMinimizeWindow}
+                    onResize={resizeWindow}
+                    onToggleFullscreen={toggleWindowFullscreen}
+                    runtime={runtime}
+                    window={window}
+                  />
+                ) : null;
+              })}
+          </AnimatePresence>
+        </section>
+        <AnimatePresence>
+          {desktopContextMenu ? (
+            <KernelOnDesktopContextMenu
+              key={`${desktopContextMenu.x}-${desktopContextMenu.y}`}
+              mouseContainer={liquidGlassContextContainerRef}
+              onClose={closeDesktopContextMenu}
+              onOpenWallpaper={() => openApp('wallpaper')}
+              onOpenWidgetManager={() => {
+                openApp('widget-manager');
+                closeDesktopContextMenu();
+              }}
+              onOpenSpotlight={toggleSpotlight}
+              position={desktopContextMenu}
+            />
           ) : null}
         </AnimatePresence>
-        <DesktopClickRippleLayer layerRef={desktopClickRippleLayerRef} />
-        {desktopItems.map((item) => (
-          <DesktopItemMount
-            item={item}
-            key={item.id}
-            onDragStateChange={setActiveDraggedDesktopItemId}
-            onMoveItem={(itemId, grid) => moveDesktopItem(currentScreenId, itemId, grid)}
-            onRemoveItem={(itemId) => removeDesktopItem(currentScreenId, itemId)}
-            runtime={runtime}
-            widgets={widgets}
-          />
-        ))}
-        {pendingWidgetPlacement && pendingPlacementStyle ? (
-          <div
-            className="pointer-events-none absolute z-10 rounded-[22px] border-2 border-dashed border-ko-ring bg-ko-ring/10 shadow-[0_0_20px_rgba(84,179,153,0.15)]"
-            style={pendingPlacementStyle}
-          />
-        ) : null}
-        {pendingWidgetPlacement && pendingPlacementPointer ? (
-          <div
-            className="pointer-events-none absolute z-50 flex items-center justify-center rounded-[22px] border border-white/60 bg-white/40 font-semibold text-ko-ink/90 shadow-[0_12px_28px_rgba(0,0,0,0.15)] backdrop-blur-[8px]"
-            style={{
-              height: pendingPlacementStyle?.height,
-              left: pendingPlacementPointer.x - Number(pendingPlacementStyle?.width ?? 0) / 2,
-              top: pendingPlacementPointer.y - Number(pendingPlacementStyle?.height ?? 0) / 2,
-              width: pendingPlacementStyle?.width,
-            }}
-          >
-            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-white/20 bg-black/48 px-4 py-2.5 text-white shadow-lg backdrop-blur-md">
-              <span className="text-[12px] font-bold">放置小组件</span>
-              <span className="text-[10px] text-white/70">点击桌面确认位置</span>
-            </div>
-          </div>
-        ) : null}
-        <AnimatePresence>
-          {windows
-            .filter((window) => {
-              if (window.status !== 'minimized') {
-                return true;
-              }
-
-              return (
-                apps.find((candidate) => candidate.id === window.appId)?.runtime.window
-                  .mountPolicy === 'keep-alive'
-              );
-            })
-            .map((window) => {
-              const app = apps.find((item) => item.id === window.appId);
-
-              return app ? (
-                <AppWindowMount
-                  app={app}
-                  key={window.id}
-                  onClose={closeWindow}
-                  onFocus={focusWindow}
-                  genieHidden={genieHiddenWindowIds.has(window.id)}
-                  onMinimize={handleMinimizeWindow}
-                  onResize={resizeWindow}
-                  onToggleFullscreen={toggleWindowFullscreen}
-                  runtime={runtime}
-                  window={window}
-                />
-              ) : null;
-            })}
-        </AnimatePresence>
-      </section>
-      <AnimatePresence>
-        {desktopContextMenu ? (
-          <KernelOnDesktopContextMenu
-            key={`${desktopContextMenu.x}-${desktopContextMenu.y}`}
-            mouseContainer={liquidGlassContextContainerRef}
-            onClose={closeDesktopContextMenu}
-            onOpenWallpaper={() => openApp('wallpaper')}
-            onOpenWidgetManager={() => {
-              openApp('widget-manager');
-              closeDesktopContextMenu();
-            }}
-            onOpenSpotlight={toggleSpotlight}
-            position={desktopContextMenu}
-          />
-        ) : null}
-      </AnimatePresence>
-      <DesktopDock
-        apps={apps}
-        dockAppIds={dockAppIds}
-        onOpenApp={handleOpenAppFromDock}
-        onToggleLauncher={toggleLauncher}
-        onToggleSpotlight={toggleSpotlight}
-      />
-      <GenieSnapshotStage
-        appIds={dockAppIds}
-        apps={apps}
-        onSnapshotReady={handleGenieSnapshotReady}
-        runtime={runtime}
-      />
-      <GenieEffectLayer ref={genieEffectLayerRef} />
+        <DesktopDock
+          apps={apps}
+          dockAppIds={dockAppIds}
+          onOpenApp={handleOpenAppFromDock}
+          onToggleLauncher={toggleLauncher}
+          onToggleSpotlight={toggleSpotlight}
+        />
+        <GenieSnapshotStage
+          appIds={dockAppIds}
+          apps={apps}
+          onSnapshotReady={handleGenieSnapshotReady}
+          runtime={runtime}
+        />
+        <GenieEffectLayer ref={genieEffectLayerRef} />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-[29] bg-black transition-opacity duration-200"
+          data-testid="kernelon-system-brightness-overlay"
+          style={{ opacity: ((100 - systemBrightness) / 100) * 0.72 }}
+        />
       </div>
       {isDesktopLocked ? (
         <div className="absolute inset-0 z-[200] bg-[#5f8789] text-white">
@@ -629,6 +684,17 @@ function KernelOnShellView({
       ) : null}
     </main>
   );
+}
+
+function readStoredPercentage(key: string, fallback: number): number {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    const stored = Number(raw);
+    return Number.isFinite(stored) ? Math.min(100, Math.max(0, stored)) : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function windowBoundsToGenieRect(bounds: WindowBounds, mode?: WindowMode): GenieRect {

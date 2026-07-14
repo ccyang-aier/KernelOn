@@ -251,20 +251,21 @@
 }
 
 .ko-control-action-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  row-gap: 13px;
-  padding-top: 14px;
-  margin-inline: -2px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px 8px;
+  padding-top: 8px;
 }
 
 .ko-round-action {
   display: flex;
-  width: 25%;
   min-width: 0;
   align-items: center;
   flex-direction: column;
+}
+
+.ko-round-action.is-wide {
+  grid-column: span 2;
 }
 
 .ko-round-action-button {
@@ -299,6 +300,14 @@
     inset 0 1px 0 rgb(255 255 255 / 0.42),
     0 9px 20px rgb(2 17 22 / 0.15);
   transform: translateY(-2px);
+}
+
+.ko-round-action-button.is-wide {
+  width: 100%;
+  padding: 0 18px;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  border-radius: 18px;
 }
 
 .ko-round-action-button.is-active {
@@ -353,6 +362,37 @@
   color: rgb(95 255 174 / 0.78);
 }
 
+.ko-wide-action-copy {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+.ko-wide-action-label {
+  color: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 15px;
+}
+
+.ko-wide-action-state {
+  overflow: hidden;
+  max-width: 100%;
+  color: rgb(255 255 255 / 0.48);
+  font-size: 8px;
+  font-weight: 500;
+  line-height: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ko-wide-action-state.is-active {
+  color: color-mix(in srgb, var(--ko-action-color) 76%, transparent);
+}
+
 .ko-status-dot {
   box-shadow: 0 0 0 0 rgb(52 199 89 / 0.62);
   animation: ko-control-status-pulse 2.2s ease-out infinite;
@@ -363,9 +403,7 @@
 }
 
 .ko-control-slider:focus-within {
-  box-shadow:
-    0 0 0 2px rgb(255 255 255 / 0.54),
-    inset 0 2px 5px rgb(0 0 0 / 0.16);
+  border-color: rgb(255 255 255 / 0.18);
 }
 
 @keyframes ko-control-status-pulse {
