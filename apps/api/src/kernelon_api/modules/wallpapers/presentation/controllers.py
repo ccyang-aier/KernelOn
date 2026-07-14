@@ -78,7 +78,7 @@ class WallpaperController(Controller):
         data.asset["id"] = asset_id
         return await wallpaper_service.favorite(await _user(request, identity_service), data.asset, True)
 
-    @delete("/wallpapers/{asset_id:str}/favorite", operation_id="wallpaper_favorite_delete")
+    @delete("/wallpapers/{asset_id:str}/favorite", operation_id="wallpaper_favorite_delete", status_code=200)
     async def unfavorite(self, asset_id: str, data: AssetRequest, request: Request[Any, Any, Any], identity_service: NamedDependency[IdentityService], wallpaper_service: NamedDependency[WallpaperService]) -> dict[str, Any]:
         data.asset["id"] = asset_id
         return await wallpaper_service.favorite(await _user(request, identity_service), data.asset, False)

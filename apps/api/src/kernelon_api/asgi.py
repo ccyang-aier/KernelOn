@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-# Development reload verification marker (removed after validation).
-
 from typing import Any
 from uuid import UUID  # noqa: TC003 - Litestar resolves dependency annotations at runtime
 
