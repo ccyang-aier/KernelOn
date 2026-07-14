@@ -152,9 +152,6 @@ Write-Host 'Stopping existing KernelOn port owners...' -ForegroundColor Cyan
 Stop-PortOwner -Port $FrontendPort
 Stop-PortOwner -Port $BackendPort
 
-Write-Host 'Preparing PostgreSQL, backend dependencies, and migrations...' -ForegroundColor Cyan
-Invoke-CheckedCommand -FilePath 'wsl.exe' -Arguments @('bash', $wslApiHelper, 'prepare', "$BackendPort")
-
 if ($Mode -eq 'Production') {
   Write-Host 'Building the latest frontend...' -ForegroundColor Cyan
   $buildArguments = @($pnpmCommand.Prefix) + @('--filter', '@kernelon/web', 'build')
@@ -169,6 +166,9 @@ if ($Mode -eq 'Production') {
 else {
   Write-Host 'Development mode: Fast Refresh and backend reload are enabled.' -ForegroundColor Cyan
 }
+
+Write-Host 'Preparing PostgreSQL, backend dependencies, and migrations...' -ForegroundColor Cyan
+Invoke-CheckedCommand -FilePath 'wsl.exe' -Arguments @('bash', $wslApiHelper, 'prepare', "$BackendPort")
 
 $backendOut = Join-Path $LogRoot 'backend.out.log'
 $backendErr = Join-Path $LogRoot 'backend.err.log'
