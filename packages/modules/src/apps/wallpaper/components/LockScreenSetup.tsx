@@ -10,6 +10,7 @@ import {
   TimerOff,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { WallpaperMedia, type DesktopWallpaper } from '@kernelon/shell';
 
 export function LockScreenSetup({
   idleMinutes,
@@ -26,7 +27,7 @@ export function LockScreenSetup({
   onApplyLock(password: string, idleMinutes: number): void;
   onDisableLock(): void;
   onIdleMinutesChange(idleMinutes: number): void;
-  wallpaper: string;
+  wallpaper: DesktopWallpaper;
 }>) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -96,7 +97,11 @@ export function LockScreenSetup({
       data-lock-screen-mode="setup"
       role="dialog"
     >
-      <img alt="当前桌面壁纸" className="wallpaper-lock-screen__background" src={wallpaper} />
+      <WallpaperMedia
+        alt="当前桌面壁纸"
+        className="wallpaper-lock-screen__background"
+        wallpaper={wallpaper}
+      />
       <div aria-hidden="true" className="wallpaper-lock-screen__shade" />
 
       <div className="wallpaper-lock-screen__clock" aria-hidden="true">

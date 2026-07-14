@@ -1,30 +1,31 @@
 'use client';
 
-import { Check, Heart, Play } from 'lucide-react';
+import { Check, Download, Heart, Play } from 'lucide-react';
 
 import type { WallpaperAsset } from '../types';
+import { WallpaperAssetMedia } from './WallpaperAssetMedia';
 
 export function PreviewView({
   isApplied,
   isLiked,
   onApply,
   onLike,
+  onImport,
   wallpaper,
-  wallpaperImage,
 }: Readonly<{
   isApplied: boolean;
   isLiked: boolean;
   onApply(id: string): void;
   onLike(id: string): void;
+  onImport(id: string): void;
   wallpaper: WallpaperAsset;
-  wallpaperImage: string;
 }>) {
   return (
     <section aria-label={`Preview ${wallpaper.title}`} className="wallpaper-preview">
       {wallpaper.placeholder === 'pink' ? (
         <i className="wallpaper-preview__placeholder" />
       ) : (
-        <img alt="" className="wallpaper-preview__image" draggable={false} src={wallpaperImage} />
+        <WallpaperAssetMedia alt="" asset={wallpaper} className="wallpaper-preview__image" />
       )}
       <div className="wallpaper-preview__shade" />
 
@@ -47,6 +48,16 @@ export function PreviewView({
           >
             <Heart aria-hidden="true" className={isLiked ? 'wallpaper-icon--fill' : undefined} />
           </button>
+          {wallpaper.canImport ? (
+            <button
+              className="wallpaper-preview__icon-button"
+              onClick={() => onImport(wallpaper.id)}
+              title="导入到我的壁纸（会占用配额）"
+              type="button"
+            >
+              <Download aria-hidden="true" />
+            </button>
+          ) : null}
           <button
             className="wallpaper-preview__apply-button"
             onClick={() => onApply(wallpaper.id)}

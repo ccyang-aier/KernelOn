@@ -42,6 +42,27 @@ export interface WallpaperAsset {
   uploadedAt: string;
   liked: boolean;
   placeholder?: 'pink';
+  mediaType?: 'image' | 'video';
+  provider?: string;
+  externalId?: string;
+  posterUrl?: string;
+  sources?: WallpaperMediaSource[];
+  sourcePageUrl?: string;
+  licenseName?: string;
+  licenseUrl?: string;
+  attribution?: string;
+  canImport?: boolean;
+  sizeBytes?: number | null;
+}
+
+export interface WallpaperMediaSource {
+  url?: string;
+  mediaPath?: string;
+  mimeType: string;
+  quality?: string;
+  width?: number;
+  height?: number;
+  bitrate?: number;
 }
 
 export interface HeroSlide extends WallpaperAsset {
@@ -70,4 +91,17 @@ export interface WallpaperSource {
   enabled: boolean;
   isSystem: boolean;
   description: string;
+  visible?: boolean;
+  configured?: boolean;
+  delivery?: 'hotlink' | 'stored';
+  mediaTypes?: Array<'image' | 'video'>;
+}
+
+export interface WallpaperStorageUsage {
+  user: { usedBytes: number; limitBytes: number };
+  organization: { usedBytes: number; limitBytes: number };
+  platform: { usedBytes: number; limitBytes: number };
+  temporaryLimitBytes: number;
+  backend: 'local' | 's3';
+  processingMode: 'passthrough' | 'transcode';
 }

@@ -1,21 +1,23 @@
 'use client';
 
 import {
-  ArrowRight,
   Check,
   Cloud,
   Database,
   Heart,
   Image as ImageIcon,
   Monitor,
-  Plus,
   Trash2,
   Upload,
-  X,
 } from 'lucide-react';
 import { useCallback, useState, useRef, type FormEvent } from 'react';
 
-import type { CategoryId, WallpaperAsset, WallpaperSource } from '../types';
+import type {
+  CategoryId,
+  WallpaperAsset,
+  WallpaperSource,
+  WallpaperStorageUsage,
+} from '../types';
 
 type SettingsTab = 'favorites' | 'uploads' | 'sources';
 
@@ -25,32 +27,31 @@ export function SettingsView({
   likedIds,
   sources,
   selectedWallpaperId,
+  storageUsage,
   onLike,
   onApply,
   onUploadWallpaper,
   onDeleteUploadedWallpaper,
   onToggleSource,
-  onAddSource,
-  onRemoveSource,
 }: Readonly<{
   allWallpapers: WallpaperAsset[];
   customWallpapers: WallpaperAsset[];
   likedIds: ReadonlySet<string>;
   sources: WallpaperSource[];
   selectedWallpaperId: string;
+  storageUsage: WallpaperStorageUsage | null;
   onLike(id: string): void;
   onApply(id: string): void;
-  onUploadWallpaper(w: WallpaperAsset): void;
+  onUploadWallpaper(file: File, title: string, posterUrl: string): Promise<void>;
   onDeleteUploadedWallpaper(id: string): void;
   onToggleSource(id: string): void;
-  onAddSource(s: WallpaperSource): void;
-  onRemoveSource(id: string): void;
 }>) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('favorites');
 
   // 上传相关的状态
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadPreviewUrl, setUploadPreviewUrl] = useState<string>('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadAuthor, setUploadAuthor] = useState('');
   const [uploadCategory, setUploadCategory] = useState<CategoryId>('Other');
@@ -58,19 +59,20 @@ export function SettingsView({
   const [uploadSize, setUploadSize] = useState('4.2 MB');
   const [isDragOver, setIsDragOver] = useState(false);
 
-  // 添加源相关的状态
-  const [isAddingSource, setIsAddingSource] = useState(false);
-  const [newSourceName, setNewSourceName] = useState('');
-  const [newSourceUrl, setNewSourceUrl] = useState('');
-  const [newSourceDesc, setNewSourceDesc] = useState('');
 
   // 处理上传图片选择
   const handleFileChange = useCallback((file: File) => {
-    if (!file.type.startsWith('image/')) {
-      alert('请上传图片文件！');
+    if (!file.type.startsWith('image/') && file.type !== 'video/mp4') {
+      alert('请上传 JPG、PNG、WebP 或 H.264 MP4 文件。');
+      return;
+    }
+    const maximumBytes = file.type.startsWith('video/') ? 150 * 1024 ** 2 : 40 * 1024 ** 2;
+    if (file.size > maximumBytes) {
+      alert(file.type.startsWith('video/') ? '视频不能超过 150 MiB。' : '图片不能超过 40 MiB。');
       return;
     }
     const previewUrl = URL.createObjectURL(file);
+    setUploadFile(file);
     setUploadPreviewUrl(previewUrl);
 
     // 解析图片尺寸及基本参数
@@ -79,11 +81,33 @@ export function SettingsView({
     setUploadTitle(file.name.replace(/\.[^/.]+$/, '')); // 去掉后缀名作为默认标题
     setUploadAuthor('本地用户');
 
-    const img = new Image();
-    img.src = previewUrl;
-    img.onload = () => {
-      setUploadResolution(`${img.naturalWidth}x${img.naturalHeight}`);
-    };
+    if (file.type.startsWith('image/')) {
+      const img = new Image();
+      img.src = previewUrl;
+      img.onload = () => setUploadResolution(`${img.naturalWidth}x${img.naturalHeight}`);
+    } else {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.src = previewUrl;
+      video.onloadedmetadata = () =>
+        {
+          if (video.duration < 3 || video.duration > 60) {
+            alert('动态壁纸时长必须在 3–60 秒之间。');
+            URL.revokeObjectURL(previewUrl);
+            setUploadPreviewUrl('');
+            setUploadFile(null);
+            return;
+          }
+          if (video.videoWidth > 3840 || video.videoHeight > 2160) {
+            alert('动态壁纸最高支持 4K 分辨率。');
+            URL.revokeObjectURL(previewUrl);
+            setUploadPreviewUrl('');
+            setUploadFile(null);
+            return;
+          }
+          setUploadResolution(`${video.videoWidth}x${video.videoHeight}`);
+        };
+    }
   }, []);
 
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -107,65 +131,30 @@ export function SettingsView({
     fileInputRef.current?.click();
   }, []);
 
-  const handleConfirmUpload = useCallback((e: FormEvent) => {
+  const handleConfirmUpload = useCallback(async (e: FormEvent) => {
     e.preventDefault();
-    if (!uploadPreviewUrl || !uploadTitle) {
+    if (!uploadFile || !uploadPreviewUrl || !uploadTitle) {
       return;
     }
-
-    const newWallpaper: WallpaperAsset = {
-      id: `custom-${Date.now()}`,
-      title: uploadTitle || '未命名本地壁纸',
-      category: uploadCategory,
-      author: uploadAuthor || '本地用户',
-      authorInitial: (uploadAuthor || '本')[0]?.toUpperCase() || 'L',
-      image: uploadPreviewUrl,
-      device: 'User Upload',
-      duration: '0:00',
-      durationSeconds: 0,
-      resolution: uploadResolution,
-      size: uploadSize,
-      likes: 0,
-      tags: ['Local', uploadCategory],
-      uploadedAt: new Date().toISOString(),
-      liked: false,
-    };
-
-    onUploadWallpaper(newWallpaper);
+    const posterUrl = uploadFile.type.startsWith('video/')
+      ? await createVideoPoster(uploadPreviewUrl)
+      : '';
+    await onUploadWallpaper(uploadFile, uploadTitle, posterUrl);
 
     // 清空状态
     setUploadPreviewUrl('');
+    setUploadFile(null);
     setUploadTitle('');
     setUploadAuthor('');
     setUploadCategory('Other');
-  }, [uploadPreviewUrl, uploadTitle, uploadCategory, uploadAuthor, uploadResolution, uploadSize, onUploadWallpaper]);
+  }, [onUploadWallpaper, uploadFile, uploadPreviewUrl, uploadTitle]);
 
   const handleCancelUpload = useCallback(() => {
+    if (uploadPreviewUrl) URL.revokeObjectURL(uploadPreviewUrl);
     setUploadPreviewUrl('');
-  }, []);
+    setUploadFile(null);
+  }, [uploadPreviewUrl]);
 
-  // 新增壁纸来源站
-  const handleAddSourceSubmit = useCallback((e: FormEvent) => {
-    e.preventDefault();
-    if (!newSourceName || !newSourceUrl) {
-      return;
-    }
-
-    const newSource: WallpaperSource = {
-      id: `source-${Date.now()}`,
-      name: newSourceName,
-      url: newSourceUrl,
-      enabled: true,
-      isSystem: false,
-      description: newSourceDesc || '用户自定义壁纸源站。',
-    };
-
-    onAddSource(newSource);
-    setIsAddingSource(false);
-    setNewSourceName('');
-    setNewSourceUrl('');
-    setNewSourceDesc('');
-  }, [newSourceName, newSourceUrl, newSourceDesc, onAddSource]);
 
   // 过滤出我喜欢的壁纸列表
   const favoriteWallpapers = allWallpapers.filter((w) => likedIds.has(w.id));
@@ -280,7 +269,12 @@ export function SettingsView({
             <div className="wallpaper-settings-panel anime-fade-in">
               <div className="wallpaper-settings-panel__header">
                 <h2>壁纸上传</h2>
-                <p>将本地的优质图片上传到 KernelOn 壁纸库中，供系统快捷应用。</p>
+                <p>
+                  仅保存你明确上传的媒体；个人空间
+                  {storageUsage
+                    ? ` ${formatBytes(storageUsage.user.usedBytes)} / ${formatBytes(storageUsage.user.limitBytes)}`
+                    : '正在读取'}。
+                </p>
               </div>
 
               {/* 上传表单 */}
@@ -293,7 +287,7 @@ export function SettingsView({
                   onDrop={onDrop}
                 >
                   <input
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,video/mp4"
                     className="hidden"
                     onChange={(e) => {
                       if (e.target.files && e.target.files[0]) {
@@ -305,15 +299,19 @@ export function SettingsView({
                   />
                   <div className="wallpaper-upload-zone__content">
                     <Upload className="w-8 h-8 text-teal-400/80 stroke-1 mb-1" />
-                    <h3>拖拽图片文件到此，或 <span>浏览本地</span></h3>
-                    <p>支持 JPG, PNG, WEBP 高清图片格式</p>
+                    <h3>拖拽壁纸文件到此，或 <span>浏览本地</span></h3>
+                    <p>支持 JPG、PNG、WebP 与 H.264 MP4；视频限制 3–60 秒</p>
                   </div>
                 </div>
               ) : (
                 <form className="wallpaper-upload-form" onSubmit={handleConfirmUpload}>
                   <div className="wallpaper-upload-form__layout">
                     <div className="wallpaper-upload-form__preview">
-                      <img alt="预览" src={uploadPreviewUrl} />
+                      {uploadFile?.type.startsWith('video/') ? (
+                        <video autoPlay loop muted playsInline src={uploadPreviewUrl} />
+                      ) : (
+                        <img alt="预览" src={uploadPreviewUrl} />
+                      )}
                       <span className="info-badge">{uploadResolution}</span>
                     </div>
 
@@ -484,16 +482,6 @@ export function SettingsView({
                           <span className="glass-switch__handle" />
                         </button>
 
-                        {!source.isSystem && (
-                          <button
-                            className="source-delete-btn"
-                            onClick={() => onRemoveSource(source.id)}
-                            title="移除此壁纸源"
-                            type="button"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-                          </button>
-                        )}
                       </div>
                     </div>
 
@@ -502,87 +490,38 @@ export function SettingsView({
                 ))}
               </div>
 
-              {/* 添加源板块 */}
-              <div className="wallpaper-sources-add-section">
-                {!isAddingSource ? (
-                  <button
-                    className="add-source-trigger"
-                    onClick={() => setIsAddingSource(true)}
-                    type="button"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>对接外部自定义壁纸源</span>
-                  </button>
-                ) : (
-                  <form className="add-source-form anime-fade-in" onSubmit={handleAddSourceSubmit}>
-                    <div className="add-source-form__header">
-                      <h3>对接新壁纸数据源</h3>
-                      <button
-                        className="close-btn"
-                        onClick={() => setIsAddingSource(false)}
-                        type="button"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div className="form-grid">
-                      <div className="form-group">
-                        <label htmlFor="source-name">来源站名称</label>
-                        <input
-                          id="source-name"
-                          onChange={(e) => setNewSourceName(e.target.value)}
-                          placeholder="My Custom Gallery"
-                          required
-                          type="text"
-                          value={newSourceName}
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="source-api-url">API 接口端点 (URL)</label>
-                        <input
-                          id="source-api-url"
-                          onChange={(e) => setNewSourceUrl(e.target.value)}
-                          placeholder="https://api.domain.com/v1"
-                          required
-                          type="url"
-                          value={newSourceUrl}
-                        />
-                      </div>
-
-                      <div className="form-group col-span-2">
-                        <label htmlFor="source-description">接口协议与版权声明描述</label>
-                        <input
-                          id="source-description"
-                          onChange={(e) => setNewSourceDesc(e.target.value)}
-                          placeholder="填写该壁纸站点的简单描述以及图片分发版权规则..."
-                          type="text"
-                          value={newSourceDesc}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="add-source-form__actions">
-                      <button
-                        className="cancel-btn"
-                        onClick={() => setIsAddingSource(false)}
-                        type="button"
-                      >
-                        取消
-                      </button>
-                      <button className="submit-btn" type="submit">
-                        确认对接
-                        <ArrowRight className="w-3.5 h-3.5 ml-1" />
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </div>
+              <p className="source-description">
+                来源由组织管理员从服务端白名单启用；客户端不接受任意 API 地址。
+              </p>
             </div>
           )}
         </main>
       </div>
     </section>
   );
+}
+
+async function createVideoPoster(videoUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    video.muted = true;
+    video.preload = 'metadata';
+    video.src = videoUrl;
+    video.onloadeddata = () => {
+      const width = 120;
+      const height = Math.max(1, Math.round((video.videoHeight / video.videoWidth) * width));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d')?.drawImage(video, 0, 0, width, height);
+      const poster = canvas.toDataURL('image/jpeg', 0.3);
+      resolve(poster.length <= 4096 ? poster : '');
+    };
+    video.onerror = () => resolve('');
+  });
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KiB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MiB`;
 }

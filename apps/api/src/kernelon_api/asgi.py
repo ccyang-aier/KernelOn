@@ -128,7 +128,12 @@ def create_app(
     async def provide_wallpaper_service(
         db_session: NamedDependency[Any],
     ) -> WallpaperService:
-        return SQLAlchemyWallpaperService(db_session, resolved, wallpaper_providers)
+        return SQLAlchemyWallpaperService(
+            db_session,
+            resolved,
+            wallpaper_providers,
+            SQLAlchemyOrganizationService(db_session),
+        )
 
     async def provide_music_user_id(
         request: Request[Any, Any, Any],
@@ -138,7 +143,12 @@ def create_app(
 
     api_router = Router(
         path="/api/v1",
-        route_handlers=[AuthController, MusicController, OrganizationController, WallpaperController],
+        route_handlers=[
+            AuthController,
+            MusicController,
+            OrganizationController,
+            WallpaperController,
+        ],
         dependencies={
             "identity_service": Provide(provide_identity_service),
             "music_account_sessions": Provide(provide_music_account_sessions),

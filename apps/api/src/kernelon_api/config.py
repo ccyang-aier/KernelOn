@@ -7,7 +7,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, PostgresDsn, field_validator
+from pydantic import Field, PostgresDsn, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 API_ROOT = Path(os.environ.get("KERNELON_API_ROOT", Path(__file__).resolve().parents[2])).resolve()
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     openapi_enabled: bool = True
-    request_max_body_size: int = Field(default=10 * 1024 * 1024, ge=1024)
+    request_max_body_size: int = Field(default=150 * 1024 * 1024, ge=1024)
     jwt_secret: str = "development-only-change-me-at-least-32-bytes"  # noqa: S105
     jwt_issuer: str = "kernelon-api"
     jwt_audience: str = "kernelon-clients"
@@ -65,6 +65,24 @@ class Settings(BaseSettings):
     wallpaper_system_reserve_bytes: int = Field(default=200 * 1024**2, ge=0)
     wallpaper_processing_mode: Literal["passthrough", "transcode"] = "passthrough"
     wallpaper_coverr_api_key: str | None = None
+
+    @model_validator(mode="after")
+    def apply_wallpaper_environment_defaults(self) -> Settings:
+        """Use low local defaults unless production limits were left unspecified."""
+        if self.environment != "production":
+            return self
+        production_defaults = {
+            "wallpaper_media_limit_bytes": 50 * 1024**3,
+            "wallpaper_committed_limit_bytes": 45 * 1024**3,
+            "wallpaper_temp_limit_bytes": 5 * 1024**3,
+            "wallpaper_org_quota_bytes": 5 * 1024**3,
+            "wallpaper_user_quota_bytes": 100 * 1024**2,
+            "wallpaper_system_reserve_bytes": 2 * 1024**3,
+        }
+        for field_name, value in production_defaults.items():
+            if field_name not in self.model_fields_set:
+                object.__setattr__(self, field_name, value)
+        return self
 
     @field_validator("allowed_origins", "allowed_hosts")
     @classmethod
@@ -82,7 +100,10 @@ class Settings(BaseSettings):
             raise ValueError("wildcard origins and hosts are not allowed in production")
         if self.environment == "production" and len(self.jwt_secret.encode()) < 32:
             raise ValueError("jwt_secret must contain at least 32 bytes in production")
-        if self.wallpaper_committed_limit_bytes + self.wallpaper_temp_limit_bytes > self.wallpaper_media_limit_bytes:
+        if (
+            self.wallpaper_committed_limit_bytes + self.wallpaper_temp_limit_bytes
+            > self.wallpaper_media_limit_bytes
+        ):
             raise ValueError("wallpaper committed and temporary limits exceed the media limit")
         if self.environment == "production" and self.wallpaper_storage_backend != "s3":
             raise ValueError("production wallpaper storage must use the s3 backend")

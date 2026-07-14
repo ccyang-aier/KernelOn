@@ -38,3 +38,14 @@ KernelOn 前端由 Next.js Web 主应用、Tauri + Vite 桌面宿主和共享 pa
 - Liquid Glass：`frontend-design/liquid-glass-design.md`
 - 资产设计：`frontend-design/asset-design-guidelines.md`
 - Genie 动效：`frontend-design/genie-effect-architecture.md`
+
+## 6. 动态壁纸共享契约
+
+Shell 使用 `DesktopWallpaperDescriptor` 表达图片或视频、海报、来源列表和归因，不保存裸视频
+URL 字符串作为业务事实。`WallpaperMedia` 是 Web 与 Tauri 共享渲染边界：视频必须静音、循环、
+行内播放；页面隐藏、锁屏覆盖或宿主暂停时停止播放，减少动态效果和省流量模式回退海报。
+Wallpaper 列表只加载海报，Hero/完整预览/桌面/锁屏才创建视频实例。
+
+Wallpaper App 的远端搜索、收藏、当前壁纸和配额通过 Litestar API 获取，不进入 Zustand。
+Next.js BFF 只转发业务 JSON 和 KernelOn 自有媒体请求，不代理外部视频；Tauri 复用相同模块和
+API transport，由桌面认证组合根提供授权 fetch。

@@ -51,3 +51,15 @@ Litestar Guard 只处理认证和粗粒度进入权限。组织上下文和 Prin
 ## 7. 未来模块
 
 Identity、Organizations、Onboarding、Mentorship、Growth、Training、Assessment、Notifications、Audit、Integrations 和 AI 仅在出现首个真实用例时创建。AI provider 位于 infrastructure，通过 application port 被调用，不能进入核心领域模型。
+
+## 8. Wallpaper 媒体边界
+
+Wallpaper 是模块化单体中的独立业务模块，负责来源聚合、许可证过滤、收藏、当前壁纸、上传、
+显式导入、配额和媒体引用。搜索结果采用 10 分钟有界内存缓存，不批量写库；外部视频和图片
+默认由客户端直连来源，不经 Litestar 或 Next.js BFF 转发。只有系统资源、用户上传和明确确认
+的合法导入保存媒体。存储预算、对象分区和生命周期以
+[ADR 0002](adr/0002-wallpaper-direct-delivery-and-storage-budget.md) 为准。
+
+`wallpaper_assets` 保存资产事实和外部快照，`wallpaper_renditions` 保存实际对象引用，收藏与应用
+分别保存引用关系。组织来源启停需要 `organization.manage`，个人只管理自己的来源可见性。
+Provider 只能访问代码白名单中的固定域名，凭据不下发客户端。

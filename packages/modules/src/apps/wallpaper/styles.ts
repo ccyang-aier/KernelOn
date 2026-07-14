@@ -1377,6 +1377,37 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   margin-top: 14px;
 }
 
+.wallpaper-spinner {
+  animation: wallpaperSpin 800ms linear infinite;
+}
+
+.wallpaper-load-more {
+  display: flex;
+  min-height: 84px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 13px;
+}
+
+.wallpaper-load-more svg {
+  width: 18px;
+  height: 18px;
+}
+
+.wallpaper-load-more button {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 9px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+@keyframes wallpaperSpin {
+  to { transform: rotate(360deg); }
+}
+
 .wallpaper-explore-card {
   position: relative;
   display: grid;
@@ -1989,7 +2020,8 @@ section[data-app-id="wallpaper"] > [data-kernelon-app-frame] > header[data-app-h
   height: fit-content;
 }
 
-.wallpaper-upload-form__preview img {
+.wallpaper-upload-form__preview img,
+.wallpaper-upload-form__preview video {
   width: 100%;
   height: 100%;
   object-fit: cover;

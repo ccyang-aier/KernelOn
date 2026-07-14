@@ -7,7 +7,8 @@ import html
 import re
 import time
 from collections import OrderedDict
-from typing import Any
+from collections.abc import Mapping, Sequence
+from typing import Any, cast
 from urllib.parse import quote
 
 import httpx
@@ -45,22 +46,41 @@ class HttpProvider:
         self._client = client
         self._cache = BoundedProviderCache()
 
-    async def _json(self, url: str, params: dict[str, object] | None = None) -> dict[str, Any]:
+    async def search(
+        self, query: str, media_type: str, page: int, limit: int
+    ) -> list[WallpaperAsset]:
+        raise NotImplementedError
+
+    async def get(self, external_id: str) -> WallpaperAsset | None:
+        raise NotImplementedError
+
+    async def _json(
+        self,
+        url: str,
+        params: Mapping[
+            str, str | int | float | bool | None | Sequence[str | int | float | bool | None]
+        ]
+        | None = None,
+    ) -> dict[str, Any]:
         if self._client is not None:
             response = await self._client.get(url, params=params)
         else:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(12.0, connect=5.0), follow_redirects=True) as client:
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(12.0, connect=5.0), follow_redirects=True
+            ) as client:
                 response = await client.get(url, params=params)
         response.raise_for_status()
         result = response.json()
-        return result if isinstance(result, dict) else {"items": result}
+        return cast(dict[str, Any], result) if isinstance(result, dict) else {"items": result}
 
 
 class NasaWallpaperProvider(HttpProvider):
     key = "nasa"
     search_url = "https://images-api.nasa.gov/search"
 
-    async def search(self, query: str, media_type: str, page: int, limit: int) -> list[WallpaperAsset]:
+    async def search(
+        self, query: str, media_type: str, page: int, limit: int
+    ) -> list[WallpaperAsset]:
         cache_key = f"{query}:{media_type}:{page}:{limit}"
         if cached := self._cache.get(cache_key):
             return cached
@@ -68,12 +88,20 @@ class NasaWallpaperProvider(HttpProvider):
             self.search_url,
             {
                 "q": query or "earth space abstract",
-                "media_type": "video" if media_type == "video" else "image,video" if media_type == "all" else "image",
+                "media_type": "video"
+                if media_type == "video"
+                else "image,video"
+                if media_type == "all"
+                else "image",
                 "page": page,
                 "page_size": limit,
             },
         )
-        assets = [asset for item in payload.get("collection", {}).get("items", []) if (asset := self._map_item(item))]
+        assets = [
+            asset
+            for item in payload.get("collection", {}).get("items", [])
+            if (asset := self._map_item(item))
+        ]
         self._cache.put(cache_key, assets)
         return assets
 
@@ -87,15 +115,25 @@ class NasaWallpaperProvider(HttpProvider):
         kind = data.get("media_type")
         if not external_id or kind not in {"image", "video"}:
             return None
-        preview = next((str(link.get("href")) for link in item.get("links", []) if link.get("href")), "")
+        preview = next(
+            (str(link.get("href")) for link in item.get("links", []) if link.get("href")), ""
+        )
         href = str(item.get("href") or "")
         source_url = f"https://images.nasa.gov/details/{quote(external_id, safe='')}"
         sources: tuple[dict[str, object], ...]
         if kind == "video":
             # The collection endpoint is resolved lazily by the client detail call. NASA's stable
             # medium rendition convention keeps search free of N extra requests.
-            base = f"https://images-assets.nasa.gov/video/{quote(external_id, safe='')}/{quote(external_id, safe='')}"
-            sources = ({"url": f"{base}~medium.mp4", "mimeType": "video/mp4", "quality": "medium", "collectionUrl": href},)
+            encoded_id = quote(external_id, safe="")
+            base = f"https://images-assets.nasa.gov/video/{encoded_id}/{encoded_id}"
+            sources = (
+                {
+                    "url": f"{base}~medium.mp4",
+                    "mimeType": "video/mp4",
+                    "quality": "medium",
+                    "collectionUrl": href,
+                },
+            )
         else:
             sources = ({"url": preview, "mimeType": "image/jpeg", "quality": "source"},)
         return WallpaperAsset(
@@ -120,12 +158,15 @@ class WikimediaWallpaperProvider(HttpProvider):
     key = "wikimedia"
     api_url = "https://commons.wikimedia.org/w/api.php"
 
-    async def search(self, query: str, media_type: str, page: int, limit: int) -> list[WallpaperAsset]:
+    async def search(
+        self, query: str, media_type: str, page: int, limit: int
+    ) -> list[WallpaperAsset]:
         cache_key = f"{query}:{media_type}:{page}:{limit}"
         if cached := self._cache.get(cache_key):
             return cached
         file_type = "video" if media_type == "video" else "bitmap" if media_type == "image" else ""
-        search = f"{query or 'earth space abstract'} {f'filetype:{file_type}' if file_type else ''}".strip()
+        file_filter = f"filetype:{file_type}" if file_type else ""
+        search = f"{query or 'earth space abstract'} {file_filter}".strip()
         payload = await self._json(
             self.api_url,
             {
@@ -137,6 +178,7 @@ class WikimediaWallpaperProvider(HttpProvider):
                 "gsrlimit": limit,
                 "prop": "imageinfo",
                 "iiprop": "url|mime|size|extmetadata",
+                "iiurlwidth": 640,
                 "format": "json",
                 "origin": "*",
             },
@@ -154,6 +196,7 @@ class WikimediaWallpaperProvider(HttpProvider):
                 "pageids": external_id,
                 "prop": "imageinfo",
                 "iiprop": "url|mime|size|extmetadata",
+                "iiurlwidth": 640,
                 "format": "json",
                 "origin": "*",
             },
@@ -168,7 +211,9 @@ class WikimediaWallpaperProvider(HttpProvider):
         if license_name not in ALLOWED_COMMONS_LICENSES:
             return None
         mime = str(info.get("mime") or "")
-        kind = "video" if mime.startswith("video/") else "image" if mime.startswith("image/") else ""
+        kind = (
+            "video" if mime.startswith("video/") else "image" if mime.startswith("image/") else ""
+        )
         if not kind:
             return None
         url = str(info.get("url") or "")
@@ -179,9 +224,14 @@ class WikimediaWallpaperProvider(HttpProvider):
             external_id=str(page.get("pageid")),
             title=title,
             media_type=kind,  # type: ignore[arg-type]
-            poster_url=thumb if kind == "image" else str(info.get("responsiveUrls", {}).get("2") or thumb),
+            poster_url=thumb
+            if kind == "image"
+            else str(info.get("responsiveUrls", {}).get("2") or thumb),
             sources=({"url": url, "mimeType": mime, "quality": "source"},),
-            source_page_url=str(info.get("descriptionurl") or f"https://commons.wikimedia.org/wiki/{quote(str(page.get('title') or ''))}"),
+            source_page_url=str(
+                info.get("descriptionurl")
+                or f"https://commons.wikimedia.org/wiki/{quote(str(page.get('title') or ''))}"
+            ),
             author=_plain(_metadata(metadata, "Artist")) or "Wikimedia Commons contributor",
             category="Other",
             width=int(info.get("width") or 0),
@@ -201,19 +251,32 @@ class CoverrWallpaperProvider(HttpProvider):
         super().__init__(client)
         self.api_key = api_key
 
-    async def search(self, query: str, media_type: str, page: int, limit: int) -> list[WallpaperAsset]:
+    async def search(
+        self, query: str, media_type: str, page: int, limit: int
+    ) -> list[WallpaperAsset]:
         if not self.api_key or media_type == "image":
             return []
         payload = await self._json(
             "https://api.coverr.co/videos",
-            {"query": query, "page": page - 1, "page_size": limit, "urls": "true", "api_key": self.api_key},
+            {
+                "query": query,
+                "page": page - 1,
+                "page_size": limit,
+                "urls": "true",
+                "api_key": self.api_key,
+            },
         )
         return [asset for item in payload.get("hits", []) if (asset := self._map(item))]
 
     async def get(self, external_id: str) -> WallpaperAsset | None:
         if not self.api_key:
             return None
-        return self._map(await self._json(f"https://api.coverr.co/videos/{quote(external_id, safe='')}", {"api_key": self.api_key}))
+        return self._map(
+            await self._json(
+                f"https://api.coverr.co/videos/{quote(external_id, safe='')}",
+                {"api_key": self.api_key},
+            )
+        )
 
     def _map(self, value: dict[str, Any]) -> WallpaperAsset | None:
         external_id = str(value.get("id") or "")

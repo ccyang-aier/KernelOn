@@ -4,6 +4,7 @@ import { ArrowRight, LockKeyhole } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
 import { ShellCredentialScreen } from './shell-credential-screen';
+import type { DesktopWallpaper } from '../wallpaper';
 
 const currentUserAvatar = '/kernelon-assets/avatars/current-user.png';
 
@@ -26,7 +27,7 @@ export function ShellLockScreen({
   user,
 }: Readonly<{
   onUnlock(password: string): boolean;
-  wallpaper: string;
+  wallpaper: DesktopWallpaper;
   user?: ShellCredentialUser;
 }>) {
   const [password, setPassword] = useState('');

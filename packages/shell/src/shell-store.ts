@@ -30,13 +30,14 @@ import type {
 import { createStore } from 'zustand/vanilla';
 
 import { kernelOnDesktopWallpaper } from './visual-assets';
+import type { DesktopWallpaper } from './wallpaper';
 
 const desktopLockStorageKey = 'kernelon_wallpaper_lock_screen';
 export const defaultDesktopLockIdleMinutes = 15;
 
 export interface ShellInitialState {
   currentScreenId?: string;
-  desktopWallpaper?: string;
+  desktopWallpaper?: DesktopWallpaper;
   windows?: WindowDescriptor[];
   launcherOpen?: boolean;
   spotlightOpen?: boolean;
@@ -63,7 +64,7 @@ export interface ShellState {
   widgets: WidgetManifest[];
   commands: CommandDefinition[];
   screens: DesktopScreen[];
-  desktopWallpaper: string;
+  desktopWallpaper: DesktopWallpaper;
   desktopLockPassword: string | null;
   desktopLockIdleMinutes: number;
   isDesktopLocked: boolean;
@@ -73,7 +74,7 @@ export interface ShellState {
   moveDesktopItem(screenId: string, itemId: string, grid: DesktopGridArea): void;
   removeDesktopItem(screenId: string, itemId: string): void;
   setActiveDraggedDesktopItemId(itemId: string | null): void;
-  setDesktopWallpaper(wallpaper: string): void;
+  setDesktopWallpaper(wallpaper: DesktopWallpaper): void;
   lockDesktop(password: string, idleMinutes?: number): void;
   activateDesktopLock(): void;
   disableDesktopLock(): void;

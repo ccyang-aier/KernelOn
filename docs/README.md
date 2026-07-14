@@ -23,6 +23,7 @@ Liquid Glass 资料按用途选择：设计原则查看 `frontend-design/liquid-
 - `frontend_architecture.md`：Web、Desktop 和共享包的稳定工程边界。
 - `backend_architecture.md`：Litestar 模块化单体、数据、权限、契约和 WSL2 验证基线。
 - `adr/`：已经做出的重要技术决策及其取舍，仅在重新评估相关方向时作为依据，不是普通开发任务的前置材料。
+  - `0002-wallpaper-direct-delivery-and-storage-budget.md`：Wallpaper 外部直链、硬配额和媒体生命周期。
 - `frontend-design/`：视觉系统、动效和具体实现手册。
 - `agents/`：对 agent 有价值的已知问题与排障记录，不是通用架构入口。
 - `ux-references/` 与仓库 `ux/`：设计参考和研究材料，不作为代码契约。

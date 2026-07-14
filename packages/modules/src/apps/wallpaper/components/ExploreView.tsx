@@ -1,7 +1,7 @@
 'use client';
 
-import { ArrowDownUp, Heart, Search } from 'lucide-react';
-import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from 'react';
+import { ArrowDownUp, Heart, LoaderCircle, Search } from 'lucide-react';
+import { useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent, type RefObject } from 'react';
 
 import type { CategoryId, CategoryOption, ExploreSort, WallpaperAsset } from '../types';
 
@@ -54,6 +54,11 @@ export function ExploreView({
   selectedWallpaperId,
   sort,
   wallpapers,
+  hasMore,
+  isLoadingMore,
+  isSearching,
+  loadError,
+  onLoadMore,
 }: Readonly<{
   categories: CategoryOption[];
   likedIds: ReadonlySet<string>;
@@ -72,9 +77,35 @@ export function ExploreView({
   selectedWallpaperId: string;
   sort: ExploreSort;
   wallpapers: WallpaperAsset[];
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  isSearching: boolean;
+  loadError: string | null;
+  onLoadMore(): void;
 }>) {
+  const pageRef = useRef<HTMLElement | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasMore || isLoadingMore || isSearching) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) onLoadMore();
+      },
+      { root: pageRef.current, rootMargin: '320px 0px', threshold: 0.01 },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore, isSearching, onLoadMore]);
+
   return (
-    <section aria-label="探索壁纸库" className="wallpaper-page wallpaper-page--explore">
+    <section
+      aria-busy={isSearching || isLoadingMore}
+      aria-label="探索壁纸库"
+      className="wallpaper-page wallpaper-page--explore"
+      ref={pageRef}
+    >
       <div className="wallpaper-page__intro">
         <p>
           今晚好 <span aria-hidden="true">{'\u{1F44B}'}</span>
@@ -92,6 +123,7 @@ export function ExploreView({
           type="search"
           value={query}
         />
+        {isSearching ? <LoaderCircle aria-label="正在搜索" className="wallpaper-spinner" /> : null}
       </label>
 
       <div className="wallpaper-popular">
@@ -146,6 +178,20 @@ export function ExploreView({
           ))
         ) : (
           <div className="wallpaper-empty-state">没有匹配的壁纸</div>
+        )}
+      </div>
+      <div className="wallpaper-load-more" ref={loadMoreRef} role="status">
+        {isLoadingMore ? (
+          <>
+            <LoaderCircle aria-hidden="true" className="wallpaper-spinner" />
+            <span>正在加载更多壁纸…</span>
+          </>
+        ) : loadError ? (
+          <button onClick={onLoadMore} type="button">加载失败，点击重试</button>
+        ) : hasMore ? (
+          <span>继续下滑加载更多</span>
+        ) : (
+          <span>已经浏览到底了</span>
         )}
       </div>
     </section>

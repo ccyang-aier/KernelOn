@@ -1,6 +1,11 @@
 'use client';
 
-import { AppFrame, kernelOnDesktopWallpaper, useShellSelector } from '@kernelon/shell';
+import {
+  AppFrame,
+  kernelOnDesktopWallpaper,
+  useShellSelector,
+  wallpaperPoster as shellWallpaperPoster,
+} from '@kernelon/shell';
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
 import { ExploreView } from './components/ExploreView';
@@ -17,13 +22,19 @@ import {
   wallpaperLibrary,
 } from './data';
 import { createWallpaperHeader } from './header';
+import { WallpaperApi } from './api';
+import { toDesktopWallpaper } from './media';
 import { wallpaperStyles } from './styles';
+import { useKernelOnRuntimeConfig } from '../../runtime-config';
 import type {
   CategoryId,
   ExploreSort,
+  HeroSlide,
+  RecommendedWallpaperSection,
   WallpaperAsset,
   WallpaperView,
   WallpaperSource,
+  WallpaperStorageUsage,
 } from './types';
 
 const sortSequence: ExploreSort[] = ['newest', 'liked', 'duration'];
@@ -38,24 +49,26 @@ const defaultSources: WallpaperSource[] = [
     description: 'KernelOn 系统精选的高清静态与动态壁纸。',
   },
   {
-    id: 'unsplash',
-    name: 'Unsplash 精选源',
-    url: 'https://api.unsplash.com/photos',
+    id: 'nasa',
+    name: 'NASA Image and Video Library',
+    url: 'https://images.nasa.gov',
     enabled: true,
     isSystem: false,
-    description: '源自全球创作者的高质量免版权图片库。',
+    description: 'NASA 官方图片和视频，默认直链播放，不占用服务端媒体存储。',
   },
   {
-    id: 'wallhaven',
-    name: 'Wallhaven 动态站',
-    url: 'https://wallhaven.cc/api/v1',
-    enabled: false,
+    id: 'wikimedia',
+    name: 'Wikimedia Commons',
+    url: 'https://commons.wikimedia.org',
+    enabled: true,
     isSystem: false,
-    description: '知名的壁纸分享社区，提供丰富的二次元及创意视觉作品。',
+    description: '仅展示 Public Domain、CC0、CC BY 与 CC BY-SA 许可资源。',
   },
 ];
 
 export default function WallpaperWindow() {
+  const runtime = useKernelOnRuntimeConfig();
+  const wallpaperApi = useMemo(() => new WallpaperApi(runtime), [runtime]);
   const desktopWallpaper = useShellSelector((state) => state.desktopWallpaper);
   const setDesktopWallpaper = useShellSelector((state) => state.setDesktopWallpaper);
   const lockDesktop = useShellSelector((state) => state.lockDesktop);
@@ -76,7 +89,11 @@ export default function WallpaperWindow() {
   const [customWallpapers, setCustomWallpapers] = useState<WallpaperAsset[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('kernelon_custom_wallpapers');
-      return saved ? JSON.parse(saved) : [];
+      return saved
+        ? (JSON.parse(saved) as WallpaperAsset[]).filter(
+            (asset) => !asset.image.startsWith('blob:'),
+          )
+        : [];
     }
     return [];
   });
@@ -99,9 +116,20 @@ export default function WallpaperWindow() {
     return new Set(wallpaperLibrary.filter((item) => item.liked).map((item) => item.id));
   });
 
+  const [remoteWallpapers, setRemoteWallpapers] = useState<WallpaperAsset[]>([]);
+  const [storageUsage, setStorageUsage] = useState<WallpaperStorageUsage | null>(null);
+  const [remotePage, setRemotePage] = useState(1);
+  const [hasMoreRemote, setHasMoreRemote] = useState(true);
+  const [isSearchingRemote, setIsSearchingRemote] = useState(false);
+  const [isLoadingMoreRemote, setIsLoadingMoreRemote] = useState(false);
+  const [remoteSearchError, setRemoteSearchError] = useState<string | null>(null);
+  const [homePage, setHomePage] = useState(1);
+  const [homeHasMore, setHomeHasMore] = useState(true);
+  const [isLoadingHomeMore, setIsLoadingHomeMore] = useState(false);
+
   const allWallpapers = useMemo(() => {
-    return [...wallpaperLibrary, ...customWallpapers];
-  }, [customWallpapers]);
+    return [...wallpaperLibrary, ...remoteWallpapers, ...customWallpapers];
+  }, [customWallpapers, remoteWallpapers]);
 
   useEffect(() => {
     localStorage.setItem('kernelon_custom_wallpapers', JSON.stringify(customWallpapers));
@@ -123,11 +151,123 @@ export default function WallpaperWindow() {
   const [headerActionNotice, setHeaderActionNotice] = useState<string | null>(null);
   const [isLockScreenOpen, setIsLockScreenOpen] = useState(false);
 
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.allSettled([
+      wallpaperApi.search('earth space nature abstract', 'video'),
+      wallpaperApi.sources(),
+      wallpaperApi.current(),
+      wallpaperApi.storage(),
+    ]).then(([searchResult, sourcesResult, currentResult, storageResult]) => {
+      if (cancelled) return;
+      if (searchResult.status === 'fulfilled') {
+        setRemoteWallpapers(searchResult.value.items.map(normalizeRemoteAsset));
+        setHomeHasMore(searchResult.value.items.length >= 30);
+        setLikedIds((ids) =>
+          new Set([
+            ...ids,
+            ...searchResult.value.items.filter((asset) => asset.liked).map((asset) => asset.id),
+          ]),
+        );
+      }
+      if (sourcesResult.status === 'fulfilled') setSources(sourcesResult.value);
+      if (currentResult.status === 'fulfilled' && currentResult.value) {
+        const current = normalizeRemoteAsset(currentResult.value);
+        setRemoteWallpapers((items) =>
+          items.some((item) => item.id === current.id) ? items : [current, ...items],
+        );
+        setSelectedWallpaperId(current.id);
+        setDesktopWallpaper(toDesktopWallpaper(current, runtime.apiBaseUrl));
+      }
+      if (storageResult.status === 'fulfilled') setStorageUsage(storageResult.value);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [runtime.apiBaseUrl, setDesktopWallpaper, wallpaperApi]);
+
+  const loadMoreHome = useCallback(async () => {
+    if (isLoadingHomeMore || !homeHasMore) return;
+    setIsLoadingHomeMore(true);
+    try {
+      const nextPage = homePage + 1;
+      const result = await wallpaperApi.search(
+        'earth space nature abstract timelapse',
+        'video',
+        nextPage,
+      );
+      const assets = result.items.map(normalizeRemoteAsset);
+      setRemoteWallpapers((current) => dedupeWallpapers([...current, ...assets]));
+      setHomePage(nextPage);
+      setHomeHasMore(assets.length >= 30);
+    } finally {
+      setIsLoadingHomeMore(false);
+    }
+  }, [homeHasMore, homePage, isLoadingHomeMore, wallpaperApi]);
+
+  const remoteSearchTerm = useMemo(
+    () =>
+      [
+        query.trim(),
+        selectedCategory === 'All' ? '' : selectedCategory,
+        mapExploreTag(selectedPopularTag),
+      ]
+        .filter(Boolean)
+        .join(' '),
+    [query, selectedCategory, selectedPopularTag],
+  );
+
+  const loadRemotePage = useCallback(
+    async (page: number, reset: boolean) => {
+      reset ? setIsSearchingRemote(true) : setIsLoadingMoreRemote(true);
+      setRemoteSearchError(null);
+      try {
+        const result = await wallpaperApi.search(remoteSearchTerm, 'all', page);
+        const assets = result.items.map(normalizeRemoteAsset);
+        setRemoteWallpapers((current) => dedupeWallpapers(reset ? assets : [...current, ...assets]));
+        setRemotePage(page);
+        setHasMoreRemote(assets.length >= 30);
+      } catch (error) {
+        setRemoteSearchError(error instanceof Error ? error.message : '壁纸来源暂时不可用');
+      } finally {
+        reset ? setIsSearchingRemote(false) : setIsLoadingMoreRemote(false);
+      }
+    },
+    [remoteSearchTerm, wallpaperApi],
+  );
+
+  useEffect(() => {
+    if (activeView !== 'explore') return undefined;
+    const timer = window.setTimeout(() => void loadRemotePage(1, true), 420);
+    return () => window.clearTimeout(timer);
+  }, [activeView, loadRemotePage]);
+
   const assetById = useMemo(
     () => new Map(allWallpapers.map((wallpaper) => [wallpaper.id, wallpaper])),
     [allWallpapers],
   );
   const selectedWallpaper = assetById.get(selectedWallpaperId) ?? allWallpapers[0]!;
+
+  const homeSlides = useMemo<HeroSlide[]>(() => {
+    const videos = remoteWallpapers.filter((asset) => asset.mediaType === 'video');
+    return videos.length ? videos.slice(0, 10).map(toHeroSlide) : heroSlides;
+  }, [remoteWallpapers]);
+  const homeRecommendations = useMemo<RecommendedWallpaperSection[]>(() => {
+    if (!remoteWallpapers.length) return recommendationSections;
+    return [
+      {
+        id: 'live-providers',
+        title: '动态壁纸优先推荐',
+        items: remoteWallpapers.slice(0, 12).map((asset) => ({
+          id: `recommended-${asset.id}`,
+          title: asset.title,
+          device: asset.device,
+          image: asset.posterUrl || asset.image,
+          sourceWallpaperId: asset.id,
+        })),
+      },
+    ];
+  }, [remoteWallpapers]);
 
   const previewWallpaper = previewWallpaperId ? assetById.get(previewWallpaperId) : null;
   const activeWallpaper = previewWallpaper ?? selectedWallpaper;
@@ -139,7 +279,7 @@ export default function WallpaperWindow() {
   const wallpaperRootStyle = useMemo(
     () =>
       ({
-        '--wallpaper-desktop-bg': `url(${desktopWallpaper})`,
+        '--wallpaper-desktop-bg': `url(${shellWallpaperPoster(desktopWallpaper)})`,
       }) as CSSProperties & Record<'--wallpaper-desktop-bg', string>,
     [desktopWallpaper],
   );
@@ -162,15 +302,16 @@ export default function WallpaperWindow() {
   const visibleExploreWallpapers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     const filteredWallpapers = allWallpapers.filter((wallpaper) => {
-      const matchesCategory = selectedCategory === 'All' || wallpaper.category === selectedCategory;
-      const matchesPopularTag = !selectedPopularTag || wallpaper.tags.includes(selectedPopularTag);
+      const isRemote = Boolean(wallpaper.provider && wallpaper.provider !== 'system');
+      const matchesCategory =
+        isRemote || selectedCategory === 'All' || wallpaper.category === selectedCategory;
       const matchesSearch =
         !normalizedQuery ||
         `${wallpaper.title} ${wallpaper.author} ${wallpaper.category} ${wallpaper.tags.join(' ')}`
           .toLowerCase()
           .includes(normalizedQuery);
 
-      return matchesCategory && matchesPopularTag && matchesSearch;
+      return matchesCategory && (isRemote || matchesSearch);
     });
 
     return filteredWallpapers.sort((left, right) => compareWallpapers(left, right, sort));
@@ -182,20 +323,20 @@ export default function WallpaperWindow() {
       : `${visibleExploreWallpapers.length} / ${allWallpapers.length} 张壁纸`;
 
   const selectHeroByIndex = useCallback((index: number) => {
-    const normalizedIndex = normalizeIndex(index, heroSlides.length);
+    const normalizedIndex = normalizeIndex(index, homeSlides.length);
 
     setHeroIndex(normalizedIndex);
-    setSelectedWallpaperId(heroSlides[normalizedIndex]?.id ?? 'retrowaves');
-  }, []);
+    setSelectedWallpaperId(homeSlides[normalizedIndex]?.id ?? 'retrowaves');
+  }, [homeSlides]);
 
   const selectHeroByDirection = useCallback(
     (direction: 1 | -1) => {
-      const nextIndex = normalizeIndex(heroIndex + direction, heroSlides.length);
+      const nextIndex = normalizeIndex(heroIndex + direction, homeSlides.length);
 
       setHeroIndex(nextIndex);
-      setSelectedWallpaperId(heroSlides[nextIndex]?.id ?? 'retrowaves');
+      setSelectedWallpaperId(homeSlides[nextIndex]?.id ?? 'retrowaves');
     },
-    [heroIndex],
+    [heroIndex, homeSlides],
   );
 
   useEffect(() => {
@@ -224,17 +365,20 @@ export default function WallpaperWindow() {
         return;
       }
 
-      const nextWallpaper = resolveWallpaperImage(wallpaper);
-
-      setDesktopWallpaper(nextWallpaper);
+      setDesktopWallpaper(toDesktopWallpaper(wallpaper, runtime.apiBaseUrl));
       setSelectedWallpaperId(wallpaper.id);
+      if (wallpaper.provider && wallpaper.provider !== 'system') {
+        void wallpaperApi.apply(wallpaper).catch(() => undefined);
+      }
     },
-    [assetById, setDesktopWallpaper],
+    [assetById, runtime.apiBaseUrl, setDesktopWallpaper, wallpaperApi],
   );
 
   const toggleLike = useCallback((wallpaperId: string) => {
+    const asset = assetById.get(wallpaperId);
     setLikedIds((currentIds) => {
       const nextIds = new Set(currentIds);
+      const willLike = !nextIds.has(wallpaperId);
 
       if (nextIds.has(wallpaperId)) {
         nextIds.delete(wallpaperId);
@@ -242,15 +386,52 @@ export default function WallpaperWindow() {
         nextIds.add(wallpaperId);
       }
 
+      if (asset?.provider && asset.provider !== 'system') {
+        void wallpaperApi.favorite(asset, willLike).catch(() => undefined);
+      }
+
       return nextIds;
     });
-  }, []);
+  }, [assetById, wallpaperApi]);
 
-  const handleUploadWallpaper = useCallback((wallpaper: WallpaperAsset) => {
-    setCustomWallpapers((prev) => [wallpaper, ...prev]);
-  }, []);
+  const importWallpaper = useCallback(
+    async (wallpaperId: string) => {
+      const asset = assetById.get(wallpaperId);
+      if (!asset) return;
+      try {
+        const preview = await wallpaperApi.importAsset(asset, false);
+        const estimate = `${(preview.estimatedBytes / 1024 / 1024).toFixed(1)} MiB`;
+        const accepted = window.confirm(
+          `导入会占用约 ${estimate}。\n许可：${preview.licenseName || '未知'}\n${preview.attribution || ''}\n\n确认导入吗？`,
+        );
+        if (!accepted) return;
+        const result = await wallpaperApi.importAsset(asset, true);
+        if (result.asset) {
+          const imported = normalizeRemoteAsset(result.asset);
+          setCustomWallpapers((current) => [imported, ...current]);
+          setSelectedWallpaperId(imported.id);
+        }
+      } catch (error) {
+        setHeaderActionNotice(error instanceof Error ? error.message : '导入失败');
+      }
+    },
+    [assetById, wallpaperApi],
+  );
+
+  const handleUploadWallpaper = useCallback(
+    async (file: File, title: string, posterUrl: string) => {
+      const wallpaper = normalizeRemoteAsset(await wallpaperApi.upload(file, title, posterUrl));
+      setCustomWallpapers((prev) => [wallpaper, ...prev]);
+    },
+    [wallpaperApi],
+  );
 
   const handleDeleteUploadedWallpaper = useCallback((wallpaperId: string) => {
+    if (wallpaperId.startsWith('upload:') || wallpaperId.startsWith('import:')) {
+      void wallpaperApi.deleteStoredAsset(wallpaperId).catch((error: unknown) => {
+        setHeaderActionNotice(error instanceof Error ? error.message : '删除失败');
+      });
+    }
     setCustomWallpapers((prev) => prev.filter((w) => w.id !== wallpaperId));
     setLikedIds((prev) => {
       const next = new Set(prev);
@@ -258,19 +439,18 @@ export default function WallpaperWindow() {
       return next;
     });
     setSelectedWallpaperId((currentId) => (currentId === wallpaperId ? 'retrowaves' : currentId));
-  }, []);
+  }, [wallpaperApi]);
 
   const handleToggleSource = useCallback((sourceId: string) => {
-    setSources((prev) => prev.map((s) => (s.id === sourceId ? { ...s, enabled: !s.enabled } : s)));
-  }, []);
+    const source = sources.find((item) => item.id === sourceId);
+    setSources((prev) =>
+      prev.map((item) => (item.id === sourceId ? { ...item, enabled: !item.enabled } : item)),
+    );
+    if (source) {
+      void wallpaperApi.setSourceVisible(sourceId, !source.enabled).catch(() => undefined);
+    }
+  }, [sources, wallpaperApi]);
 
-  const handleAddSource = useCallback((newSource: WallpaperSource) => {
-    setSources((prev) => [...prev, newSource]);
-  }, []);
-
-  const handleRemoveSource = useCallback((sourceId: string) => {
-    setSources((prev) => prev.filter((s) => s.id !== sourceId));
-  }, []);
 
   const cycleSort = useCallback(() => {
     setSort((currentSort) => {
@@ -361,12 +541,14 @@ export default function WallpaperWindow() {
             ) : null}
             {previewWallpaper ? (
               <PreviewView
-                isApplied={desktopWallpaper === resolveWallpaperImage(previewWallpaper)}
+                isApplied={
+                  typeof desktopWallpaper !== 'string' && desktopWallpaper.id === previewWallpaper.id
+                }
                 isLiked={likedIds.has(previewWallpaper.id)}
                 onApply={applyWallpaper}
                 onLike={toggleLike}
+                onImport={(id) => void importWallpaper(id)}
                 wallpaper={previewWallpaper}
-                wallpaperImage={resolveWallpaperImage(previewWallpaper)}
               />
             ) : null}
             {!previewWallpaper && activeView === 'home' ? (
@@ -378,10 +560,13 @@ export default function WallpaperWindow() {
                 onLike={toggleLike}
                 onPreview={previewWallpaperById}
                 onRecommendationPreview={previewWallpaperById}
-                recommendationSections={recommendationSections}
+                recommendationSections={homeRecommendations}
                 selectedRecommendedId={selectedWallpaperId}
                 showHeroDetails={isHeroDetailsVisible}
-                slides={heroSlides}
+                slides={homeSlides}
+                hasMore={homeHasMore}
+                isLoadingMore={isLoadingHomeMore}
+                onLoadMore={() => void loadMoreHome()}
               />
             ) : null}
             {!previewWallpaper && activeView === 'explore' ? (
@@ -403,6 +588,11 @@ export default function WallpaperWindow() {
                 selectedWallpaperId={selectedWallpaperId}
                 sort={sort}
                 wallpapers={visibleExploreWallpapers}
+                hasMore={hasMoreRemote}
+                isLoadingMore={isLoadingMoreRemote}
+                isSearching={isSearchingRemote}
+                loadError={remoteSearchError}
+                onLoadMore={() => void loadRemotePage(remotePage + 1, false)}
               />
             ) : null}
             {!previewWallpaper && activeView === 'settings' ? (
@@ -412,13 +602,12 @@ export default function WallpaperWindow() {
                 likedIds={likedIds}
                 sources={sources}
                 selectedWallpaperId={selectedWallpaperId}
+                storageUsage={storageUsage}
                 onLike={toggleLike}
                 onApply={applyWallpaper}
                 onUploadWallpaper={handleUploadWallpaper}
                 onDeleteUploadedWallpaper={handleDeleteUploadedWallpaper}
                 onToggleSource={handleToggleSource}
-                onAddSource={handleAddSource}
-                onRemoveSource={handleRemoveSource}
               />
             ) : null}
           </div>
@@ -448,6 +637,51 @@ function normalizeIndex(index: number, total: number): number {
   return (index + total) % total;
 }
 
-function resolveWallpaperImage(wallpaper: WallpaperAsset): string {
-  return wallpaper.image || kernelOnDesktopWallpaper;
+function normalizeRemoteAsset(asset: WallpaperAsset): WallpaperAsset {
+  const width = asset.sources?.[0]?.width ?? 0;
+  const height = asset.sources?.[0]?.height ?? 0;
+  const durationSeconds = asset.durationSeconds || 0;
+  return {
+    ...asset,
+    category: asset.category || 'Other',
+    author: asset.author || 'Unknown',
+    authorInitial: (asset.author || 'U').slice(0, 1).toUpperCase(),
+    image: asset.posterUrl || asset.image || kernelOnDesktopWallpaper,
+    device: asset.provider || 'External',
+    duration: durationSeconds ? `0:${String(durationSeconds).padStart(2, '0')}` : '0:00',
+    durationSeconds,
+    resolution: width && height ? `${width}x${height}` : 'Source original',
+    size: asset.sizeBytes ? `${(asset.sizeBytes / 1024 / 1024).toFixed(1)} MB` : 'Direct source',
+    likes: asset.likes || 0,
+    tags: asset.tags || [],
+    uploadedAt: asset.uploadedAt || new Date(0).toISOString(),
+    liked: Boolean(asset.liked),
+  };
+}
+
+function toHeroSlide(asset: WallpaperAsset): HeroSlide {
+  return {
+    ...asset,
+    categoryLabel: asset.mediaType === 'video' ? '动态壁纸' : asset.category,
+    meta: [asset.resolution, asset.author, asset.duration || '循环播放'],
+  };
+}
+
+function dedupeWallpapers(assets: WallpaperAsset[]): WallpaperAsset[] {
+  return Array.from(new Map(assets.map((asset) => [asset.id, asset])).values());
+}
+
+function mapExploreTag(tag: string): string {
+  return (
+    {
+      '4K': 'ultra high definition',
+      Ultrawide: 'panorama',
+      '21:9': 'panorama',
+      '32:9': 'panorama',
+      '16:9': 'widescreen',
+      DesktopHut: 'desktop motion',
+      Loop: 'timelapse loop',
+      Aesthetic: 'abstract aesthetic',
+    }[tag] ?? tag
+  );
 }

@@ -1,14 +1,16 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Heart, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, LoaderCircle, Play } from 'lucide-react';
 import {
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   useRef,
+  useEffect,
 } from 'react';
 
 import { HeroFrostedAction } from './HeroFrostedAction';
+import { WallpaperAssetMedia } from './WallpaperAssetMedia';
 import type { HeroSlide, RecommendedWallpaperSection } from '../types';
 
 export function HomeView({
@@ -23,6 +25,9 @@ export function HomeView({
   selectedRecommendedId,
   showHeroDetails,
   slides,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
 }: Readonly<{
   heroIndex: number;
   likedIds: ReadonlySet<string>;
@@ -35,12 +40,30 @@ export function HomeView({
   selectedRecommendedId: string;
   showHeroDetails: boolean;
   slides: HeroSlide[];
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  onLoadMore(): void;
 }>) {
   const heroSwipeRef = useRef<HeroSwipeState | null>(null);
+  const pageRef = useRef<HTMLElement | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const activeHero = slides[heroIndex] ?? slides[0];
   const trackStyle = {
     transform: `translate3d(calc(-${heroIndex * 100}% + var(--wallpaper-hero-drag-x, 0px)), 0, 0)`,
   } satisfies CSSProperties;
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasMore || isLoadingMore) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) onLoadMore();
+      },
+      { root: pageRef.current, rootMargin: '320px 0px', threshold: 0.01 },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore, onLoadMore]);
 
   const handleKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
     if (event.key === 'ArrowLeft') {
@@ -133,6 +156,7 @@ export function HomeView({
       aria-label="Wallpaper Home"
       className="wallpaper-home"
       onKeyDown={handleKeyDown}
+      ref={pageRef}
       tabIndex={0}
     >
       <div
@@ -151,12 +175,11 @@ export function HomeView({
         >
           {slides.map((slide) => (
             <figure className="wallpaper-home__slide" key={slide.id}>
-              <img
+              <WallpaperAssetMedia
+                active={slide.id === activeHero.id}
                 alt=""
+                asset={slide}
                 className="wallpaper-home__image"
-                crossOrigin="anonymous"
-                draggable={false}
-                src={slide.image}
               />
               <div className="wallpaper-home__shade" />
             </figure>
@@ -270,6 +293,18 @@ export function HomeView({
           </div>
         ))}
       </section>
+      <div className="wallpaper-load-more" ref={loadMoreRef} role="status">
+        {isLoadingMore ? (
+          <>
+            <LoaderCircle aria-hidden="true" className="wallpaper-spinner" />
+            <span>正在加载更多动态壁纸…</span>
+          </>
+        ) : hasMore ? (
+          <span>继续下滑加载更多动态壁纸</span>
+        ) : (
+          <span>动态壁纸已加载完毕</span>
+        )}
+      </div>
     </section>
   );
 }

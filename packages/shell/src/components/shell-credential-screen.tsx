@@ -2,11 +2,14 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import type { DesktopWallpaper } from '../wallpaper';
+import { WallpaperMedia } from './wallpaper-media';
+
 export function ShellCredentialScreen({
   ariaLabel,
   children,
   wallpaper,
-}: Readonly<{ ariaLabel: string; children: ReactNode; wallpaper: string }>) {
+}: Readonly<{ ariaLabel: string; children: ReactNode; wallpaper: DesktopWallpaper }>) {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -39,13 +42,12 @@ export function ShellCredentialScreen({
       className="fixed inset-0 z-[10000] overflow-hidden bg-[#5f8789] text-white"
       data-testid="kernelon-credential-screen"
     >
-      <img
+      <WallpaperMedia
+        active
         alt=""
-        aria-hidden="true"
         className="absolute inset-0 h-full w-full scale-[1.02] select-none object-cover"
-        data-credential-wallpaper="true"
-        draggable={false}
-        src={wallpaper}
+        testId="kernelon-credential-wallpaper"
+        wallpaper={wallpaper}
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,12,16,0.12),rgba(4,12,16,0.01)_48%,rgba(4,12,16,0.3))] backdrop-blur-[2px]" />
       <div className="relative flex h-full flex-col items-center px-6 pt-[7vh] pb-[5vh] text-center">

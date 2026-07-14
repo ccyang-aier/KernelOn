@@ -42,6 +42,7 @@ import { hideGenieWindow, revealGenieWindow } from './components/genie-hidden-wi
 import { GenieSnapshotStage } from './components/genie-snapshot-stage';
 import { KernelOnStatusBar } from './components/status-bar';
 import { ShellLockScreen, type ShellCredentialUser } from './components/shell-lock-screen';
+import { WallpaperMedia } from './components/wallpaper-media';
 import type { ShellRuntimeRegistry } from './runtime';
 import {
   createShellStore,
@@ -521,13 +522,12 @@ function KernelOnShellView({
         inert={isDesktopLocked ? true : undefined}
         style={{ visibility: isDesktopLocked ? 'hidden' : undefined }}
       >
-        <img
+        <WallpaperMedia
+          active={!isDesktopLocked}
           alt=""
-          aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
-          data-testid="kernelon-desktop-wallpaper"
-          draggable={false}
-          src={desktopWallpaper}
+          testId="kernelon-desktop-wallpaper"
+          wallpaper={desktopWallpaper}
         />
         <div
           aria-hidden="true"
