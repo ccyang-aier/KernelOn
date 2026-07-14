@@ -264,16 +264,24 @@ describe('createScopedMineradioEnvironment', () => {
 
     fixture.environment.window.addEventListener('resize', resizeListener);
     fixture.environment.registerInlineActions({ abortedAction: vi.fn() });
+    expect(fixture.environment.isDestroyed()).toBe(false);
     expect(Object.hasOwn(window, namespaceName)).toBe(true);
     expect(Object.hasOwn(window, scopedDocumentName)).toBe(true);
+    expect(
+      (fixture.environment.window as unknown as Record<string, unknown>)[scopedDocumentName],
+    ).toBe(fixture.environment.document);
 
     fixture.environment.abort();
     fixture.environment.abort();
 
+    expect(fixture.environment.isDestroyed()).toBe(true);
     expect(Object.getOwnPropertyDescriptor(window, namespaceName)).toEqual(previousNamespace);
     expect(Object.getOwnPropertyDescriptor(window, scopedDocumentName)).toEqual(
       previousScopedDocument,
     );
+    expect(
+      (fixture.environment.window as unknown as Record<string, unknown>)[scopedDocumentName],
+    ).toBe(fixture.environment.document);
     expect(() => fixture.environment.finalize(vi.fn())).toThrow(
       'Mineradio runtime environment can only be finalized once',
     );

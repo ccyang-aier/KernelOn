@@ -9,6 +9,8 @@ export default function MusicWindow({ window }: AppWindowSurfaceProps) {
     <AppFrame
       className="bg-black"
       contentClassName="!bg-black"
+      header={{ mode: 'immersive' }}
+      headerOverlay
       scroll="hidden"
     >
       <MineradioApp window={window} />

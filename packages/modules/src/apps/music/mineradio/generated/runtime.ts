@@ -12982,6 +12982,7 @@ function renderHomeTiles() {
   renderHomeMosaic(tiles);
 }
 function renderHomeDiscover() {
+  if (environment.isDestroyed()) return;
   var sub = window.__mineradioDocument.getElementById('home-subtitle');
   var loggedOutHome = !homeDiscoverState.loggedIn && !hasAnyPlatformLogin();
   var weather = homeWeatherRadioState.weather;

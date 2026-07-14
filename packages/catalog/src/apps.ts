@@ -119,7 +119,7 @@ export const kernelApps: KernelAppManifest[] = [
     priority: 'P2',
     category: 'insight',
     icon: 'ChartSpline',
-    dockedByDefault: true,
+    dockedByDefault: false,
     runtime: {
       window: {
         loaderKey: 'app:dashboard-window',

@@ -13,6 +13,7 @@ export interface AppFrameProps {
   className?: string;
   contentClassName?: string;
   header?: AppHeaderDescriptor | false;
+  headerOverlay?: boolean;
   headerSlots?: Readonly<Record<string, ReactNode>>;
   scroll?: 'auto' | 'hidden';
   style?: CSSProperties;
@@ -23,6 +24,7 @@ export function AppFrame({
   className,
   contentClassName,
   header,
+  headerOverlay = false,
   headerSlots,
   scroll = 'auto',
   style,
@@ -50,7 +52,7 @@ export function AppFrame({
           onMinimize={windowFrame.onMinimize}
           onToggleFullscreen={windowFrame.onToggleFullscreen}
           slots={headerSlots}
-          topLayer={windowFrame.topLayer}
+          topLayer={headerOverlay || windowFrame.topLayer}
           windowId={windowFrame.windowId}
           windowTitle={windowFrame.windowTitle}
         />

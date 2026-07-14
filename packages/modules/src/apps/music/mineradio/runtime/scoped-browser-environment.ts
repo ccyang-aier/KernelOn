@@ -127,6 +127,7 @@ export function createScopedMineradioEnvironment({
   const scopedWindow = new Proxy(nativeWindow, {
     get(target, property) {
       if (property === 'document') return scopedDocument;
+      if (property === scopedDocumentKey) return scopedDocument;
       if (property === 'desktopWindow') return scopedDesktopWindow;
       if (property === 'THREE') return scopedThree;
       if (property === 'gsap') return scopedGsap;
@@ -280,6 +281,9 @@ export function createScopedMineradioEnvironment({
       };
     },
     indexedDB: host.indexedDB,
+    isDestroyed() {
+      return destroyed;
+    },
     isLifecycleAbort: isMineradioLifecycleAbort,
     loadMusicTempo() {
       if ('MusicTempo' in nativeWindowRecord && nativeWindowRecord.MusicTempo) {

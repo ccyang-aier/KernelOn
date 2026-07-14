@@ -31,6 +31,7 @@ export interface MineradioRuntimeEnvironment {
   clearInterval(handle?: number): void;
   clearTimeout(handle?: number): void;
   finalize(destroyPortedRuntime: () => void): MineradioRuntimeInstance;
+  isDestroyed(): boolean;
   isLifecycleAbort(error: unknown): boolean;
   loadMusicTempo(): Promise<unknown>;
   loadExternalScript(source: string, expectedGlobal: string): Promise<void>;

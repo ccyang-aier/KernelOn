@@ -25,6 +25,9 @@ describe('Mineradio window adapter', () => {
 
     expect(screen.getByTestId('ported-mineradio-app')).not.toBeNull();
     expect(document.querySelector('iframe')).toBeNull();
-    expect(appFrame.mock.calls[0]?.[0]).not.toHaveProperty('header', false);
+    expect(appFrame.mock.calls[0]?.[0]).toMatchObject({
+      header: { mode: 'immersive' },
+      headerOverlay: true,
+    });
   });
 });

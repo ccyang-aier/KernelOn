@@ -30,6 +30,11 @@ describe('KernelOn built-in catalog', () => {
     );
   });
 
+  it('does not render a second copy of the shared black meter dock icon', () => {
+    expect(kernelApps.find((app) => app.id === 'music')?.dockedByDefault).toBe(true);
+    expect(kernelApps.find((app) => app.id === 'dashboard')?.dockedByDefault).toBe(false);
+  });
+
   it('declares Weekly Show as a docked app-owned window', () => {
     expect(kernelApps).toContainEqual(
       expect.objectContaining({

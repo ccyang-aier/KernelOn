@@ -442,7 +442,16 @@ var musicTempoWorkerUrl`,
     throw new Error('Unable to adapt Mineradio music-tempo loader without eval');
   }
 
-  return withoutDynamicEval
+  const withoutLateHomeRender = withoutDynamicEval.replace(
+    'function renderHomeDiscover() {',
+    `function renderHomeDiscover() {
+  if (environment.isDestroyed()) return;`,
+  );
+  if (withoutLateHomeRender === withoutDynamicEval) {
+    throw new Error('Unable to guard Mineradio home rendering after runtime destroy');
+  }
+
+  return withoutLateHomeRender
     .replaceAll('document.getElementById(', 'window.__mineradioDocument.getElementById(')
     .replace(/(?<![\w$.])innerWidth\b/g, 'window.innerWidth')
     .replace(/(?<![\w$.])innerHeight\b/g, 'window.innerHeight');
