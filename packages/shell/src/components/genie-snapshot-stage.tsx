@@ -25,7 +25,10 @@ export function GenieSnapshotStage({
   const [isMounted, setIsMounted] = useState(false);
   const snapshotApps = appIds
     .map((appId) => apps.find((app) => app.id === appId))
-    .filter((app): app is KernelAppManifest => Boolean(app));
+    .filter(
+      (app): app is KernelAppManifest =>
+        Boolean(app) && app?.runtime.window.snapshotPolicy !== 'skip',
+    );
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {

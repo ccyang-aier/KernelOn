@@ -86,4 +86,32 @@ describe('GenieSnapshotStage', () => {
       top: '0px',
     });
   });
+
+  it('does not load an App runtime when its manifest disables live snapshots', async () => {
+    const runtime = createRuntime();
+
+    render(
+      <GenieSnapshotStage
+        appIds={['training']}
+        apps={[
+          {
+            ...trainingApp,
+            runtime: {
+              window: {
+                ...trainingApp.runtime.window,
+                snapshotPolicy: 'skip',
+              },
+            },
+          },
+        ]}
+        onSnapshotReady={vi.fn()}
+        runtime={runtime}
+      />,
+    );
+
+    await Promise.resolve();
+
+    expect(runtime.loadAppWindow).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('kernelon-genie-snapshot-stage')).not.toBeInTheDocument();
+  });
 });

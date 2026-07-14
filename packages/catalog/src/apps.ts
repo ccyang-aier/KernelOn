@@ -13,12 +13,13 @@ export const kernelApps: KernelAppManifest[] = [
       window: {
         frameOwner: 'app',
         loaderKey: 'app:music-window',
+        mountPolicy: 'keep-alive',
+        snapshotPolicy: 'skip',
       },
     },
     defaultWindow: {
       title: 'Mineradio',
-      bounds: { x: 36, y: 28, width: 1440, height: 850 },
-      mode: 'fullscreen',
+      bounds: { x: 36, y: 48, width: 1440, height: 810 },
     },
   },
   {

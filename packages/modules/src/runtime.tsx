@@ -9,7 +9,21 @@ import {
   type WidgetModule,
 } from '@kernelon/shell';
 
+import {
+  KernelOnRuntimeConfigProvider,
+  type KernelOnRuntimeConfig,
+} from './runtime-config';
+
 export type { ShellInitialState } from '@kernelon/shell';
+export type {
+  MineradioAccountCapabilities,
+  MineradioDesktopLyricsCapabilities,
+  MineradioFileCapabilities,
+  MineradioGlobalShortcutCapabilities,
+  MineradioPlatformAdapter,
+  MineradioUpdaterCapabilities,
+  MineradioWallpaperCapabilities,
+} from './apps/music/host/contract';
 
 const appWindowLoaders = {
   'app:music-window': () => import('./apps/music/MusicWindow'),
@@ -48,16 +62,27 @@ export const kernelModuleRuntime: ShellRuntimeRegistry = {
 export function KernelOnModuleRuntime({
   currentUser,
   initialState,
+  runtimeConfig,
 }: Readonly<{
   currentUser?: ShellCredentialUser;
   initialState: ShellInitialState;
+  runtimeConfig?: Partial<KernelOnRuntimeConfig>;
 }>) {
+  const resolvedRuntimeConfig = {
+    ...runtimeConfig,
+    mineradioStorageNamespace:
+      runtimeConfig?.mineradioStorageNamespace ??
+      (currentUser?.id ? `user:${currentUser.id}` : undefined),
+  } satisfies Partial<KernelOnRuntimeConfig>;
+
   return (
-    <KernelOnShell
-      currentUser={currentUser}
-      initialState={initialState}
-      runtime={kernelModuleRuntime}
-    />
+    <KernelOnRuntimeConfigProvider value={resolvedRuntimeConfig}>
+      <KernelOnShell
+        currentUser={currentUser}
+        initialState={initialState}
+        runtime={kernelModuleRuntime}
+      />
+    </KernelOnRuntimeConfigProvider>
   );
 }
 

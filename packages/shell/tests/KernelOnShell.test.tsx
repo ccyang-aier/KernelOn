@@ -91,6 +91,77 @@ describe('KernelOnShell', () => {
     expect(runtime.loadWidget).not.toHaveBeenCalled();
   });
 
+  it('keeps a minimized keep-alive App mounted but hidden', async () => {
+    const runtime = createRuntime();
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          apps: [
+            {
+              ...initialState.apps[0],
+              runtime: {
+                window: {
+                  ...initialState.apps[0].runtime.window,
+                  mountPolicy: 'keep-alive',
+                },
+              },
+            },
+          ],
+          windows: [
+            {
+              appId: 'onboarding',
+              bounds: { x: 96, y: 72, width: 960, height: 640 },
+              createdAt: 1,
+              id: 'window:keep-alive',
+              status: 'minimized',
+              title: 'Keep alive',
+              zIndex: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    const appContainer = await screen.findByTestId(
+      'kernelon-app-container-window:keep-alive',
+    );
+
+    expect(appContainer).toHaveStyle({ display: 'none', pointerEvents: 'none' });
+    expect(runtime.loadAppWindow).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not mount a minimized App with the default unmount policy', async () => {
+    const runtime = createRuntime();
+
+    render(
+      <KernelOnShell
+        initialState={{
+          ...initialState,
+          windows: [
+            {
+              appId: 'onboarding',
+              bounds: { x: 96, y: 72, width: 960, height: 640 },
+              createdAt: 1,
+              id: 'window:unmounted',
+              status: 'minimized',
+              title: 'Unmounted',
+              zIndex: 1,
+            },
+          ],
+        }}
+        runtime={runtime}
+      />,
+    );
+
+    await act(async () => Promise.resolve());
+
+    expect(runtime.loadAppWindow).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('kernelon-app-container-window:unmounted')).not.toBeInTheDocument();
+  });
+
   it('renders an app-owned AppFrame without runtime header registration', async () => {
     const runtime: ShellRuntimeRegistry = {
       loadAppWindow: vi.fn(async () => ({

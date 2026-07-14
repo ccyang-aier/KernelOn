@@ -12,7 +12,7 @@ export interface AppFrameProps {
   children?: ReactNode;
   className?: string;
   contentClassName?: string;
-  header?: AppHeaderDescriptor;
+  header?: AppHeaderDescriptor | false;
   headerSlots?: Readonly<Record<string, ReactNode>>;
   scroll?: 'auto' | 'hidden';
   style?: CSSProperties;
@@ -39,20 +39,22 @@ export function AppFrame({
       data-kernelon-app-frame="true"
       style={style}
     >
-      <AppContainerHeader
-        getSourceElement={windowFrame.getSourceElement}
-        header={header}
-        isFullscreen={windowFrame.isFullscreen}
-        onBeginMove={windowFrame.onBeginMove}
-        onClose={windowFrame.onClose}
-        onCommand={windowFrame.onHeaderCommand}
-        onMinimize={windowFrame.onMinimize}
-        onToggleFullscreen={windowFrame.onToggleFullscreen}
-        slots={headerSlots}
-        topLayer={windowFrame.topLayer}
-        windowId={windowFrame.windowId}
-        windowTitle={windowFrame.windowTitle}
-      />
+      {header === false ? null : (
+        <AppContainerHeader
+          getSourceElement={windowFrame.getSourceElement}
+          header={header}
+          isFullscreen={windowFrame.isFullscreen}
+          onBeginMove={windowFrame.onBeginMove}
+          onClose={windowFrame.onClose}
+          onCommand={windowFrame.onHeaderCommand}
+          onMinimize={windowFrame.onMinimize}
+          onToggleFullscreen={windowFrame.onToggleFullscreen}
+          slots={headerSlots}
+          topLayer={windowFrame.topLayer}
+          windowId={windowFrame.windowId}
+          windowTitle={windowFrame.windowTitle}
+        />
+      )}
       <div
         className={cn(
           'relative min-h-0 flex-1 overflow-hidden',

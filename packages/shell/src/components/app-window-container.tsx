@@ -353,7 +353,8 @@ export function AppWindowContainer({
       ref={frameRef}
       style={{
         ...resolveWindowStyle(descriptor, visualFrame, isTopLayer),
-        pointerEvents: genieHidden ? 'none' : undefined,
+        display: descriptor.status === 'minimized' ? 'none' : undefined,
+        pointerEvents: genieHidden || descriptor.status === 'minimized' ? 'none' : undefined,
       }}
       transition={{
         filter: { duration: 0.18, ease: 'easeOut' },

@@ -1,2 +1,3 @@
 *.sh text eol=lf
 Dockerfile text eol=lf
+packages/modules/src/apps/music/mineradio/source/public/vendor/*.min.js binary

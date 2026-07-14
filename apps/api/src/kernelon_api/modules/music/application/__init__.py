@@ -1,0 +1,41 @@
+"""Music application interfaces and compatibility contract."""
+
+from kernelon_api.modules.music.application.ports import (
+    MusicAccountProvider,
+    MusicAccountSession,
+    MusicAccountSessionPort,
+    MusicJsonResult,
+    MusicProviderError,
+    MusicProviderHttpPort,
+    MusicProviderResponse,
+    MusicProxyResult,
+    MusicService,
+    NeteaseAccountProviderPort,
+    NeteaseAccountService,
+    PodcastAccountProviderPort,
+    PodcastAccountService,
+    ProviderStream,
+    QQMusicProviderPort,
+    QQMusicService,
+    UnsafeProxyUrlError,
+)
+
+__all__ = [
+    "MusicAccountProvider",
+    "MusicAccountSession",
+    "MusicAccountSessionPort",
+    "MusicJsonResult",
+    "MusicProviderError",
+    "MusicProviderHttpPort",
+    "MusicProviderResponse",
+    "MusicProxyResult",
+    "MusicService",
+    "NeteaseAccountProviderPort",
+    "NeteaseAccountService",
+    "PodcastAccountProviderPort",
+    "PodcastAccountService",
+    "ProviderStream",
+    "QQMusicProviderPort",
+    "QQMusicService",
+    "UnsafeProxyUrlError",
+]

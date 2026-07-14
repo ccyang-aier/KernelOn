@@ -10,8 +10,12 @@ export default tseslint.config(
       '**/dist/**',
       '**/coverage/**',
       '**/node_modules/**',
+      '**/target/**',
       '**/.venv/**',
       '**/__pycache__/**',
+      'packages/modules/src/apps/music/mineradio/source/**',
+      'packages/modules/src/apps/music/mineradio/generated/**',
+      'packages/modules/src/apps/music/mineradio/assets/vendor/**',
       '.agent-mesh/**',
       '.gemini/**',
       'open_source/**',
@@ -27,6 +31,18 @@ export default tseslint.config(
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    files: ['scripts/**/*.{js,mjs,cjs}', 'eslint.config.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    files: ['apps/desktop/src-tauri/src/mineradio_overlay_bridge.js'],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {

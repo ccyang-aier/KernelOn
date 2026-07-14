@@ -1,0 +1,4706 @@
+{
+  "schemaVersion": 3,
+  "upstreamCommit": "6b130103f759e5dcd1e133700071c8216b8fa5a6",
+  "lockedHashes": {
+    "LICENSE": "89DD03B341893D414795152E405341AD5922CF2569446D5E55432B1B8CF53FDF",
+    "NOTICE.md": "24756354CA3B320F0FC3EAF3C78CD4B78C088F2F36D30636E782F00B2E55B1F0",
+    "desktop/main.js": "0E14F4481570915FDD38E50586F862F6F26A7C0D5FD502AB374BC7878999D0F6",
+    "desktop/overlay-preload.js": "8EEEE0502E899D030F6DB4FBC5AFD11DB5FD42084F3DE06C23E7DF7840F21EF5",
+    "desktop/preload.js": "2D7DF39C9C8E35C054588DD2EC10C686955F5B992A357AF4708B55EBAE31BF48",
+    "dj-analyzer.js": "EC24B31E50E509E3D884EE335D67800C8DB3E56C1A7EAA4AAA213B04756A4B4F",
+    "public/assets/skull-decimation-points.bin": "4DFC716A5B8D51C250E39FD9E26D975DEB0E1492E18F225691E3D516F822D8F0",
+    "public/default-user-fx-archive.json": "A491E190D55E9954665760C581A6027BF0AEEEFB0B4574A02348DCD1284D844F",
+    "public/desktop-lyrics.html": "0206DD540274D8DE1D207C56756ED4881F009AECDBF554FE9197D1D46EA663EF",
+    "public/index.html": "78C6C7A760AC14326AF924A367A97DA94771A30E8072836F62B0745DAEABDFE2",
+    "public/vendor/gsap.min.js": "92BB9A96476F983D212A2BC4F54C889039C1696DD4461D40A736860938570FBB",
+    "public/vendor/music-tempo.LICENCE": "12B4E069F64AE9A2660C1F5FE788E548487EC8385960BDA0A0BFE177C95348CF",
+    "public/vendor/music-tempo.min.js": "2927859A8E81E8874A95DC7AF3A2A06FEDD306826F774B7378E26AD5FA9CBD76",
+    "public/vendor/three.r128.min.js": "9274BBCEC8D96168626C732B5D31C775AA8CFB7EAA0599BEC0C175908A2C1CE2",
+    "public/wallpaper.html": "52C03155C9BE8FF93F2CFE1B6281A2078C671B182E3972CAF1D82364A20B7E97",
+    "package.json": "6C8D565A99A488018EA6D36529E7B5F022C70974A21FC9B28758C3D2A1C0EA9A",
+    "package-lock.json": "F62706206E252F20D258F18730F84E021D04098E61069C20F02EBE38CFA9D00C",
+    "server.js": "653D444A0BFDCEBCCFB7925BD28BCCCA71DBF0AA3512A28D1598598F1EE5650D"
+  },
+  "ownership": {
+    "canonicalSourceRoot": "packages/modules/src/apps/music/mineradio/source",
+    "externalSourceRequired": false,
+    "lockedSourceFileCount": 18,
+    "snapshotFileCount": 19
+  },
+  "contracts": {
+    "api": {
+      "frontend": [
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id",
+                  "limit"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "id",
+              "limit"
+            ]
+          },
+          "route": "/api/artist/detail",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "url"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "url"
+            ]
+          },
+          "route": "/api/audio",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "request": {
+            "bodyFields": [
+              "artist",
+              "key",
+              "map",
+              "mode",
+              "provider",
+              "title"
+            ],
+            "invocations": [
+              {
+                "bodyFields": [
+                  "artist",
+                  "key",
+                  "map",
+                  "mode",
+                  "provider",
+                  "title"
+                ],
+                "method": "POST",
+                "queryParameters": [],
+                "transport": "apiJson"
+              },
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "key",
+                  "t"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "key",
+              "t"
+            ]
+          },
+          "route": "/api/beatmap/cache",
+          "writeMethods": [
+            "POST"
+          ],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "t"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "t"
+            ]
+          },
+          "route": "/api/beatmap/cache/status",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "url",
+                  "v"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "url",
+              "v"
+            ]
+          },
+          "route": "/api/cover",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "t"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "t"
+            ]
+          },
+          "route": "/api/discover/home",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "request": {
+            "bodyFields": [
+              "cookie"
+            ],
+            "invocations": [
+              {
+                "bodyFields": [
+                  "cookie"
+                ],
+                "method": "POST",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/login/cookie",
+          "writeMethods": [
+            "POST"
+          ],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "key"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "key"
+            ]
+          },
+          "route": "/api/login/qr/check",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "key"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "key"
+            ]
+          },
+          "route": "/api/login/qr/create",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/login/qr/key",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "t"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "t"
+            ]
+          },
+          "route": "/api/login/status",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/logout",
+          "writeMethods": [
+            "GET"
+          ],
+          "writeViaGet": true
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "id"
+            ]
+          },
+          "route": "/api/lyric",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "request": {
+            "bodyFields": [
+              "id",
+              "pid"
+            ],
+            "invocations": [
+              {
+                "bodyFields": [
+                  "id",
+                  "pid"
+                ],
+                "method": "POST",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/playlist/add-song",
+          "writeMethods": [
+            "POST"
+          ],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "name"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "name"
+            ]
+          },
+          "route": "/api/playlist/create",
+          "writeMethods": [
+            "GET"
+          ],
+          "writeViaGet": true
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "id"
+            ]
+          },
+          "route": "/api/playlist/tracks",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "duration",
+                  "intro",
+                  "url"
+                ],
+                "transport": "fetch"
+              },
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "duration",
+                  "url"
+                ],
+                "transport": "fetch"
+              }
+            ],
+            "queryParameters": [
+              "duration",
+              "intro",
+              "url"
+            ]
+          },
+          "route": "/api/podcast/dj-beatmap",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "limit"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "limit"
+            ]
+          },
+          "route": "/api/podcast/hot",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/podcast/my",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "key",
+                  "limit"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "key",
+              "limit"
+            ]
+          },
+          "route": "/api/podcast/my/items",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id",
+                  "limit"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "id",
+              "limit"
+            ]
+          },
+          "route": "/api/podcast/programs",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "keywords",
+                  "limit"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "keywords",
+              "limit"
+            ]
+          },
+          "route": "/api/podcast/search",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "limit",
+                  "mid"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "limit",
+              "mid"
+            ]
+          },
+          "route": "/api/qq/artist/detail",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "request": {
+            "bodyFields": [
+              "cookie"
+            ],
+            "invocations": [
+              {
+                "bodyFields": [
+                  "cookie"
+                ],
+                "method": "POST",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/qq/login/cookie",
+          "writeMethods": [
+            "POST"
+          ],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "t"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "t"
+            ]
+          },
+          "route": "/api/qq/login/status",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/qq/logout",
+          "writeMethods": [
+            "GET"
+          ],
+          "writeViaGet": true
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id",
+                  "mid"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "id",
+              "mid"
+            ]
+          },
+          "route": "/api/qq/lyric",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "id"
+            ]
+          },
+          "route": "/api/qq/playlist/tracks",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "keywords",
+                  "limit"
+                ],
+                "transport": "apiJson"
+              },
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "keywords",
+                  "limit"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "keywords",
+              "limit"
+            ]
+          },
+          "route": "/api/qq/search",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id",
+                  "limit",
+                  "mid"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "id",
+              "limit",
+              "mid"
+            ]
+          },
+          "route": "/api/qq/song/comments",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "mediaMid",
+                  "mid",
+                  "quality"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "mediaMid",
+              "mid",
+              "quality"
+            ]
+          },
+          "route": "/api/qq/song/url",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/qq/user/playlists",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "keywords",
+                  "limit"
+                ],
+                "transport": "apiJson"
+              },
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "keywords",
+                  "limit"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "keywords",
+              "limit"
+            ]
+          },
+          "route": "/api/search",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id",
+                  "limit"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "id",
+              "limit"
+            ]
+          },
+          "route": "/api/song/comments",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id",
+                  "like"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "id",
+              "like"
+            ]
+          },
+          "route": "/api/song/like",
+          "writeMethods": [
+            "GET"
+          ],
+          "writeViaGet": true
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "ids"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "ids"
+            ]
+          },
+          "route": "/api/song/like/check",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id",
+                  "quality"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "id",
+              "quality"
+            ]
+          },
+          "route": "/api/song/url",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "POST",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/update/download",
+          "writeMethods": [
+            "POST"
+          ],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id",
+                  "t"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "id",
+              "t"
+            ]
+          },
+          "route": "/api/update/download/status",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "t"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "t"
+            ]
+          },
+          "route": "/api/update/latest",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "POST",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/update/patch",
+          "writeMethods": [
+            "POST"
+          ],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "id",
+                  "t"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "id",
+              "t"
+            ]
+          },
+          "route": "/api/update/patch/status",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": []
+          },
+          "route": "/api/user/playlists",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "t"
+                ],
+                "transport": "apiJson"
+              }
+            ],
+            "queryParameters": [
+              "t"
+            ]
+          },
+          "route": "/api/weather/ip-location",
+          "writeMethods": [],
+          "writeViaGet": false
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "request": {
+            "bodyFields": [],
+            "invocations": [
+              {
+                "bodyFields": [],
+                "method": "GET",
+                "queryParameters": [
+                  "city",
+                  "lat",
+                  "lon",
+                  "t",
+                  "timezone"
+                ],
+                "transport": "constructed-url"
+              }
+            ],
+            "queryParameters": [
+              "city",
+              "lat",
+              "lon",
+              "t",
+              "timezone"
+            ]
+          },
+          "route": "/api/weather/radio",
+          "writeMethods": [],
+          "writeViaGet": false
+        }
+      ],
+      "server": [
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/app/version"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id"
+                  ],
+                  "field": "id"
+                },
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                }
+              ],
+              "parameters": [
+                "id",
+                "limit"
+              ]
+            }
+          },
+          "route": "/api/artist/detail"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "url"
+                  ],
+                  "field": "audioUrl"
+                }
+              ],
+              "parameters": [
+                "url"
+              ]
+            }
+          },
+          "route": "/api/audio"
+        },
+        {
+          "methodPolicy": "allowlist",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "artist"
+                  ],
+                  "field": "artist"
+                },
+                {
+                  "aliases": [
+                    "key"
+                  ],
+                  "field": "key"
+                },
+                {
+                  "aliases": [
+                    "map"
+                  ],
+                  "field": "map"
+                },
+                {
+                  "aliases": [
+                    "mode"
+                  ],
+                  "field": "mode"
+                },
+                {
+                  "aliases": [
+                    "provider"
+                  ],
+                  "field": "provider"
+                },
+                {
+                  "aliases": [
+                    "title"
+                  ],
+                  "field": "title"
+                }
+              ],
+              "fields": [
+                "artist",
+                "key",
+                "map",
+                "mode",
+                "provider",
+                "title"
+              ],
+              "readsRequestBody": true
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "key"
+                  ],
+                  "field": "key"
+                }
+              ],
+              "parameters": [
+                "key"
+              ]
+            }
+          },
+          "route": "/api/beatmap/cache"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/beatmap/cache/status"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "url"
+                  ],
+                  "field": "coverUrl"
+                }
+              ],
+              "parameters": [
+                "url"
+              ]
+            }
+          },
+          "route": "/api/cover"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/discover/home"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "cookie",
+                    "data",
+                    "text"
+                  ],
+                  "field": "raw"
+                }
+              ],
+              "fields": [
+                "cookie",
+                "data",
+                "text"
+              ],
+              "readsRequestBody": true
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/login/cookie"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "code"
+                  ],
+                  "field": "code"
+                },
+                {
+                  "aliases": [
+                    "message"
+                  ],
+                  "field": "msg"
+                },
+                {
+                  "aliases": [
+                    "data",
+                    "profile"
+                  ],
+                  "field": "profile"
+                }
+              ],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "key"
+                  ],
+                  "field": "key"
+                }
+              ],
+              "parameters": [
+                "key"
+              ]
+            }
+          },
+          "route": "/api/login/qr/check"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "key"
+                  ],
+                  "field": "key"
+                }
+              ],
+              "parameters": [
+                "key"
+              ]
+            }
+          },
+          "route": "/api/login/qr/create"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/login/qr/key"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/login/status"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/logout"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id"
+                  ],
+                  "field": "id"
+                }
+              ],
+              "parameters": [
+                "id"
+              ]
+            }
+          },
+          "route": "/api/lyric"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id",
+                    "ids"
+                  ],
+                  "field": "id"
+                },
+                {
+                  "aliases": [
+                    "pid"
+                  ],
+                  "field": "pid"
+                }
+              ],
+              "fields": [
+                "id",
+                "ids",
+                "pid"
+              ],
+              "readsRequestBody": true
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id",
+                    "ids"
+                  ],
+                  "field": "id"
+                },
+                {
+                  "aliases": [
+                    "pid"
+                  ],
+                  "field": "pid"
+                }
+              ],
+              "parameters": [
+                "id",
+                "ids",
+                "pid"
+              ]
+            }
+          },
+          "route": "/api/playlist/add-song"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "name"
+                  ],
+                  "field": "name"
+                },
+                {
+                  "aliases": [
+                    "privacy"
+                  ],
+                  "field": "privacy"
+                }
+              ],
+              "fields": [
+                "name",
+                "privacy"
+              ],
+              "readsRequestBody": true
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "name"
+                  ],
+                  "field": "name"
+                },
+                {
+                  "aliases": [
+                    "privacy"
+                  ],
+                  "field": "privacy"
+                }
+              ],
+              "parameters": [
+                "name",
+                "privacy"
+              ]
+            }
+          },
+          "route": "/api/playlist/create"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id"
+                  ],
+                  "field": "id"
+                }
+              ],
+              "parameters": [
+                "id"
+              ]
+            }
+          },
+          "route": "/api/playlist/tracks"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "data",
+                    "djRadio",
+                    "radio"
+                  ],
+                  "field": "radio"
+                }
+              ],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id",
+                    "rid"
+                  ],
+                  "field": "rid"
+                }
+              ],
+              "parameters": [
+                "id",
+                "rid"
+              ]
+            }
+          },
+          "route": "/api/podcast/detail"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "url"
+                  ],
+                  "field": "audioUrl"
+                },
+                {
+                  "aliases": [
+                    "duration"
+                  ],
+                  "field": "durationSec"
+                },
+                {
+                  "aliases": [
+                    "intro"
+                  ],
+                  "field": "introSec"
+                }
+              ],
+              "parameters": [
+                "duration",
+                "intro",
+                "url"
+              ]
+            }
+          },
+          "route": "/api/podcast/dj-beatmap"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "data",
+                    "djRadios",
+                    "djradios",
+                    "radios"
+                  ],
+                  "field": "raw"
+                }
+              ],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                },
+                {
+                  "aliases": [
+                    "offset"
+                  ],
+                  "field": "offset"
+                }
+              ],
+              "parameters": [
+                "limit",
+                "offset"
+              ]
+            }
+          },
+          "route": "/api/podcast/hot"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/podcast/my"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "key"
+                  ],
+                  "field": "key"
+                },
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                },
+                {
+                  "aliases": [
+                    "offset"
+                  ],
+                  "field": "offset"
+                }
+              ],
+              "parameters": [
+                "key",
+                "limit",
+                "offset"
+              ]
+            }
+          },
+          "route": "/api/podcast/my/items"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "data",
+                    "programs"
+                  ],
+                  "field": "raw"
+                }
+              ],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                },
+                {
+                  "aliases": [
+                    "offset"
+                  ],
+                  "field": "offset"
+                },
+                {
+                  "aliases": [
+                    "id",
+                    "rid"
+                  ],
+                  "field": "rid"
+                }
+              ],
+              "parameters": [
+                "id",
+                "limit",
+                "offset",
+                "rid"
+              ]
+            }
+          },
+          "route": "/api/podcast/programs"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "keywords"
+                  ],
+                  "field": "kw"
+                },
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                }
+              ],
+              "parameters": [
+                "keywords",
+                "limit"
+              ]
+            }
+          },
+          "route": "/api/podcast/search"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                },
+                {
+                  "aliases": [
+                    "mid",
+                    "singermid"
+                  ],
+                  "field": "mid"
+                }
+              ],
+              "parameters": [
+                "limit",
+                "mid",
+                "singermid"
+              ]
+            }
+          },
+          "route": "/api/qq/artist/detail"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "cookie",
+                    "data",
+                    "text"
+                  ],
+                  "field": "raw"
+                }
+              ],
+              "fields": [
+                "cookie",
+                "data",
+                "text"
+              ],
+              "readsRequestBody": true
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/qq/login/cookie"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/qq/login/status"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/qq/logout"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id",
+                    "qqId"
+                  ],
+                  "field": "id"
+                },
+                {
+                  "aliases": [
+                    "mid",
+                    "songmid"
+                  ],
+                  "field": "mid"
+                }
+              ],
+              "parameters": [
+                "id",
+                "mid",
+                "qqId",
+                "songmid"
+              ]
+            }
+          },
+          "route": "/api/qq/lyric"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "disstid",
+                    "id"
+                  ],
+                  "field": "id"
+                }
+              ],
+              "parameters": [
+                "disstid",
+                "id"
+              ]
+            }
+          },
+          "route": "/api/qq/playlist/tracks"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "keywords"
+                  ],
+                  "field": "kw"
+                },
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                }
+              ],
+              "parameters": [
+                "keywords",
+                "limit"
+              ]
+            }
+          },
+          "route": "/api/qq/search"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id",
+                    "qqId"
+                  ],
+                  "field": "id"
+                },
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                },
+                {
+                  "aliases": [
+                    "mid",
+                    "songmid"
+                  ],
+                  "field": "mid"
+                },
+                {
+                  "aliases": [
+                    "offset"
+                  ],
+                  "field": "offset"
+                }
+              ],
+              "parameters": [
+                "id",
+                "limit",
+                "mid",
+                "offset",
+                "qqId",
+                "songmid"
+              ]
+            }
+          },
+          "route": "/api/qq/song/comments"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "mediaMid",
+                    "media_mid"
+                  ],
+                  "field": "mediaMid"
+                },
+                {
+                  "aliases": [
+                    "id",
+                    "mid"
+                  ],
+                  "field": "mid"
+                },
+                {
+                  "aliases": [
+                    "quality"
+                  ],
+                  "field": "quality"
+                }
+              ],
+              "parameters": [
+                "id",
+                "mediaMid",
+                "media_mid",
+                "mid",
+                "quality"
+              ]
+            }
+          },
+          "route": "/api/qq/song/url"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/qq/user/playlists"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "keywords"
+                  ],
+                  "field": "kw"
+                },
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                }
+              ],
+              "parameters": [
+                "keywords",
+                "limit"
+              ]
+            }
+          },
+          "route": "/api/search"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "comments",
+                    "hotComments"
+                  ],
+                  "field": "raw"
+                }
+              ],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id"
+                  ],
+                  "field": "id"
+                },
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                },
+                {
+                  "aliases": [
+                    "offset"
+                  ],
+                  "field": "offset"
+                }
+              ],
+              "parameters": [
+                "id",
+                "limit",
+                "offset"
+              ]
+            }
+          },
+          "route": "/api/song/comments"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id"
+                  ],
+                  "field": "id"
+                },
+                {
+                  "aliases": [
+                    "like"
+                  ],
+                  "field": "nextLike"
+                }
+              ],
+              "fields": [
+                "id",
+                "like"
+              ],
+              "readsRequestBody": true
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id"
+                  ],
+                  "field": "id"
+                },
+                {
+                  "aliases": [
+                    "like"
+                  ],
+                  "field": "nextLike"
+                }
+              ],
+              "parameters": [
+                "id",
+                "like"
+              ]
+            }
+          },
+          "route": "/api/song/like"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id",
+                    "ids"
+                  ],
+                  "field": "ids"
+                }
+              ],
+              "parameters": [
+                "id",
+                "ids"
+              ]
+            }
+          },
+          "route": "/api/song/like/check"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "quality"
+                  ],
+                  "field": "quality"
+                },
+                {
+                  "aliases": [
+                    "id"
+                  ],
+                  "field": "sid"
+                }
+              ],
+              "parameters": [
+                "id",
+                "quality"
+              ]
+            }
+          },
+          "route": "/api/song/url"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/update/download"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id"
+                  ],
+                  "field": "id"
+                }
+              ],
+              "parameters": [
+                "id"
+              ]
+            }
+          },
+          "route": "/api/update/download/status"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/update/latest"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/update/patch"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "id"
+                  ],
+                  "field": "id"
+                }
+              ],
+              "parameters": [
+                "id"
+              ]
+            }
+          },
+          "route": "/api/update/patch/status"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "limit"
+                  ],
+                  "field": "limit"
+                }
+              ],
+              "parameters": [
+                "limit"
+              ]
+            }
+          },
+          "route": "/api/user/playlists"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [],
+              "parameters": []
+            }
+          },
+          "route": "/api/weather/ip-location"
+        },
+        {
+          "methodPolicy": "unrestricted",
+          "methods": [
+            "*"
+          ],
+          "request": {
+            "body": {
+              "aliasGroups": [],
+              "fields": [],
+              "readsRequestBody": false
+            },
+            "query": {
+              "aliasGroups": [
+                {
+                  "aliases": [
+                    "city",
+                    "q"
+                  ],
+                  "field": "city"
+                },
+                {
+                  "aliases": [
+                    "lat"
+                  ],
+                  "field": "lat"
+                },
+                {
+                  "aliases": [
+                    "lon"
+                  ],
+                  "field": "lon"
+                },
+                {
+                  "aliases": [
+                    "timezone"
+                  ],
+                  "field": "timezone"
+                }
+              ],
+              "parameters": [
+                "city",
+                "lat",
+                "lon",
+                "q",
+                "timezone"
+              ]
+            }
+          },
+          "route": "/api/weather/radio"
+        }
+      ],
+      "serverOnlyRoutes": [
+        "/api/app/version",
+        "/api/podcast/detail"
+      ]
+    },
+    "css": {
+      "classCount": 480,
+      "classes": [
+        "account-hint",
+        "account-modal-actions",
+        "account-provider-chip",
+        "account-source-dot",
+        "actions",
+        "active",
+        "add-btn",
+        "analyzing",
+        "arrow",
+        "artist-song-action",
+        "artist-song-actions",
+        "artist-song-cover",
+        "artist-song-item",
+        "artist-song-main",
+        "artist-song-meta",
+        "artist-song-name",
+        "artist-song-rank",
+        "auto",
+        "available",
+        "bg-cover-mode",
+        "both",
+        "btn-row",
+        "busy",
+        "capturing",
+        "close",
+        "closing",
+        "collect",
+        "collect-create",
+        "collect-current",
+        "collect-empty",
+        "collect-item",
+        "collect-list",
+        "collect-modal",
+        "collect-sub",
+        "collect-title",
+        "color-lab-close",
+        "color-lab-cursor",
+        "color-lab-head",
+        "color-lab-hex",
+        "color-lab-hue",
+        "color-lab-pop",
+        "color-lab-presets",
+        "color-lab-preview",
+        "color-lab-row",
+        "color-lab-sv",
+        "comment-avatar",
+        "comment-item",
+        "comment-main",
+        "comment-meta",
+        "comment-text",
+        "conflict",
+        "control-artist",
+        "control-cluster",
+        "control-cover",
+        "control-divider",
+        "control-glass-filter-svg",
+        "control-glass-svg-ok",
+        "control-meta",
+        "control-title",
+        "control-track",
+        "controls-handle-awake",
+        "controls-visible",
+        "cover-color-art",
+        "cover-color-body",
+        "cover-color-close",
+        "cover-color-head",
+        "cover-color-hint",
+        "cover-color-loupe",
+        "cover-color-pop",
+        "cover-color-preview",
+        "cover-color-side",
+        "cover-color-swatches",
+        "cover-crop-layout",
+        "cover-crop-modal",
+        "cover-crop-side",
+        "cover-crop-stage",
+        "cover-empty",
+        "cover-placeholder",
+        "cover-zoom-control",
+        "ctrl-btn",
+        "cursor-hidden",
+        "custom-background-flat",
+        "custom-background-override",
+        "custom-background-video",
+        "custom-lyric-input",
+        "custom-lyric-modal",
+        "custom-lyric-status",
+        "custom-lyric-sub",
+        "custom-lyric-title",
+        "custom-lyric-track",
+        "desc",
+        "desktop-app-mark",
+        "desktop-app-title",
+        "desktop-drag-region",
+        "desktop-fullscreen",
+        "desktop-maximized",
+        "desktop-mode-btn",
+        "desktop-shell",
+        "desktop-shell-root",
+        "desktop-window-btn",
+        "desktop-window-controls",
+        "detail-artist-avatar",
+        "detail-chip",
+        "detail-chip-row",
+        "detail-cover",
+        "detail-empty",
+        "detail-grid",
+        "detail-hero",
+        "detail-k",
+        "detail-loading",
+        "detail-scroll",
+        "detail-section",
+        "detail-section-head",
+        "detail-section-title",
+        "detail-sub",
+        "detail-title",
+        "detail-v",
+        "dev-locked",
+        "diy-mode",
+        "dot",
+        "downloading",
+        "dragging",
+        "dragover",
+        "drop-text",
+        "dual-login-modal",
+        "dual-user-modal",
+        "empty-home-active",
+        "empty-home-shell",
+        "error",
+        "exiting",
+        "expanded",
+        "fail",
+        "fullscreen-diy-peek",
+        "fullscreen-toggle-btn",
+        "fx-actions",
+        "fx-advanced",
+        "fx-advanced-body",
+        "fx-advanced-head",
+        "fx-close",
+        "fx-color-row-label",
+        "fx-dev-badge",
+        "fx-fab-auto-hide",
+        "fx-fab-peek",
+        "fx-fold",
+        "fx-fold-body",
+        "fx-fold-head",
+        "fx-fold-title",
+        "fx-font-grid",
+        "fx-head",
+        "fx-head-actions",
+        "fx-head-main",
+        "fx-mini-btn",
+        "fx-panel-tabs",
+        "fx-reset-one",
+        "fx-section-label",
+        "fx-seg",
+        "fx-slider",
+        "fx-sub",
+        "fx-tab-page",
+        "fx-title",
+        "fx-toggle",
+        "fx-toggle-grid",
+        "generated",
+        "gesture-confirm",
+        "gesture-hud",
+        "gesture-legend",
+        "gesture-meter",
+        "ghost",
+        "glass-saved-button",
+        "glass-saved-panel",
+        "good",
+        "has-cover",
+        "has-cover-action",
+        "has-custom",
+        "has-results",
+        "has-save",
+        "heart-svg",
+        "hidden",
+        "hide",
+        "home-card",
+        "home-card-art",
+        "home-card-label",
+        "home-card-sub",
+        "home-card-title",
+        "home-chip",
+        "home-console-chip",
+        "home-construction-inner",
+        "home-construction-title",
+        "home-controls-locked",
+        "home-disc",
+        "home-eq",
+        "home-grid",
+        "home-hero",
+        "home-hero-inner",
+        "home-kicker",
+        "home-mosaic",
+        "home-mosaic-cell",
+        "home-quick-row",
+        "home-radio-badge",
+        "home-radio-img",
+        "home-rail",
+        "home-section-head",
+        "home-section-note",
+        "home-section-title",
+        "home-skeleton",
+        "home-sleeve",
+        "home-sub",
+        "home-tile",
+        "home-tile-cover",
+        "home-tile-row",
+        "home-tile-sub",
+        "home-tile-title",
+        "home-title",
+        "home-visual",
+        "home-wallpaper-preview",
+        "home-wave-track",
+        "home-weather-meta",
+        "home-weather-pill",
+        "hotkey-capture-tip",
+        "hotkey-close",
+        "hotkey-dialog",
+        "hotkey-group",
+        "hotkey-group-title",
+        "hotkey-head",
+        "hotkey-key",
+        "hotkey-modal",
+        "hotkey-name",
+        "hotkey-note",
+        "hotkey-reset",
+        "hotkey-row",
+        "hotkey-section",
+        "hotkey-status",
+        "hotkey-sub",
+        "hotkey-tabs",
+        "hotkey-title",
+        "hotkey-toolbar",
+        "ic",
+        "icon-btn",
+        "idle-guide-dragging",
+        "idle-guide-interactive",
+        "idle-guide-on",
+        "image-pick-row",
+        "immersive-mode",
+        "in",
+        "is-dragging",
+        "is-new",
+        "liked",
+        "linked",
+        "local-beat-desc",
+        "local-beat-modal",
+        "local-beat-status",
+        "local-beat-tab",
+        "local-beat-tabs",
+        "local-beat-track",
+        "local-beat-track-sub",
+        "local-beat-track-title",
+        "locked",
+        "logged-in",
+        "logged-out",
+        "login-guide-active",
+        "login-intro",
+        "login-intro-body",
+        "login-intro-kicker",
+        "login-intro-title",
+        "login-link",
+        "login-platform-tabs",
+        "login-word",
+        "lyric-color-grid",
+        "lyric-color-picker",
+        "lyric-color-row",
+        "lyric-color-value",
+        "lyric-source-row",
+        "lyric-source-seg",
+        "lyric-swatch",
+        "lyrics-toggle-btn",
+        "lyrics-word-icon",
+        "mini-queue-count",
+        "mini-queue-cover",
+        "mini-queue-empty",
+        "mini-queue-head",
+        "mini-queue-info",
+        "mini-queue-item",
+        "mini-queue-list",
+        "mini-queue-name",
+        "mini-queue-next",
+        "mini-queue-popover",
+        "mini-queue-remove",
+        "mini-queue-skeleton",
+        "mini-queue-sub",
+        "mini-queue-title",
+        "mini-spin",
+        "modal",
+        "modal-btn",
+        "modal-mask",
+        "mode-switching",
+        "modes",
+        "multi-account",
+        "muted",
+        "netease",
+        "netease-preview",
+        "netease-source",
+        "next",
+        "now",
+        "ok",
+        "on",
+        "open",
+        "org",
+        "out",
+        "panel-tab",
+        "panel-tabs",
+        "pc-bg",
+        "pc-desc",
+        "pc-icon",
+        "pc-name",
+        "pc-yui7w",
+        "peek",
+        "pinned",
+        "pl-card",
+        "pl-detail-actions",
+        "pl-detail-count",
+        "pl-detail-cover",
+        "pl-detail-head",
+        "pl-detail-list",
+        "pl-detail-load-more",
+        "pl-detail-play",
+        "pl-detail-progress",
+        "pl-detail-row",
+        "pl-detail-row-artist",
+        "pl-detail-row-title",
+        "pl-detail-sticky",
+        "pl-detail-sub",
+        "pl-detail-title",
+        "pl-detail-top-btn",
+        "pl-inline-detail",
+        "pl-load-more",
+        "pl-name",
+        "pl-section-label",
+        "pl-sub",
+        "playlist-pin-btn",
+        "podcast-back-btn",
+        "podcast-card",
+        "podcast-child",
+        "podcast-inline-head",
+        "podcast-result-head",
+        "preset-card",
+        "preset-grid",
+        "preview",
+        "primary",
+        "progress-drag-particle",
+        "qi-act",
+        "qi-info",
+        "qi-name",
+        "qi-sub",
+        "qq",
+        "qq-cookie-actions",
+        "qq-cookie-input",
+        "qq-cookie-note",
+        "qq-cookie-panel",
+        "qq-login-mark",
+        "qq-source",
+        "qr-shell",
+        "quality-control",
+        "quality-option",
+        "quality-pill",
+        "quality-popover",
+        "queue-artist-link",
+        "queue-chip",
+        "queue-head",
+        "queue-head-act",
+        "queue-item",
+        "queue-list",
+        "queue-next",
+        "queue-toolbar",
+        "ready",
+        "render-deep-sleep",
+        "scan",
+        "search-artist-link",
+        "search-empty",
+        "search-history",
+        "search-history-chip",
+        "search-history-clear",
+        "search-history-head",
+        "search-history-list",
+        "search-mode-tabs",
+        "search-result",
+        "search-result-info",
+        "search-result-meta",
+        "search-result-title",
+        "shelf-hidden",
+        "shelf-target",
+        "show",
+        "simple-mode",
+        "simple-mode-preload",
+        "soft-hidden",
+        "song-action-btn",
+        "source-fallback-body",
+        "source-fallback-close",
+        "source-fallback-head",
+        "source-fallback-title",
+        "source-icon",
+        "spinner",
+        "splash-active",
+        "splash-bg-noise",
+        "splash-content",
+        "splash-enter",
+        "splash-revealing",
+        "splash-signal-line",
+        "splash-sub",
+        "splash-word-i",
+        "splash-word-mine",
+        "splash-word-o",
+        "splash-word-radio",
+        "splash-wordmark",
+        "stage-lyric-line",
+        "stage-mode",
+        "sub",
+        "switching",
+        "tag-podcast",
+        "tag-source",
+        "tag-vip",
+        "top-account-name",
+        "top-account-pill",
+        "top-account-vip",
+        "track-detail-modal",
+        "transport",
+        "update-actions",
+        "update-arrow",
+        "update-btn-fill",
+        "update-btn-label",
+        "update-entry",
+        "update-footnote",
+        "update-hero",
+        "update-hero-main",
+        "update-hero-sub",
+        "update-item",
+        "update-item-dot",
+        "update-item-text",
+        "update-kicker",
+        "update-list",
+        "update-modal",
+        "update-panel-head",
+        "update-panel-inner",
+        "update-primary-btn",
+        "update-progress-ring",
+        "update-ring",
+        "update-secondary-btn",
+        "update-title",
+        "update-version",
+        "upload-tip-close",
+        "upload-tip-title",
+        "user-archive-actions",
+        "user-archive-grid",
+        "user-archive-input",
+        "user-archive-meta",
+        "user-archive-name",
+        "user-archive-note",
+        "user-archive-slot",
+        "user-archive-toolbar",
+        "user-archive-tools",
+        "user-capsule-auto-hide",
+        "user-capsule-hide-btn",
+        "user-capsule-peek",
+        "user-platform-tabs",
+        "visible",
+        "visual-guide-actions",
+        "visual-guide-active",
+        "visual-guide-body",
+        "visual-guide-card",
+        "visual-guide-hint",
+        "visual-guide-kicker",
+        "visual-guide-progress",
+        "visual-guide-ring",
+        "visual-guide-scrim",
+        "visual-guide-title",
+        "visual-tint-row",
+        "volume-control",
+        "volume-popover",
+        "w3",
+        "warn",
+        "web-login-preview"
+      ],
+      "fixedPositionCount": 38,
+      "idCount": 122,
+      "ids": [
+        "D2D7DC",
+        "E8ECEF",
+        "a9b8c8",
+        "ai-depth-chip",
+        "album-bg",
+        "beat-chip",
+        "bg-color-picker",
+        "bottom-bar",
+        "bottom-handle",
+        "c9963d",
+        "canvas-container",
+        "clear-cover-btn",
+        "collect-btn",
+        "controls",
+        "controls-hide-btn",
+        "cover-crop-preview",
+        "custom-bg",
+        "custom-bg-video",
+        "d8bd78",
+        "d8c486",
+        "d95b67",
+        "desktop-titlebar",
+        "desktop-window-shell",
+        "drop-overlay",
+        "e7fff9",
+        "eaf2ff",
+        "eafffb",
+        "empty-home",
+        "f00",
+        "f00000",
+        "f08080",
+        "f0f",
+        "f0ffc8",
+        "f3ffd1",
+        "f4d28a",
+        "f8edd1",
+        "f8f4ee",
+        "f8f8f2",
+        "ff0",
+        "ff2430",
+        "ff3038",
+        "ff5367",
+        "ff7a90",
+        "ff8f9d",
+        "ffce70",
+        "ffd7dc",
+        "ffd8dd",
+        "ffe3c2",
+        "fff",
+        "fff0bf",
+        "fff1bd",
+        "fff2bd",
+        "fff3c2",
+        "fff8df",
+        "free-camera-hint",
+        "fullscreen-diy-btn",
+        "fullscreen-diy-zone",
+        "fx-fab",
+        "fx-fab-hide-btn",
+        "fx-panel",
+        "gesture-hud",
+        "hand-canvas",
+        "heart-btn",
+        "hint",
+        "home-btn",
+        "idle-guide-canvas",
+        "immersive-btn",
+        "loading-overlay",
+        "login-guide-canvas",
+        "mineradio-control-glass-filter",
+        "mineradio-search-box-glass-filter",
+        "mineradio-search-pill-glass-filter",
+        "mini-queue-btn",
+        "mini-queue-popover",
+        "play-btn",
+        "play-mode-btn",
+        "play-mode-icon",
+        "playlist-panel",
+        "progress-bar",
+        "progress-fill",
+        "progress-thumb",
+        "qq-cookie-toggle-btn",
+        "qr-img",
+        "qr-status",
+        "quality-btn",
+        "quality-btn-label",
+        "quality-control",
+        "search-area",
+        "search-box",
+        "search-icon",
+        "search-input",
+        "search-mode-tabs",
+        "search-results",
+        "search-stack",
+        "source-fallback-notice",
+        "splash",
+        "splash-canvas",
+        "stage-lyrics",
+        "t-float",
+        "thumb-artist",
+        "thumb-cover",
+        "thumb-info",
+        "thumb-title",
+        "thumb-wrap",
+        "time-display",
+        "toast",
+        "top-right",
+        "track-detail-body",
+        "trial-banner",
+        "update-entry",
+        "update-modal",
+        "upload-actions",
+        "upload-btn",
+        "upload-tip",
+        "user-avatar",
+        "user-btn",
+        "user-vip-tag",
+        "visual-guide",
+        "visual-guide-btn",
+        "volume-control",
+        "volume-slider",
+        "volume-value"
+      ],
+      "keyframeCount": 26,
+      "keyframes": [
+        "fx-panel-in",
+        "fx-panel-out",
+        "home-card-float",
+        "home-disc-turn",
+        "home-eq-rise",
+        "home-shimmer",
+        "home-visual-drift",
+        "lyr-bob",
+        "lyr-in",
+        "lyr-out",
+        "play-mode-pop",
+        "preset-card-pulse",
+        "progress-particle-fade",
+        "queue-shimmer",
+        "spin",
+        "splash-enter-pulse",
+        "splash-field-breathe",
+        "splash-i-dot-pop",
+        "splash-mine-in",
+        "splash-radio-in",
+        "splash-signal-blip",
+        "splash-signal-line",
+        "splash-sub-in",
+        "thumb-particle-a",
+        "thumb-particle-b",
+        "visual-guide-scan"
+      ],
+      "mediaQueryCount": 38,
+      "mediaQueries": [
+        "(max-width:720px)",
+        "(max-width:720px)",
+        "(max-width:720px)",
+        "(max-width:1120px)",
+        "(max-height:760px)",
+        "(max-height:700px)",
+        "(max-width:840px)",
+        "(max-width:760px)",
+        "(max-height:760px)",
+        "(max-width:620px)",
+        "(max-height:760px)",
+        "(max-height:760px)",
+        "(max-width:1120px)",
+        "(max-height:700px)",
+        "(max-width:840px)",
+        "(max-width:760px)",
+        "(max-height:760px)",
+        "(max-width: 1180px)",
+        "(max-width: 920px)",
+        "(max-width: 620px)",
+        "(max-width:1180px)",
+        "(max-width:920px)",
+        "(max-width:720px)",
+        "(max-width:1180px)",
+        "(max-width:1040px)",
+        "(max-width:940px)",
+        "(max-width:620px)",
+        "(max-width: 620px)",
+        "(max-width: 420px)",
+        "(max-width: 680px)",
+        "(max-height:720px),(max-width:1100px)",
+        "(max-width:560px)",
+        "(max-height:760px)",
+        "(max-width:980px)",
+        "(max-width:720px)",
+        "(max-width:720px)",
+        "(max-width:720px)",
+        "(max-width:520px)"
+      ],
+      "uniqueMediaQueries": [
+        "(max-height:700px)",
+        "(max-height:720px),(max-width:1100px)",
+        "(max-height:760px)",
+        "(max-width: 1180px)",
+        "(max-width: 420px)",
+        "(max-width: 620px)",
+        "(max-width: 680px)",
+        "(max-width: 920px)",
+        "(max-width:1040px)",
+        "(max-width:1120px)",
+        "(max-width:1180px)",
+        "(max-width:520px)",
+        "(max-width:560px)",
+        "(max-width:620px)",
+        "(max-width:720px)",
+        "(max-width:760px)",
+        "(max-width:840px)",
+        "(max-width:920px)",
+        "(max-width:940px)",
+        "(max-width:980px)"
+      ],
+      "vhUnitCount": 14,
+      "vwUnitCount": 87
+    },
+    "dom": {
+      "staticClassCount": 231,
+      "staticClasses": [
+        "account-hint",
+        "account-modal-actions",
+        "account-provider-chip",
+        "account-source-dot",
+        "actions",
+        "active",
+        "arrow",
+        "both",
+        "btn-row",
+        "close",
+        "collect-create",
+        "collect-current",
+        "collect-list",
+        "collect-modal",
+        "color-lab-close",
+        "color-lab-cursor",
+        "color-lab-head",
+        "color-lab-hex",
+        "color-lab-hue",
+        "color-lab-pop",
+        "color-lab-presets",
+        "color-lab-preview",
+        "color-lab-row",
+        "color-lab-sv",
+        "control-artist",
+        "control-cluster",
+        "control-cover",
+        "control-glass-filter-svg",
+        "control-meta",
+        "control-title",
+        "control-track",
+        "cover-color-art",
+        "cover-color-body",
+        "cover-color-close",
+        "cover-color-head",
+        "cover-color-hint",
+        "cover-color-loupe",
+        "cover-color-pop",
+        "cover-color-preview",
+        "cover-color-side",
+        "cover-color-swatches",
+        "cover-crop-layout",
+        "cover-crop-modal",
+        "cover-crop-side",
+        "cover-crop-stage",
+        "cover-empty",
+        "cover-zoom-control",
+        "ctrl-btn",
+        "custom-lyric-input",
+        "custom-lyric-modal",
+        "custom-lyric-status",
+        "custom-lyric-sub",
+        "custom-lyric-title",
+        "custom-lyric-track",
+        "desc",
+        "desktop-app-mark",
+        "desktop-app-title",
+        "desktop-drag-region",
+        "desktop-mode-btn",
+        "desktop-window-btn",
+        "desktop-window-controls",
+        "dev-locked",
+        "dot",
+        "drop-text",
+        "dual-login-modal",
+        "dual-user-modal",
+        "empty-home-shell",
+        "expanded",
+        "fullscreen-toggle-btn",
+        "fx-actions",
+        "fx-advanced",
+        "fx-advanced-body",
+        "fx-advanced-head",
+        "fx-color-row-label",
+        "fx-dev-badge",
+        "fx-fold",
+        "fx-fold-body",
+        "fx-fold-head",
+        "fx-fold-title",
+        "fx-font-grid",
+        "fx-head",
+        "fx-mini-btn",
+        "fx-section-label",
+        "fx-seg",
+        "fx-slider",
+        "fx-sub",
+        "fx-title",
+        "fx-toggle",
+        "fx-toggle-grid",
+        "gesture-confirm",
+        "gesture-hud",
+        "gesture-legend",
+        "gesture-meter",
+        "ghost",
+        "heart-svg",
+        "home-card",
+        "home-card-art",
+        "home-card-label",
+        "home-card-sub",
+        "home-card-title",
+        "home-chip",
+        "home-console-chip",
+        "home-construction-inner",
+        "home-construction-title",
+        "home-grid",
+        "home-hero",
+        "home-hero-inner",
+        "home-rail",
+        "home-section-head",
+        "home-section-note",
+        "home-section-title",
+        "home-tile-row",
+        "home-title",
+        "ic",
+        "icon-btn",
+        "icon-maximize",
+        "icon-restore",
+        "image-pick-row",
+        "linked",
+        "local-beat-desc",
+        "local-beat-modal",
+        "local-beat-status",
+        "local-beat-tab",
+        "local-beat-tabs",
+        "local-beat-track",
+        "local-beat-track-sub",
+        "local-beat-track-title",
+        "logged-out",
+        "login-intro",
+        "login-intro-body",
+        "login-intro-kicker",
+        "login-intro-title",
+        "login-link",
+        "login-platform-tabs",
+        "login-word",
+        "lyric-color-grid",
+        "lyric-color-picker",
+        "lyric-color-row",
+        "lyric-color-value",
+        "lyric-source-row",
+        "lyric-source-seg",
+        "lyrics-toggle-btn",
+        "lyrics-word-icon",
+        "mini-queue-count",
+        "mini-queue-head",
+        "mini-queue-list",
+        "mini-queue-popover",
+        "mini-queue-title",
+        "mini-spin",
+        "modal",
+        "modal-btn",
+        "modal-mask",
+        "modes",
+        "netease",
+        "panel-tab",
+        "panel-tabs",
+        "playlist-pin-btn",
+        "preset-grid",
+        "primary",
+        "qq",
+        "qq-cookie-actions",
+        "qq-cookie-input",
+        "qq-cookie-note",
+        "qq-cookie-panel",
+        "qq-login-mark",
+        "qr-shell",
+        "quality-control",
+        "quality-option",
+        "quality-pill",
+        "quality-popover",
+        "queue-chip",
+        "queue-head",
+        "queue-head-act",
+        "queue-list",
+        "queue-toolbar",
+        "search-mode-tabs",
+        "source-fallback-body",
+        "source-fallback-close",
+        "source-fallback-head",
+        "source-fallback-title",
+        "spinner",
+        "splash-bg-noise",
+        "splash-content",
+        "splash-enter",
+        "splash-signal-line",
+        "splash-sub",
+        "splash-word-i",
+        "splash-word-mine",
+        "splash-word-o",
+        "splash-word-radio",
+        "splash-wordmark",
+        "svip-only",
+        "track-detail-modal",
+        "transport",
+        "update-actions",
+        "update-arrow",
+        "update-btn-fill",
+        "update-btn-label",
+        "update-entry",
+        "update-footnote",
+        "update-hero",
+        "update-hero-main",
+        "update-hero-sub",
+        "update-kicker",
+        "update-list",
+        "update-modal",
+        "update-panel-head",
+        "update-panel-inner",
+        "update-primary-btn",
+        "update-progress-ring",
+        "update-ring",
+        "update-secondary-btn",
+        "update-title",
+        "update-version",
+        "upload-tip-close",
+        "upload-tip-title",
+        "user-archive-grid",
+        "user-capsule-hide-btn",
+        "user-platform-tabs",
+        "visual-guide-actions",
+        "visual-guide-body",
+        "visual-guide-card",
+        "visual-guide-hint",
+        "visual-guide-kicker",
+        "visual-guide-progress",
+        "visual-guide-ring",
+        "visual-guide-scrim",
+        "visual-guide-title",
+        "visual-tint-row",
+        "volume-control",
+        "volume-popover"
+      ],
+      "staticIdCount": 323,
+      "staticIds": [
+        "account-add-netease",
+        "account-add-qq",
+        "account-hint",
+        "account-logout-btn",
+        "account-provider-chip",
+        "ai-depth-chip",
+        "ai-depth-text",
+        "album-bg",
+        "background-image-input",
+        "beat-chip",
+        "beat-text",
+        "bg-color-picker",
+        "bg-color-value",
+        "bg-image-value",
+        "bottom-bar",
+        "bottom-handle",
+        "cam-seg",
+        "canvas-container",
+        "clear-cover-btn",
+        "collect-btn",
+        "collect-current",
+        "collect-list",
+        "collect-modal",
+        "collect-new-name",
+        "color-lab-cursor",
+        "color-lab-hex",
+        "color-lab-hue",
+        "color-lab-pop",
+        "color-lab-presets",
+        "color-lab-preview",
+        "color-lab-sv",
+        "color-lab-title",
+        "control-artist",
+        "control-cover",
+        "control-glass-map",
+        "control-glass-svg",
+        "control-title",
+        "controls",
+        "controls-hide-btn",
+        "cover-color-art",
+        "cover-color-hint",
+        "cover-color-loupe",
+        "cover-color-pop",
+        "cover-color-preview",
+        "cover-color-swatches",
+        "cover-crop-img",
+        "cover-crop-modal",
+        "cover-crop-preview",
+        "cover-crop-stage",
+        "cover-crop-zoom",
+        "custom-bg",
+        "custom-bg-video",
+        "custom-lyric-input",
+        "custom-lyric-modal",
+        "custom-lyric-status",
+        "custom-lyric-sub",
+        "custom-lyric-title",
+        "desktop-lyrics-fps-seg",
+        "desktop-titlebar",
+        "desktop-window-shell",
+        "diy-mode-btn",
+        "drop-overlay",
+        "empty-home",
+        "file-input",
+        "free-camera-hint",
+        "fullscreen-diy-btn",
+        "fullscreen-diy-zone",
+        "fx-advanced",
+        "fx-bgfade",
+        "fx-bgopacity",
+        "fx-bloom",
+        "fx-cineshake",
+        "fx-color",
+        "fx-coverres",
+        "fx-depth",
+        "fx-desktoplyricsopacity",
+        "fx-desktoplyricssize",
+        "fx-desktoplyricsy",
+        "fx-fab",
+        "fx-fab-hide-btn",
+        "fx-glassaberration",
+        "fx-intensity",
+        "fx-lyric-fold",
+        "fx-lyricglow",
+        "fx-lyriclineheight",
+        "fx-lyricscale",
+        "fx-lyricspacing",
+        "fx-lyrictiltx",
+        "fx-lyrictilty",
+        "fx-lyricweight",
+        "fx-lyricx",
+        "fx-lyricy",
+        "fx-lyricz",
+        "fx-overlay-fold",
+        "fx-panel",
+        "fx-point",
+        "fx-scatter",
+        "fx-shelfangle",
+        "fx-shelfbgalpha",
+        "fx-shelfopacity",
+        "fx-shelfsize",
+        "fx-shelfx",
+        "fx-shelfy",
+        "fx-shelfz",
+        "fx-speed",
+        "fx-stage-fold",
+        "fx-twist",
+        "fx-wallpaperopacity",
+        "gesture-confirm",
+        "gesture-fill",
+        "gesture-hud",
+        "gesture-label",
+        "hand-canvas",
+        "heart-btn",
+        "hint",
+        "home-accent-picker",
+        "home-accent-value",
+        "home-btn",
+        "home-continue-art",
+        "home-continue-sub",
+        "home-continue-title",
+        "home-daily-art",
+        "home-daily-sub",
+        "home-daily-title",
+        "home-icon-picker",
+        "home-icon-value",
+        "home-library-art",
+        "home-library-sub",
+        "home-library-title",
+        "home-private-art",
+        "home-private-sub",
+        "home-private-title",
+        "home-profile-art",
+        "home-profile-sub",
+        "home-profile-title",
+        "home-rail-note",
+        "home-rail-title",
+        "home-tile-row",
+        "home-weather-art",
+        "home-weather-card-sub",
+        "home-weather-card-title",
+        "idle-guide-canvas",
+        "immersive-btn",
+        "loading-overlay",
+        "local-beat-cancel-btn",
+        "local-beat-desc",
+        "local-beat-later-btn",
+        "local-beat-modal",
+        "local-beat-start-btn",
+        "local-beat-status",
+        "local-beat-sub",
+        "local-beat-tab-dj",
+        "local-beat-tab-mr",
+        "local-beat-title",
+        "login-both-btn",
+        "login-guide-canvas",
+        "login-modal",
+        "login-modal-desc",
+        "login-modal-title",
+        "login-platform-tabs",
+        "login-provider-netease",
+        "login-provider-qq",
+        "lyric-auto-btn",
+        "lyric-color-grid",
+        "lyric-color-picker",
+        "lyric-color-value",
+        "lyric-font-grid",
+        "lyric-glow-link-btn",
+        "lyric-glow-picker",
+        "lyric-glow-row",
+        "lyric-glow-value",
+        "lyric-highlight-auto-btn",
+        "lyric-highlight-picker",
+        "lyric-highlight-value",
+        "lyric-source-custom",
+        "lyric-source-original",
+        "lyric-source-seg",
+        "mineradio-control-glass-filter",
+        "mineradio-search-box-glass-filter",
+        "mineradio-search-pill-glass-filter",
+        "mini-queue-btn",
+        "mini-queue-count",
+        "mini-queue-list",
+        "mini-queue-popover",
+        "next-btn",
+        "performance-background-seg",
+        "performance-quality-seg",
+        "pl-list",
+        "pl-pane",
+        "play-btn",
+        "play-icon",
+        "play-mode-btn",
+        "play-mode-chip",
+        "play-mode-icon",
+        "playlist-panel",
+        "playlist-pin-btn",
+        "podcast-list",
+        "podcast-pane",
+        "preset-grid",
+        "prev-btn",
+        "progress-bar",
+        "progress-fill",
+        "progress-thumb",
+        "qq-cookie-input",
+        "qq-cookie-panel",
+        "qq-cookie-save-btn",
+        "qq-cookie-toggle-btn",
+        "qq-web-login-card",
+        "qr-img",
+        "qr-shell",
+        "qr-status",
+        "quality-btn",
+        "quality-btn-label",
+        "quality-control",
+        "queue-list",
+        "queue-pane",
+        "refresh-qr-btn",
+        "search-area",
+        "search-box",
+        "search-box-glass-map",
+        "search-icon",
+        "search-input",
+        "search-mode-netease",
+        "search-mode-podcast",
+        "search-mode-qq",
+        "search-mode-song",
+        "search-mode-tabs",
+        "search-pill-glass-map",
+        "search-results",
+        "search-stack",
+        "shelf-accent-picker",
+        "shelf-accent-value",
+        "shelf-camera-seg",
+        "shelf-presence-seg",
+        "shelf-seg",
+        "source-fallback-body",
+        "source-fallback-notice",
+        "source-fallback-title",
+        "splash",
+        "splash-canvas",
+        "splash-wordmark",
+        "stage-lyrics",
+        "t-bloom",
+        "t-cinema",
+        "t-desktopLyrics",
+        "t-desktopLyricsCinema",
+        "t-desktopLyricsClickThrough",
+        "t-desktopLyricsHighlight",
+        "t-edge",
+        "t-float",
+        "t-liveBackgroundKeep",
+        "t-lyricCameraLock",
+        "t-lyricGlow",
+        "t-lyricGlowBeat",
+        "t-lyricGlowParticles",
+        "t-shelfMergeCollections",
+        "t-shelfShowPodcasts",
+        "t-wallpaperMode",
+        "tab-pl",
+        "tab-podcast",
+        "tab-queue",
+        "thumb-artist",
+        "thumb-cover",
+        "thumb-info",
+        "thumb-title",
+        "thumb-wrap",
+        "time-display",
+        "toast",
+        "top-right",
+        "track-detail-body",
+        "track-detail-heading",
+        "track-detail-modal",
+        "trial-banner",
+        "trial-login-btn",
+        "trial-text",
+        "ui-accent-picker",
+        "ui-accent-value",
+        "update-btn-fill",
+        "update-btn-label",
+        "update-entry",
+        "update-footnote",
+        "update-hero-main",
+        "update-hero-sub",
+        "update-list",
+        "update-modal",
+        "update-modal-title",
+        "update-modal-version",
+        "update-primary-btn",
+        "update-progress-ring",
+        "upload-actions",
+        "upload-btn",
+        "upload-tip",
+        "user-archive-grid",
+        "user-btn",
+        "user-capsule-hide-btn",
+        "user-modal",
+        "user-modal-avatar",
+        "user-modal-name",
+        "user-modal-vip",
+        "user-platform-tabs",
+        "user-provider-both",
+        "user-provider-netease",
+        "user-provider-qq",
+        "visual-guide",
+        "visual-guide-body",
+        "visual-guide-btn",
+        "visual-guide-card",
+        "visual-guide-hint",
+        "visual-guide-kicker",
+        "visual-guide-next",
+        "visual-guide-progress",
+        "visual-guide-ring",
+        "visual-guide-title",
+        "visual-icon-picker",
+        "visual-icon-value",
+        "visual-tint-auto-btn",
+        "visual-tint-picker",
+        "visual-tint-value",
+        "volume-btn",
+        "volume-control",
+        "volume-icon",
+        "volume-slider",
+        "volume-value"
+      ]
+    },
+    "events": {
+      "addEventListener": {
+        "dynamicCount": 3,
+        "literalCount": 152,
+        "literalTypes": {
+          "DOMContentLoaded": 1,
+          "beforeunload": 1,
+          "blur": 5,
+          "canplay": 1,
+          "change": 14,
+          "click": 30,
+          "contextmenu": 1,
+          "dblclick": 2,
+          "dragenter": 1,
+          "dragleave": 2,
+          "dragover": 2,
+          "drop": 2,
+          "focus": 4,
+          "fullscreenchange": 1,
+          "input": 15,
+          "keydown": 10,
+          "keyup": 2,
+          "loadedmetadata": 1,
+          "lostpointercapture": 1,
+          "mousedown": 6,
+          "mouseenter": 4,
+          "mouseleave": 6,
+          "mousemove": 2,
+          "mouseout": 1,
+          "mouseup": 1,
+          "pagehide": 1,
+          "pointercancel": 4,
+          "pointerdown": 7,
+          "pointerenter": 1,
+          "pointerleave": 1,
+          "pointermove": 3,
+          "pointerup": 4,
+          "resize": 7,
+          "scroll": 3,
+          "visibilitychange": 1,
+          "wheel": 4
+        },
+        "total": 155
+      },
+      "inline": {
+        "total": 205,
+        "types": {
+          "onclick": 191,
+          "onerror": 10,
+          "onkeydown": 2,
+          "onmouseleave": 1,
+          "onmousemove": 1
+        }
+      },
+      "propertyAssignmentCount": 37,
+      "removeEventListener": {
+        "literalCount": 2,
+        "literalTypes": {
+          "keydown": 1,
+          "pointerdown": 1
+        },
+        "total": 2
+      }
+    },
+    "functions": {
+      "declarationCount": 1101,
+      "duplicateDeclarations": {
+        "applyUserFxArchive": 2,
+        "cancelUserFxArchiveRename": 2,
+        "commitUserFxArchiveRename": 2,
+        "defaultUserFxArchiveName": 2,
+        "normalizeUserFxArchiveName": 2,
+        "renameUserFxArchive": 2,
+        "renderUserFxArchives": 2,
+        "saveUserFxArchive": 2
+      },
+      "uniqueCount": 1093
+    },
+    "schedulers": {
+      "requestAnimationFrame": 44,
+      "requestIdleCallback": 6,
+      "setInterval": 7,
+      "setTimeout": 88
+    },
+    "storage": {
+      "indexedDB": [
+        {
+          "name": "mineradio-custom-background-v1",
+          "stores": [
+            {
+              "keyPath": "id",
+              "name": "media"
+            }
+          ],
+          "version": 1
+        }
+      ],
+      "localStorageKeys": [
+        "apex-player-volume",
+        "mineradio-controls-auto-hide-v1",
+        "mineradio-custom-covers",
+        "mineradio-custom-lyric-prefs-v1",
+        "mineradio-custom-lyrics-v1",
+        "mineradio-diy-player-mode-v1",
+        "mineradio-free-camera-v1",
+        "mineradio-fx-fab-auto-hide-v1",
+        "mineradio-hotkey-settings-v1",
+        "mineradio-listen-stats-v1",
+        "mineradio-local-beatmap-prefs-v1",
+        "mineradio-local-beatmaps-v1",
+        "mineradio-lyric-layout-v1",
+        "mineradio-playback-quality-v1",
+        "mineradio-playlist-panel-pinned-v1",
+        "mineradio-search-history",
+        "mineradio-upload-tip-seen",
+        "mineradio-user-capsule-auto-hide-v1",
+        "mineradio-user-fx-archives-v1",
+        "mineradio-visual-guide-seen-v2",
+        "mineradio-weather-city"
+      ]
+    },
+    "workers": {
+      "constructorCount": 1,
+      "objectUrlCount": 4,
+      "terminateCount": 3
+    }
+  },
+  "source": {
+    "indexBytes": 1351511,
+    "template": {
+      "adaptedBytes": 63046,
+      "adaptedSha256": "7FF931C16E3209D4056FF333CB10888B9FF64A22A7D240BB3C4538C4F9F7D1A4",
+      "sourceBytes": 58262,
+      "sourceSha256": "E3CEAC916913555B40A466B5534DF80012A8F2A40C1E2C97F26519D9BA0D6646"
+    },
+    "styles": {
+      "adaptedBytes": 214752,
+      "adaptedSha256": "EB436A72AD376989FAD5AF17B49680AE3D17E1D8D322C3F6CC0DC3CE9B11E4B3",
+      "sourceBytes": 208147,
+      "sourceSha256": "899EDFF111DDA696CB9B87EFB661785DCDF80CCC77254491A87913CA90D9FF12"
+    },
+    "runtime": {
+      "adaptedBytes": 1105906,
+      "adaptedSha256": "9F050E70D2FC5FCCF6B9C3DABB5C2A1338865B891BAEBA34F16B04D5A2D97D0A",
+      "sourceBytes": 1084139,
+      "sourceSha256": "F7680CD0C468BEB62816DC2DF1F06E74233F5F4DCAA2E32C5DBD24776B0B64B5"
+    },
+    "djAnalyzer": {
+      "adaptedBytes": 33777,
+      "adaptedSha256": "1ACBE9BDE8278F2EF05956F17C4633CA8F7F75EDC9B2661FF64FBF16BE2FA1D4",
+      "sourceBytes": 33794,
+      "sourceSha256": "EC24B31E50E509E3D884EE335D67800C8DB3E56C1A7EAA4AAA213B04756A4B4F"
+    },
+    "functionDeclarationCount": 1101,
+    "uniqueFunctionCount": 1093,
+    "duplicateFunctionDeclarations": {
+      "applyUserFxArchive": 2,
+      "cancelUserFxArchiveRename": 2,
+      "commitUserFxArchiveRename": 2,
+      "defaultUserFxArchiveName": 2,
+      "normalizeUserFxArchiveName": 2,
+      "renameUserFxArchive": 2,
+      "renderUserFxArchives": 2,
+      "saveUserFxArchive": 2
+    },
+    "apiRoutes": [
+      "/api/app/version",
+      "/api/artist/detail",
+      "/api/audio",
+      "/api/beatmap/cache",
+      "/api/beatmap/cache/status",
+      "/api/cover",
+      "/api/discover/home",
+      "/api/login/cookie",
+      "/api/login/qr/check",
+      "/api/login/qr/create",
+      "/api/login/qr/key",
+      "/api/login/status",
+      "/api/logout",
+      "/api/lyric",
+      "/api/playlist/add-song",
+      "/api/playlist/create",
+      "/api/playlist/tracks",
+      "/api/podcast/detail",
+      "/api/podcast/dj-beatmap",
+      "/api/podcast/hot",
+      "/api/podcast/my",
+      "/api/podcast/my/items",
+      "/api/podcast/programs",
+      "/api/podcast/search",
+      "/api/qq/artist/detail",
+      "/api/qq/login/cookie",
+      "/api/qq/login/status",
+      "/api/qq/logout",
+      "/api/qq/lyric",
+      "/api/qq/playlist/tracks",
+      "/api/qq/search",
+      "/api/qq/song/comments",
+      "/api/qq/song/url",
+      "/api/qq/user/playlists",
+      "/api/search",
+      "/api/song/comments",
+      "/api/song/like",
+      "/api/song/like/check",
+      "/api/song/url",
+      "/api/update/download",
+      "/api/update/download/status",
+      "/api/update/latest",
+      "/api/update/patch",
+      "/api/update/patch/status",
+      "/api/user/playlists",
+      "/api/weather/ip-location",
+      "/api/weather/radio"
+    ],
+    "desktopWindowMembers": [
+      "clearNeteaseMusicLogin",
+      "clearQQMusicLogin",
+      "close",
+      "configureGlobalHotkeys",
+      "exitFullscreenWindowed",
+      "exportJsonFile",
+      "getState",
+      "importJsonFile",
+      "isDesktop",
+      "minimize",
+      "onDesktopLyricsEnabledState",
+      "onDesktopLyricsLockState",
+      "onGlobalHotkey",
+      "onStateChange",
+      "openNeteaseMusicLogin",
+      "openQQMusicLogin",
+      "openUpdateInstaller",
+      "restartApp",
+      "setDesktopLyricsEnabled",
+      "setWallpaperMode",
+      "toggleFullscreen",
+      "toggleMaximize",
+      "updateDesktopLyrics",
+      "updateWallpaperMode"
+    ],
+    "domIds": [
+      "account-add-netease",
+      "account-add-qq",
+      "account-hint",
+      "account-logout-btn",
+      "account-provider-chip",
+      "ai-depth-chip",
+      "ai-depth-text",
+      "album-bg",
+      "background-image-input",
+      "beat-chip",
+      "beat-text",
+      "bg-color-picker",
+      "bg-color-value",
+      "bg-image-value",
+      "bottom-bar",
+      "bottom-handle",
+      "cam-seg",
+      "canvas-container",
+      "clear-cover-btn",
+      "collect-btn",
+      "collect-current",
+      "collect-list",
+      "collect-modal",
+      "collect-new-name",
+      "color-lab-cursor",
+      "color-lab-hex",
+      "color-lab-hue",
+      "color-lab-pop",
+      "color-lab-presets",
+      "color-lab-preview",
+      "color-lab-sv",
+      "color-lab-title",
+      "control-artist",
+      "control-cover",
+      "control-glass-map",
+      "control-glass-svg",
+      "control-title",
+      "controls",
+      "controls-hide-btn",
+      "cover-color-art",
+      "cover-color-hint",
+      "cover-color-loupe",
+      "cover-color-pop",
+      "cover-color-preview",
+      "cover-color-swatches",
+      "cover-crop-img",
+      "cover-crop-modal",
+      "cover-crop-preview",
+      "cover-crop-stage",
+      "cover-crop-zoom",
+      "custom-bg",
+      "custom-bg-video",
+      "custom-lyric-input",
+      "custom-lyric-modal",
+      "custom-lyric-status",
+      "custom-lyric-sub",
+      "custom-lyric-title",
+      "desktop-lyrics-fps-seg",
+      "desktop-titlebar",
+      "desktop-window-shell",
+      "diy-mode-btn",
+      "drop-overlay",
+      "empty-home",
+      "file-input",
+      "free-camera-hint",
+      "fullscreen-diy-btn",
+      "fullscreen-diy-zone",
+      "fx-advanced",
+      "fx-bgfade",
+      "fx-bgopacity",
+      "fx-bloom",
+      "fx-cineshake",
+      "fx-color",
+      "fx-coverres",
+      "fx-depth",
+      "fx-desktoplyricsopacity",
+      "fx-desktoplyricssize",
+      "fx-desktoplyricsy",
+      "fx-fab",
+      "fx-fab-hide-btn",
+      "fx-glassaberration",
+      "fx-intensity",
+      "fx-lyric-fold",
+      "fx-lyricglow",
+      "fx-lyriclineheight",
+      "fx-lyricscale",
+      "fx-lyricspacing",
+      "fx-lyrictiltx",
+      "fx-lyrictilty",
+      "fx-lyricweight",
+      "fx-lyricx",
+      "fx-lyricy",
+      "fx-lyricz",
+      "fx-overlay-fold",
+      "fx-panel",
+      "fx-point",
+      "fx-scatter",
+      "fx-shelfangle",
+      "fx-shelfbgalpha",
+      "fx-shelfopacity",
+      "fx-shelfsize",
+      "fx-shelfx",
+      "fx-shelfy",
+      "fx-shelfz",
+      "fx-speed",
+      "fx-stage-fold",
+      "fx-twist",
+      "fx-wallpaperopacity",
+      "gesture-confirm",
+      "gesture-fill",
+      "gesture-hud",
+      "gesture-label",
+      "hand-canvas",
+      "heart-btn",
+      "hint",
+      "home-accent-picker",
+      "home-accent-value",
+      "home-btn",
+      "home-continue-art",
+      "home-continue-sub",
+      "home-continue-title",
+      "home-daily-art",
+      "home-daily-sub",
+      "home-daily-title",
+      "home-icon-picker",
+      "home-icon-value",
+      "home-library-art",
+      "home-library-sub",
+      "home-library-title",
+      "home-private-art",
+      "home-private-sub",
+      "home-private-title",
+      "home-profile-art",
+      "home-profile-sub",
+      "home-profile-title",
+      "home-rail-note",
+      "home-rail-title",
+      "home-tile-row",
+      "home-weather-art",
+      "home-weather-card-sub",
+      "home-weather-card-title",
+      "idle-guide-canvas",
+      "immersive-btn",
+      "loading-overlay",
+      "local-beat-cancel-btn",
+      "local-beat-desc",
+      "local-beat-later-btn",
+      "local-beat-modal",
+      "local-beat-start-btn",
+      "local-beat-status",
+      "local-beat-sub",
+      "local-beat-tab-dj",
+      "local-beat-tab-mr",
+      "local-beat-title",
+      "login-both-btn",
+      "login-guide-canvas",
+      "login-modal",
+      "login-modal-desc",
+      "login-modal-title",
+      "login-platform-tabs",
+      "login-provider-netease",
+      "login-provider-qq",
+      "lyric-auto-btn",
+      "lyric-color-grid",
+      "lyric-color-picker",
+      "lyric-color-value",
+      "lyric-font-grid",
+      "lyric-glow-link-btn",
+      "lyric-glow-picker",
+      "lyric-glow-row",
+      "lyric-glow-value",
+      "lyric-highlight-auto-btn",
+      "lyric-highlight-picker",
+      "lyric-highlight-value",
+      "lyric-source-custom",
+      "lyric-source-original",
+      "lyric-source-seg",
+      "mineradio-control-glass-filter",
+      "mineradio-search-box-glass-filter",
+      "mineradio-search-pill-glass-filter",
+      "mini-queue-btn",
+      "mini-queue-count",
+      "mini-queue-list",
+      "mini-queue-popover",
+      "next-btn",
+      "performance-background-seg",
+      "performance-quality-seg",
+      "pl-list",
+      "pl-pane",
+      "play-btn",
+      "play-icon",
+      "play-mode-btn",
+      "play-mode-chip",
+      "play-mode-icon",
+      "playlist-panel",
+      "playlist-pin-btn",
+      "podcast-list",
+      "podcast-pane",
+      "preset-grid",
+      "prev-btn",
+      "progress-bar",
+      "progress-fill",
+      "progress-thumb",
+      "qq-cookie-input",
+      "qq-cookie-panel",
+      "qq-cookie-save-btn",
+      "qq-cookie-toggle-btn",
+      "qq-web-login-card",
+      "qr-img",
+      "qr-shell",
+      "qr-status",
+      "quality-btn",
+      "quality-btn-label",
+      "quality-control",
+      "queue-list",
+      "queue-pane",
+      "refresh-qr-btn",
+      "search-area",
+      "search-box",
+      "search-box-glass-map",
+      "search-icon",
+      "search-input",
+      "search-mode-netease",
+      "search-mode-podcast",
+      "search-mode-qq",
+      "search-mode-song",
+      "search-mode-tabs",
+      "search-pill-glass-map",
+      "search-results",
+      "search-stack",
+      "shelf-accent-picker",
+      "shelf-accent-value",
+      "shelf-camera-seg",
+      "shelf-presence-seg",
+      "shelf-seg",
+      "source-fallback-body",
+      "source-fallback-notice",
+      "source-fallback-title",
+      "splash",
+      "splash-canvas",
+      "splash-wordmark",
+      "stage-lyrics",
+      "t-bloom",
+      "t-cinema",
+      "t-desktopLyrics",
+      "t-desktopLyricsCinema",
+      "t-desktopLyricsClickThrough",
+      "t-desktopLyricsHighlight",
+      "t-edge",
+      "t-float",
+      "t-liveBackgroundKeep",
+      "t-lyricCameraLock",
+      "t-lyricGlow",
+      "t-lyricGlowBeat",
+      "t-lyricGlowParticles",
+      "t-shelfMergeCollections",
+      "t-shelfShowPodcasts",
+      "t-wallpaperMode",
+      "tab-pl",
+      "tab-podcast",
+      "tab-queue",
+      "thumb-artist",
+      "thumb-cover",
+      "thumb-info",
+      "thumb-title",
+      "thumb-wrap",
+      "time-display",
+      "toast",
+      "top-right",
+      "track-detail-body",
+      "track-detail-heading",
+      "track-detail-modal",
+      "trial-banner",
+      "trial-login-btn",
+      "trial-text",
+      "ui-accent-picker",
+      "ui-accent-value",
+      "update-btn-fill",
+      "update-btn-label",
+      "update-entry",
+      "update-footnote",
+      "update-hero-main",
+      "update-hero-sub",
+      "update-list",
+      "update-modal",
+      "update-modal-title",
+      "update-modal-version",
+      "update-primary-btn",
+      "update-progress-ring",
+      "upload-actions",
+      "upload-btn",
+      "upload-tip",
+      "user-archive-grid",
+      "user-btn",
+      "user-capsule-hide-btn",
+      "user-modal",
+      "user-modal-avatar",
+      "user-modal-name",
+      "user-modal-vip",
+      "user-platform-tabs",
+      "user-provider-both",
+      "user-provider-netease",
+      "user-provider-qq",
+      "visual-guide",
+      "visual-guide-body",
+      "visual-guide-btn",
+      "visual-guide-card",
+      "visual-guide-hint",
+      "visual-guide-kicker",
+      "visual-guide-next",
+      "visual-guide-progress",
+      "visual-guide-ring",
+      "visual-guide-title",
+      "visual-icon-picker",
+      "visual-icon-value",
+      "visual-tint-auto-btn",
+      "visual-tint-picker",
+      "visual-tint-value",
+      "volume-btn",
+      "volume-control",
+      "volume-icon",
+      "volume-slider",
+      "volume-value"
+    ],
+    "inlineEventCount": 205,
+    "inlineActionNames": [
+      "cancelLocalBeatAnalysis",
+      "clearCustomBackgroundImage",
+      "clearCustomCoverForCurrent",
+      "clearQueue",
+      "closeCollectModal",
+      "closeColorLab",
+      "closeCoverColorPicker",
+      "closeCoverCropModal",
+      "closeCustomLyricModal",
+      "closeLocalBeatModal",
+      "closeLoginModal",
+      "closeMiniQueue",
+      "closeSourceFallbackNotice",
+      "closeTrackDetailModal",
+      "closeUpdatePanel",
+      "closeUploadTip",
+      "closeUserModal",
+      "closeVisualGuide",
+      "commitCoverCrop",
+      "createPlaylistFromCollect",
+      "cyclePlayMode",
+      "deleteCustomLyricForCurrent",
+      "enableDualAccountView",
+      "goHome",
+      "handleLyricGlowRowClick",
+      "hideCoverColorLoupe",
+      "logoutActiveAccount",
+      "moveCoverColorLoupe",
+      "nextTrack",
+      "nextVisualGuideStep",
+      "onUserBtnClick",
+      "openCollectModalForCurrent",
+      "openCoverColorPicker",
+      "openHomeInsight",
+      "openHomeLibrary",
+      "openHomePlayerConsole",
+      "openProviderLogin",
+      "openProviderWebLogin",
+      "openTrackDetailModal",
+      "openUpdatePanel",
+      "pickCoverColorFromArt",
+      "playHomeRecent",
+      "playHomeSong",
+      "prevTrack",
+      "refreshQr",
+      "refreshUserPlaylists",
+      "requestDualLoginMode",
+      "resetCustomBackgroundColor",
+      "resetFx",
+      "resetHomeAccentColor",
+      "resetHomeIconColor",
+      "resetShelfAccentColor",
+      "resetUiAccentColor",
+      "resetVisualIconColor",
+      "resetVisualTintColor",
+      "saveCustomLyricForCurrent",
+      "selectLocalBeatMode",
+      "setActiveAccountProvider",
+      "setLoginProvider",
+      "setLyricColorAuto",
+      "setLyricFont",
+      "setLyricHighlightAuto",
+      "setLyricSourceMode",
+      "setPlaybackQuality",
+      "setSearchMode",
+      "showLoginModal",
+      "shuffleQueue",
+      "skipLoginAndFocusSearch",
+      "startLocalBeatAnalysis",
+      "startUpdatePreviewDownload",
+      "startVisualGuide",
+      "submitQQCookieLogin",
+      "switchPlaylistTab",
+      "toggleControlsAutoHide",
+      "toggleDiyMode",
+      "toggleFullscreen",
+      "toggleFx",
+      "toggleFxFabAutoHide",
+      "toggleImmersiveMode",
+      "toggleLikeCurrent",
+      "toggleLyricGlowLink",
+      "toggleLyricsPanel",
+      "toggleMiniQueue",
+      "togglePlay",
+      "togglePlaylistPanelPinned",
+      "toggleQQCookiePanel",
+      "toggleQualityPanel",
+      "toggleUserCapsuleAutoHide",
+      "toggleVolumePanel"
+    ],
+    "localStorageKeys": [
+      "apex-player-volume",
+      "mineradio-controls-auto-hide-v1",
+      "mineradio-custom-covers",
+      "mineradio-custom-lyric-prefs-v1",
+      "mineradio-custom-lyrics-v1",
+      "mineradio-diy-player-mode-v1",
+      "mineradio-free-camera-v1",
+      "mineradio-fx-fab-auto-hide-v1",
+      "mineradio-hotkey-settings-v1",
+      "mineradio-listen-stats-v1",
+      "mineradio-local-beatmap-prefs-v1",
+      "mineradio-local-beatmaps-v1",
+      "mineradio-lyric-layout-v1",
+      "mineradio-playback-quality-v1",
+      "mineradio-playlist-panel-pinned-v1",
+      "mineradio-search-history",
+      "mineradio-upload-tip-seen",
+      "mineradio-user-capsule-auto-hide-v1",
+      "mineradio-user-fx-archives-v1",
+      "mineradio-visual-guide-seen-v2",
+      "mineradio-weather-city"
+    ],
+    "indexedDB": [
+      {
+        "name": "mineradio-custom-background-v1",
+        "stores": [
+          {
+            "keyPath": "id",
+            "name": "media"
+          }
+        ],
+        "version": 1
+      }
+    ]
+  },
+  "adaptationLedger": {
+    "css": {
+      "fixedToAbsolute": 38,
+      "mediaToContainer": 38,
+      "rootSelectorScoping": 512,
+      "vhToCqh": 14,
+      "vwToCqw": 87
+    },
+    "runtime": {
+      "documentLookupScoping": 521,
+      "innerHeightScoping": 43,
+      "innerWidthScoping": 57,
+      "musicTempoEvalRemoval": 1,
+      "resourceUrlMappings": 3,
+      "lifecycleAbortGuards": 194,
+      "virtualAppGestureLifecycle": 4
+    },
+    "template": {
+      "documentLookupScoping": 7
+    }
+  }
+}

@@ -5,4 +5,5 @@ export * from './runtime';
 export * from './KernelOnShell';
 export * from './visual-assets';
 export * from './components/shell-credential-screen';
+export * from './components/app-frame-context';
 export type { ShellCredentialUser } from './components/shell-lock-screen';

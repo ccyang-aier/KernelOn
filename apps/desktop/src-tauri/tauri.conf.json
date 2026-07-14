@@ -20,11 +20,12 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self' customprotocol: asset:; connect-src 'self' ipc: http://ipc.localhost https://cdn.jsdelivr.net https://huggingface.co https://cdn-lfs.huggingface.co https://cdn-lfs-us-1.hf.co https://cdn-lfs-eu-1.hf.co https://cas-bridge.xethub.hf.co; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; worker-src 'self' blob: https://cdn.jsdelivr.net"
     }
   },
   "bundle": {
     "active": true,
+    "icon": ["icons/icon.ico"],
     "targets": "all"
   }
 }

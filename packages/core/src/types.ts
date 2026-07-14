@@ -20,9 +20,15 @@ export type AppFrameOwner = 'container' | 'app';
 
 export type AppWindowLayer = 'workspace' | 'top';
 
+export type AppWindowMountPolicy = 'unmount-on-minimize' | 'keep-alive';
+
+export type AppWindowSnapshotPolicy = 'mount-app' | 'skip';
+
 export interface AppWindowRuntimeReference extends RuntimeLoaderReference {
   frameOwner?: AppFrameOwner;
   layer?: AppWindowLayer;
+  mountPolicy?: AppWindowMountPolicy;
+  snapshotPolicy?: AppWindowSnapshotPolicy;
 }
 
 export interface KernelAppManifest {

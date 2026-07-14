@@ -457,22 +457,6 @@ function KernelOnShellView({
     [desktopSurfaceSize],
   );
 
-  if (isDesktopLocked) {
-    return (
-      <main
-        aria-label="KernelOn shell"
-        className="relative min-h-screen overflow-hidden bg-[#5f8789] text-white"
-        data-testid="kernelon-shell"
-      >
-        <ShellLockScreen
-          onUnlock={unlockDesktop}
-          user={resolvedCurrentUser}
-          wallpaper={desktopWallpaper}
-        />
-      </main>
-    );
-  }
-
   return (
     <main
       ref={liquidGlassContextContainerRef}
@@ -481,6 +465,12 @@ function KernelOnShellView({
       data-kernelon-cursor-scope="true"
       data-testid="kernelon-shell"
     >
+      <div
+        aria-hidden={isDesktopLocked ? true : undefined}
+        className="relative min-h-screen"
+        inert={isDesktopLocked ? true : undefined}
+        style={{ visibility: isDesktopLocked ? 'hidden' : undefined }}
+      >
       <img
         alt=""
         aria-hidden="true"
@@ -567,7 +557,16 @@ function KernelOnShellView({
         ) : null}
         <AnimatePresence>
           {windows
-            .filter((window) => window.status !== 'minimized')
+            .filter((window) => {
+              if (window.status !== 'minimized') {
+                return true;
+              }
+
+              return (
+                apps.find((candidate) => candidate.id === window.appId)?.runtime.window
+                  .mountPolicy === 'keep-alive'
+              );
+            })
             .map((window) => {
               const app = apps.find((item) => item.id === window.appId);
 
@@ -618,6 +617,16 @@ function KernelOnShellView({
         runtime={runtime}
       />
       <GenieEffectLayer ref={genieEffectLayerRef} />
+      </div>
+      {isDesktopLocked ? (
+        <div className="absolute inset-0 z-[200] bg-[#5f8789] text-white">
+          <ShellLockScreen
+            onUnlock={unlockDesktop}
+            user={resolvedCurrentUser}
+            wallpaper={desktopWallpaper}
+          />
+        </div>
+      ) : null}
     </main>
   );
 }

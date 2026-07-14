@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 2,
+  "canonicalSourceRoot": "packages/modules/src/apps/music/mineradio/source",
+  "upstreamFileCount": 46,
+  "entries": [
+    {
+      "sourcePath": "LICENSE",
+      "classification": "legal",
+      "status": "ported",
+      "adaptationKind": "exact-copy",
+      "targets": ["packages/modules/src/apps/music/mineradio/LICENSE.txt"]
+    },
+    {
+      "sourcePath": "NOTICE.md",
+      "classification": "legal",
+      "status": "ported",
+      "adaptationKind": "exact-copy",
+      "targets": ["packages/modules/src/apps/music/mineradio/NOTICE.md", "THIRD_PARTY_NOTICES.md"]
+    },
+    {
+      "sourcePath": "desktop/main.js",
+      "classification": "native-host-logic",
+      "status": "ported",
+      "adaptationKind": "tauri-host-adapted",
+      "targets": [
+        "apps/desktop/src-tauri/src/main.rs",
+        "apps/desktop/src-tauri/src/mineradio.rs",
+        "apps/desktop/src-tauri/src/mineradio_accounts.rs",
+        "apps/desktop/src-tauri/src/mineradio_global_shortcuts.rs",
+        "apps/desktop/src-tauri/src/mineradio_overlays.rs",
+        "apps/desktop/src/mineradio-platform-adapter.ts",
+        "packages/modules/src/apps/music/host/transport.ts"
+      ],
+      "intentionalAdaptations": [
+        "Electron BrowserWindow and IPC are mapped to Tauri commands and KernelOn virtual-window capabilities.",
+        "Standalone Mineradio self-update is disabled inside KernelOn and retained only as a host-managed compatibility response; the shared updater port is reserved for KernelOn's central updater."
+      ]
+    },
+    {
+      "sourcePath": "desktop/overlay-preload.js",
+      "classification": "native-host-bridge",
+      "status": "ported",
+      "adaptationKind": "tauri-host-adapted",
+      "targets": [
+        "apps/desktop/src-tauri/src/mineradio_overlay_bridge.js",
+        "apps/desktop/src-tauri/src/mineradio_overlays.rs"
+      ]
+    },
+    {
+      "sourcePath": "desktop/preload.js",
+      "classification": "native-host-contract",
+      "status": "ported",
+      "adaptationKind": "tauri-host-adapted",
+      "targets": [
+        "packages/modules/src/apps/music/host/contract.ts",
+        "packages/modules/src/apps/music/host/use-mineradio-host.ts",
+        "apps/desktop/src/mineradio-platform-adapter.ts",
+        "apps/desktop/src-tauri/src/main.rs"
+      ]
+    },
+    {
+      "sourcePath": "dj-analyzer.js",
+      "classification": "application-logic",
+      "status": "ported",
+      "adaptationKind": "generated-worker-port",
+      "targets": ["packages/modules/src/apps/music/mineradio/generated/dj-analyzer.ts", "packages/modules/src/apps/music/mineradio/runtime/dj-analyzer.worker.ts"]
+    },
+    {
+      "sourcePath": "public/assets/skull-decimation-points.bin",
+      "classification": "runtime-asset",
+      "status": "ported",
+      "adaptationKind": "exact-copy",
+      "targets": ["packages/modules/src/apps/music/mineradio/assets/skull-decimation-points.bin"]
+    },
+    {
+      "sourcePath": "public/default-user-fx-archive.json",
+      "classification": "runtime-asset",
+      "status": "ported",
+      "adaptationKind": "exact-copy",
+      "targets": ["packages/modules/src/apps/music/mineradio/assets/default-user-fx-archive.json"]
+    },
+    {
+      "sourcePath": "public/desktop-lyrics.html",
+      "classification": "native-overlay-ui",
+      "status": "ported",
+      "adaptationKind": "exact-build-emission",
+      "targets": [
+        "apps/desktop/src/mineradio-overlay-assets.ts",
+        "apps/desktop/src/mineradio-overlay-assets.test.ts"
+      ]
+    },
+    {
+      "sourcePath": "public/index.html",
+      "classification": "application-ui-and-logic",
+      "status": "ported",
+      "adaptationKind": "deterministic-generated-port",
+      "targets": ["packages/modules/src/apps/music/mineradio/generated/template.ts", "packages/modules/src/apps/music/mineradio/generated/styles.ts", "packages/modules/src/apps/music/mineradio/generated/runtime.ts"]
+    },
+    {
+      "sourcePath": "public/vendor/gsap.min.js",
+      "classification": "runtime-dependency",
+      "status": "ported",
+      "adaptationKind": "exact-version-package-mapping",
+      "targets": ["packages/modules/package.json#dependencies.gsap"]
+    },
+    {
+      "sourcePath": "public/vendor/music-tempo.LICENCE",
+      "classification": "legal",
+      "status": "ported",
+      "adaptationKind": "exact-copy",
+      "targets": ["packages/modules/src/apps/music/mineradio/assets/vendor/music-tempo.LICENCE.txt"]
+    },
+    {
+      "sourcePath": "public/vendor/music-tempo.min.js",
+      "classification": "runtime-dependency",
+      "status": "ported",
+      "adaptationKind": "exact-copy",
+      "targets": ["packages/modules/src/apps/music/mineradio/assets/vendor/music-tempo.min.js"]
+    },
+    {
+      "sourcePath": "public/vendor/three.r128.min.js",
+      "classification": "runtime-dependency",
+      "status": "ported",
+      "adaptationKind": "exact-version-package-mapping",
+      "targets": ["packages/modules/package.json#dependencies.three"]
+    },
+    {
+      "sourcePath": "public/wallpaper.html",
+      "classification": "native-overlay-ui",
+      "status": "ported",
+      "adaptationKind": "exact-build-emission",
+      "targets": [
+        "apps/desktop/src/mineradio-overlay-assets.ts",
+        "apps/desktop/src/mineradio-overlay-assets.test.ts"
+      ]
+    },
+    {
+      "sourcePath": "package.json",
+      "classification": "dependency-provenance",
+      "status": "ported",
+      "adaptationKind": "workspace-dependency-mapping",
+      "targets": ["packages/modules/package.json", "apps/api/pyproject.toml", "apps/desktop/src-tauri/Cargo.toml"]
+    },
+    {
+      "sourcePath": "package-lock.json",
+      "classification": "dependency-provenance",
+      "status": "ported",
+      "adaptationKind": "workspace-lockfile-mapping",
+      "targets": ["pnpm-lock.yaml", "apps/api/uv.lock", "apps/desktop/src-tauri/Cargo.lock"]
+    },
+    {
+      "sourcePath": "server.js",
+      "classification": "service-logic",
+      "status": "ported",
+      "adaptationKind": "litestar-service-port",
+      "targets": [
+        "apps/api/src/kernelon_api/modules/music/application/route_contract.py",
+        "apps/api/src/kernelon_api/modules/music/infrastructure/account_service.py",
+        "apps/api/src/kernelon_api/modules/music/infrastructure/http_provider.py",
+        "apps/api/src/kernelon_api/modules/music/infrastructure/provider_services.py",
+        "apps/api/src/kernelon_api/modules/music/infrastructure/service.py",
+        "apps/api/src/kernelon_api/modules/music/presentation/controllers.py"
+      ]
+    }
+  ],
+  "excludedEntries": [
+    { "sourcePath": ".cookie", "reason": "Local credential material must never be imported into KernelOn." },
+    { "sourcePath": ".gitattributes", "reason": "Upstream repository metadata is not application logic." },
+    { "sourcePath": ".gitignore", "reason": "Upstream repository metadata is replaced by KernelOn repository policy." },
+    { "sourcePath": "AGENTS.md", "reason": "Upstream development instructions do not govern KernelOn." },
+    { "sourcePath": "AI_HANDOFF.md", "reason": "Upstream development handoff notes are non-runtime documentation." },
+    { "sourcePath": "build/after-pack.js", "reason": "Electron packaging hook is replaced by KernelOn Tauri packaging." },
+    { "sourcePath": "build/icon.ico", "reason": "Electron-specific artwork is replaced by the KernelOn-owned Tauri host icon at apps/desktop/src-tauri/icons/icon.ico; the native main and official-login windows inherit that host asset." },
+    { "sourcePath": "build/icon.png", "reason": "Standalone Electron package icon is not used by an app inside KernelOn." },
+    { "sourcePath": "build/installer.nsh", "reason": "NSIS installer customization is replaced by KernelOn Tauri packaging." },
+    { "sourcePath": "build/installerHeader.bmp", "reason": "Standalone Electron installer artwork is not part of the embedded app UI." },
+    { "sourcePath": "build/installerSidebar.bmp", "reason": "Standalone Electron installer artwork is not part of the embedded app UI." },
+    { "sourcePath": "CHANGELOG.md", "reason": "Release history is non-runtime provenance; the locked commit is recorded separately." },
+    { "sourcePath": "docs/3D_PLAYLIST_SHELF_MEMORY.md", "reason": "Upstream implementation notes are non-runtime documentation." },
+    { "sourcePath": "docs/assets/readme/cinema-beat-smoke.png", "reason": "README-only illustration is not referenced by the runtime." },
+    { "sourcePath": "docs/assets/support/mineradio-author-support-poster.png", "reason": "Support-document artwork is not referenced by the runtime." },
+    { "sourcePath": "docs/DESKTOP_LYRICS_VISUAL.md", "reason": "Reference notes are represented by the locked desktop lyrics source and parity tests." },
+    { "sourcePath": "docs/GLASS_SVG_TEXTURE.md", "reason": "Reference notes are represented by the locked index source and parity tests." },
+    { "sourcePath": "docs/HANDOFF_NEXT_CHAT.md", "reason": "Upstream development handoff notes are non-runtime documentation." },
+    { "sourcePath": "docs/INSTALLER_STYLE.md", "reason": "Standalone Electron installer documentation is outside the embedded app boundary." },
+    { "sourcePath": "docs/PROJECT_MEMORY.md", "reason": "Upstream development notes are non-runtime documentation." },
+    { "sourcePath": "docs/QQ_MUSIC_INTERFACE_NOTES.md", "reason": "Reference notes are represented by the locked server source and API parity tests." },
+    { "sourcePath": "docs/RELEASE_NOTES_v1.1.0.md", "reason": "Release notes are non-runtime provenance." },
+    { "sourcePath": "docs/SECURITY_REBUILD_2026-06-24.md", "reason": "Upstream development notes do not replace KernelOn security policy." },
+    { "sourcePath": "docs/SUPPORT.md", "reason": "Support documentation is outside the embedded app runtime." },
+    { "sourcePath": "PRIVACY.md", "reason": "Standalone product policy is outside the embedded app runtime and KernelOn owns product policy." },
+    { "sourcePath": "README.md", "reason": "Standalone project entry documentation is replaced by the KernelOn app ownership README." },
+    { "sourcePath": "RELEASE.md", "reason": "Standalone Electron release procedure is replaced by KernelOn delivery." },
+    { "sourcePath": "SECURITY.md", "reason": "Standalone project security policy is replaced by KernelOn repository policy." }
+  ]
+}

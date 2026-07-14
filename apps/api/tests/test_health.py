@@ -93,4 +93,4 @@ async def test_readiness_succeeds_with_postgres() -> None:
             revision = await connection.scalar(text("SELECT version_num FROM alembic_versions"))
     finally:
         await engine.dispose()
-    assert revision == "0003"
+    assert revision == "0004"

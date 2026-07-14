@@ -8,6 +8,7 @@ import { ShellCredentialScreen } from './shell-credential-screen';
 const currentUserAvatar = '/kernelon-assets/avatars/current-user.png';
 
 export interface ShellCredentialUser {
+  id?: string;
   avatarUrl?: string | null;
   departmentName?: string | null;
   displayName: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, type PointerEvent as ReactPointerEvent } from 'react';
+import { createContext, useContext, type PointerEvent as ReactPointerEvent } from 'react';
 
 import type { AppHeaderCommandPayload } from '../app-header';
 
@@ -18,3 +18,13 @@ export interface AppFrameWindowContextValue {
 }
 
 export const AppFrameWindowContext = createContext<AppFrameWindowContextValue | null>(null);
+
+export function useAppWindowHost(): AppFrameWindowContextValue {
+  const context = useContext(AppFrameWindowContext);
+
+  if (!context) {
+    throw new Error('useAppWindowHost must be used inside an AppWindowContainer');
+  }
+
+  return context;
+}

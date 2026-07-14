@@ -30,7 +30,14 @@ class Settings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = Field(default=8000, ge=1, le=65535)
     allowed_origins: list[str] = Field(
-        default_factory=lambda: ["http://127.0.0.1:3000", "http://localhost:3000"]
+        default_factory=lambda: [
+            "http://127.0.0.1:3000",
+            "http://localhost:3000",
+            "http://127.0.0.1:3002",
+            "http://localhost:3002",
+            "http://tauri.localhost",
+            "tauri://localhost",
+        ]
     )
     allowed_hosts: list[str] = Field(
         default_factory=lambda: [

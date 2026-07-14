@@ -15,11 +15,15 @@ describe('KernelOn built-in catalog', () => {
         icon: 'Music',
         id: 'music',
         name: '音乐',
-        defaultWindow: expect.objectContaining({ mode: 'fullscreen' }),
+        defaultWindow: expect.objectContaining({
+          bounds: { height: 810, width: 1440, x: 36, y: 48 },
+        }),
         runtime: {
           window: {
             frameOwner: 'app',
             loaderKey: 'app:music-window',
+            mountPolicy: 'keep-alive',
+            snapshotPolicy: 'skip',
           },
         },
       }),
