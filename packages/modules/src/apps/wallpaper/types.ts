@@ -52,6 +52,10 @@ export interface WallpaperAsset {
   licenseUrl?: string;
   attribution?: string;
   canImport?: boolean;
+  canApply?: boolean;
+  accessMode?: 'direct' | 'catalog-only';
+  rightsStatus?: 'approved' | 'catalog-only' | 'pending';
+  openExternalUrl?: string;
   sizeBytes?: number | null;
 }
 
@@ -93,8 +97,11 @@ export interface WallpaperSource {
   description: string;
   visible?: boolean;
   configured?: boolean;
-  delivery?: 'hotlink' | 'stored';
+  delivery?: 'hotlink' | 'stored' | 'metadata-only' | 'none';
   mediaTypes?: Array<'image' | 'video'>;
+  approvalStatus?: 'approved' | 'catalog-only' | 'pending-partnership' | 'blocked';
+  accessMode?: 'direct' | 'catalog-only' | 'unavailable';
+  reason?: string;
 }
 
 export interface WallpaperStorageUsage {

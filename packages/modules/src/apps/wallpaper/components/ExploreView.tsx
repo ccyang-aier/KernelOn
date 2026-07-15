@@ -233,13 +233,18 @@ function ExploreCard({
       ) : (
         <img alt="" draggable={false} src={wallpaper.image} />
       )}
-      <span className="wallpaper-explore-card__view wallpaper-frosted-surface">查看壁纸</span>
+      <span className="wallpaper-explore-card__view wallpaper-frosted-surface">
+        {wallpaper.accessMode === 'catalog-only' ? '查看官方目录' : '查看壁纸'}
+      </span>
       <div className="wallpaper-explore-card__info">
         <h2>{wallpaper.title}</h2>
         <div className="wallpaper-explore-card__meta">
           <span className="wallpaper-tag">
             {categoryLabels[wallpaper.category] ?? wallpaper.category}
           </span>
+          {wallpaper.accessMode === 'catalog-only' ? (
+            <span className="wallpaper-tag">仅目录</span>
+          ) : null}
           <button
             aria-label={`${isLiked ? '取消喜欢' : '喜欢'} ${wallpaper.title}`}
             aria-pressed={isLiked}

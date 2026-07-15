@@ -147,7 +147,12 @@ export class LifecycleApi {
       const problem = (await response.json().catch(() => null)) as {
         detail?: string;
         errorCode?: string;
+        requestId?: string;
       } | null;
+      if (response.status >= 500) {
+        const requestHint = problem?.requestId ? `（请求编号：${problem.requestId}）` : '';
+        throw new Error(`服务暂时不可用，请稍后重试${requestHint}`);
+      }
       throw new Error(problem?.detail || `生命周期接口请求失败（${response.status}）`);
     }
     return response.json() as Promise<T>;

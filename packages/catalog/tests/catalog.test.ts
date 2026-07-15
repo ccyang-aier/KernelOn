@@ -58,6 +58,16 @@ describe('KernelOn built-in catalog', () => {
     ).toBe(true);
   });
 
+  it('lets lifecycle apps own their shared frame without a duplicate shell header', () => {
+    const lifecycleAppIds = ['onboarding', 'mentor', 'growth-archive', 'assessment', 'dashboard'];
+
+    expect(
+      kernelApps
+        .filter((app) => lifecycleAppIds.includes(app.id))
+        .map((app) => [app.id, app.runtime.window.frameOwner]),
+    ).toEqual(lifecycleAppIds.map((appId) => [appId, 'app']));
+  });
+
   it('declares Wallpaper as a system personalization app', () => {
     expect(kernelApps).toContainEqual(
       expect.objectContaining({

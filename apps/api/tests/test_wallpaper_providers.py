@@ -8,7 +8,7 @@ from kernelon_api.modules.wallpapers.domain import WallpaperAsset
 from kernelon_api.modules.wallpapers.infrastructure.providers import (
     BoundedProviderCache,
     HttpProvider,
-    WikimediaWallpaperProvider,
+    SteamWorkshopProvider,
     gather_provider_results,
 )
 
@@ -38,51 +38,28 @@ async def test_provider_retries_transient_proxy_connect_errors() -> None:
     assert attempts == 3
 
 
-def test_wikimedia_rejects_unknown_license_and_keeps_attribution() -> None:
-    provider = WikimediaWallpaperProvider()
-    base = {
-        "pageid": 42,
-        "title": "File:Forest timelapse.webm",
-        "imageinfo": [
-            {
-                "url": "https://upload.wikimedia.org/demo.webm",
-                "thumburl": "https://upload.wikimedia.org/demo.jpg",
-                "mime": "video/webm",
-                "width": 1920,
-                "height": 1080,
-                "extmetadata": {
-                    "LicenseShortName": {"value": "CC BY-SA 4.0"},
-                    "LicenseUrl": {"value": "https://creativecommons.org/licenses/by-sa/4.0/"},
-                    "Artist": {"value": "<b>Ada</b>"},
-                },
-            }
-        ],
-    }
-    value = provider._map_page(base)
+def test_steam_workshop_is_catalog_only_and_never_importable() -> None:
+    provider = SteamWorkshopProvider("test-key")
+    value = provider._map(
+        {
+            "publishedfileid": "123",
+            "title": "Anime night city",
+            "preview_url": "https://steamuserimages-a.akamaihd.net/example.jpg",
+            "tags": [{"tag": "Anime"}, {"tag": "Scene"}],
+            "vote_data": {"votes_up": 42},
+        }
+    )
     assert value is not None
-    assert value.media_type == "video"
-    assert value.author == "Ada"
-    base["imageinfo"][0]["extmetadata"]["LicenseShortName"]["value"] = "All rights reserved"
-    assert provider._map_page(base) is None
+    assert value.can_apply is False
+    assert value.can_import is False
+    assert value.access_mode == "catalog-only"
+    assert value.sources[0]["quality"] == "preview"
+    assert value.open_external_url.endswith("?id=123")
 
 
-def test_wikimedia_rejects_non_wallpaper_editorial_video() -> None:
-    page = {
-        "pageid": 43,
-        "title": "File:Product briefing.webm",
-        "imageinfo": [
-            {
-                "url": "https://upload.wikimedia.org/briefing.webm",
-                "thumburl": "https://upload.wikimedia.org/briefing.jpg",
-                "mime": "video/webm",
-                "width": 1920,
-                "height": 1080,
-                "extmetadata": {"LicenseShortName": {"value": "CC0"}},
-            }
-        ],
-    }
-
-    assert WikimediaWallpaperProvider()._map_page(page) is None
+@pytest.mark.asyncio
+async def test_steam_workshop_stays_disabled_without_api_key() -> None:
+    assert await SteamWorkshopProvider(None).search("anime", "image", 1, 20) == []
 
 
 def test_provider_cache_is_bounded_by_result_count() -> None:

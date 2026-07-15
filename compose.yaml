@@ -26,7 +26,7 @@ services:
       KERNELON_HOST: 0.0.0.0
       KERNELON_PORT: 8000
       KERNELON_ALLOWED_ORIGINS: '["http://127.0.0.1:3000","http://localhost:3000","http://127.0.0.1:3002","http://localhost:3002","http://tauri.localhost","tauri://localhost"]'
-      KERNELON_ALLOWED_HOSTS: '["127.0.0.1","127.0.0.1:${KERNELON_API_PORT:-8000}","localhost","localhost:${KERNELON_API_PORT:-8000}","api","api:8000"]'
+      KERNELON_ALLOWED_HOSTS: '["127.0.0.1","127.0.0.1:8000","127.0.0.1:${KERNELON_API_PORT:-8000}","localhost","localhost:8000","localhost:${KERNELON_API_PORT:-8000}","api","api:8000"]'
       KERNELON_LOG_LEVEL: INFO
       KERNELON_OPENAPI_ENABLED: 'true'
     depends_on:

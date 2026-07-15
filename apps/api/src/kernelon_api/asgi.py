@@ -54,9 +54,8 @@ from kernelon_api.modules.organizations.presentation.controllers import Organiza
 from kernelon_api.modules.system.presentation.health import HealthController
 from kernelon_api.modules.wallpapers.application import WallpaperService  # noqa: TC001
 from kernelon_api.modules.wallpapers.infrastructure.providers import (
-    CoverrWallpaperProvider,
     HttpProvider,
-    WikimediaWallpaperProvider,
+    SteamWorkshopProvider,
 )
 from kernelon_api.modules.wallpapers.infrastructure.service import SQLAlchemyWallpaperService
 from kernelon_api.modules.wallpapers.presentation import WallpaperController
@@ -81,8 +80,7 @@ def create_app(
     resolved_qq_provider = music_qq_provider or HttpxMusicProvider()
     resolved_podcast_provider = music_podcast_provider or HttpxMusicProvider()
     wallpaper_providers: dict[str, HttpProvider] = {
-        "wikimedia": WikimediaWallpaperProvider(),
-        "coverr": CoverrWallpaperProvider(resolved.wallpaper_coverr_api_key),
+        "steam-workshop": SteamWorkshopProvider(resolved.wallpaper_steam_web_api_key),
     }
 
     async def provide_identity_service(

@@ -32,6 +32,7 @@ export const kernelApps: KernelAppManifest[] = [
     dockedByDefault: true,
     runtime: {
       window: {
+        frameOwner: 'app',
         loaderKey: 'app:onboarding-window',
       },
     },
@@ -50,6 +51,7 @@ export const kernelApps: KernelAppManifest[] = [
     dockedByDefault: false,
     runtime: {
       window: {
+        frameOwner: 'app',
         loaderKey: 'app:mentor-window',
       },
     },
@@ -68,6 +70,7 @@ export const kernelApps: KernelAppManifest[] = [
     dockedByDefault: false,
     runtime: {
       window: {
+        frameOwner: 'app',
         loaderKey: 'app:growth-archive-window',
       },
     },
@@ -104,6 +107,7 @@ export const kernelApps: KernelAppManifest[] = [
     dockedByDefault: true,
     runtime: {
       window: {
+        frameOwner: 'app',
         loaderKey: 'app:assessment-window',
       },
     },
@@ -122,6 +126,7 @@ export const kernelApps: KernelAppManifest[] = [
     dockedByDefault: false,
     runtime: {
       window: {
+        frameOwner: 'app',
         loaderKey: 'app:dashboard-window',
       },
     },

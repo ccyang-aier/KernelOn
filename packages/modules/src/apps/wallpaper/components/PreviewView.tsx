@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Download, Heart, Play } from 'lucide-react';
+import { Check, Download, ExternalLink, Heart, Play } from 'lucide-react';
 
 import type { WallpaperAsset } from '../types';
 import { WallpaperAssetMedia } from './WallpaperAssetMedia';
@@ -11,6 +11,7 @@ export function PreviewView({
   onApply,
   onLike,
   onImport,
+  onOpenExternal,
   wallpaper,
 }: Readonly<{
   isApplied: boolean;
@@ -18,6 +19,7 @@ export function PreviewView({
   onApply(id: string): void;
   onLike(id: string): void;
   onImport(id: string): void;
+  onOpenExternal(id: string): void;
   wallpaper: WallpaperAsset;
 }>) {
   return (
@@ -58,14 +60,25 @@ export function PreviewView({
               <Download aria-hidden="true" />
             </button>
           ) : null}
-          <button
-            className="wallpaper-preview__apply-button"
-            onClick={() => onApply(wallpaper.id)}
-            type="button"
-          >
-            {isApplied ? <Check aria-hidden="true" /> : <Play aria-hidden="true" />}
-            <span>{isApplied ? 'Applied to Desktop' : 'Set as Wallpaper'}</span>
-          </button>
+          {wallpaper.canApply === false || wallpaper.accessMode === 'catalog-only' ? (
+            <button
+              className="wallpaper-preview__apply-button"
+              onClick={() => onOpenExternal(wallpaper.id)}
+              type="button"
+            >
+              <ExternalLink aria-hidden="true" />
+              <span>在官方目录查看</span>
+            </button>
+          ) : (
+            <button
+              className="wallpaper-preview__apply-button"
+              onClick={() => onApply(wallpaper.id)}
+              type="button"
+            >
+              {isApplied ? <Check aria-hidden="true" /> : <Play aria-hidden="true" />}
+              <span>{isApplied ? 'Applied to Desktop' : 'Set as Wallpaper'}</span>
+            </button>
+          )}
         </div>
       </div>
     </section>

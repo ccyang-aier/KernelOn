@@ -7,8 +7,8 @@ import { heroSlides } from '../src/apps/wallpaper/data';
 import type { HeroSlide } from '../src/apps/wallpaper/types';
 
 const dynamicSlide: HeroSlide = {
-  id: 'wikimedia:demo',
-  provider: 'wikimedia',
+  id: 'system:demo',
+  provider: 'system',
   externalId: 'demo',
   mediaType: 'video',
   posterUrl: 'https://example.test/poster.jpg',
@@ -19,7 +19,7 @@ const dynamicSlide: HeroSlide = {
   author: 'Demo Artist',
   authorInitial: 'D',
   image: 'https://example.test/poster.jpg',
-  device: 'wikimedia',
+  device: 'KernelOn',
   duration: '0:12',
   durationSeconds: 12,
   resolution: '1920x1080',
@@ -48,10 +48,11 @@ beforeEach(() => {
 });
 
 describe('dynamic wallpaper discovery', () => {
-  it('keeps a no-storage dynamic system fallback for provider outages', () => {
-    expect(heroSlides[0]?.mediaType).toBe('video');
-    expect(heroSlides[0]?.sources?.[0]?.mimeType).toBe('video/webm');
-    expect(heroSlides[0]?.attribution).toContain('Wikimedia Commons');
+  it('only exposes approved first-party assets in the built-in hero', () => {
+    expect(heroSlides[0]?.provider).toBe('system');
+    expect(heroSlides[0]?.rightsStatus).toBe('approved');
+    expect(heroSlides[0]?.canApply).toBe(true);
+    expect(heroSlides.some((slide) => slide.provider === 'wikimedia')).toBe(false);
   });
 
   it('renders a dynamic provider result as the home hero', () => {

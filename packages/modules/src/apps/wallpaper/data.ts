@@ -98,7 +98,7 @@ export const categories: CategoryOption[] = [
   },
 ];
 
-export const wallpaperLibrary: WallpaperAsset[] = [
+export const prototypeWallpaperLibrary: WallpaperAsset[] = [
   createCuratedCommonsVideo({
     id: 'svartifoss-flow',
     title: 'Svartifoss Flow',
@@ -525,6 +525,47 @@ export const wallpaperLibrary: WallpaperAsset[] = [
   },
 ];
 
+const kernelOnFirstPartyWallpaper: WallpaperAsset = {
+  id: 'system:kernelon-flower',
+  provider: 'system',
+  externalId: 'kernelon-flower',
+  mediaType: 'image',
+  title: 'KernelOn Bloom',
+  category: 'Graphics',
+  author: 'KernelOn',
+  authorInitial: 'K',
+  image: '/kernelon-assets/wallpapers/kernelon-flower-wallpaper.png',
+  posterUrl: '/kernelon-assets/wallpapers/kernelon-flower-wallpaper.png',
+  sources: [
+    {
+      url: '/kernelon-assets/wallpapers/kernelon-flower-wallpaper.png',
+      mimeType: 'image/png',
+      quality: 'source',
+    },
+  ],
+  sourcePageUrl: '',
+  licenseName: 'KernelOn first-party asset',
+  attribution: 'KernelOn',
+  canImport: false,
+  canApply: true,
+  accessMode: 'direct',
+  rightsStatus: 'approved',
+  openExternalUrl: '',
+  device: 'KernelOn',
+  duration: '静态',
+  durationSeconds: 0,
+  resolution: '3840x2160',
+  size: 'Built-in',
+  likes: 0,
+  tags: ['4K', 'Graphics', 'KernelOn'],
+  uploadedAt: '2026-07-16T00:00:00.000Z',
+  liked: false,
+};
+
+// Runtime only exposes first-party or explicitly licensed assets. The old prototype catalog is
+// exported solely for fixture migration and is never rendered by WallpaperWindow.
+export const wallpaperLibrary: WallpaperAsset[] = [kernelOnFirstPartyWallpaper];
+
 function createCuratedCommonsVideo({
   id,
   title,
@@ -585,7 +626,7 @@ function createCuratedCommonsVideo({
   };
 }
 
-export const heroSlides: HeroSlide[] = wallpaperLibrary.slice(0, 8).map((wallpaper) => ({
+export const heroSlides: HeroSlide[] = wallpaperLibrary.map((wallpaper) => ({
   ...wallpaper,
   categoryLabel: wallpaper.category.toUpperCase(),
   meta: [

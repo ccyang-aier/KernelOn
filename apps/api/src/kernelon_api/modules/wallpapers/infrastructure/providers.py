@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import html
+import json
 import re
 import time
 from collections import OrderedDict
@@ -287,6 +288,102 @@ class CoverrWallpaperProvider(HttpProvider):
             license_url="https://coverr.co/license",
             attribution="Video via Coverr",
             can_import=False,
+        )
+
+
+class SteamWorkshopProvider(HttpProvider):
+    """Wallpaper Engine catalog metadata.
+
+    Workshop files stay inside Steam. KernelOn exposes their official detail page but never
+    treats a preview image or workshop payload as directly playable/importable media.
+    """
+
+    key = "steam-workshop"
+    api_url = "https://api.steampowered.com/IPublishedFileService/QueryFiles/v1/"
+    wallpaper_engine_app_id = 431960
+
+    def __init__(self, api_key: str | None, client: httpx.AsyncClient | None = None) -> None:
+        super().__init__(client)
+        self.api_key = api_key
+
+    async def search(
+        self, query: str, media_type: str, page: int, limit: int
+    ) -> list[WallpaperAsset]:
+        if not self.api_key or media_type == "video":
+            return []
+        cache_key = f"{query}:{media_type}:{page}:{limit}"
+        if cached := self._cache.get(cache_key):
+            return cached
+        request = {
+            "query_type": 0,
+            "page": max(1, page),
+            "numperpage": min(max(1, limit), 50),
+            "creator_appid": self.wallpaper_engine_app_id,
+            "appid": self.wallpaper_engine_app_id,
+            "requiredtags": ["Anime"],
+            "search_text": query or "anime",
+            "return_tags": True,
+            "return_previews": True,
+            "return_vote_data": True,
+            "return_for_sale_data": False,
+        }
+        payload = await self._json(
+            self.api_url,
+            {"key": self.api_key, "input_json": json.dumps(request, separators=(",", ":"))},
+        )
+        details = payload.get("response", {}).get("publishedfiledetails", [])
+        assets = [asset for item in details if (asset := self._map(item))]
+        self._cache.put(cache_key, assets)
+        return assets
+
+    async def get(self, external_id: str) -> WallpaperAsset | None:
+        if not self.api_key:
+            return None
+        payload = await self._json(
+            "https://api.steampowered.com/IPublishedFileService/GetDetails/v1/",
+            {
+                "key": self.api_key,
+                "publishedfileids[0]": external_id,
+                "includeadditionalpreviews": True,
+                "includetags": True,
+                "includevotes": True,
+            },
+        )
+        details = payload.get("response", {}).get("publishedfiledetails", [])
+        return self._map(details[0]) if details else None
+
+    def _map(self, value: dict[str, Any]) -> WallpaperAsset | None:
+        external_id = str(value.get("publishedfileid") or "")
+        poster_url = str(value.get("preview_url") or "")
+        if not external_id or not poster_url:
+            return None
+        source_page = f"https://steamcommunity.com/sharedfiles/filedetails/?id={external_id}"
+        tags = tuple(
+            str(tag.get("tag") or "")
+            for tag in value.get("tags", [])
+            if isinstance(tag, dict) and tag.get("tag")
+        )
+        vote_data = value.get("vote_data") or {}
+        return WallpaperAsset(
+            provider=self.key,
+            external_id=external_id,
+            title=str(value.get("title") or "Wallpaper Engine Workshop item"),
+            media_type="image",
+            poster_url=poster_url,
+            sources=({"url": poster_url, "mimeType": "image/jpeg", "quality": "preview"},),
+            source_page_url=source_page,
+            author="Steam Workshop creator",
+            category="Anime",
+            tags=tags or ("Anime", "Wallpaper Engine"),
+            likes=int(vote_data.get("votes_up") or 0),
+            license_name="Steam Workshop subscriber access",
+            license_url="https://store.steampowered.com/subscriber_agreement/",
+            attribution="Catalog metadata via the official Steam Workshop API",
+            can_import=False,
+            can_apply=False,
+            access_mode="catalog-only",
+            rights_status="catalog-only",
+            open_external_url=source_page,
         )
 
 

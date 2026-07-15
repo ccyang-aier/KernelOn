@@ -20,9 +20,8 @@ from kernelon_api.modules.wallpapers.infrastructure.models import (
     WallpaperSourcePreferenceModel,
 )
 from kernelon_api.modules.wallpapers.infrastructure.providers import (
-    CoverrWallpaperProvider,
     HttpProvider,
-    WikimediaWallpaperProvider,
+    SteamWorkshopProvider,
     gather_provider_results,
 )
 from kernelon_api.modules.wallpapers.infrastructure.storage import (
@@ -42,23 +41,37 @@ SOURCE_DEFINITIONS = {
     "system": {
         "name": "KernelOn 系统壁纸库",
         "description": "KernelOn 自有或已授权的静态与动态壁纸。",
+        "url": "local://system-library",
         "mediaTypes": ["image", "video"],
         "system": True,
         "enabled": True,
+        "approvalStatus": "approved",
+        "accessMode": "direct",
+        "delivery": "stored",
     },
-    "wikimedia": {
-        "name": "Wikimedia Commons",
-        "description": "仅展示允许再利用的 Public Domain、CC0、CC BY 与 CC BY-SA 媒体。",
-        "mediaTypes": ["image", "video"],
-        "system": True,
-        "enabled": True,
-    },
-    "coverr": {
-        "name": "Coverr",
-        "description": "需要生产 API 套餐和壁纸场景授权, 未配置时保持禁用。",
-        "mediaTypes": ["video"],
-        "system": True,
+    "steam-workshop": {
+        "name": "Wallpaper Engine Workshop",
+        "description": (
+            "只展示官方目录和预览图; 内容必须在 Steam 中订阅使用, KernelOn 不播放、不导入、不镜像。"
+        ),
+        "url": "https://steamcommunity.com/app/431960/workshop/",
+        "mediaTypes": ["image"],
+        "system": False,
         "enabled": False,
+        "approvalStatus": "catalog-only",
+        "accessMode": "catalog-only",
+        "delivery": "metadata-only",
+    },
+    "sucrose": {
+        "name": "Sucrose Store",
+        "description": ("动漫内容候选源; 在逐资源授权和合作接口确认前保持待接入, 不抓取社区内容。"),
+        "url": "https://github.com/Taiizor/Sucrose",
+        "mediaTypes": ["image", "video"],
+        "system": False,
+        "enabled": False,
+        "approvalStatus": "pending-partnership",
+        "accessMode": "unavailable",
+        "delivery": "none",
     },
 }
 
@@ -87,8 +100,7 @@ class SQLAlchemyWallpaperService:
                 settings.wallpaper_committed_limit_bytes,
             )
         self.providers: dict[str, HttpProvider] = providers or {
-            "wikimedia": WikimediaWallpaperProvider(),
-            "coverr": CoverrWallpaperProvider(settings.wallpaper_coverr_api_key),
+            "steam-workshop": SteamWorkshopProvider(settings.wallpaper_steam_web_api_key),
         }
         self.organization_service = organization_service
 
@@ -123,7 +135,10 @@ class SQLAlchemyWallpaperService:
                     provider=provider,
                     enabled=bool(
                         definition["enabled"]
-                        and (provider != "coverr" or self.settings.wallpaper_coverr_api_key)
+                        and (
+                            provider != "steam-workshop"
+                            or self.settings.wallpaper_steam_web_api_key
+                        )
                     ),
                 )
                 self.session.add(row)
@@ -326,8 +341,14 @@ class SQLAlchemyWallpaperService:
                 **definition,
                 "enabled": rows[provider].enabled,
                 "visible": preferences.get(provider, True),
-                "configured": provider != "coverr" or bool(self.settings.wallpaper_coverr_api_key),
-                "delivery": "stored" if provider == "system" else "hotlink",
+                "configured": (
+                    provider == "system"
+                    or (
+                        provider == "steam-workshop"
+                        and bool(self.settings.wallpaper_steam_web_api_key)
+                    )
+                ),
+                "delivery": definition.get("delivery", "stored"),
             }
             for provider, definition in SOURCE_DEFINITIONS.items()
         ]
@@ -347,9 +368,21 @@ class SQLAlchemyWallpaperService:
             raise ApplicationError(
                 "WALLPAPER_SOURCE_NOT_FOUND", "Wallpaper source was not found.", 404
             )
-        if source_id == "coverr" and enabled and not self.settings.wallpaper_coverr_api_key:
+        if (
+            source_id == "steam-workshop"
+            and enabled
+            and not self.settings.wallpaper_steam_web_api_key
+        ):
             raise ApplicationError(
-                "WALLPAPER_SOURCE_NOT_CONFIGURED", "Coverr API key and approval are required.", 409
+                "WALLPAPER_SOURCE_NOT_CONFIGURED",
+                "A Steam Web API key is required for catalog access.",
+                409,
+            )
+        if source_id == "sucrose" and enabled:
+            raise ApplicationError(
+                "WALLPAPER_SOURCE_PENDING_APPROVAL",
+                "Sucrose remains disabled until a partnership and per-asset rights feed exist.",
+                409,
             )
         row.enabled = enabled
         await self.session.commit()
@@ -425,6 +458,12 @@ class SQLAlchemyWallpaperService:
         else:
             model = await self._persist_snapshot(user_id, asset)
             value = dict(model.snapshot)
+        if value.get("canApply") is False:
+            raise ApplicationError(
+                "WALLPAPER_CATALOG_ONLY",
+                "This item can only be opened in its official catalog.",
+                409,
+            )
         organization_id = await self._organization_id(user_id)
         assignment = await self.session.get(WallpaperAssignmentModel, user_id)
         if assignment:

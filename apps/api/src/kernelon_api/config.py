@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     wallpaper_system_reserve_bytes: int = Field(default=200 * 1024**2, ge=0)
     wallpaper_processing_mode: Literal["passthrough", "transcode"] = "passthrough"
     wallpaper_coverr_api_key: str | None = None
+    wallpaper_steam_web_api_key: str | None = None
 
     @model_validator(mode="after")
     def apply_wallpaper_environment_defaults(self) -> Settings:

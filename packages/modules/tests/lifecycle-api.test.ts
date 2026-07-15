@@ -53,4 +53,25 @@ describe('LifecycleApi', () => {
 
     await expect(api.cases()).rejects.toThrow('Permission denied.');
   });
+
+  it('replaces internal server details with an actionable localized message', async () => {
+    const apiFetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          detail: 'Internal Server Error',
+          errorCode: 'HTTP_500',
+          requestId: 'request-123',
+        }),
+        {
+          headers: { 'Content-Type': 'application/problem+json' },
+          status: 500,
+        },
+      ),
+    );
+    const api = new LifecycleApi(runtime(apiFetch));
+
+    await expect(api.dashboard()).rejects.toThrow(
+      '服务暂时不可用，请稍后重试（请求编号：request-123）',
+    );
+  });
 });

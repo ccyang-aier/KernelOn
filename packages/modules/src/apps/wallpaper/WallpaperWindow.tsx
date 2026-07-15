@@ -49,12 +49,26 @@ const defaultSources: WallpaperSource[] = [
     description: 'KernelOn 系统精选的高清静态与动态壁纸。',
   },
   {
-    id: 'wikimedia',
-    name: 'Wikimedia Commons',
-    url: 'https://commons.wikimedia.org',
-    enabled: true,
+    id: 'steam-workshop',
+    name: 'Wallpaper Engine Workshop',
+    url: 'https://steamcommunity.com/app/431960/workshop/',
+    enabled: false,
     isSystem: false,
-    description: '仅展示 Public Domain、CC0、CC BY 与 CC BY-SA 许可资源。',
+    description: '仅浏览官方目录；必须在 Steam 中订阅使用，不在 KernelOn 内播放或保存。',
+    approvalStatus: 'catalog-only',
+    accessMode: 'catalog-only',
+    configured: false,
+  },
+  {
+    id: 'sucrose',
+    name: 'Sucrose Store',
+    url: 'https://github.com/Taiizor/Sucrose',
+    enabled: false,
+    isSystem: false,
+    description: '待合作与逐资源授权确认，不抓取、不镜像社区内容。',
+    approvalStatus: 'pending-partnership',
+    accessMode: 'unavailable',
+    configured: false,
   },
 ];
 
@@ -93,9 +107,15 @@ export default function WallpaperWindow() {
   const [sources, setSources] = useState<WallpaperSource[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('kernelon_wallpaper_sources');
-      return saved
-        ? (JSON.parse(saved) as WallpaperSource[]).filter((source) => source.id !== 'nasa')
-        : defaultSources;
+      if (saved) {
+        const retained = (JSON.parse(saved) as WallpaperSource[]).filter(
+          (source) => !['nasa', 'wikimedia', 'coverr'].includes(source.id),
+        );
+        return defaultSources.map(
+          (definition) => retained.find((source) => source.id === definition.id) ?? definition,
+        );
+      }
+      return defaultSources;
     }
     return defaultSources;
   });
@@ -137,7 +157,7 @@ export default function WallpaperWindow() {
     localStorage.setItem('kernelon_liked_wallpaper_ids', JSON.stringify(Array.from(likedIds)));
   }, [likedIds]);
 
-  const [selectedWallpaperId, setSelectedWallpaperId] = useState('retrowaves');
+  const [selectedWallpaperId, setSelectedWallpaperId] = useState('system:kernelon-flower');
   const [isHeroAutoplayEnabled] = useState(true);
   const [isHeroDetailsVisible] = useState(true);
   const [previewFitMode] = useState<'fill' | 'fit'>('fill');
@@ -148,7 +168,7 @@ export default function WallpaperWindow() {
   useEffect(() => {
     let cancelled = false;
     void Promise.allSettled([
-      wallpaperApi.search('timelapse', 'video'),
+      wallpaperApi.search('anime', 'image'),
       wallpaperApi.sources(),
       wallpaperApi.current(),
       wallpaperApi.storage(),
@@ -187,7 +207,7 @@ export default function WallpaperWindow() {
     setIsLoadingHomeMore(true);
     try {
       const nextPage = homePage + 1;
-      const result = await wallpaperApi.search('timelapse', 'video', nextPage);
+      const result = await wallpaperApi.search('anime', 'image', nextPage);
       const assets = result.items.map(normalizeRemoteAsset);
       setRemoteWallpapers((current) => dedupeWallpapers([...current, ...assets]));
       setHomePage(nextPage);
@@ -220,7 +240,7 @@ export default function WallpaperWindow() {
       else setIsLoadingMoreRemote(true);
       setRemoteSearchError(null);
       try {
-        const result = await wallpaperApi.search(remoteSearchTerm || 'timelapse', 'video', page);
+        const result = await wallpaperApi.search(remoteSearchTerm || 'anime', 'image', page);
         const assets = result.items.map(normalizeRemoteAsset);
         const providerError = formatProviderErrors(result.providerErrors);
         setRemoteWallpapers((current) => dedupeWallpapers(reset ? assets : [...current, ...assets]));
@@ -250,13 +270,15 @@ export default function WallpaperWindow() {
   const selectedWallpaper = assetById.get(selectedWallpaperId) ?? allWallpapers[0]!;
 
   const homeSlides = useMemo<HeroSlide[]>(() => {
-    const videos = remoteWallpapers.filter((asset) => asset.mediaType === 'video');
+    const videos = [...customWallpapers, ...remoteWallpapers].filter(
+      (asset) => asset.mediaType === 'video' && asset.canApply !== false,
+    );
     return Array.from(
       new Map(
-        [...heroSlides, ...videos.map(toHeroSlide)].map((slide) => [slide.id, slide]),
+        [...videos.map(toHeroSlide), ...heroSlides].map((slide) => [slide.id, slide]),
       ).values(),
     ).slice(0, 10);
-  }, [remoteWallpapers]);
+  }, [customWallpapers, remoteWallpapers]);
   const homeRecommendations = useMemo<RecommendedWallpaperSection[]>(() => {
     if (!remoteWallpapers.length) return recommendationSections;
     return [
@@ -264,7 +286,7 @@ export default function WallpaperWindow() {
       {
         id: 'live-providers',
         title: '更多精选来源',
-        items: remoteWallpapers.slice(0, 12).map((asset) => ({
+        items: remoteWallpapers.filter((asset) => asset.canApply !== false).slice(0, 12).map((asset) => ({
           id: `recommended-${asset.id}`,
           title: asset.title,
           device: asset.device,
@@ -308,9 +330,7 @@ export default function WallpaperWindow() {
 
   const visibleExploreWallpapers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    const curatedDynamicWallpapers = wallpaperLibrary.filter(
-      (wallpaper) => wallpaper.mediaType === 'video',
-    );
+    const curatedDynamicWallpapers = wallpaperLibrary;
     const exploreCandidates = [
       ...curatedDynamicWallpapers,
       ...remoteWallpapers,
@@ -350,7 +370,7 @@ export default function WallpaperWindow() {
     const normalizedIndex = normalizeIndex(index, homeSlides.length);
 
     setHeroIndex(normalizedIndex);
-    setSelectedWallpaperId(homeSlides[normalizedIndex]?.id ?? 'retrowaves');
+    setSelectedWallpaperId(homeSlides[normalizedIndex]?.id ?? 'system:kernelon-flower');
   }, [homeSlides]);
 
   const selectHeroByDirection = useCallback(
@@ -358,7 +378,7 @@ export default function WallpaperWindow() {
       const nextIndex = normalizeIndex(heroIndex + direction, homeSlides.length);
 
       setHeroIndex(nextIndex);
-      setSelectedWallpaperId(homeSlides[nextIndex]?.id ?? 'retrowaves');
+      setSelectedWallpaperId(homeSlides[nextIndex]?.id ?? 'system:kernelon-flower');
     },
     [heroIndex, homeSlides],
   );
@@ -389,6 +409,18 @@ export default function WallpaperWindow() {
         return;
       }
 
+      if (wallpaper.canApply === false || wallpaper.accessMode === 'catalog-only') {
+        if (wallpaper.openExternalUrl || wallpaper.sourcePageUrl) {
+          window.open(
+            wallpaper.openExternalUrl || wallpaper.sourcePageUrl,
+            '_blank',
+            'noopener,noreferrer',
+          );
+        }
+        setHeaderActionNotice('该内容仅供目录浏览，请在官方平台获取和使用。');
+        return;
+      }
+
       setDesktopWallpaper(toDesktopWallpaper(wallpaper, runtime.apiBaseUrl));
       setSelectedWallpaperId(wallpaper.id);
       if (wallpaper.provider && wallpaper.provider !== 'system') {
@@ -396,6 +428,19 @@ export default function WallpaperWindow() {
       }
     },
     [assetById, runtime.apiBaseUrl, setDesktopWallpaper, wallpaperApi],
+  );
+
+  const openWallpaperSource = useCallback(
+    (wallpaperId: string) => {
+      const wallpaper = assetById.get(wallpaperId);
+      const url = wallpaper?.openExternalUrl || wallpaper?.sourcePageUrl;
+      if (!url) {
+        setHeaderActionNotice('该内容暂时没有可用的官方详情页。');
+        return;
+      }
+      window.open(url, '_blank', 'noopener,noreferrer');
+    },
+    [assetById],
   );
 
   const toggleLike = useCallback((wallpaperId: string) => {
@@ -572,6 +617,7 @@ export default function WallpaperWindow() {
                 onApply={applyWallpaper}
                 onLike={toggleLike}
                 onImport={(id) => void importWallpaper(id)}
+                onOpenExternal={openWallpaperSource}
                 wallpaper={previewWallpaper}
               />
             ) : null}

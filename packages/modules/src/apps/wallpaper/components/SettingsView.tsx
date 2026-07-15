@@ -466,6 +466,12 @@ export function SettingsView({
                           <h3>
                             {source.name}
                             {source.isSystem && <span className="sys-badge">系统预置</span>}
+                            {source.approvalStatus === 'catalog-only' ? (
+                              <span className="sys-badge">仅官方目录</span>
+                            ) : null}
+                            {source.approvalStatus === 'pending-partnership' ? (
+                              <span className="sys-badge">待授权</span>
+                            ) : null}
                           </h3>
                           <code className="source-url">{source.url}</code>
                         </div>
@@ -476,6 +482,10 @@ export function SettingsView({
                         <button
                           aria-label={`切换壁纸源: ${source.name}`}
                           className={`glass-switch ${source.enabled ? 'active' : ''}`}
+                          disabled={
+                            source.approvalStatus === 'pending-partnership' ||
+                            (source.id !== 'system' && source.configured === false)
+                          }
                           onClick={() => onToggleSource(source.id)}
                           type="button"
                         >

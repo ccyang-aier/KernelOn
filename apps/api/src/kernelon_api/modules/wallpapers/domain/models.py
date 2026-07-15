@@ -6,6 +6,8 @@ from dataclasses import asdict, dataclass, field
 from typing import Literal
 
 MediaKind = Literal["image", "video"]
+AccessMode = Literal["direct", "catalog-only"]
+RightsStatus = Literal["approved", "catalog-only", "pending"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +30,10 @@ class WallpaperAsset:
     license_url: str = ""
     attribution: str = ""
     can_import: bool = False
+    can_apply: bool = True
+    access_mode: AccessMode = "direct"
+    rights_status: RightsStatus = "approved"
+    open_external_url: str = ""
     size_bytes: int | None = None
     id: str = field(init=False)
 
@@ -46,6 +52,10 @@ class WallpaperAsset:
                 "licenseName": value.pop("license_name"),
                 "licenseUrl": value.pop("license_url"),
                 "canImport": value.pop("can_import"),
+                "canApply": value.pop("can_apply"),
+                "accessMode": value.pop("access_mode"),
+                "rightsStatus": value.pop("rights_status"),
+                "openExternalUrl": value.pop("open_external_url"),
                 "sizeBytes": value.pop("size_bytes"),
             }
         )

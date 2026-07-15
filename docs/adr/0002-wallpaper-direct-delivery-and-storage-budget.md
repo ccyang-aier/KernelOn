@@ -5,8 +5,9 @@
 
 ## 背景
 
-Wallpaper App 需要同时展示静态图片和静音循环视频，并聚合经过壁纸场景质量筛选的 Wikimedia Commons
-等外部目录。新闻、会议、科普档案等“可播放但不适合作为壁纸”的媒体不进入产品目录。若同步、代理或转码全部搜索结果，会快速消耗服务端磁盘和出口带宽，也会扩大
+Wallpaper App 需要同时展示静态图片和静音循环视频，并聚合真正面向壁纸使用场景的内容。
+“可访问、可播放”不等于“适合作壁纸”或“允许在 KernelOn 中交付”；新闻、会议、科普档案以及
+没有逐资源权利证明的社区内容不进入可应用目录。若同步、代理或转码全部搜索结果，会快速消耗服务端磁盘和出口带宽，也会扩大
 许可证风险。开发机不能因该功能默认安装 MinIO 或 FFmpeg。
 
 ## 决策
@@ -14,6 +15,13 @@ Wallpaper App 需要同时展示静态图片和静音循环视频，并聚合经
 外部搜索结果只进入最多 5,000 条、TTL 10 分钟的进程内缓存，不同步到 PostgreSQL，也不保存
 媒体文件。收藏或应用外部资源时只保存 provider、external id、许可证和元数据快照；播放前由
 Provider 重新解析来源 URL。客户端直接加载外部媒体，KernelOn 不用无磁盘代理规避来源限制。
+
+来源统一采用准入状态：`approved/direct` 可在 KernelOn 中预览和应用；`catalog-only` 只能展示
+官方元数据并跳转官方平台；`pending-partnership` 在合作协议、内容分级和逐资源授权字段确认前不可启用。
+Wallpaper Engine Workshop 首期为 `catalog-only`，只通过官方 Steam Web API 查询 Anime 目录，
+不下载 Workshop 文件、不把预览图当动态壁纸、不提供导入或应用。Sucrose Store 为
+`pending-partnership`，不抓取其社区内容。Hero 和推荐位只接受 KernelOn 自有、用户上传或已有明确
+分发授权的 `approved/direct` 资源。
 
 只有 KernelOn 系统资源、用户上传和用户明确确认且许可证允许的导入会进入持久媒体存储。
 开发环境使用按需创建的 `.kernelon-data/wallpapers`，硬上限 1 GiB，不启动附加服务；生产环境
