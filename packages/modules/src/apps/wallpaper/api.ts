@@ -7,7 +7,7 @@ export class WallpaperApi {
 
   constructor(runtime: KernelOnRuntimeConfig) {
     this.#baseUrl = runtime.apiBaseUrl;
-    this.#fetch = runtime.apiFetch ?? fetch;
+    this.#fetch = runtime.apiFetch ?? globalThis.fetch.bind(globalThis);
   }
 
   async search(query = '', mediaType: 'all' | 'image' | 'video' = 'all', page = 1) {
@@ -17,7 +17,10 @@ export class WallpaperApi {
       page: String(page),
       limit: '30',
     });
-    return this.#json<{ items: WallpaperAsset[]; providerErrors: Record<string, string> }>(
+    return this.#json<{
+      items: WallpaperAsset[];
+      providerErrors: Array<{ provider: string; message: string }>;
+    }>(
       `/wallpapers?${params}`,
     );
   }

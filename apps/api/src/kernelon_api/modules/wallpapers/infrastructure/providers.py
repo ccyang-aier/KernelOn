@@ -18,6 +18,10 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
 ALLOWED_COMMONS_LICENSES = {"CC0", "CC BY", "CC BY-SA", "Public domain"}
+PROVIDER_REQUEST_HEADERS = {
+    "Accept": "application/json",
+    "User-Agent": "KernelOn/0.1 (https://github.com/ccyang-aier/KernelOn; wallpaper-provider)",
+}
 
 
 class BoundedProviderCache:
@@ -65,10 +69,16 @@ class HttpProvider:
         | None = None,
     ) -> dict[str, Any]:
         if self._client is not None:
-            response = await self._client.get(url, params=params)
+            response = await self._client.get(
+                url,
+                params=params,
+                headers=PROVIDER_REQUEST_HEADERS,
+            )
         else:
             async with httpx.AsyncClient(
-                timeout=httpx.Timeout(12.0, connect=5.0), follow_redirects=True
+                headers=PROVIDER_REQUEST_HEADERS,
+                timeout=httpx.Timeout(12.0, connect=5.0),
+                follow_redirects=True,
             ) as client:
                 response = await client.get(url, params=params)
         response.raise_for_status()
@@ -315,7 +325,8 @@ async def gather_provider_results(
     errors: list[dict[str, str]] = []
     for provider, result in zip(providers, results, strict=True):
         if isinstance(result, BaseException):
-            errors.append({"provider": provider.key, "message": str(result)})
+            message = str(result).strip() or type(result).__name__
+            errors.append({"provider": provider.key, "message": message})
         else:
             items.extend(result)
     items.sort(key=lambda item: (item.media_type != "video", item.provider, item.title))

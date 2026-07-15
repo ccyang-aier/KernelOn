@@ -457,6 +457,27 @@ describe('KernelOnShell', () => {
     const notificationButton = within(panel).getByRole('button', { name: '通知' });
     await user.click(notificationButton);
     expect(notificationButton).toHaveAttribute('aria-pressed', 'true');
+    const dynamicIsland = screen.getByRole('status');
+    expect(dynamicIsland).toHaveTextContent('通知已开启');
+    expect(dynamicIsland).toHaveClass(
+      'ko-dynamic-island',
+      'fixed',
+      'top-0',
+      'left-1/2',
+      'h-[38px]',
+      'min-w-[150px]',
+      'rounded-full',
+    );
+    expect(within(dynamicIsland).getByText('通知已开启')).toHaveClass(
+      'truncate',
+      'text-center',
+      'tracking-wide',
+    );
+    expect(dynamicIsland.querySelector('.ko-dynamic-island-pulse')).toHaveClass(
+      'h-2',
+      'w-2',
+      'bg-cyan-400',
+    );
 
     fireEvent.change(within(panel).getByRole('slider', { name: '音量' }), {
       target: { value: '63' },

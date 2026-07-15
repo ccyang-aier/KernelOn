@@ -7,6 +7,7 @@ import {
   Download,
   Expand,
   Focus,
+  Info,
   Search,
   Settings,
   Sun,
@@ -69,8 +70,14 @@ export function SystemControlPanel({
   const [focusMode, setFocusMode] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [pressedAction, setPressedAction] = useState<string>();
-  const [feedback, setFeedback] = useState('');
+  const feedbackIdRef = useRef(0);
+  const [feedback, setFeedback] = useState<{ id: number; message: string }>();
   const [profileSaving, setProfileSaving] = useState(false);
+
+  const notify = (message: string) => {
+    feedbackIdRef.current += 1;
+    setFeedback({ id: feedbackIdRef.current, message });
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -84,7 +91,8 @@ export function SystemControlPanel({
 
   useEffect(() => {
     if (!feedback) return;
-    const timer = window.setTimeout(() => setFeedback(''), 2200);
+    playNotificationTone();
+    const timer = window.setTimeout(() => setFeedback(undefined), 3000);
     return () => window.clearTimeout(timer);
   }, [feedback]);
 
@@ -96,7 +104,7 @@ export function SystemControlPanel({
 
   const flashAction = (action: string, message: string) => {
     setPressedAction(action);
-    setFeedback(message);
+    notify(message);
     window.setTimeout(
       () => setPressedAction((current) => (current === action ? undefined : current)),
       720,
@@ -134,10 +142,10 @@ export function SystemControlPanel({
         displayName: user?.displayName || 'KernelOn 用户',
         presenceStatus: nextStatus.value,
       });
-      setFeedback(`状态已切换为${nextStatus.label}`);
+      notify(`状态已切换为${nextStatus.label}`);
     } catch (error) {
       setStatus(previous);
-      setFeedback(error instanceof Error ? error.message : '在线状态保存失败');
+      notify(error instanceof Error ? error.message : '在线状态保存失败');
     }
   };
 
@@ -154,9 +162,9 @@ export function SystemControlPanel({
         displayName: user?.displayName || 'KernelOn 用户',
         presenceStatus: status.value,
       });
-      setFeedback('头像已更新');
+      notify('头像已更新');
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : '头像更新失败');
+      notify(error instanceof Error ? error.message : '头像更新失败');
     } finally {
       setProfileSaving(false);
     }
@@ -166,14 +174,39 @@ export function SystemControlPanel({
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
       else await document.documentElement.requestFullscreen();
-      setFeedback(document.fullscreenElement ? '已进入全屏' : '已退出全屏');
+      notify(document.fullscreenElement ? '已进入全屏' : '已退出全屏');
     } catch {
-      setFeedback('当前浏览器暂不支持全屏');
+      notify('当前浏览器暂不支持全屏');
     }
   };
 
   return (
     <>
+      <AnimatePresence>
+        {feedback ? (
+          <motion.div
+            animate={{ filter: 'blur(0px)', opacity: 1, scale: 1, x: '-50%', y: 20 }}
+            aria-atomic="true"
+            className="ko-dynamic-island fixed top-0 left-1/2 z-[70] flex h-[38px] min-w-[150px] max-w-[min(320px,calc(100vw-32px))] items-center justify-between gap-3 rounded-full px-4 text-xs font-medium text-white shadow-2xl"
+            data-testid="kernelon-dynamic-island"
+            exit={{ filter: 'blur(5px)', opacity: 0, scale: 0.85, x: '-50%', y: -100 }}
+            initial={{ filter: 'blur(5px)', opacity: 0, scale: 0.85, x: '-50%', y: -100 }}
+            key={feedback.id}
+            role="status"
+            transition={{ duration: 0.5, ease: [0.175, 0.885, 0.32, 1.275] }}
+          >
+            <Info aria-hidden className="h-[14px] w-[14px] shrink-0 text-cyan-400" />
+            <span className="min-w-0 flex-1 truncate text-center font-normal tracking-wide">
+              {feedback.message}
+            </span>
+            <span
+              aria-hidden
+              className="ko-dynamic-island-pulse h-2 w-2 shrink-0 rounded-full bg-cyan-400"
+            />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <AnimatePresence>
         {open ? (
           <motion.button
@@ -219,20 +252,6 @@ export function SystemControlPanel({
           inert={!open}
           role="dialog"
         >
-          <AnimatePresence>
-            {feedback ? (
-              <motion.div
-                animate={{ opacity: 1 }}
-                className="absolute inset-x-0 top-0 z-30 mx-auto w-max whitespace-nowrap rounded-full border border-white/15 bg-[#142d34]/95 px-3 py-1.5 text-[10px] font-medium shadow-xl"
-                exit={{ opacity: 0 }}
-                initial={{ opacity: 0 }}
-                role="status"
-              >
-                {feedback}
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
           <section className="flex items-center gap-3 px-1" aria-label="用户信息">
             <button
               aria-label="更换头像"
@@ -351,7 +370,7 @@ export function SystemControlPanel({
                 label="今日签到"
                 onClick={() => {
                   setCheckedIn(true);
-                  setFeedback(checkedIn ? '今日已完成签到' : '签到成功');
+                  notify(checkedIn ? '今日已完成签到' : '签到成功');
                 }}
                 secondaryLabel={checkedIn ? '09:18 已签到' : '点击签到'}
                 variant="wide"
@@ -377,7 +396,7 @@ export function SystemControlPanel({
                 label="通知"
                 onClick={() => {
                   setNotificationsEnabled((value) => !value);
-                  setFeedback(notificationsEnabled ? '通知已关闭' : '通知已开启');
+                  notify(notificationsEnabled ? '通知已关闭' : '通知已开启');
                 }}
               />
               <RoundActionButton
@@ -387,7 +406,7 @@ export function SystemControlPanel({
                 label="专注模式"
                 onClick={() => {
                   setFocusMode((value) => !value);
-                  setFeedback(focusMode ? '专注模式已关闭' : '专注模式已开启');
+                  notify(focusMode ? '专注模式已关闭' : '专注模式已开启');
                 }}
               />
               <RoundActionButton
@@ -421,7 +440,7 @@ export function SystemControlPanel({
             <span className="flex items-center gap-1.5">
               <button
                 className="transition-colors hover:text-white/75"
-                onClick={() => setFeedback('账号切换即将开放')}
+                onClick={() => notify('账号切换即将开放')}
                 type="button"
               >
                 切换账号
@@ -429,7 +448,7 @@ export function SystemControlPanel({
               <span>·</span>
               <button
                 className="transition-colors hover:text-red-300"
-                onClick={() => setFeedback('退出登录需要再次确认')}
+                onClick={() => notify('退出登录需要再次确认')}
                 type="button"
               >
                 退出登录
@@ -456,6 +475,29 @@ function employeeLabel(joinedAt?: string | null): string {
   const startedAt = new Date(joinedAt);
   if (Number.isNaN(startedAt.getTime())) return '员工';
   return Date.now() - startedAt.getTime() <= 90 * 86_400_000 ? '新员工' : '员工';
+}
+
+function playNotificationTone() {
+  if (typeof window === 'undefined' || typeof window.AudioContext === 'undefined') return;
+
+  try {
+    const audioContext = new window.AudioContext();
+    if (audioContext.state === 'suspended') void audioContext.resume();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(1050, audioContext.currentTime);
+    gain.gain.setValueAtTime(0.05, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.12);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.12);
+    oscillator.addEventListener('ended', () => void audioContext.close(), { once: true });
+  } catch {
+    // Browsers can reject synthesized audio before the first user interaction.
+  }
 }
 
 async function resizeAvatar(file: File): Promise<string> {

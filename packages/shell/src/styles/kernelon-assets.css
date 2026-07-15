@@ -9,6 +9,27 @@
   cursor: var(--ko-cursor-default);
 }
 
+.ko-dynamic-island {
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(10 10 10 / 0.85);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.55);
+  will-change: transform, opacity, filter;
+}
+
+.ko-dynamic-island-pulse {
+  animation: ko-dynamic-island-ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ko-dynamic-island-ping {
+  75%,
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
 .ko-control-panel-liquid-appearance {
   --ko-liquid-glass-border-strong: rgb(255 255 255 / 0.44);
   --ko-liquid-glass-border-soft: rgb(255 255 255 / 0.12);
@@ -425,6 +446,7 @@
   .ko-profile-avatar-camera,
   .ko-profile-avatar-sheen,
   .ko-round-action-button,
+  .ko-dynamic-island-pulse,
   .ko-status-dot {
     animation: none;
     transition-duration: 1ms;

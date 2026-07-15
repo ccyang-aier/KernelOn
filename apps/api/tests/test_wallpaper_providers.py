@@ -8,6 +8,7 @@ from kernelon_api.modules.wallpapers.infrastructure.providers import (
     BoundedProviderCache,
     NasaWallpaperProvider,
     WikimediaWallpaperProvider,
+    gather_provider_results,
 )
 
 
@@ -15,6 +16,8 @@ from kernelon_api.modules.wallpapers.infrastructure.providers import (
 async def test_nasa_search_normalizes_video_without_persisting_results() -> None:
     async def handler(request: httpx.Request) -> httpx.Response:
         assert request.url.params["media_type"] == "video"
+        assert request.headers["User-Agent"].startswith("KernelOn/0.1")
+        assert request.headers["Accept"] == "application/json"
         return httpx.Response(
             200,
             json={
@@ -79,6 +82,22 @@ def test_provider_cache_is_bounded_by_result_count() -> None:
     cache.put("two", [second])
     assert cache.get("one") is None
     assert cache.get("two") == [second]
+
+
+@pytest.mark.asyncio
+async def test_provider_error_uses_exception_type_when_message_is_empty() -> None:
+    class FailingProvider(NasaWallpaperProvider):
+        async def search(
+            self, query: str, media_type: str, page: int, limit: int
+        ) -> list[WallpaperAsset]:
+            raise httpx.ConnectError("")
+
+    values, errors = await gather_provider_results(
+        [FailingProvider()], "earth", "video", 1, 20
+    )
+
+    assert values == []
+    assert errors == [{"provider": "nasa", "message": "ConnectError"}]
 
 
 def _asset(external_id: str) -> WallpaperAsset:
