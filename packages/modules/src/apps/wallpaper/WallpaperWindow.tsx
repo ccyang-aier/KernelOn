@@ -49,14 +49,6 @@ const defaultSources: WallpaperSource[] = [
     description: 'KernelOn 系统精选的高清静态与动态壁纸。',
   },
   {
-    id: 'nasa',
-    name: 'NASA Image and Video Library',
-    url: 'https://images.nasa.gov',
-    enabled: true,
-    isSystem: false,
-    description: 'NASA 官方图片和视频，默认直链播放，不占用服务端媒体存储。',
-  },
-  {
     id: 'wikimedia',
     name: 'Wikimedia Commons',
     url: 'https://commons.wikimedia.org',
@@ -101,7 +93,9 @@ export default function WallpaperWindow() {
   const [sources, setSources] = useState<WallpaperSource[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('kernelon_wallpaper_sources');
-      return saved ? JSON.parse(saved) : defaultSources;
+      return saved
+        ? (JSON.parse(saved) as WallpaperSource[]).filter((source) => source.id !== 'nasa')
+        : defaultSources;
     }
     return defaultSources;
   });
@@ -118,7 +112,7 @@ export default function WallpaperWindow() {
 
   const [remoteWallpapers, setRemoteWallpapers] = useState<WallpaperAsset[]>([]);
   const [storageUsage, setStorageUsage] = useState<WallpaperStorageUsage | null>(null);
-  const [remotePage, setRemotePage] = useState(1);
+  const [remotePage, setRemotePage] = useState(0);
   const [hasMoreRemote, setHasMoreRemote] = useState(true);
   const [isSearchingRemote, setIsSearchingRemote] = useState(false);
   const [isLoadingMoreRemote, setIsLoadingMoreRemote] = useState(false);
@@ -154,7 +148,7 @@ export default function WallpaperWindow() {
   useEffect(() => {
     let cancelled = false;
     void Promise.allSettled([
-      wallpaperApi.search('earth space nature abstract', 'video'),
+      wallpaperApi.search('timelapse', 'video'),
       wallpaperApi.sources(),
       wallpaperApi.current(),
       wallpaperApi.storage(),
@@ -162,6 +156,8 @@ export default function WallpaperWindow() {
       if (cancelled) return;
       if (searchResult.status === 'fulfilled') {
         setRemoteWallpapers(searchResult.value.items.map(normalizeRemoteAsset));
+        const providerError = formatProviderErrors(searchResult.value.providerErrors);
+        setRemoteSearchError(searchResult.value.items.length ? null : providerError);
         setHomeHasMore(searchResult.value.items.length >= 30);
         setLikedIds((ids) =>
           new Set([
@@ -191,14 +187,12 @@ export default function WallpaperWindow() {
     setIsLoadingHomeMore(true);
     try {
       const nextPage = homePage + 1;
-      const result = await wallpaperApi.search(
-        'earth space nature abstract timelapse',
-        'video',
-        nextPage,
-      );
+      const result = await wallpaperApi.search('timelapse', 'video', nextPage);
       const assets = result.items.map(normalizeRemoteAsset);
       setRemoteWallpapers((current) => dedupeWallpapers([...current, ...assets]));
       setHomePage(nextPage);
+      const providerError = formatProviderErrors(result.providerErrors);
+      setRemoteSearchError(assets.length ? null : providerError);
       setHomeHasMore(assets.length >= 30);
     } finally {
       setIsLoadingHomeMore(false);
@@ -219,15 +213,20 @@ export default function WallpaperWindow() {
 
   const loadRemotePage = useCallback(
     async (page: number, reset: boolean) => {
-      if (reset) setIsSearchingRemote(true);
+      if (reset) {
+        setIsSearchingRemote(true);
+        setRemotePage(0);
+      }
       else setIsLoadingMoreRemote(true);
       setRemoteSearchError(null);
       try {
-        const result = await wallpaperApi.search(remoteSearchTerm, 'all', page);
+        const result = await wallpaperApi.search(remoteSearchTerm || 'timelapse', 'video', page);
         const assets = result.items.map(normalizeRemoteAsset);
+        const providerError = formatProviderErrors(result.providerErrors);
         setRemoteWallpapers((current) => dedupeWallpapers(reset ? assets : [...current, ...assets]));
-        setRemotePage(page);
-        setHasMoreRemote(assets.length >= 30);
+        if (assets.length) setRemotePage(page);
+        setRemoteSearchError(assets.length ? null : providerError);
+        setHasMoreRemote(Boolean(providerError) || assets.length > 0);
       } catch (error) {
         setRemoteSearchError(error instanceof Error ? error.message : '壁纸来源暂时不可用');
       } finally {
@@ -252,14 +251,19 @@ export default function WallpaperWindow() {
 
   const homeSlides = useMemo<HeroSlide[]>(() => {
     const videos = remoteWallpapers.filter((asset) => asset.mediaType === 'video');
-    return videos.length ? videos.slice(0, 10).map(toHeroSlide) : heroSlides;
+    return Array.from(
+      new Map(
+        [...heroSlides, ...videos.map(toHeroSlide)].map((slide) => [slide.id, slide]),
+      ).values(),
+    ).slice(0, 10);
   }, [remoteWallpapers]);
   const homeRecommendations = useMemo<RecommendedWallpaperSection[]>(() => {
     if (!remoteWallpapers.length) return recommendationSections;
     return [
+      ...recommendationSections.slice(0, 2),
       {
         id: 'live-providers',
-        title: '动态壁纸优先推荐',
+        title: '更多精选来源',
         items: remoteWallpapers.slice(0, 12).map((asset) => ({
           id: `recommended-${asset.id}`,
           title: asset.title,
@@ -268,6 +272,7 @@ export default function WallpaperWindow() {
           sourceWallpaperId: asset.id,
         })),
       },
+      ...recommendationSections.slice(2),
     ];
   }, [remoteWallpapers]);
 
@@ -303,26 +308,43 @@ export default function WallpaperWindow() {
 
   const visibleExploreWallpapers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    const filteredWallpapers = allWallpapers.filter((wallpaper) => {
+    const curatedDynamicWallpapers = wallpaperLibrary.filter(
+      (wallpaper) => wallpaper.mediaType === 'video',
+    );
+    const exploreCandidates = [
+      ...curatedDynamicWallpapers,
+      ...remoteWallpapers,
+      ...customWallpapers,
+    ];
+    const filteredWallpapers = exploreCandidates.filter((wallpaper) => {
       const isRemote = Boolean(wallpaper.provider && wallpaper.provider !== 'system');
       const matchesCategory =
         isRemote || selectedCategory === 'All' || wallpaper.category === selectedCategory;
+      const matchesTag =
+        isRemote ||
+        wallpaper.tags.some(
+          (tag) => tag.toLowerCase() === selectedPopularTag.toLowerCase(),
+        );
       const matchesSearch =
         !normalizedQuery ||
         `${wallpaper.title} ${wallpaper.author} ${wallpaper.category} ${wallpaper.tags.join(' ')}`
           .toLowerCase()
           .includes(normalizedQuery);
 
-      return matchesCategory && (isRemote || matchesSearch);
+      return matchesCategory && matchesTag && (isRemote || matchesSearch);
     });
 
     return filteredWallpapers.sort((left, right) => compareWallpapers(left, right, sort));
-  }, [allWallpapers, query, selectedCategory, sort]);
+  }, [
+    customWallpapers,
+    query,
+    remoteWallpapers,
+    selectedCategory,
+    selectedPopularTag,
+    sort,
+  ]);
 
-  const resultLabel =
-    visibleExploreWallpapers.length === allWallpapers.length
-      ? `共 ${allWallpapers.length} 张壁纸`
-      : `${visibleExploreWallpapers.length} / ${allWallpapers.length} 张壁纸`;
+  const resultLabel = `共 ${visibleExploreWallpapers.length} 张壁纸`;
 
   const selectHeroByIndex = useCallback((index: number) => {
     const normalizedIndex = normalizeIndex(index, homeSlides.length);
@@ -677,13 +699,21 @@ function mapExploreTag(tag: string): string {
   return (
     {
       '4K': 'ultra high definition',
-      Ultrawide: 'panorama',
-      '21:9': 'panorama',
-      '32:9': 'panorama',
-      '16:9': 'widescreen',
-      DesktopHut: 'desktop motion',
-      Loop: 'timelapse loop',
-      Aesthetic: 'abstract aesthetic',
+      Timelapse: 'timelapse',
+      Drone: 'drone landscape',
+      Waterfall: 'waterfall',
+      Aurora: 'aurora',
+      City: 'cityscape hyperlapse',
+      Sunset: 'sunset timelapse',
+      Cinematic: 'landscape cinematic',
     }[tag] ?? tag
   );
+}
+
+function formatProviderErrors(
+  errors: Array<{ provider: string; message: string }>,
+): string | null {
+  if (!errors.length) return null;
+  const providers = errors.map((error) => error.provider).join('、');
+  return `${providers} 壁纸源当前不可用，请检查网络或代理后重试。`;
 }

@@ -21,6 +21,9 @@ from kernelon_api.infrastructure.database import create_database_plugin
 from kernelon_api.modules.identity.application.ports import IdentityService  # noqa: TC001
 from kernelon_api.modules.identity.infrastructure.service import SQLAlchemyIdentityService
 from kernelon_api.modules.identity.presentation.auth import AuthController
+from kernelon_api.modules.lifecycle.application import LifecycleService  # noqa: TC001
+from kernelon_api.modules.lifecycle.infrastructure.service import SQLAlchemyLifecycleService
+from kernelon_api.modules.lifecycle.presentation import LifecycleController
 from kernelon_api.modules.music.application.ports import (  # noqa: TC001
     MusicAccountSessionPort,
     MusicProviderHttpPort,
@@ -53,7 +56,6 @@ from kernelon_api.modules.wallpapers.application import WallpaperService  # noqa
 from kernelon_api.modules.wallpapers.infrastructure.providers import (
     CoverrWallpaperProvider,
     HttpProvider,
-    NasaWallpaperProvider,
     WikimediaWallpaperProvider,
 )
 from kernelon_api.modules.wallpapers.infrastructure.service import SQLAlchemyWallpaperService
@@ -79,7 +81,6 @@ def create_app(
     resolved_qq_provider = music_qq_provider or HttpxMusicProvider()
     resolved_podcast_provider = music_podcast_provider or HttpxMusicProvider()
     wallpaper_providers: dict[str, HttpProvider] = {
-        "nasa": NasaWallpaperProvider(),
         "wikimedia": WikimediaWallpaperProvider(),
         "coverr": CoverrWallpaperProvider(resolved.wallpaper_coverr_api_key),
     }
@@ -93,6 +94,11 @@ def create_app(
         db_session: NamedDependency[Any],
     ) -> OrganizationService:
         return SQLAlchemyOrganizationService(db_session)
+
+    async def provide_lifecycle_service(
+        db_session: NamedDependency[Any],
+    ) -> LifecycleService:
+        return SQLAlchemyLifecycleService(db_session)
 
     async def provide_music_account_sessions(
         db_session: NamedDependency[Any],
@@ -145,12 +151,14 @@ def create_app(
         path="/api/v1",
         route_handlers=[
             AuthController,
+            LifecycleController,
             MusicController,
             OrganizationController,
             WallpaperController,
         ],
         dependencies={
             "identity_service": Provide(provide_identity_service),
+            "lifecycle_service": Provide(provide_lifecycle_service),
             "music_account_sessions": Provide(provide_music_account_sessions),
             "music_service": Provide(provide_music_service),
             "music_account_service": Provide(provide_music_account_service),

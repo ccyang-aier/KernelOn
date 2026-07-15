@@ -21,6 +21,9 @@ class OrmBase(DeclarativeBase):
 def load_mappings() -> None:
     """Import business mappings exactly at the composition boundary."""
     from kernelon_api.modules.identity.infrastructure import models as identity_models  # noqa: F401
+    from kernelon_api.modules.lifecycle.infrastructure import (  # noqa: F401
+        models as lifecycle_models,
+    )
     from kernelon_api.modules.music.infrastructure import models as music_models  # noqa: F401
     from kernelon_api.modules.organizations.infrastructure import (
         models as organization_models,  # noqa: F401

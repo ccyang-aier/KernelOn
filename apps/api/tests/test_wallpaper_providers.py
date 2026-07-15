@@ -3,63 +3,55 @@ from __future__ import annotations
 import httpx
 import pytest
 
+from kernelon_api.modules.wallpapers.application import WallpaperService
 from kernelon_api.modules.wallpapers.domain import WallpaperAsset
 from kernelon_api.modules.wallpapers.infrastructure.providers import (
     BoundedProviderCache,
-    NasaWallpaperProvider,
+    HttpProvider,
     WikimediaWallpaperProvider,
     gather_provider_results,
 )
 
 
 @pytest.mark.asyncio
-async def test_nasa_search_normalizes_video_without_persisting_results() -> None:
+async def test_provider_retries_transient_proxy_connect_errors() -> None:
+    attempts = 0
+
     async def handler(request: httpx.Request) -> httpx.Response:
-        assert request.url.params["media_type"] == "video"
-        assert request.headers["User-Agent"].startswith("KernelOn/0.1")
-        assert request.headers["Accept"] == "application/json"
-        return httpx.Response(
-            200,
-            json={
-                "collection": {
-                    "items": [
-                        {
-                            "data": [
-                                {
-                                    "nasa_id": "demo-video",
-                                    "media_type": "video",
-                                    "title": "Earth demo",
-                                    "keywords": ["Earth", "loop"],
-                                }
-                            ],
-                            "href": "https://images-api.nasa.gov/asset/demo-video",
-                            "links": [{"href": "https://example.test/poster.jpg"}],
-                        }
-                    ]
-                }
-            },
-        )
+        nonlocal attempts
+        attempts += 1
+        if attempts < 3:
+            raise httpx.ConnectError("transient proxy TLS failure", request=request)
+        return httpx.Response(200, json={"collection": {"items": []}})
+
+    class JsonProvider(HttpProvider):
+        async def search(
+            self, query: str, media_type: str, page: int, limit: int
+        ) -> list[WallpaperAsset]:
+            await self._json("https://example.test/search")
+            return []
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
-        values = await NasaWallpaperProvider(client).search("earth", "video", 1, 20)
+        values = await JsonProvider(client).search("timelapse", "video", 1, 20)
 
-    assert values[0].media_type == "video"
-    assert values[0].poster_url == "https://example.test/poster.jpg"
-    assert values[0].sources[0]["url"].endswith("demo-video~medium.mp4")
+    assert values == []
+    assert attempts == 3
 
 
 def test_wikimedia_rejects_unknown_license_and_keeps_attribution() -> None:
     provider = WikimediaWallpaperProvider()
     base = {
         "pageid": 42,
-        "title": "File:Demo.webm",
+        "title": "File:Forest timelapse.webm",
         "imageinfo": [
             {
                 "url": "https://upload.wikimedia.org/demo.webm",
                 "thumburl": "https://upload.wikimedia.org/demo.jpg",
                 "mime": "video/webm",
+                "width": 1920,
+                "height": 1080,
                 "extmetadata": {
-                    "LicenseShortName": {"value": "CC BY-SA"},
+                    "LicenseShortName": {"value": "CC BY-SA 4.0"},
                     "LicenseUrl": {"value": "https://creativecommons.org/licenses/by-sa/4.0/"},
                     "Artist": {"value": "<b>Ada</b>"},
                 },
@@ -74,6 +66,25 @@ def test_wikimedia_rejects_unknown_license_and_keeps_attribution() -> None:
     assert provider._map_page(base) is None
 
 
+def test_wikimedia_rejects_non_wallpaper_editorial_video() -> None:
+    page = {
+        "pageid": 43,
+        "title": "File:Product briefing.webm",
+        "imageinfo": [
+            {
+                "url": "https://upload.wikimedia.org/briefing.webm",
+                "thumburl": "https://upload.wikimedia.org/briefing.jpg",
+                "mime": "video/webm",
+                "width": 1920,
+                "height": 1080,
+                "extmetadata": {"LicenseShortName": {"value": "CC0"}},
+            }
+        ],
+    }
+
+    assert WikimediaWallpaperProvider()._map_page(page) is None
+
+
 def test_provider_cache_is_bounded_by_result_count() -> None:
     cache = BoundedProviderCache(maximum=1, ttl_seconds=600)
     first = _asset("first")
@@ -84,20 +95,24 @@ def test_provider_cache_is_bounded_by_result_count() -> None:
     assert cache.get("two") == [second]
 
 
+def test_wallpaper_service_port_supports_runtime_dependency_validation() -> None:
+    assert not isinstance(object(), WallpaperService)
+
+
 @pytest.mark.asyncio
 async def test_provider_error_uses_exception_type_when_message_is_empty() -> None:
-    class FailingProvider(NasaWallpaperProvider):
+    class FailingProvider(HttpProvider):
+        key = "test"
+
         async def search(
             self, query: str, media_type: str, page: int, limit: int
         ) -> list[WallpaperAsset]:
             raise httpx.ConnectError("")
 
-    values, errors = await gather_provider_results(
-        [FailingProvider()], "earth", "video", 1, 20
-    )
+    values, errors = await gather_provider_results([FailingProvider()], "timelapse", "video", 1, 20)
 
     assert values == []
-    assert errors == [{"provider": "nasa", "message": "ConnectError"}]
+    assert errors == [{"provider": "test", "message": "ConnectError"}]
 
 
 def _asset(external_id: str) -> WallpaperAsset:

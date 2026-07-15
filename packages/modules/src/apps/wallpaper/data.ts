@@ -1,4 +1,5 @@
 import type {
+  CategoryId,
   CategoryOption,
   HeroSlide,
   RecommendedWallpaper,
@@ -14,13 +15,13 @@ export const viewLabels = {
 
 export const popularTags = [
   '4K',
-  'Ultrawide',
-  '21:9',
-  '32:9',
-  '16:9',
-  'DesktopHut',
-  'Loop',
-  'Aesthetic',
+  'Timelapse',
+  'Drone',
+  'Waterfall',
+  'Aurora',
+  'City',
+  'Sunset',
+  'Cinematic',
 ];
 
 export const categories: CategoryOption[] = [
@@ -98,6 +99,124 @@ export const categories: CategoryOption[] = [
 ];
 
 export const wallpaperLibrary: WallpaperAsset[] = [
+  createCuratedCommonsVideo({
+    id: 'svartifoss-flow',
+    title: 'Svartifoss Flow',
+    author: 'Giles Laurent',
+    category: 'Nature',
+    license: 'CC BY-SA 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+    posterUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/202_Svartifoss_long_exposure_timelapse_Video_by_Giles_Laurent.webm/960px--202_Svartifoss_long_exposure_timelapse_Video_by_Giles_Laurent.webm.jpg',
+    sourcePageUrl:
+      'https://commons.wikimedia.org/wiki/File:202_Svartifoss_long_exposure_timelapse_Video_by_Giles_Laurent.webm',
+    sourceUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/1/19/202_Svartifoss_long_exposure_timelapse_Video_by_Giles_Laurent.webm',
+    tags: ['4K', 'Waterfall', 'Timelapse', 'Nature', 'Loop'],
+  }),
+  createCuratedCommonsVideo({
+    id: 'aurora-borealis',
+    title: 'Aurora Borealis',
+    author: 'Harriniva Hotels & Safaris',
+    category: 'Nature',
+    license: 'CC BY 3.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/3.0',
+    posterUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Aurora_borealis_timelapse.webm/960px--Aurora_borealis_timelapse.webm.jpg',
+    sourcePageUrl: 'https://commons.wikimedia.org/wiki/File:Aurora_borealis_timelapse.webm',
+    sourceUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/d/df/Aurora_borealis_timelapse.webm',
+    tags: ['Aurora', 'Night', 'Timelapse', 'Aesthetic', 'Loop'],
+  }),
+  createCuratedCommonsVideo({
+    id: 'kakerdi-lake',
+    title: 'Kakerdi Lake',
+    author: 'Sillerkiil',
+    category: 'Nature',
+    license: 'CC0',
+    licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
+    posterUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Drone_video_of_Kakerdi_lake_and_Kakerdaja_bog_in_Estonia%2C_september_2021.webm/960px--Drone_video_of_Kakerdi_lake_and_Kakerdaja_bog_in_Estonia%2C_september_2021.webm.jpg',
+    sourcePageUrl:
+      'https://commons.wikimedia.org/wiki/File:Drone_video_of_Kakerdi_lake_and_Kakerdaja_bog_in_Estonia,_september_2021.webm',
+    sourceUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/b/b8/Drone_video_of_Kakerdi_lake_and_Kakerdaja_bog_in_Estonia%2C_september_2021.webm',
+    tags: ['Lake', 'Drone', 'Aerial', 'Nature', '16:9'],
+  }),
+  createCuratedCommonsVideo({
+    id: 'keila-waterfall',
+    title: 'Keila Waterfall',
+    author: 'Sillerkiil',
+    category: 'Nature',
+    license: 'CC BY-SA 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+    posterUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Drone_video_of_Keila_waterfall_and_manor_in_Keila-Joa%2C_Estonia.webm/960px--Drone_video_of_Keila_waterfall_and_manor_in_Keila-Joa%2C_Estonia.webm.jpg',
+    sourcePageUrl:
+      'https://commons.wikimedia.org/wiki/File:Drone_video_of_Keila_waterfall_and_manor_in_Keila-Joa,_Estonia.webm',
+    sourceUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/c/c2/Drone_video_of_Keila_waterfall_and_manor_in_Keila-Joa%2C_Estonia.webm',
+    tags: ['Waterfall', 'Drone', 'Aerial', 'Nature', '16:9'],
+  }),
+  createCuratedCommonsVideo({
+    id: 'above-the-clouds',
+    title: 'Above the Clouds',
+    author: 'Wann Majaw',
+    category: 'Nature',
+    license: 'CC BY 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0',
+    posterUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mawlangren_Above_the_Clouds.webm/960px--Mawlangren_Above_the_Clouds.webm.jpg',
+    sourcePageUrl: 'https://commons.wikimedia.org/wiki/File:Mawlangren_Above_the_Clouds.webm',
+    sourceUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/4/4e/Mawlangren_Above_the_Clouds.webm',
+    tags: ['Clouds', 'Mountain', 'Cinematic', 'Nature', '16:9'],
+  }),
+  createCuratedCommonsVideo({
+    id: 'paris-hyperlapse',
+    title: 'Paris in Motion',
+    author: 'Mathieu Stanić',
+    category: 'Other',
+    license: 'CC BY 3.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/3.0',
+    posterUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Paris_-_4K_Hyperlapse_-_YouTube.webm/960px--Paris_-_4K_Hyperlapse_-_YouTube.webm.jpg',
+    sourcePageUrl:
+      'https://commons.wikimedia.org/wiki/File:Paris_-_4K_Hyperlapse_-_YouTube.webm',
+    sourceUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/a/af/Paris_-_4K_Hyperlapse_-_YouTube.webm',
+    tags: ['4K', 'City', 'Hyperlapse', 'Cinematic', 'Loop'],
+  }),
+  createCuratedCommonsVideo({
+    id: 'half-dome-sunset',
+    title: 'Half Dome Sunset',
+    author: 'G. Edward Johnson',
+    category: 'Nature',
+    license: 'CC BY 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0',
+    posterUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Sunset_on_Halfdome_timelapse_Yosemite_CA_2023-07-15_20-11-06_1.webm/960px--Sunset_on_Halfdome_timelapse_Yosemite_CA_2023-07-15_20-11-06_1.webm.jpg',
+    sourcePageUrl:
+      'https://commons.wikimedia.org/wiki/File:Sunset_on_Halfdome_timelapse_Yosemite_CA_2023-07-15_20-11-06_1.webm',
+    sourceUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/4/4c/Sunset_on_Halfdome_timelapse_Yosemite_CA_2023-07-15_20-11-06_1.webm',
+    tags: ['4K', 'Sunset', 'Mountain', 'Timelapse', 'Loop'],
+  }),
+  createCuratedCommonsVideo({
+    id: 'carpathian-autumn',
+    title: 'Carpathian Autumn',
+    author: 'Сергій Ковальов',
+    category: 'Nature',
+    license: 'CC BY-SA 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+    posterUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/%D0%9E%D1%81%D1%96%D0%BD%D1%8C_%D0%B2_%D0%BA%D0%B0%D1%80%D0%BF%D0%B0%D1%82%D0%B0%D1%85.webm/960px--%D0%9E%D1%81%D1%96%D0%BD%D1%8C_%D0%B2_%D0%BA%D0%B0%D1%80%D0%BF%D0%B0%D1%82%D0%B0%D1%85.webm.jpg',
+    sourcePageUrl:
+      'https://commons.wikimedia.org/wiki/File:%D0%9E%D1%81%D1%96%D0%BD%D1%8C_%D0%B2_%D0%BA%D0%B0%D1%80%D0%BF%D0%B0%D1%82%D0%B0%D1%85.webm',
+    sourceUrl:
+      'https://upload.wikimedia.org/wikipedia/commons/0/08/%D0%9E%D1%81%D1%96%D0%BD%D1%8C_%D0%B2_%D0%BA%D0%B0%D1%80%D0%BF%D0%B0%D1%82%D0%B0%D1%85.webm',
+    tags: ['Autumn', 'Forest', 'Cinematic', 'Nature', '16:9'],
+  }),
   {
     id: 'overgrown-cathedral',
     title: 'Overgrown Cathedral',
@@ -406,6 +525,66 @@ export const wallpaperLibrary: WallpaperAsset[] = [
   },
 ];
 
+function createCuratedCommonsVideo({
+  id,
+  title,
+  author,
+  category,
+  license,
+  licenseUrl,
+  posterUrl,
+  sourcePageUrl,
+  sourceUrl,
+  tags,
+}: {
+  id: string;
+  title: string;
+  author: string;
+  category: CategoryId;
+  license: string;
+  licenseUrl: string;
+  posterUrl: string;
+  sourcePageUrl: string;
+  sourceUrl: string;
+  tags: string[];
+}): WallpaperAsset {
+  return {
+    id: `system:commons-${id}`,
+    provider: 'system',
+    externalId: `commons-${id}`,
+    mediaType: 'video',
+    title,
+    category,
+    author,
+    authorInitial: author.slice(0, 1).toUpperCase(),
+    image: posterUrl,
+    posterUrl,
+    sources: [
+      {
+        url: sourceUrl,
+        mimeType: 'video/webm',
+        quality: 'source',
+        width: tags.includes('4K') ? 3840 : 1920,
+        height: tags.includes('4K') ? 2160 : 1080,
+      },
+    ],
+    sourcePageUrl,
+    licenseName: license,
+    licenseUrl,
+    attribution: `${author} · Wikimedia Commons · ${license}`,
+    canImport: true,
+    device: 'KernelOn Curated',
+    duration: '循环',
+    durationSeconds: 0,
+    resolution: tags.includes('4K') ? '3840x2160' : '1920x1080',
+    size: 'Direct source',
+    likes: 0,
+    tags,
+    uploadedAt: '2026-07-15T00:00:00.000Z',
+    liked: false,
+  };
+}
+
 export const heroSlides: HeroSlide[] = wallpaperLibrary.slice(0, 8).map((wallpaper) => ({
   ...wallpaper,
   categoryLabel: wallpaper.category.toUpperCase(),
@@ -413,7 +592,7 @@ export const heroSlides: HeroSlide[] = wallpaperLibrary.slice(0, 8).map((wallpap
     wallpaper.resolution,
     wallpaper.author,
     wallpaper.size,
-    wallpaper.duration.replace('0:', '') + 's',
+    wallpaper.durationSeconds ? `${wallpaper.duration.replace('0:', '')}s` : '循环播放',
   ],
 }));
 
@@ -442,22 +621,22 @@ const wallpaperById = new Map(wallpaperLibrary.map((wallpaper) => [wallpaper.id,
 export const recommendationSections: RecommendedWallpaperSection[] = [
   {
     id: 'recommended',
-    title: 'Recommended For You',
+    title: '精选动态壁纸',
     items: createRecommendedWallpapers([
-      'retrowaves',
-      'bloodlight-face',
-      'blue-panel',
-      'ocean-school',
+      'system:commons-svartifoss-flow',
+      'system:commons-aurora-borealis',
+      'system:commons-kakerdi-lake',
+      'system:commons-keila-waterfall',
     ]),
   },
   {
     id: 'fresh-4k-loops',
-    title: 'Fresh 4K Loops',
+    title: '电影感与延时摄影',
     items: createRecommendedWallpapers([
-      'overgrown-cathedral',
-      'silver-surfer',
-      'motorcycle',
-      'dark-sky',
+      'system:commons-above-the-clouds',
+      'system:commons-paris-hyperlapse',
+      'system:commons-half-dome-sunset',
+      'system:commons-carpathian-autumn',
     ]),
   },
   {

@@ -1,0 +1,1 @@
+"""Lifecycle persistence adapters."""

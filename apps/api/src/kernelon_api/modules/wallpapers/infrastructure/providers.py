@@ -18,10 +18,45 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
 ALLOWED_COMMONS_LICENSES = {"CC0", "CC BY", "CC BY-SA", "Public domain"}
+WALLPAPER_REJECT_TERMS = {
+    "briefing",
+    "conference",
+    "coverage",
+    "experiment",
+    "eating",
+    "gorilla",
+    "interview",
+    "lecture",
+    "presentation",
+    "restoration",
+    "speech",
+    "tutorial",
+    "wildlife",
+}
+WALLPAPER_REQUIRED_TERMS = {
+    "aerial",
+    "aurora",
+    "cityscape",
+    "cloud",
+    "drone",
+    "hyperlapse",
+    "landscape",
+    "night sky",
+    "sunset",
+    "time lapse",
+    "timelapse",
+    "waterfall",
+}
 PROVIDER_REQUEST_HEADERS = {
     "Accept": "application/json",
     "User-Agent": "KernelOn/0.1 (https://github.com/ccyang-aier/KernelOn; wallpaper-provider)",
 }
+PROVIDER_RETRYABLE_ERRORS = (
+    httpx.ConnectError,
+    httpx.ConnectTimeout,
+    httpx.ReadError,
+    httpx.RemoteProtocolError,
+)
 
 
 class BoundedProviderCache:
@@ -68,102 +103,32 @@ class HttpProvider:
         ]
         | None = None,
     ) -> dict[str, Any]:
-        if self._client is not None:
-            response = await self._client.get(
-                url,
-                params=params,
-                headers=PROVIDER_REQUEST_HEADERS,
-            )
-        else:
-            async with httpx.AsyncClient(
-                headers=PROVIDER_REQUEST_HEADERS,
-                timeout=httpx.Timeout(12.0, connect=5.0),
-                follow_redirects=True,
-            ) as client:
-                response = await client.get(url, params=params)
+        response: httpx.Response | None = None
+        for attempt in range(3):
+            try:
+                if self._client is not None:
+                    response = await self._client.get(
+                        url,
+                        params=params,
+                        headers=PROVIDER_REQUEST_HEADERS,
+                    )
+                else:
+                    async with httpx.AsyncClient(
+                        headers=PROVIDER_REQUEST_HEADERS,
+                        timeout=httpx.Timeout(12.0, connect=5.0),
+                        follow_redirects=True,
+                    ) as client:
+                        response = await client.get(url, params=params)
+                break
+            except PROVIDER_RETRYABLE_ERRORS:
+                if attempt == 2:
+                    raise
+                await asyncio.sleep(0.2 * (attempt + 1))
+        if response is None:  # pragma: no cover - the loop either succeeds or raises
+            raise httpx.ConnectError("Wallpaper provider did not return a response")
         response.raise_for_status()
         result = response.json()
         return cast("dict[str, Any]", result) if isinstance(result, dict) else {"items": result}
-
-
-class NasaWallpaperProvider(HttpProvider):
-    key = "nasa"
-    search_url = "https://images-api.nasa.gov/search"
-
-    async def search(
-        self, query: str, media_type: str, page: int, limit: int
-    ) -> list[WallpaperAsset]:
-        cache_key = f"{query}:{media_type}:{page}:{limit}"
-        if cached := self._cache.get(cache_key):
-            return cached
-        payload = await self._json(
-            self.search_url,
-            {
-                "q": query or "earth space abstract",
-                "media_type": "video"
-                if media_type == "video"
-                else "image,video"
-                if media_type == "all"
-                else "image",
-                "page": page,
-                "page_size": limit,
-            },
-        )
-        assets = [
-            asset
-            for item in payload.get("collection", {}).get("items", [])
-            if (asset := self._map_item(item))
-        ]
-        self._cache.put(cache_key, assets)
-        return assets
-
-    async def get(self, external_id: str) -> WallpaperAsset | None:
-        values = await self.search(external_id, "all", 1, 20)
-        return next((item for item in values if item.external_id == external_id), None)
-
-    def _map_item(self, item: dict[str, Any]) -> WallpaperAsset | None:
-        data = (item.get("data") or [{}])[0]
-        external_id = str(data.get("nasa_id") or "").strip()
-        kind = data.get("media_type")
-        if not external_id or kind not in {"image", "video"}:
-            return None
-        preview = next(
-            (str(link.get("href")) for link in item.get("links", []) if link.get("href")), ""
-        )
-        href = str(item.get("href") or "")
-        source_url = f"https://images.nasa.gov/details/{quote(external_id, safe='')}"
-        sources: tuple[dict[str, object], ...]
-        if kind == "video":
-            # The collection endpoint is resolved lazily by the client detail call. NASA's stable
-            # medium rendition convention keeps search free of N extra requests.
-            encoded_id = quote(external_id, safe="")
-            base = f"https://images-assets.nasa.gov/video/{encoded_id}/{encoded_id}"
-            sources = (
-                {
-                    "url": f"{base}~medium.mp4",
-                    "mimeType": "video/mp4",
-                    "quality": "medium",
-                    "collectionUrl": href,
-                },
-            )
-        else:
-            sources = ({"url": preview, "mimeType": "image/jpeg", "quality": "source"},)
-        return WallpaperAsset(
-            provider=self.key,
-            external_id=external_id,
-            title=str(data.get("title") or external_id),
-            media_type=kind,
-            poster_url=preview,
-            sources=sources,
-            source_page_url=source_url,
-            author=str(data.get("photographer") or data.get("center") or "NASA"),
-            category="Space",
-            tags=tuple(str(value) for value in (data.get("keywords") or [])[:12]),
-            license_name="NASA Media Usage Guidelines",
-            license_url="https://www.nasa.gov/nasa-brand-center/images-and-media/",
-            attribution="Source: NASA",
-            can_import=True,
-        )
 
 
 class WikimediaWallpaperProvider(HttpProvider):
@@ -176,9 +141,9 @@ class WikimediaWallpaperProvider(HttpProvider):
         cache_key = f"{query}:{media_type}:{page}:{limit}"
         if cached := self._cache.get(cache_key):
             return cached
-        file_type = "video" if media_type == "video" else "bitmap" if media_type == "image" else ""
+        file_type = "video" if media_type in {"all", "video"} else "bitmap"
         file_filter = f"filetype:{file_type}" if file_type else ""
-        search = f"{query or 'earth space abstract'} {file_filter}".strip()
+        search = f'incategory:"Featured media" {query or "timelapse"} {file_filter}'.strip()
         payload = await self._json(
             self.api_url,
             {
@@ -220,7 +185,7 @@ class WikimediaWallpaperProvider(HttpProvider):
         info = (page.get("imageinfo") or [{}])[0]
         metadata = info.get("extmetadata") or {}
         license_name = _metadata(metadata, "LicenseShortName")
-        if license_name not in ALLOWED_COMMONS_LICENSES:
+        if not _is_allowed_commons_license(license_name):
             return None
         mime = str(info.get("mime") or "")
         kind = (
@@ -228,9 +193,20 @@ class WikimediaWallpaperProvider(HttpProvider):
         )
         if not kind:
             return None
+        width = int(info.get("width") or 0)
+        height = int(info.get("height") or 0)
+        title = str(page.get("title") or "").removeprefix("File:")
+        normalized_title = title.casefold()
+        if kind == "video" and (
+            width < 1280
+            or height < 720
+            or not 1.5 <= width / max(height, 1) <= 2.5
+            or any(term in normalized_title for term in WALLPAPER_REJECT_TERMS)
+            or not any(term in normalized_title for term in WALLPAPER_REQUIRED_TERMS)
+        ):
+            return None
         url = str(info.get("url") or "")
         thumb = str(info.get("thumburl") or url)
-        title = str(page.get("title") or "").removeprefix("File:")
         return WallpaperAsset(
             provider=self.key,
             external_id=str(page.get("pageid")),
@@ -246,8 +222,8 @@ class WikimediaWallpaperProvider(HttpProvider):
             ),
             author=_plain(_metadata(metadata, "Artist")) or "Wikimedia Commons contributor",
             category="Other",
-            width=int(info.get("width") or 0),
-            height=int(info.get("height") or 0),
+            width=width,
+            height=height,
             size_bytes=int(info.get("size") or 0) or None,
             license_name=license_name,
             license_url=_metadata(metadata, "LicenseUrl"),
@@ -331,6 +307,11 @@ async def gather_provider_results(
             items.extend(result)
     items.sort(key=lambda item: (item.media_type != "video", item.provider, item.title))
     return items[:limit], errors
+
+
+def _is_allowed_commons_license(value: str) -> bool:
+    normalized = value.strip()
+    return normalized in ALLOWED_COMMONS_LICENSES or normalized.startswith(("CC BY ", "CC BY-SA "))
 
 
 def _metadata(metadata: dict[str, Any], name: str) -> str:

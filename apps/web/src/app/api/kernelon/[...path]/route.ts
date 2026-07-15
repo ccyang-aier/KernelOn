@@ -24,7 +24,18 @@ export const DELETE = relayKernelOnApi;
 
 async function relayKernelOnApi(request: Request, context: RouteContext): Promise<Response> {
   const { path } = await context.params;
-  if (path[0] !== 'v1' || !['music', 'wallpapers', 'wallpaper-sources', 'wallpaper-uploads', 'wallpaper-media', 'me'].includes(path[1] ?? '')) {
+  if (
+    path[0] !== 'v1' ||
+    ![
+      'lifecycle',
+      'music',
+      'wallpapers',
+      'wallpaper-sources',
+      'wallpaper-uploads',
+      'wallpaper-media',
+      'me',
+    ].includes(path[1] ?? '')
+  ) {
     return NextResponse.json({ error: 'Unknown KernelOn API relay path' }, { status: 404 });
   }
 

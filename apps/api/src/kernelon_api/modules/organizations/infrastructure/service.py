@@ -51,7 +51,9 @@ class SQLAlchemyOrganizationService:
                 "employeeNo": None,
                 "jobTitle": None,
                 "joinedAt": None,
+                "membershipId": None,
                 "mentorName": None,
+                "organizationId": None,
                 "organizationName": None,
             }
 
@@ -73,7 +75,9 @@ class SQLAlchemyOrganizationService:
             "employeeNo": membership.employee_no,
             "jobTitle": membership.job_title,
             "joinedAt": membership.joined_at,
+            "membershipId": membership.id,
             "mentorName": None,
+            "organizationId": organization.id,
             "organizationName": organization.name,
         }
 

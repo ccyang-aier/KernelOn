@@ -22,7 +22,6 @@ from kernelon_api.modules.wallpapers.infrastructure.models import (
 from kernelon_api.modules.wallpapers.infrastructure.providers import (
     CoverrWallpaperProvider,
     HttpProvider,
-    NasaWallpaperProvider,
     WikimediaWallpaperProvider,
     gather_provider_results,
 )
@@ -43,13 +42,6 @@ SOURCE_DEFINITIONS = {
     "system": {
         "name": "KernelOn 系统壁纸库",
         "description": "KernelOn 自有或已授权的静态与动态壁纸。",
-        "mediaTypes": ["image", "video"],
-        "system": True,
-        "enabled": True,
-    },
-    "nasa": {
-        "name": "NASA Image and Video Library",
-        "description": "NASA 官方图片和视频; 默认直链, 不占用 KernelOn 媒体存储。",
         "mediaTypes": ["image", "video"],
         "system": True,
         "enabled": True,
@@ -95,7 +87,6 @@ class SQLAlchemyWallpaperService:
                 settings.wallpaper_committed_limit_bytes,
             )
         self.providers: dict[str, HttpProvider] = providers or {
-            "nasa": NasaWallpaperProvider(),
             "wikimedia": WikimediaWallpaperProvider(),
             "coverr": CoverrWallpaperProvider(settings.wallpaper_coverr_api_key),
         }
@@ -730,7 +721,7 @@ def _extension(content_type: str) -> str:
 
 
 async def _download_import(url: str, content_type: str) -> bytes:
-    allowed_hosts = {"images-assets.nasa.gov", "images.nasa.gov", "upload.wikimedia.org"}
+    allowed_hosts = {"upload.wikimedia.org"}
     if urlparse(url).hostname not in allowed_hosts:
         raise ApplicationError("WALLPAPER_IMPORT_HOST_DENIED", "Import host is not allowed.", 409)
     chunks: list[bytes] = []

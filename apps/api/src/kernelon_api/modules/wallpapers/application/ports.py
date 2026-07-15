@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from uuid import UUID
@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from kernelon_api.modules.wallpapers.domain import WallpaperAsset
 
 
+@runtime_checkable
 class WallpaperProvider(Protocol):
     key: str
 
@@ -19,6 +20,7 @@ class WallpaperProvider(Protocol):
     async def get(self, external_id: str) -> WallpaperAsset | None: ...
 
 
+@runtime_checkable
 class WallpaperService(Protocol):
     async def search(
         self, user_id: UUID, query: str, media_type: str, page: int, limit: int

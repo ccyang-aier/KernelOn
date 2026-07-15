@@ -3,11 +3,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ExploreView } from '../src/apps/wallpaper/components/ExploreView';
 import { HomeView } from '../src/apps/wallpaper/components/HomeView';
+import { heroSlides } from '../src/apps/wallpaper/data';
 import type { HeroSlide } from '../src/apps/wallpaper/types';
 
 const dynamicSlide: HeroSlide = {
-  id: 'nasa:demo',
-  provider: 'nasa',
+  id: 'wikimedia:demo',
+  provider: 'wikimedia',
   externalId: 'demo',
   mediaType: 'video',
   posterUrl: 'https://example.test/poster.jpg',
@@ -15,10 +16,10 @@ const dynamicSlide: HeroSlide = {
   title: 'Earth in motion',
   category: 'Space',
   categoryLabel: '动态壁纸',
-  author: 'NASA',
-  authorInitial: 'N',
+  author: 'Demo Artist',
+  authorInitial: 'D',
   image: 'https://example.test/poster.jpg',
-  device: 'nasa',
+  device: 'wikimedia',
   duration: '0:12',
   durationSeconds: 12,
   resolution: '1920x1080',
@@ -27,7 +28,7 @@ const dynamicSlide: HeroSlide = {
   tags: ['Earth'],
   uploadedAt: '2026-01-01T00:00:00Z',
   liked: false,
-  meta: ['1920x1080', 'NASA', '0:12'],
+  meta: ['1920x1080', 'Demo Artist', '0:12'],
 };
 
 beforeEach(() => {
@@ -47,6 +48,12 @@ beforeEach(() => {
 });
 
 describe('dynamic wallpaper discovery', () => {
+  it('keeps a no-storage dynamic system fallback for provider outages', () => {
+    expect(heroSlides[0]?.mediaType).toBe('video');
+    expect(heroSlides[0]?.sources?.[0]?.mimeType).toBe('video/webm');
+    expect(heroSlides[0]?.attribution).toContain('Wikimedia Commons');
+  });
+
   it('renders a dynamic provider result as the home hero', () => {
     render(
       <HomeView

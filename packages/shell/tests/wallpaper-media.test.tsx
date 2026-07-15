@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WallpaperMedia, type DesktopWallpaperDescriptor } from '../src';
 
 const videoWallpaper: DesktopWallpaperDescriptor = {
-  id: 'nasa:demo',
+  id: 'wikimedia:demo',
   mediaType: 'video',
   posterUrl: 'https://example.test/poster.jpg',
   sources: [{ url: 'https://example.test/demo.mp4', mimeType: 'video/mp4' }],
