@@ -97,7 +97,7 @@ export default function PokerLobbyWindow(props: AppWindowSurfaceProps) {
           <div className="grid min-h-0 grid-rows-[64px_minmax(0,1fr)] overflow-hidden border-l border-[#2f2b23] bg-[#0b0e0d]">
             <PokerToolbar menu={menu} onMenuChange={setMenu} onSearch={setQuery} query={query} />
             <main className="min-h-0 overflow-auto p-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="grid h-full min-h-[740px] grid-rows-[minmax(268px,1.43fr)_minmax(172px,0.83fr)_minmax(190px,0.96fr)] gap-2">
+              <div className="grid h-full min-h-[740px] grid-rows-[339px_203px_238px] gap-2">
                 <div className="grid min-h-0 grid-cols-[minmax(0,1.74fr)_minmax(350px,1fr)] gap-2">
                   <HeroPanel onJoin={() => setJoinTarget('今晚主桌 · 10 / 20')} />
                   <TodayPanel onContinue={() => setJoinTarget('深筹常规桌 · 10 / 20')} />
@@ -167,7 +167,7 @@ function PokerSidebar({
             className="size-[112px] object-contain drop-shadow-[0_8px_22px_rgba(196,155,75,0.18)]"
             src={`${pokerAssetRoot}/brand-crest.webp`}
           />
-          <strong className="mt-[-8px] text-[24px] font-semibold tracking-[0.09em] text-[#d9b86f] [text-shadow:0_2px_12px_rgba(198,161,91,0.26)]">
+          <strong className="text-[24px] font-semibold tracking-[0.09em] text-[#d9b86f] [text-shadow:0_2px_12px_rgba(198,161,91,0.26)]">
             黑桃局
           </strong>
         </div>
@@ -199,7 +199,7 @@ function PokerSidebar({
           })}
         </nav>
         <button
-          className="mt-auto flex min-h-[92px] items-center gap-3 rounded-[9px] border border-[#66502a]/80 bg-black/20 px-3 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition hover:border-[#a17d39] hover:bg-[#172019] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d5b369]/65"
+          className="mt-[clamp(36px,9vh,92px)] flex min-h-[92px] items-center gap-3 rounded-[9px] border border-[#66502a]/80 bg-black/20 px-3 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition hover:border-[#a17d39] hover:bg-[#172019] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d5b369]/65"
           type="button"
         >
           <img
@@ -234,8 +234,8 @@ function PokerToolbar({
       <div className="flex min-w-[280px] items-center gap-3">
         <img
           alt="SpadeKing"
-          className="size-9 rounded-full object-cover ring-1 ring-[#a88540]"
-          src={`${pokerAssetRoot}/avatar-lion.webp`}
+          className="size-10 rounded-full bg-[#171914] object-cover p-0.5 ring-1 ring-[#a88540]"
+          src={`${pokerAssetRoot}/brand-crest.webp`}
         />
         <span className="text-[17px] font-semibold tracking-[0.01em] text-[#e6d8ba]">
           晚上好，SpadeKing
@@ -349,12 +349,12 @@ function HeroPanel({ onJoin }: Readonly<{ onJoin(): void }>) {
         src={`${pokerAssetRoot}/lobby-hero.webp`}
       />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,9,7,0.97)_0%,rgba(4,9,7,0.86)_33%,rgba(4,9,7,0.28)_66%,rgba(4,9,7,0.04)_100%)]" />
-      <div className="absolute inset-y-0 left-0 flex w-[49%] flex-col px-7 py-5">
+      <div className="absolute inset-y-0 left-0 flex w-[52%] flex-col px-7 pb-10 pt-5">
         <div className="flex items-center gap-2 text-[12px] font-bold tracking-[0.12em] text-[#d76a56]">
           <span className="size-2 rounded-full bg-[#db5f50] shadow-[0_0_8px_rgba(219,95,80,0.45)]" />
           LIVE
         </div>
-        <h1 className="mt-3 text-[clamp(36px,3.2vw,54px)] font-black leading-none tracking-[-0.045em] text-[#f0e5cc] [text-shadow:0_3px_18px_rgba(0,0,0,0.45)]">
+        <h1 className="mt-4 text-[54px] font-black leading-none tracking-[-0.045em] text-[#f0e5cc] [text-shadow:0_3px_18px_rgba(0,0,0,0.45)]">
           今晚主桌
         </h1>
         <div className="mt-4 flex items-center gap-9 text-[clamp(24px,2vw,34px)] font-semibold tracking-[0.015em] text-[#e4d3ad]">
@@ -395,17 +395,17 @@ function TodayPanel({ onContinue }: Readonly<{ onContinue(): void }>) {
         <h2 className="text-[21px] font-bold text-[#eee2c9]">今日牌局</h2>
         <Info className="size-5 text-[#b3975b]" strokeWidth={1.7} />
       </div>
-      <div className="mt-4 grid grid-cols-3 divide-x divide-[#4d493d]">
+      <div className="mt-3 grid grid-cols-3 divide-x divide-[#4d493d]">
         <Metric label="今日游戏" value="3" unit="场" />
         <Metric positive label="今日盈亏" value="+2,480" />
         <Metric label="今日胜率" value="62%" />
       </div>
-      <div className="relative mt-3 min-h-0 flex-1 overflow-hidden rounded-[7px] border-b border-[#292d29] bg-[url('/kernelon-assets/apps/poker/profit-chart.webp')] bg-cover bg-center">
+      <div className="relative mt-2 min-h-0 flex-1 overflow-hidden rounded-[7px] border-b border-[#292d29] bg-[url('/kernelon-assets/apps/poker/profit-chart.webp')] bg-[length:100%_100%] bg-center bg-no-repeat">
         <span className="absolute right-3 top-2 rounded-[5px] border border-[#315f36] bg-[#18331d]/90 px-2 py-0.5 text-[11px] font-semibold text-[#80d47c]">
           +2,480
         </span>
       </div>
-      <div className="mt-3 flex h-[82px] items-center gap-3 rounded-[8px] border border-[#39362f] bg-[#111412] p-2.5">
+      <div className="mt-4 flex h-[100px] items-center gap-3 rounded-[8px] border border-[#39362f] bg-[#111412] p-2.5">
         <img
           alt="上一局牌桌"
           className="h-full w-[100px] rounded-[6px] object-cover"
@@ -442,7 +442,7 @@ function Metric({
         {value}
       </strong>
       {unit ? <span className="ml-1 text-xs text-[#d6c7a7]">{unit}</span> : null}
-      <span className="mt-2 block text-[11px] text-[#8c8980]">{label}</span>
+      <span className="mt-1 block text-[11px] text-[#8c8980]">{label}</span>
     </div>
   );
 }
@@ -491,12 +491,22 @@ function QuickTables({
                 <span className="mt-1 text-[13px] font-semibold text-[#efe3c6]">
                   {table.stakes}
                 </span>
-                <div className="mt-auto flex w-full items-end justify-between gap-2 text-left text-[11px] text-[#9a968d]">
+                <div className="absolute bottom-[28px] left-3 flex -space-x-1.5">
+                  {pokerFriends.slice(0, 5).map((friend) => (
+                    <img
+                      alt=""
+                      className="size-[22px] rounded-full border border-[#c7ae79] object-cover shadow-[0_2px_6px_rgba(0,0,0,0.55)]"
+                      key={friend.id}
+                      src={friend.avatar}
+                    />
+                  ))}
+                </div>
+                <span className="absolute bottom-[29px] right-3 rounded-full border border-[#424139] bg-black/50 px-2 py-0.5 text-[10px] text-[#bbb6aa]">
+                  {table.occupancy}
+                </span>
+                <div className="mt-auto flex w-full items-end gap-2 text-left text-[11px] text-[#9a968d]">
                   <span>平均底池</span>
                   <span className="font-semibold text-[#c8bda5]">{table.averagePot}</span>
-                  <span className="ml-auto rounded-full border border-[#424139] bg-black/35 px-2 py-0.5 text-[#bbb6aa]">
-                    {table.occupancy}
-                  </span>
                 </div>
               </div>
             </button>

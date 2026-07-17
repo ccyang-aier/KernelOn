@@ -67,6 +67,47 @@ final result: passed
 
 ---
 
+## 黑桃局德州扑克大厅
+
+### 验收目标与证据
+
+- 原始 UX：`C:/Users/17335/AppData/Local/Temp/codex-clipboard-0f814b91-f9f4-4760-a393-22aa079bcb10.png`
+- 最终实现截图：`output/playwright/poker-lobby-implementation-3.png`
+- 同画布并排对比：`output/playwright/poker-lobby-comparison-final.jpg`
+- 精确验收入口：验收期间临时使用 `/qa-poker`，截图完成后已删除；正式交付仅保留 KernelOn App 入口。
+- 正式 App 入口：KernelOn Dock 的“黑桃局”，manifest id 为 `poker`
+- 对比视口：1536 × 1024；窗口边界 x=18、y=19、width=1512、height=954。
+
+### 视觉比对与修正
+
+- P0：未发现阻断问题；大厅完整可见，没有崩溃、空白、遮挡或主要内容缺失。
+- P1：首轮 Web OS 顶栏与 Dock 压缩窗口高度；验收阶段使用基于同一 AppWindowContainer 和 PokerLobbyWindow 的临时精确入口，恢复参考图的 1536 × 1024 画布与窗口边界，验收结束后删除临时路由。
+- P1：首轮三段主内容按比例填满，导致主视觉、快速开局和底部卡片整体偏高；按参考图收敛为 339 / 203 / 238px 三段高度，并恢复底部留白。
+- P1：快速牌桌首轮信息密度不足；补齐玩家头像队列、桌位状态和底池信息，同时保留真实生成的牌桌资产。
+- P2：校准侧栏徽章与会员卡位置、主标题字号、主 CTA 底部间距、今日牌局图表和继续牌局卡片高度。
+- P2：顶部用户头像改用与参考一致的金色黑桃徽章；QA 窗口圆角收敛为 16px。
+- 最终并排检查未发现剩余 P0 / P1 / P2 视觉问题。
+
+### 交互与工程检查
+
+- 搜索框可按牌桌名筛选，浏览器实测“短筹”只保留短筹急速桌，清空后恢复全部牌桌。
+- “立即入座”可打开确认弹窗，“稍后再说”可关闭；通知、钱包、换一批、好友邀请、任务领取均有实现或自动化覆盖。
+- `pnpm --filter @kernelon/modules typecheck`：通过。
+- `pnpm --filter @kernelon/web typecheck`：通过。
+- `pnpm --dir packages/modules exec vitest run tests/poker-lobby-window.test.tsx tests/runtime.test.ts`：4 个测试通过。
+- `pnpm --dir packages/catalog exec vitest run tests/catalog.test.ts`：13 个测试通过。
+- `pnpm lint:web`、`pnpm typecheck:web`、`pnpm test:web`、`pnpm build:web`：通过；Web、Desktop 与共享包构建成功，PokerLobbyWindow 已生成独立桌面端 chunk。
+- `pnpm check`：前端检查通过，但 API 阶段被本机 `apps/api/.venv/lib64` 的 Windows 访问拒绝阻断；失败发生在 uv 维护虚拟环境时，与本次前端改动无关。
+- `git diff --check`：通过。
+
+### 后续范围
+
+- P3：牌桌、赛事、俱乐部、复盘、收藏和我的独立界面不属于本轮“图 1 大厅”实现范围，当前导航提供明确反馈，后续可逐屏延展。
+
+final result: passed
+
+---
+
 ## Weekly Show 侧栏接缝与激活态
 
 ### 验收目标与证据
