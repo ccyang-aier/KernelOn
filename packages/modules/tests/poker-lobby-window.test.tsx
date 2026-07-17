@@ -52,5 +52,26 @@ describe('PokerLobbyWindow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '领取 完成 3 场牌局' }));
     expect(screen.getByRole('status')).toHaveTextContent('奖励已领取');
+    expect(screen.getByRole('button', { name: '已领取 完成 3 场牌局' })).toBeDisabled();
+  });
+
+  it('keeps the lobby state coherent and closes visible click feedback loops', () => {
+    render(<PokerLobbyWindow {...({} as AppWindowSurfaceProps)} />);
+
+    fireEvent.click(screen.getByRole('button', { name: '牌桌' }));
+    expect(screen.getByRole('button', { name: '大厅' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('status')).toHaveTextContent('牌桌将在后续界面继续实现');
+
+    fireEvent.click(screen.getByRole('button', { name: /黑桃会员/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('黑桃会员权益面板已准备就绪');
+
+    fireEvent.click(screen.getByRole('button', { name: '128 在线' }));
+    expect(screen.getByRole('status')).toHaveTextContent('当前有 128 位牌友在线');
+
+    fireEvent.click(screen.getByRole('button', { name: '查看通知' }));
+    expect(screen.getByText('深夜冠军赛将在 21:30 开始')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '邀请 PandaPro 同桌' }));
+    expect(screen.getByRole('status')).toHaveTextContent('邀请已发送给 PandaPro');
   });
 });
