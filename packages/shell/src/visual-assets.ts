@@ -21,6 +21,7 @@ export const dockIconAssets = {
   mentor: `${ASSET_ROOT}/dock-icons/mentor.png`,
   music: `${ASSET_ROOT}/dock-icons/dashboard.png`,
   onboarding: `${ASSET_ROOT}/dock-icons/onboarding.png`,
+  poker: `${ASSET_ROOT}/apps/poker/brand-crest.webp`,
   resources: `${ASSET_ROOT}/dock-icons/resources.png`,
   training: `${ASSET_ROOT}/dock-icons/training.png`,
   trash: `${ASSET_ROOT}/dock-icons/trash.png`,

@@ -9,10 +9,7 @@ import {
   type WidgetModule,
 } from '@kernelon/shell';
 
-import {
-  KernelOnRuntimeConfigProvider,
-  type KernelOnRuntimeConfig,
-} from './runtime-config';
+import { KernelOnRuntimeConfigProvider, type KernelOnRuntimeConfig } from './runtime-config';
 
 export type { ShellInitialState } from '@kernelon/shell';
 export type {
@@ -35,6 +32,7 @@ const appWindowLoaders = {
   'app:dashboard-window': () => import('./apps/dashboard/DashboardWindow'),
   'app:resources-window': () => import('./apps/resources/ResourcesWindow'),
   'app:weekly-show-window': () => import('./apps/weekly-show/WeeklyShowWindow'),
+  'app:poker-lobby-window': () => import('./apps/poker/PokerLobbyWindow'),
   'app:wallpaper-window': () => import('./apps/wallpaper/WallpaperWindow'),
   'app:widget-manager-window': () => import('./apps/widget-manager/WidgetManagerWindow'),
 } satisfies Record<string, () => Promise<AppWindowModule>>;

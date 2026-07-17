@@ -173,6 +173,25 @@ export const kernelApps: KernelAppManifest[] = [
     },
   },
   {
+    id: 'poker',
+    name: '黑桃局',
+    description: '高端德州扑克大厅、快速牌桌、赛事与好友同桌体验',
+    priority: 'P2',
+    category: 'resource',
+    icon: 'Spade',
+    dockedByDefault: true,
+    runtime: {
+      window: {
+        frameOwner: 'app',
+        loaderKey: 'app:poker-lobby-window',
+      },
+    },
+    defaultWindow: {
+      title: '黑桃局',
+      bounds: { x: 18, y: 34, width: 1512, height: 954 },
+    },
+  },
+  {
     id: 'widget-manager',
     name: '小组件管理',
     description: 'KernelOn 小组件管理中心，预览、搜索并放置桌面小组件',

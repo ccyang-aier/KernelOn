@@ -40,6 +40,10 @@
       "types": "./src/apps/weekly-show/WeeklyShowWindow.tsx",
       "import": "./src/apps/weekly-show/WeeklyShowWindow.tsx"
     },
+    "./poker-lobby-window": {
+      "types": "./src/apps/poker/PokerLobbyWindow.tsx",
+      "import": "./src/apps/poker/PokerLobbyWindow.tsx"
+    },
     "./wallpaper-window": {
       "types": "./src/apps/wallpaper/WallpaperWindow.tsx",
       "import": "./src/apps/wallpaper/WallpaperWindow.tsx"

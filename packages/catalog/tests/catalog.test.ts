@@ -4,7 +4,7 @@ import { defaultDesktopScreens, defaultShellInitialState, kernelApps, kernelWidg
 
 describe('KernelOn built-in catalog', () => {
   it('keeps catalog metadata separate from desktop placement', () => {
-    expect(kernelApps).toHaveLength(11);
+    expect(kernelApps).toHaveLength(12);
     expect(defaultDesktopScreens[0]?.items).toHaveLength(0);
   });
 
@@ -47,6 +47,26 @@ describe('KernelOn built-in catalog', () => {
             loaderKey: 'app:weekly-show-window',
           },
         },
+      }),
+    );
+  });
+
+  it('declares Black Spade Poker as a wide app-owned window', () => {
+    expect(kernelApps).toContainEqual(
+      expect.objectContaining({
+        dockedByDefault: true,
+        icon: 'Spade',
+        id: 'poker',
+        name: '黑桃局',
+        runtime: {
+          window: {
+            frameOwner: 'app',
+            loaderKey: 'app:poker-lobby-window',
+          },
+        },
+        defaultWindow: expect.objectContaining({
+          bounds: { height: 954, width: 1512, x: 18, y: 34 },
+        }),
       }),
     );
   });

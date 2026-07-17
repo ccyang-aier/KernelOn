@@ -9,4 +9,11 @@ describe('KernelOn module runtime', () => {
     expect(module.default).toBeInstanceOf(Function);
     expect(module.default.name).toBe('WallpaperWindow');
   });
+
+  it('loads the poker lobby by its stable loader key', async () => {
+    const module = await kernelModuleRuntime.loadAppWindow('app:poker-lobby-window');
+
+    expect(module.default).toBeInstanceOf(Function);
+    expect(module.default.name).toBe('PokerLobbyWindow');
+  });
 });
