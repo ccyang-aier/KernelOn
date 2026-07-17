@@ -45,10 +45,13 @@ describe('WeeklyShowWindow', () => {
     );
     expect(screen.getByTestId('weekly-show-sidebar')).not.toHaveClass('backdrop-blur-[30px]');
     expect(screen.getByTestId('weekly-show-content-panel')).not.toHaveClass('ml-[-24px]');
-    expect(screen.getByTestId('weekly-show-content-panel')).toHaveClass(
-      'border-l',
-      'border-[#d8e4ed]',
+    expect(screen.getByTestId('weekly-show-sidebar-divider')).toHaveClass(
+      'inset-y-0',
+      'left-[286px]',
+      'z-40',
+      'bg-[#b8cedd]',
     );
+    expect(screen.getByTestId('weekly-show-content-panel')).not.toHaveClass('border-l');
     expect(screen.getByTestId('weekly-show-content-panel').className).not.toContain(
       'shadow-[-8px_0_28px',
     );

@@ -80,6 +80,11 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
       scroll="hidden"
     >
       <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-[286px] z-40 w-px bg-[#b8cedd]"
+        data-testid="weekly-show-sidebar-divider"
+      />
+      <div
         className="grid h-full min-h-0 grid-cols-[286px_minmax(0,1fr)] overflow-hidden bg-[linear-gradient(145deg,rgba(214,237,255,0.96),rgba(234,244,252,0.86)_48%,rgba(207,225,241,0.92))] text-[#202124]"
         data-testid="weekly-show-window"
       >
@@ -133,7 +138,7 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
         </aside>
 
         <main
-          className="relative min-h-0 overflow-y-auto rounded-l-[28px] border-l border-[#d8e4ed] bg-white px-[clamp(34px,4vw,64px)] pb-10 pt-[96px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative min-h-0 overflow-y-auto rounded-l-[28px] bg-white px-[clamp(34px,4vw,64px)] pb-10 pt-[96px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           data-surface="stacked-content-panel"
           data-testid="weekly-show-content-panel"
         >
