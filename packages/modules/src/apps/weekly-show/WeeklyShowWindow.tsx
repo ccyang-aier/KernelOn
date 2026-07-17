@@ -133,7 +133,7 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
         </aside>
 
         <main
-          className="relative min-h-0 overflow-y-auto rounded-l-[28px] bg-white px-[clamp(34px,4vw,64px)] pb-10 pt-[96px] shadow-[-8px_0_28px_rgba(75,112,145,0.08),inset_1px_0_0_rgba(255,255,255,0.96)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative min-h-0 overflow-y-auto rounded-l-[28px] border-l border-[#d8e4ed] bg-white px-[clamp(34px,4vw,64px)] pb-10 pt-[96px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           data-surface="stacked-content-panel"
           data-testid="weekly-show-content-panel"
         >

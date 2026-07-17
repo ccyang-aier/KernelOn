@@ -45,6 +45,13 @@ describe('WeeklyShowWindow', () => {
     );
     expect(screen.getByTestId('weekly-show-sidebar')).not.toHaveClass('backdrop-blur-[30px]');
     expect(screen.getByTestId('weekly-show-content-panel')).not.toHaveClass('ml-[-24px]');
+    expect(screen.getByTestId('weekly-show-content-panel')).toHaveClass(
+      'border-l',
+      'border-[#d8e4ed]',
+    );
+    expect(screen.getByTestId('weekly-show-content-panel').className).not.toContain(
+      'shadow-[-8px_0_28px',
+    );
     expect(screen.getByRole('button', { name: '本周舞台' })).toHaveClass('z-10');
     expect(screen.getByTestId('weekly-show-timeline')).toBeInTheDocument();
     expect(screen.getByTestId('weekly-show-grid').querySelectorAll('article')).toHaveLength(6);
