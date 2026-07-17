@@ -12,12 +12,14 @@ import WeeklyShowWindow from '../src/apps/weekly-show/WeeklyShowWindow';
 vi.mock('@kernelon/shell', () => ({
   AppFrame: ({
     children,
+    className,
     headerSlots,
   }: {
     children: ReactNode;
+    className?: string;
     headerSlots?: Record<string, ReactNode>;
   }) => (
-    <div data-testid="weekly-show-app-frame">
+    <div className={className} data-testid="weekly-show-app-frame">
       {Object.entries(headerSlots ?? {}).map(([id, slot]) => (
         <div data-testid={`header-slot-${id}`} key={id}>
           {slot}
@@ -35,6 +37,9 @@ describe('WeeklyShowWindow', () => {
     render(<WeeklyShowWindow {...({} as AppWindowSurfaceProps)} />);
 
     expect(screen.getByTestId('weekly-show-app-frame')).toBeInTheDocument();
+    expect(screen.getByTestId('weekly-show-app-frame').className).toContain(
+      '[&_[data-kernelon-app-header=true]]:![backdrop-filter:none]',
+    );
     expect(screen.getByTestId('weekly-show-sidebar')).toHaveAttribute(
       'data-surface',
       'frosted-sidebar',

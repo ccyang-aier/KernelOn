@@ -74,7 +74,7 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
   return (
     <AppFrame
       contentClassName="!bg-transparent"
-      className="relative [&_[data-app-header-row=primary]]:min-h-[64px] [&_[data-app-window-controls=true]]:top-8 [&_[data-kernelon-app-header=true]]:absolute [&_[data-kernelon-app-header=true]]:inset-x-0 [&_[data-kernelon-app-header=true]]:top-0 [&_[data-kernelon-app-header=true]]:z-30 [&_[data-kernelon-app-header=true]]:h-16 [&_[data-kernelon-app-header=true]]:min-h-16 [&_[data-kernelon-app-header=true]]:overflow-visible [&_[data-kernelon-app-header=true]]:border-0 [&_[data-kernelon-app-header=true]]:bg-transparent [&_[data-kernelon-app-header=true]]:shadow-none [&_[data-kernelon-app-header=true]]:backdrop-blur-0"
+      className="relative [&_[data-app-header-row=primary]]:min-h-[64px] [&_[data-app-window-controls=true]]:top-8 [&_[data-kernelon-app-header=true]]:absolute [&_[data-kernelon-app-header=true]]:inset-x-0 [&_[data-kernelon-app-header=true]]:top-0 [&_[data-kernelon-app-header=true]]:z-30 [&_[data-kernelon-app-header=true]]:h-16 [&_[data-kernelon-app-header=true]]:min-h-16 [&_[data-kernelon-app-header=true]]:overflow-visible [&_[data-kernelon-app-header=true]]:border-0 [&_[data-kernelon-app-header=true]]:bg-transparent [&_[data-kernelon-app-header=true]]:shadow-none [&_[data-kernelon-app-header=true]]:![backdrop-filter:none]"
       header={weeklyShowHeader}
       headerSlots={headerSlots}
       scroll="hidden"
