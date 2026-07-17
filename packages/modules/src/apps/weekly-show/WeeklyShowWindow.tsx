@@ -80,11 +80,6 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
       scroll="hidden"
     >
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-[286px] z-40 w-px bg-[#b8cedd]"
-        data-testid="weekly-show-sidebar-divider"
-      />
-      <div
         className="grid h-full min-h-0 grid-cols-[286px_minmax(0,1fr)] overflow-hidden bg-[linear-gradient(145deg,rgba(214,237,255,0.96),rgba(234,244,252,0.86)_48%,rgba(207,225,241,0.92))] text-[#202124]"
         data-testid="weekly-show-window"
       >
@@ -104,7 +99,7 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
                 Weekly Show
               </span>
             </div>
-            <nav aria-label="Weekly Show 导航" className="space-y-2">
+            <nav aria-label="Weekly Show 导航" className="mr-6 space-y-2">
               {navItems.map(({ Icon, id, label }) => {
                 const active = id === activeNav;
 
@@ -137,110 +132,115 @@ export default function WeeklyShowWindow(props: AppWindowSurfaceProps) {
           </div>
         </aside>
 
-        <main
-          className="relative min-h-0 overflow-y-auto rounded-l-[28px] bg-white px-[clamp(34px,4vw,64px)] pb-10 pt-[96px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        <div
+          className="relative z-20 ml-[-24px] min-h-0 overflow-hidden rounded-l-[28px] bg-white before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:z-10 before:w-7 before:rounded-l-[28px] before:border-y before:border-l before:border-[#a9c2d3] before:content-['']"
           data-surface="stacked-content-panel"
           data-testid="weekly-show-content-panel"
         >
-          <section className="w-full max-w-[1170px]" data-testid="weekly-show-stage">
-            <div className="flex items-start justify-between gap-6">
-              <div>
-                <h1 className="text-[32px] font-bold leading-tight tracking-[-0.035em] text-[#111317]">
-                  Weekly Show 第 {21 + weekOffset} 期
-                </h1>
-                <p className="mt-2 text-[17px] font-medium text-[#7e8187]">
-                  每周精选优质作品，发现和分享创意与灵感
-                </p>
+          <main
+            className="h-full min-h-0 overflow-y-auto px-[clamp(34px,4vw,64px)] pb-10 pt-[96px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            data-testid="weekly-show-content-scroll"
+          >
+            <section className="w-full max-w-[1170px]" data-testid="weekly-show-stage">
+              <div className="flex items-start justify-between gap-6">
+                <div>
+                  <h1 className="text-[32px] font-bold leading-tight tracking-[-0.035em] text-[#111317]">
+                    Weekly Show 第 {21 + weekOffset} 期
+                  </h1>
+                  <p className="mt-2 text-[17px] font-medium text-[#7e8187]">
+                    每周精选优质作品，发现和分享创意与灵感
+                  </p>
+                </div>
+                <div className="flex h-12 min-w-[350px] items-center justify-between rounded-[24px] border border-[#eceef1] bg-[#fafafa] px-3 text-[16px] text-[#666a70] shadow-[inset_0_1px_0_#fff]">
+                  <button
+                    aria-label="上一周"
+                    className="rounded-full p-1.5 hover:bg-white"
+                    onClick={() => setWeekOffset((value) => value - 1)}
+                    type="button"
+                  >
+                    <ChevronLeft className="size-[18px]" />
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="size-[17px] text-[#888d93]" />
+                    <strong className="text-[#3f4247]">第 {21 + weekOffset} 周</strong>
+                    <span className="ml-2">5.19 - 5.25</span>
+                  </div>
+                  <button
+                    aria-label="下一周"
+                    className="rounded-full p-1.5 hover:bg-white"
+                    onClick={() => setWeekOffset((value) => value + 1)}
+                    type="button"
+                  >
+                    <ChevronRight className="size-[18px]" />
+                  </button>
+                </div>
               </div>
-              <div className="flex h-12 min-w-[350px] items-center justify-between rounded-[24px] border border-[#eceef1] bg-[#fafafa] px-3 text-[16px] text-[#666a70] shadow-[inset_0_1px_0_#fff]">
-                <button
-                  aria-label="上一周"
-                  className="rounded-full p-1.5 hover:bg-white"
-                  onClick={() => setWeekOffset((value) => value - 1)}
-                  type="button"
-                >
-                  <ChevronLeft className="size-[18px]" />
-                </button>
-                <div className="flex items-center gap-2">
-                  <CalendarDays className="size-[17px] text-[#888d93]" />
-                  <strong className="text-[#3f4247]">第 {21 + weekOffset} 周</strong>
-                  <span className="ml-2">5.19 - 5.25</span>
+
+              <StageTimeline />
+
+              <div
+                className="mt-[26px] flex items-center justify-between gap-5"
+                data-testid="weekly-show-filters"
+              >
+                <div className="flex min-w-0 gap-2.5 overflow-x-auto [scrollbar-width:none]">
+                  {weeklyShowCategories.map((category) => {
+                    const active = category === activeCategory;
+
+                    return (
+                      <button
+                        aria-pressed={active}
+                        className={`h-8 shrink-0 rounded-full px-[19px] text-[13px] font-medium transition ${
+                          active
+                            ? 'bg-[#2488ee] text-white shadow-[0_7px_16px_rgba(36,136,238,0.20)]'
+                            : 'bg-[#f5f5f5] text-[#64666a] hover:bg-[#eceff3]'
+                        }`}
+                        key={category}
+                        onClick={() => setActiveCategory(category)}
+                        type="button"
+                      >
+                        {category}
+                      </button>
+                    );
+                  })}
                 </div>
                 <button
-                  aria-label="下一周"
-                  className="rounded-full p-1.5 hover:bg-white"
-                  onClick={() => setWeekOffset((value) => value + 1)}
+                  className="flex shrink-0 items-center gap-2 text-[13px] text-[#777b81]"
                   type="button"
                 >
-                  <ChevronRight className="size-[18px]" />
+                  排序：<strong className="text-[#4c5055]">互动得分</strong>
+                  <ChevronDown className="size-4" />
                 </button>
               </div>
-            </div>
 
-            <StageTimeline />
-
-            <div
-              className="mt-[26px] flex items-center justify-between gap-5"
-              data-testid="weekly-show-filters"
-            >
-              <div className="flex min-w-0 gap-2.5 overflow-x-auto [scrollbar-width:none]">
-                {weeklyShowCategories.map((category) => {
-                  const active = category === activeCategory;
-
-                  return (
-                    <button
-                      aria-pressed={active}
-                      className={`h-8 shrink-0 rounded-full px-[19px] text-[13px] font-medium transition ${
-                        active
-                          ? 'bg-[#2488ee] text-white shadow-[0_7px_16px_rgba(36,136,238,0.20)]'
-                          : 'bg-[#f5f5f5] text-[#64666a] hover:bg-[#eceff3]'
-                      }`}
-                      key={category}
-                      onClick={() => setActiveCategory(category)}
-                      type="button"
-                    >
-                      {category}
-                    </button>
-                  );
-                })}
-              </div>
-              <button
-                className="flex shrink-0 items-center gap-2 text-[13px] text-[#777b81]"
-                type="button"
-              >
-                排序：<strong className="text-[#4c5055]">互动得分</strong>
-                <ChevronDown className="size-4" />
-              </button>
-            </div>
-
-            {filteredEntries.length > 0 ? (
-              <div
-                className="mt-[22px] grid grid-cols-3 gap-x-5 gap-y-[18px]"
-                data-testid="weekly-show-grid"
-              >
-                {filteredEntries.map((entry, index) => (
-                  <EntryCard
-                    entry={entry}
-                    key={entry.id}
-                    onReact={() =>
-                      setReactions((current) => ({
-                        ...current,
-                        [entry.id]: (current[entry.id] ?? 0) + 1,
-                      }))
-                    }
-                    rank={index < 3 ? index + 1 : undefined}
-                    reactionBonus={reactions[entry.id] ?? 0}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="mt-24 flex flex-col items-center text-[#8a8f95]">
-                <Search className="mb-3 size-8 opacity-45" />
-                <p className="text-sm font-medium">没有找到匹配的作品</p>
-              </div>
-            )}
-          </section>
-        </main>
+              {filteredEntries.length > 0 ? (
+                <div
+                  className="mt-[22px] grid grid-cols-3 gap-x-5 gap-y-[18px]"
+                  data-testid="weekly-show-grid"
+                >
+                  {filteredEntries.map((entry, index) => (
+                    <EntryCard
+                      entry={entry}
+                      key={entry.id}
+                      onReact={() =>
+                        setReactions((current) => ({
+                          ...current,
+                          [entry.id]: (current[entry.id] ?? 0) + 1,
+                        }))
+                      }
+                      rank={index < 3 ? index + 1 : undefined}
+                      reactionBonus={reactions[entry.id] ?? 0}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-24 flex flex-col items-center text-[#8a8f95]">
+                  <Search className="mb-3 size-8 opacity-45" />
+                  <p className="text-sm font-medium">没有找到匹配的作品</p>
+                </div>
+              )}
+            </section>
+          </main>
+        </div>
       </div>
     </AppFrame>
   );
@@ -385,7 +385,7 @@ function useWeeklyShowHeaderSlots(query: string, onQueryChange: (value: string) 
   return useMemo(
     () => ({
       'weekly-show-leading': (
-        <div className="absolute left-[304px] top-1/2 flex -translate-y-1/2 items-center gap-2.5">
+        <div className="absolute left-[280px] top-1/2 flex -translate-y-1/2 items-center gap-2.5">
           <button
             aria-label="切换侧栏"
             className="flex size-9 items-center justify-center rounded-[12px] border border-white/65 bg-white/64 text-[#3d434a] shadow-[0_6px_15px_rgba(39,55,72,0.06)]"
@@ -413,7 +413,7 @@ function useWeeklyShowHeaderSlots(query: string, onQueryChange: (value: string) 
         </div>
       ),
       'weekly-show-title': (
-        <div className="absolute left-[286px] right-0 top-1/2 -translate-y-1/2 text-center text-[16px] font-bold tracking-[-0.01em] text-[#202328]">
+        <div className="absolute left-[262px] right-0 top-1/2 -translate-y-1/2 text-center text-[16px] font-bold tracking-[-0.01em] text-[#202328]">
           本周舞台
         </div>
       ),

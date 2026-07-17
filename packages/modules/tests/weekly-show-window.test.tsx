@@ -44,14 +44,17 @@ describe('WeeklyShowWindow', () => {
       'stacked-content-panel',
     );
     expect(screen.getByTestId('weekly-show-sidebar')).not.toHaveClass('backdrop-blur-[30px]');
-    expect(screen.getByTestId('weekly-show-content-panel')).not.toHaveClass('ml-[-24px]');
-    expect(screen.getByTestId('weekly-show-sidebar-divider')).toHaveClass(
-      'inset-y-0',
-      'left-[286px]',
-      'z-40',
-      'bg-[#b8cedd]',
+    expect(screen.queryByTestId('weekly-show-sidebar-divider')).not.toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Weekly Show 导航' })).toHaveClass('mr-6');
+    expect(screen.getByTestId('weekly-show-content-panel')).toHaveClass(
+      'z-20',
+      'ml-[-24px]',
+      'rounded-l-[28px]',
+      'before:rounded-l-[28px]',
+      'before:border-l',
+      'before:border-[#a9c2d3]',
     );
-    expect(screen.getByTestId('weekly-show-content-panel')).not.toHaveClass('border-l');
+    expect(screen.getByTestId('weekly-show-content-scroll').tagName).toBe('MAIN');
     expect(screen.getByTestId('weekly-show-content-panel').className).not.toContain(
       'shadow-[-8px_0_28px',
     );
