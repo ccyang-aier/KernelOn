@@ -385,15 +385,18 @@ function useWeeklyShowHeaderSlots(query: string, onQueryChange: (value: string) 
   return useMemo(
     () => ({
       'weekly-show-leading': (
-        <div className="absolute left-[280px] top-1/2 flex -translate-y-1/2 items-center gap-2.5">
+        <div
+          className="absolute left-[312px] top-1/2 flex -translate-y-1/2 items-center gap-2.5"
+          data-testid="weekly-show-leading-controls"
+        >
           <button
             aria-label="切换侧栏"
-            className="flex size-9 items-center justify-center rounded-[12px] border border-white/65 bg-white/64 text-[#3d434a] shadow-[0_6px_15px_rgba(39,55,72,0.06)]"
+            className="flex size-9 items-center justify-center rounded-[12px] border border-white/65 bg-white/64 text-[#3d434a] shadow-[0_4px_10px_rgba(39,55,72,0.05)]"
             type="button"
           >
             <PanelLeft className="size-[18px]" />
           </button>
-          <div className="flex h-9 items-center overflow-hidden rounded-[12px] border border-white/65 bg-white/64 shadow-[0_6px_15px_rgba(39,55,72,0.06)]">
+          <div className="flex h-9 items-center overflow-hidden rounded-[12px] border border-white/65 bg-white/64 shadow-[0_4px_10px_rgba(39,55,72,0.05)]">
             <button
               aria-label="后退"
               className="flex h-full w-9 items-center justify-center text-[#353a40] hover:bg-white"

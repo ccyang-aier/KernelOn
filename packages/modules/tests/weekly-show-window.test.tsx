@@ -55,6 +55,10 @@ describe('WeeklyShowWindow', () => {
       'before:border-[#a9c2d3]',
     );
     expect(screen.getByTestId('weekly-show-content-scroll').tagName).toBe('MAIN');
+    expect(screen.getByTestId('weekly-show-leading-controls')).toHaveClass('left-[312px]');
+    expect(screen.getByRole('button', { name: '切换侧栏' }).className).not.toContain(
+      'shadow-[0_6px_15px',
+    );
     expect(screen.getByTestId('weekly-show-content-panel').className).not.toContain(
       'shadow-[-8px_0_28px',
     );
