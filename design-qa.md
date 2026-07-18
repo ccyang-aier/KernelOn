@@ -102,6 +102,44 @@ final result: passed
 
 ---
 
+## 黑桃局侧栏节奏与动效精修
+
+### 视觉证据与状态
+
+- 视觉基准：`C:/Users/17335/AppData/Local/Temp/codex-clipboard-0f814b91-f9f4-4760-a393-22aa079bcb10.png`
+- 最终实现：`output/playwright/poker-sidebar-refinement-final.png`
+- 全画布并排对照：`output/playwright/poker-sidebar-refinement-comparison.jpg`
+- 侧栏聚焦对照：`output/playwright/poker-sidebar-refinement-focus.jpg`
+- 视口：1536 × 1024；状态：大厅激活、无悬停、无弹窗。
+
+### 比较历史与修正
+
+- P1（布局节奏）：上一版侧栏 200px，菜单项高 60px 且没有独立间距，形成连续堆叠感。修正为 224px 侧栏、48px 菜单项和 8px 垂直间距；2048 × 1080 宽屏实测仍保持 224 / 48 / 8 的可视几何。
+- P1（激活态）：上一版只有单层深绿高亮。修正为猎人绿多层渐变、金色描边、左侧 3px 光轨、顶部细高光、独立图标徽章和低频呼吸状态点，层级更接近高级桌面游戏客户端。
+- P2（品牌比例）：侧栏变宽后徽章显得偏小。将品牌区域增至 168px、徽章画布增至 126px，最终对照中品牌区与菜单起始位置重新取得平衡。
+- P2（点击反馈）：非当前菜单缺少反馈。新增按压缩放、2px 横向跟手、图标回弹和 560ms 金色扫光；不改变页面或大厅 `aria-current`。
+- Post-fix：全图及侧栏聚焦对照未发现剩余 P0 / P1 / P2；较宽侧栏属于本轮用户明确要求，不作为相对原 UX 的偏差处理。
+
+### 五项保真检查
+
+- 字体与文案：保持现有中文字体栈、15px 半粗菜单层级和原菜单文案，无换行或截断。
+- 间距与布局：224px 侧栏、48px 行高、8px 行距；会员卡仍完整落在安全区域。
+- 色彩与令牌：延续黑、猎人绿和古金配色；激活态对比度明确但未出现高饱和荧光感。
+- 图像质量：继续使用真实徽章资产与 Lucide 图标，未新增占位或代码模拟图像。
+- 交互与可访问性：大厅保留 `aria-current="page"`；其它菜单点击后页面 URL 不变；键盘焦点环和 reduced-motion 降级保留。
+
+### 验证
+
+- 浏览器点击“牌桌”后 `data-nav-feedback="pulse"`，大厅仍为 `aria-current="page"`，URL 保持 `/qa-poker`。
+- 浏览器控制台 error/warn：0；临时 `/qa-poker` 路由在取证后已删除。
+- `pnpm --dir packages/modules exec vitest run tests/poker-lobby-window.test.tsx tests/runtime.test.ts`：2 个文件、5 个测试通过。
+- `pnpm --filter @kernelon/modules typecheck`、`pnpm --filter @kernelon/web typecheck`、`pnpm lint:web`：通过。
+- `pnpm build:web`：通过；Web 与 Desktop 正式构建成功。
+
+final result: passed
+
+---
+
 ## 黑桃局德州扑克大厅
 
 ### 验收目标与证据

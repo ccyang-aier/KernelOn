@@ -177,7 +177,7 @@ export function usePokerDensityScale() {
   const inverseScale = 100 / scale;
   const canvasStyle = {
     '--poker-density': scale,
-    gridTemplateColumns: `${200 / scale}px minmax(0, 1fr)`,
+    gridTemplateColumns: `${224 / scale}px minmax(0, 1fr)`,
     height: `${inverseScale}%`,
     minHeight: `${800 / scale}px`,
     minWidth: `${1220 / scale}px`,

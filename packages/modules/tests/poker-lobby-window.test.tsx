@@ -58,8 +58,10 @@ describe('PokerLobbyWindow', () => {
   it('keeps the lobby state coherent and closes visible click feedback loops', () => {
     render(<PokerLobbyWindow {...({} as AppWindowSurfaceProps)} />);
 
-    fireEvent.click(screen.getByRole('button', { name: '牌桌' }));
+    const tableNavigation = screen.getByRole('button', { name: '牌桌' });
+    fireEvent.click(tableNavigation);
     expect(screen.getByRole('button', { name: '大厅' })).toHaveAttribute('aria-current', 'page');
+    expect(tableNavigation).toHaveAttribute('data-nav-feedback', 'pulse');
     expect(screen.getByRole('status')).toHaveTextContent('牌桌将在后续界面继续实现');
 
     fireEvent.click(screen.getByRole('button', { name: /黑桃会员/ }));

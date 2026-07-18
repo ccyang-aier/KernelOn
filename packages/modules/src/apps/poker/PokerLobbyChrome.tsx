@@ -1,8 +1,16 @@
 'use client';
 
-import { Bell, ChevronDown, ChevronRight, CircleDollarSign, Search, Users } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import type { ReactNode } from 'react';
+import {
+  Bell,
+  ChevronDown,
+  ChevronRight,
+  CircleDollarSign,
+  Search,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { useState, type ReactNode } from 'react';
 
 import { pokerAssetRoot, pokerNavigation } from './data';
 import type { PokerToolbarMenu } from './usePokerLobbyController';
@@ -19,52 +27,27 @@ export function PokerSidebar({ activeNav, onMembership, onSelect }: PokerSidebar
       <div className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:url('/kernelon-assets/apps/poker/lobby-hero.webp')] [background-position:88%_center] [background-size:cover]" />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(13,17,15,0.82),rgba(14,17,16,0.94))]" />
       <div className="relative flex min-h-0 flex-1 flex-col">
-        <div className="flex min-h-[164px] flex-col items-center pb-4 pt-1">
+        <div className="flex min-h-[168px] flex-col items-center pb-4 pt-0.5">
           <img
             alt="黑桃局徽章"
-            className="size-[116px] object-contain mix-blend-lighten brightness-110 contrast-150 drop-shadow-[0_8px_22px_rgba(196,155,75,0.18)] [mask-image:radial-gradient(ellipse_72%_72%_at_50%_50%,#000_72%,transparent_100%)]"
+            className="size-[126px] object-contain mix-blend-lighten brightness-110 contrast-150 drop-shadow-[0_8px_22px_rgba(196,155,75,0.18)] [mask-image:radial-gradient(ellipse_72%_72%_at_50%_50%,#000_72%,transparent_100%)]"
             src={`${pokerAssetRoot}/brand-crest.webp`}
           />
           <strong className="mt-[-6px] text-[26px] font-semibold tracking-[0.1em] text-[#d2af66] [text-shadow:0_2px_12px_rgba(198,161,91,0.22)]">
             黑桃局
           </strong>
         </div>
-        <nav aria-label="黑桃局导航">
+        <nav aria-label="黑桃局导航" className="flex flex-col gap-[calc(8px/var(--poker-density))]">
           {pokerNavigation.map(({ Icon, id, label }) => {
-            const active = id === activeNav;
-
             return (
-              <motion.button
-                aria-current={active ? 'page' : undefined}
-                className={`group relative ml-0.5 flex h-[calc(60px/var(--poker-density))] w-[calc(100%+6px)] items-center gap-[calc(14px/var(--poker-density))] overflow-hidden rounded-[9px] border px-[calc(14px/var(--poker-density))] text-left text-[16px] font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d5b369]/65 ${
-                  active
-                    ? 'border-[#98793e]/70 text-[#eee3ca]'
-                    : 'border-transparent text-[#97978f] hover:border-[#4b4030]/45 hover:bg-white/[0.025] hover:text-[#ddd3bd]'
-                }`}
+              <PokerSidebarNavigationItem
+                active={id === activeNav}
+                Icon={Icon}
+                id={id}
                 key={id}
-                onClick={() => onSelect(id, label)}
-                transition={{ damping: 28, stiffness: 360, type: 'spring' }}
-                type="button"
-                whileTap={{ scale: 0.975 }}
-              >
-                {active ? (
-                  <motion.span
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="absolute inset-0 rounded-[8px] bg-[linear-gradient(100deg,rgba(39,58,47,0.94),rgba(24,43,35,0.95)_48%,rgba(17,35,29,0.96))] shadow-[inset_0_1px_0_rgba(255,255,255,0.055),inset_16px_0_30px_rgba(197,159,83,0.035),0_9px_24px_rgba(0,0,0,0.22)]"
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-                  />
-                ) : null}
-                <Icon
-                  aria-hidden="true"
-                  className={`relative z-10 size-[21px] ${
-                    active ? 'text-[#dec17a]' : 'text-[#8e908a] group-hover:text-[#c5b989]'
-                  }`}
-                  fill={active ? 'currentColor' : 'none'}
-                  strokeWidth={active ? 1.7 : 1.8}
-                />
-                <span className="relative z-10">{label}</span>
-              </motion.button>
+                label={label}
+                onSelect={onSelect}
+              />
             );
           })}
         </nav>
@@ -95,6 +78,113 @@ export function PokerSidebar({ activeNav, onMembership, onSelect }: PokerSidebar
         </motion.button>
       </div>
     </aside>
+  );
+}
+
+interface PokerSidebarNavigationItemProps {
+  active: boolean;
+  Icon: LucideIcon;
+  id: string;
+  label: string;
+  onSelect(id: string, label: string): void;
+}
+
+function PokerSidebarNavigationItem({
+  active,
+  Icon,
+  id,
+  label,
+  onSelect,
+}: PokerSidebarNavigationItemProps) {
+  const [interactionKey, setInteractionKey] = useState(0);
+  const reducedMotion = useReducedMotion();
+
+  return (
+    <motion.button
+      aria-current={active ? 'page' : undefined}
+      className={`group relative ml-0.5 flex h-[calc(48px/var(--poker-density))] w-[calc(100%+6px)] items-center gap-[calc(10px/var(--poker-density))] overflow-hidden rounded-[10px] border px-[calc(10px/var(--poker-density))] text-left text-[15px] font-semibold transition-[border-color,color,background-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d5b369]/65 ${
+        active
+          ? 'border-[#b28d4e]/80 text-[#f0e5cc] shadow-[0_10px_26px_rgba(0,0,0,0.24)]'
+          : 'border-transparent text-[#92958f] hover:border-[#716044]/45 hover:bg-[#18201c]/55 hover:text-[#ddd3bd]'
+      }`}
+      data-nav-feedback={interactionKey > 0 ? 'pulse' : 'idle'}
+      onClick={() => {
+        setInteractionKey((value) => value + 1);
+        onSelect(id, label);
+      }}
+      transition={{ damping: 26, stiffness: 390, type: 'spring' }}
+      type="button"
+      whileHover={active || reducedMotion ? { x: 0 } : { x: 2 }}
+      whileTap={{ scale: 0.965 }}
+    >
+      {active ? (
+        <motion.span
+          animate={{ opacity: 1, scale: 1 }}
+          className="absolute inset-0 rounded-[9px] bg-[radial-gradient(circle_at_17%_50%,rgba(221,184,109,0.16),transparent_37%),linear-gradient(105deg,rgba(40,61,49,0.98),rgba(23,43,35,0.98)_52%,rgba(14,31,26,0.99))] shadow-[inset_0_1px_0_rgba(255,245,213,0.11),inset_0_-1px_0_rgba(0,0,0,0.28),inset_18px_0_34px_rgba(197,159,83,0.045)]"
+          initial={{ opacity: 0, scale: 0.97 }}
+          layoutId="poker-sidebar-active"
+          transition={{ damping: 28, stiffness: 330, type: 'spring' }}
+        />
+      ) : null}
+      {active ? (
+        <>
+          <motion.span
+            animate={{ opacity: 1, scaleY: 1 }}
+            className="absolute bottom-2 left-0 top-2 z-10 w-[3px] origin-center rounded-r-full bg-[linear-gradient(180deg,#f0d696,#b78b42)] shadow-[0_0_15px_rgba(222,184,103,0.62)]"
+            initial={{ opacity: 0, scaleY: 0.35 }}
+            transition={{ delay: 0.08, duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          />
+          <span className="absolute inset-x-4 top-0 z-10 h-px bg-[linear-gradient(90deg,transparent,rgba(244,219,166,0.34),transparent)]" />
+        </>
+      ) : null}
+      <AnimatePresence initial={false} mode="popLayout">
+        {!active && interactionKey > 0 && !reducedMotion ? (
+          <motion.span
+            animate={{ opacity: [0, 0.48, 0], x: ['-35%', '145%'] }}
+            className="pointer-events-none absolute inset-y-0 z-0 w-1/2 -skew-x-12 bg-[linear-gradient(90deg,transparent,rgba(220,187,119,0.22),transparent)]"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, x: '-35%' }}
+            key={interactionKey}
+            transition={{ duration: 0.56, ease: [0.16, 1, 0.3, 1] }}
+          />
+        ) : null}
+      </AnimatePresence>
+      <motion.span
+        animate={
+          interactionKey > 0 && !active && !reducedMotion
+            ? { rotate: [0, -7, 4, 0], scale: [1, 0.88, 1.08, 1] }
+            : { rotate: 0, scale: 1 }
+        }
+        className={`relative z-10 flex size-[30px] shrink-0 items-center justify-center rounded-[8px] border transition-[border-color,background-color,box-shadow] duration-200 ${
+          active
+            ? 'border-[#a78348]/75 bg-[linear-gradient(145deg,rgba(208,173,101,0.2),rgba(76,63,38,0.14))] shadow-[inset_0_1px_0_rgba(255,245,214,0.12),0_5px_14px_rgba(0,0,0,0.22)]'
+            : 'border-transparent bg-transparent group-hover:border-[#67583e]/45 group-hover:bg-[#22271f]/70'
+        }`}
+        key={`icon-${interactionKey}`}
+        transition={{ duration: 0.46, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <Icon
+          aria-hidden="true"
+          className={`size-[18px] transition-colors duration-200 ${
+            active ? 'text-[#e4c77f]' : 'text-[#8e928c] group-hover:text-[#cbbb91]'
+          }`}
+          fill={active ? 'currentColor' : 'none'}
+          strokeWidth={active ? 1.65 : 1.8}
+        />
+      </motion.span>
+      <span className={`relative z-10 ${active ? 'tracking-[0.025em]' : ''}`}>{label}</span>
+      {active ? (
+        <motion.span
+          animate={
+            reducedMotion
+              ? { opacity: 0.82, scale: 1 }
+              : { opacity: [0.65, 1, 0.65], scale: [0.9, 1.08, 0.9] }
+          }
+          className="relative z-10 ml-auto size-1.5 rounded-full bg-[#dfbd72] shadow-[0_0_11px_rgba(223,189,114,0.8)]"
+          transition={{ duration: 2.4, ease: 'easeInOut', repeat: Number.POSITIVE_INFINITY }}
+        />
+      ) : null}
+    </motion.button>
   );
 }
 
