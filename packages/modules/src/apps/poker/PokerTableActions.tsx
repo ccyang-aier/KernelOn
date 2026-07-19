@@ -44,7 +44,7 @@ export function PokerTableActions({
   statusLabel,
 }: Readonly<PokerTableActionsProps>) {
   return (
-    <footer className="col-span-2 grid min-h-0 grid-cols-[31.7%_30.4%_37.9%] bg-[linear-gradient(180deg,#141718,#0e1112)]">
+    <footer className="relative z-10 col-span-2 grid min-h-0 grid-cols-[31.6%_30.35%_38.05%] bg-[linear-gradient(180deg,#141718,#0e1112)]">
       <section className="border-r border-[#343635] px-[18px] py-3">
         <form
           className="flex items-center gap-3"
@@ -167,7 +167,7 @@ export function PokerTableActions({
       </section>
 
       {resultSummary ? (
-        <section className="grid grid-cols-[1fr_1.05fr] items-stretch gap-3 px-3.5 py-6">
+        <section className="grid grid-cols-[1fr_1.05fr] items-stretch gap-3 px-3.5 pb-10 pt-11">
           <div className="flex flex-col justify-center rounded-xl border border-[#6a5a3e]/55 bg-[linear-gradient(145deg,#24231f,#151818)] px-5 shadow-[inset_0_1px_0_rgba(255,255,255,.05)]">
             <span className="text-[10px] font-semibold tracking-[.12em] text-[#8d8f89]">
               本手结算
@@ -179,7 +179,7 @@ export function PokerTableActions({
           <ActionButton label="开始下一手" onClick={onNextHand} sublabel="庄位轮转" tone="red" />
         </section>
       ) : (
-        <section className="grid grid-cols-[.92fr_.9fr_1.28fr] gap-3 px-3.5 py-7">
+        <section className="grid grid-cols-[.92fr_.9fr_1.28fr] gap-3 px-3.5 pb-10 pt-11">
           <ActionButton
             disabled={!isHeroTurn}
             label="弃牌"
@@ -248,7 +248,7 @@ function ActionButton({
   return (
     <button
       className={cn(
-        'relative overflow-hidden rounded-xl border px-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_10px_20px_rgba(0,0,0,.26)] transition duration-200 after:absolute after:inset-x-3 after:top-0 after:h-px after:bg-white/25 hover:-translate-y-1 hover:brightness-110 hover:shadow-[inset_0_1px_0_rgba(255,255,255,.2),0_16px_26px_rgba(0,0,0,.38)] active:translate-y-0 active:scale-[.985] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:translate-y-0 disabled:hover:brightness-100',
+        'relative min-h-0 overflow-hidden rounded-[10px] border px-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_10px_20px_rgba(0,0,0,.26)] transition duration-200 after:absolute after:inset-x-3 after:top-0 after:h-px after:bg-white/25 hover:-translate-y-1 hover:brightness-110 hover:shadow-[inset_0_1px_0_rgba(255,255,255,.2),0_16px_26px_rgba(0,0,0,.38)] active:translate-y-0 active:scale-[.985] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:translate-y-0 disabled:hover:brightness-100',
         tone === 'neutral' &&
           'border-[#555959] bg-[linear-gradient(145deg,#323536,#171a1b)] text-[#eeeeea]',
         tone === 'gold' &&

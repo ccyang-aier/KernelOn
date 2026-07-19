@@ -58,7 +58,7 @@ export function PokerTableRail({
   const activePlayer = getActivePlayer(game);
   return (
     <aside className="relative z-20 h-[calc(100%+38px)] min-h-0 overflow-hidden border-b border-[#343635] bg-[linear-gradient(180deg,#151818_0%,#101313_100%)] text-[#d7d4ca]">
-      <section className="px-[18px] pt-4">
+      <section className="px-[18px] pt-5">
         <div className="flex items-center justify-between border-b border-white/[.07] pb-3">
           <h2 className="text-[16px] font-semibold tracking-[.08em] text-[#e9d9b7]">牌局动态</h2>
           <ChevronDown className="size-4 text-[#bcbcb7]" />
@@ -73,7 +73,7 @@ export function PokerTableRail({
           <span className="text-right">底池</span>
         </div>
         <div>
-          {game.logs.slice(-6).map((entry) => (
+          {game.logs.slice(-5).map((entry) => (
             <div
               className="grid grid-cols-[72px_92px_60px_1fr_48px_50px] items-center border-b border-white/[.035] py-[9px] text-[11px] tabular-nums text-[#888b89]"
               key={entry.id}
@@ -113,7 +113,7 @@ export function PokerTableRail({
           </div>
         </div>
 
-        <div className="mt-1 grid grid-cols-2 gap-2.5">
+        <div className="mt-3 grid grid-cols-2 gap-2.5">
           <MetricCard
             label="底池赔率"
             note={
@@ -145,7 +145,7 @@ export function PokerTableRail({
             onClick={() => onTabChange('range')}
           />
         </nav>
-        <div className="h-[91px] px-4 py-3">
+        <div className="h-[95px] px-4 py-3">
           {activeTab === 'activity' ? (
             <>
               <div className="mb-2 flex items-center justify-between text-[11px] text-[#8f9290]">
@@ -198,7 +198,7 @@ function MetricCard({
   value,
 }: Readonly<{ label: string; note: string; value: string }>) {
   return (
-    <div className="rounded-md border border-[#575142]/45 bg-[linear-gradient(145deg,#1b1e1e,#151818)] px-3 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.035)]">
+    <div className="rounded-md border border-[#575142]/45 bg-[linear-gradient(145deg,#1b1e1e,#151818)] px-3 py-[22px] text-center shadow-[inset_0_1px_0_rgba(255,255,255,.035)]">
       <p className="text-[11px] text-[#7f8582]">{label}</p>
       <p className="my-1 font-serif text-[29px] font-semibold tracking-[.06em] text-[#ddc18c]">
         {value}
@@ -217,7 +217,7 @@ function OpponentAnalysis({ game }: Readonly<{ game: PokerGameState }>) {
   const profileId =
     focusPlayer.id === 'bear' ? 'bear' : focusPlayer.id === 'lion' ? 'lion' : 'eagle';
   return (
-    <section className="mt-2 rounded-md border border-[#4f493d]/55 bg-[linear-gradient(145deg,#1b1e1e,#141717)] px-3 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,.035)]">
+    <section className="mt-2 rounded-md border border-[#4f493d]/55 bg-[linear-gradient(145deg,#1b1e1e,#141717)] px-3 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,.035)]">
       <h3 className="mb-2 text-[12px] font-semibold tracking-[.08em] text-[#dcc69a]">对手分析</h3>
       <div className="flex items-center gap-2.5">
         <img

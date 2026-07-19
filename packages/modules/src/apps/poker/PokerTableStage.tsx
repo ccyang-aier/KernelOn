@@ -67,8 +67,8 @@ export function PokerTableStage({
         className="absolute inset-0 bg-[radial-gradient(circle_at_50%_43%,rgba(65,76,72,.18),transparent_48%),linear-gradient(180deg,rgba(255,255,255,.018),transparent_18%,rgba(0,0,0,.28))]"
       />
 
-      <div className="absolute left-4 top-4 z-30 flex items-stretch gap-3">
-        <div className="flex min-w-[220px] items-center gap-3 rounded-md border border-[#9e7a3c]/70 bg-[linear-gradient(145deg,rgba(33,32,29,.94),rgba(13,15,15,.96))] px-3 py-2 shadow-[0_14px_30px_rgba(0,0,0,.25),inset_0_1px_0_rgba(255,255,255,.05)]">
+      <div className="absolute left-4 top-4 z-30 flex flex-col items-start gap-4">
+        <div className="flex min-w-[220px] items-center gap-3 rounded-md border border-[#9e7a3c]/70 bg-[linear-gradient(145deg,rgba(33,32,29,.94),rgba(13,15,15,.96))] px-3 py-[9px] shadow-[0_14px_30px_rgba(0,0,0,.25),inset_0_1px_0_rgba(255,255,255,.05)]">
           <img
             alt="王冠深筹赛徽章"
             className="size-11 rounded-full object-cover"

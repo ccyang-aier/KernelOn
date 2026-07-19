@@ -61,7 +61,7 @@ export function AppContainerHeader({
       className={cn(
         topLayer
           ? 'absolute inset-x-0 top-0 z-[120] h-[68px] min-h-[68px] shrink-0 overflow-visible border-0 bg-transparent shadow-none backdrop-blur-0'
-          : 'relative shrink-0 overflow-hidden border-b border-[var(--ko-app-header-border)] bg-[var(--ko-app-header-surface)] shadow-[var(--ko-app-header-inset-shadow)] backdrop-blur-[22px]',
+          : 'relative shrink-0 overflow-hidden border-b border-[var(--ko-app-header-border)] [background:var(--ko-app-header-surface)] shadow-[var(--ko-app-header-inset-shadow)] backdrop-blur-[22px]',
         topLayer ? '' : density === 'comfortable' ? 'min-h-[56px]' : 'min-h-11',
       )}
       data-app-header-mode={mode}
@@ -72,7 +72,9 @@ export function AppContainerHeader({
       <div
         className={cn(
           'group absolute z-20 flex -translate-y-1/2 items-center',
-          topLayer ? 'left-6 top-[31px] gap-2.5' : 'left-4 top-[22px] gap-2.5',
+          topLayer
+            ? 'left-6 top-[31px] gap-2.5'
+            : 'left-[var(--ko-app-window-controls-x,16px)] top-[var(--ko-app-window-controls-y,22px)] gap-2.5',
         )}
         data-testid={`kernelon-app-window-traffic-lights-${windowId}`}
         data-app-window-controls="true"
@@ -107,7 +109,7 @@ export function AppContainerHeader({
       ) : (
         <div
           className={cn(
-            'flex min-h-11 min-w-0 cursor-default select-none items-center gap-3 pl-28 pr-4',
+            'flex min-h-[var(--ko-app-header-row-height,44px)] min-w-0 cursor-default select-none items-center gap-3 [padding-left:var(--ko-app-header-row-padding-left,7rem)] pr-4',
             hasStructuredHeader ? 'justify-between' : 'justify-center px-28',
             topLayer ? 'min-h-[68px] gap-2.5 px-6 pl-[86px]' : '',
           )}

@@ -14,7 +14,11 @@ import { usePokerTableController } from './usePokerTableController';
 const tableFrameStyle = {
   '--ko-app-header-border': 'rgba(98, 101, 99, 0.34)',
   '--ko-app-header-inset-shadow': 'inset 0 1px 0 rgba(255,255,255,0.045)',
+  '--ko-app-header-row-height': '58px',
+  '--ko-app-header-row-padding-left': '124px',
   '--ko-app-header-surface': 'linear-gradient(180deg, #171a1b 0%, #111414 100%)',
+  '--ko-app-window-controls-x': '24px',
+  '--ko-app-window-controls-y': '29px',
   colorScheme: 'dark',
   fontFamily:
     'Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif',
@@ -36,7 +40,7 @@ export function PokerTableWindow({ onExit }: Readonly<{ onExit(): void }>) {
 
   const headerSlots = {
     'poker-table-leading': (
-      <div className="flex items-center gap-1.5">
+      <div className="flex h-9 overflow-hidden rounded-md border border-white/[.11] bg-[linear-gradient(180deg,#292c2d,#1b1e1f)] shadow-[inset_0_1px_0_rgba(255,255,255,.055),0_5px_14px_rgba(0,0,0,.26)]">
         <HeaderButton label="返回大厅" onClick={onExit}>
           <ArrowLeft className="size-[18px]" />
         </HeaderButton>
@@ -100,7 +104,6 @@ export function PokerTableWindow({ onExit }: Readonly<{ onExit(): void }>) {
 
   return (
     <AppFrame
-      className="[&_[data-app-header-row=primary]]:!min-h-[58px] [&_[data-app-window-controls=true]]:!top-[29px] [&_[data-kernelon-app-header=true]]:!min-h-[58px]"
       contentClassName="!bg-[#0c0f10]"
       header={tableHeader}
       headerSlots={headerSlots}
@@ -111,7 +114,7 @@ export function PokerTableWindow({ onExit }: Readonly<{ onExit(): void }>) {
         className="relative h-full min-h-0 overflow-hidden bg-[#0b0e0f] text-[#ded9cd]"
         data-testid="poker-table-window"
       >
-        <div className="grid h-full min-h-0 min-w-[1320px] grid-cols-[72.3%_27.7%] grid-rows-[minmax(0,1fr)_clamp(160px,21%,206px)]">
+        <div className="grid h-full min-h-0 min-w-[1320px] grid-cols-[72.3%_27.7%] grid-rows-[minmax(0,1fr)_clamp(188px,22%,206px)]">
           <PokerTableStage
             game={controller.game}
             heroHint={controller.heroHand.label}
@@ -205,7 +208,7 @@ function HeaderButton({
   return (
     <button
       aria-label={label}
-      className="grid size-9 place-items-center rounded-md border border-white/[.08] bg-[linear-gradient(145deg,#292c2d,#1b1e1f)] text-[#d1d3cf] shadow-[inset_0_1px_0_rgba(255,255,255,.05)] transition duration-200 hover:-translate-y-0.5 hover:border-[#9f8250]/55 hover:text-[#f0d19a] active:translate-y-0"
+      className="grid h-9 w-[46px] place-items-center border-r border-white/[.09] text-[#d1d3cf] transition duration-200 last:border-r-0 hover:bg-white/[.055] hover:text-[#f0d19a] active:bg-black/20"
       onClick={onClick}
       type="button"
     >
