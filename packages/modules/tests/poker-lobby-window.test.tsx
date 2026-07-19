@@ -10,8 +10,17 @@ import type { AppWindowSurfaceProps } from '@kernelon/shell';
 import PokerLobbyWindow from '../src/apps/poker/PokerLobbyWindow';
 
 vi.mock('@kernelon/shell', () => ({
-  AppFrame: ({ children }: { children: ReactNode }) => (
-    <div data-testid="poker-app-frame">{children}</div>
+  AppFrame: ({
+    children,
+    headerSlots,
+  }: {
+    children: ReactNode;
+    headerSlots?: Record<string, ReactNode>;
+  }) => (
+    <div data-testid="poker-app-frame">
+      {headerSlots ? <header>{Object.values(headerSlots)}</header> : null}
+      {children}
+    </div>
   ),
 }));
 
@@ -31,7 +40,7 @@ describe('PokerLobbyWindow', () => {
     expect(screen.getAllByRole('button', { name: /邀请 .* 同桌/ })).toHaveLength(5);
   });
 
-  it('supports search, table rotation, joining and reward interactions', () => {
+  it('supports search, table rotation, rewards and entering a live table', () => {
     render(<PokerLobbyWindow {...({} as AppWindowSurfaceProps)} />);
 
     fireEvent.change(screen.getByRole('searchbox', { name: '搜索玩家、俱乐部或赛事' }), {
@@ -44,25 +53,20 @@ describe('PokerLobbyWindow', () => {
       target: { value: '' },
     });
     fireEvent.click(screen.getByRole('button', { name: '换一批' }));
+    fireEvent.click(screen.getByRole('button', { name: '领取 完成 3 场牌局' }));
+    expect(screen.getByRole('status')).toHaveTextContent('奖励已领取');
+    expect(screen.getByRole('button', { name: '已领取 完成 3 场牌局' })).toBeDisabled();
+
     fireEvent.click(screen.getByRole('button', { name: /深筹常规桌/ }));
     const dialog = screen.getByRole('dialog', { name: '确认入座' });
     expect(within(dialog).getByText(/深筹常规桌/)).toBeInTheDocument();
     fireEvent.click(within(dialog).getByRole('button', { name: '进入牌桌' }));
-    expect(screen.getByRole('status')).toHaveTextContent('正在进入');
-
-    fireEvent.click(screen.getByRole('button', { name: '领取 完成 3 场牌局' }));
-    expect(screen.getByRole('status')).toHaveTextContent('奖励已领取');
-    expect(screen.getByRole('button', { name: '已领取 完成 3 场牌局' })).toBeDisabled();
+    expect(screen.getByTestId('poker-table-window')).toBeInTheDocument();
+    expect(screen.getByText('王冠深筹 · 10/20')).toBeInTheDocument();
   });
 
-  it('keeps the lobby state coherent and closes visible click feedback loops', () => {
+  it('closes lobby feedback loops and exposes complete table interactions', () => {
     render(<PokerLobbyWindow {...({} as AppWindowSurfaceProps)} />);
-
-    const tableNavigation = screen.getByRole('button', { name: '牌桌' });
-    fireEvent.click(tableNavigation);
-    expect(screen.getByRole('button', { name: '大厅' })).toHaveAttribute('aria-current', 'page');
-    expect(tableNavigation).toHaveAttribute('data-nav-feedback', 'pulse');
-    expect(screen.getByRole('status')).toHaveTextContent('牌桌将在后续界面继续实现');
 
     fireEvent.click(screen.getByRole('button', { name: /黑桃会员/ }));
     expect(screen.getByRole('status')).toHaveTextContent('黑桃会员权益面板已准备就绪');
@@ -75,5 +79,18 @@ describe('PokerLobbyWindow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '邀请 PandaPro 同桌' }));
     expect(screen.getByRole('status')).toHaveTextContent('邀请已发送给 PandaPro');
+
+    fireEvent.click(screen.getByRole('button', { name: '牌桌' }));
+    expect(screen.getByTestId('poker-table-stage')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '底池' }));
+    expect(screen.getByRole('slider', { name: '加注金额' })).toHaveValue('1240');
+    fireEvent.click(screen.getByRole('button', { name: /加注至/ }));
+    expect(screen.getByText('已加注至 1,240')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '聊天' }));
+    expect(screen.getByText(/观战聊天已同步/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '返回大厅' }));
+    expect(screen.getByRole('heading', { name: '今晚主桌' })).toBeInTheDocument();
   });
 });

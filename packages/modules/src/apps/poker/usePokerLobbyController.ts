@@ -18,7 +18,7 @@ export type PokerNotice = { id: number; message: string } | null;
 const POKER_REFERENCE_CONTENT_HEIGHT = 908;
 const MINIMUM_DENSITY_SCALE = 0.84;
 
-export function usePokerLobbyController() {
+export function usePokerLobbyController(onEnterTable?: (target?: string) => void) {
   const [friendMessage, setFriendMessage] = useState<string | null>(null);
   const [joinTarget, setJoinTarget] = useState<string | null>(null);
   const [menu, setMenu] = useState<PokerToolbarMenu>(null);
@@ -68,9 +68,15 @@ export function usePokerLobbyController() {
 
   const selectNavigation = useCallback(
     (id: string, label: string) => {
+      if (id === 'tables') {
+        announce('正在进入王冠深筹实战牌桌');
+        onEnterTable?.('王冠深筹 · 10 / 20');
+        return;
+      }
+
       announce(id === 'lobby' ? '当前已在大厅' : `${label}将在后续界面继续实现`);
     },
-    [announce],
+    [announce, onEnterTable],
   );
 
   const inviteFriend = useCallback(
@@ -103,7 +109,8 @@ export function usePokerLobbyController() {
 
     announce(`正在进入 ${joinTarget}`);
     setJoinTarget(null);
-  }, [announce, joinTarget]);
+    onEnterTable?.(joinTarget);
+  }, [announce, joinTarget, onEnterTable]);
 
   return {
     activeNav: 'lobby',

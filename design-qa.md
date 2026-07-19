@@ -277,3 +277,71 @@ final result: passed
 - `git diff --check`
 
 final result: passed
+
+---
+
+## 黑桃局实战牌桌
+
+**Design QA — Poker 实战牌桌**
+
+- source visual truth path: `C:\Users\17335\AppData\Local\Temp\codex-clipboard-c32dbc87-d514-44af-ad4d-5c4a52515081.png`
+- implementation screenshot path: `C:\Users\17335\AppData\Local\Temp\poker-table-implementation-final.png`
+- viewport: `1588 × 992`（源图实际像素高度为 990，比较时按顶部对齐补齐 2px）
+- state: 王冠深筹 10/20，翻牌后行动阶段，动态 Tab 激活，默认加注额 720
+- local preview: `http://127.0.0.1:3000/poker-preview`（仅 QA 临时入口，交付前移除）
+
+**Full-view Comparison Evidence**
+
+- `C:\Users\17335\AppData\Local\Temp\poker-table-comparison-final.jpg`
+- 整体窗口、58px 顶栏、72.3% / 27.7% 主区域分栏、206px 底部操作区、桌面主体和玩家座位层级均与源图保持一致。
+
+**Focused Region Comparison Evidence**
+
+- 牌桌与玩家：`C:\Users\17335\AppData\Local\Temp\poker-table-stage-comparison-final.jpg`
+- 右侧牌局分析：`C:\Users\17335\AppData\Local\Temp\poker-table-rail-comparison-final.jpg`
+- 底部下注操作：`C:\Users\17335\AppData\Local\Temp\poker-table-actions-comparison-final.jpg`
+
+**Findings**
+
+- 无遗留 P0/P1/P2 问题。
+- [P3] 角色头像与源图动物个体存在细微差异，但已使用同一写实黑金艺术方向生成完整资产，圆形裁切、对比度和清晰度一致，不影响层级与识别。
+- [P3] 系统中文字体在不同 Windows/macOS 字体回退下会有轻微字面宽度差异；字号、字重、行高和字距已按当前渲染环境校准。
+
+**Required Fidelity Surfaces**
+
+- Fonts and typography: 标题、筹码数字、正文和微型表格信息形成与源图一致的四级层级；无异常换行、截断或拥挤。
+- Spacing and layout rhythm: 顶栏、主舞台、右侧栏、底部操作区与六个座位锚点已按同视口校准；持久操作无溢出和遮挡。
+- Colors and visual tokens: 深黑、墨绿、香槟金、行动红与成功绿均映射到统一牌桌令牌；边框、渐变和阴影层级与源图一致。
+- Image quality and asset fidelity: 牌桌、豹、鹰、鹿、熊和红色牌背均为高分辨率 WebP 实体资产；无占位图、内联 SVG 插画或低清拉伸。
+- Copy and content: 牌局、赔率、胜率、玩家位置、筹码、时间与按钮文案完整且与参考语境一致。
+- Icons and accessibility: 使用同一 Lucide 图标族；关键按钮均有可访问名称、键盘焦点和 reduced-motion 支持。
+
+**Comparison History**
+
+1. 首轮发现 P2：主玩家被底部操作栏截断；右侧动态栏提前 38px 结束；牌桌纵向体量不足。修复：上移英雄座位、延长右栏到按钮上沿、按参考比例拉伸并下移桌体。复查后持久区域边界与源图对齐。
+2. 第二轮发现 P2：上方与左右座位头像、手牌和下注筹码锚点存在 20–50px 漂移。修复：逐座位校准百分比坐标，并将手牌/筹码从信息流抽为独立绝对锚点。复查后六个座位与公共牌关系对齐。
+3. 第三轮：对完整画面、牌桌、右栏和操作区分别做同视口并排比较，未发现可操作的 P0/P1/P2 差异。
+
+**Primary Interactions Tested**
+
+- 大厅“牌桌”入口进入实战牌桌，返回大厅闭环。
+- 底池预设、滑杆、跟注、加注反馈。
+- 动态/聊天/牌谱 Tab 切换，观战反应计数。
+- 聊天输入与发送反馈。
+- 声音切换、牌桌设置面板。
+- Browser console warnings/errors: `0`。
+
+**Implementation Checklist**
+
+- [x] 同视口主界面视觉还原
+- [x] 六席位与桌面游戏信息
+- [x] 右侧牌局分析与 Tabs
+- [x] 底部完整下注操作闭环
+- [x] 键盘、标签、焦点与减弱动效
+- [x] 组件化、状态逻辑和交互测试
+
+**Follow-up Polish**
+
+- 如后续接入真实牌局状态，可复用现有座位、行动日志与下注控制器，仅替换数据源。
+
+final result: passed

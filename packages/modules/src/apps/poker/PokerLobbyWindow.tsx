@@ -1,6 +1,6 @@
 'use client';
 
-import type { CSSProperties } from 'react';
+import { useCallback, useState, type CSSProperties } from 'react';
 
 import { AppFrame, type AppFrameProps, type AppWindowSurfaceProps } from '@kernelon/shell';
 
@@ -8,6 +8,7 @@ import { DailyTasks, FriendsPanel, TournamentPanel } from './PokerLobbyCommunity
 import { PokerLobbyFeedbackLayer } from './PokerLobbyFeedback';
 import { PokerSidebar, PokerToolbar } from './PokerLobbyChrome';
 import { HeroPanel, QuickTables, TodayPanel } from './PokerLobbyTables';
+import { PokerTableWindow } from './PokerTableWindow';
 import { usePokerDensityScale, usePokerLobbyController } from './usePokerLobbyController';
 
 const pokerHeader: AppFrameProps['header'] = {
@@ -33,9 +34,15 @@ const compactChromeClassName = [
 
 export default function PokerLobbyWindow(props: AppWindowSurfaceProps) {
   void props;
-  const controller = usePokerLobbyController();
+  const [surface, setSurface] = useState<'lobby' | 'table'>('lobby');
+  const enterTable = useCallback(() => setSurface('table'), []);
+  const controller = usePokerLobbyController(enterTable);
   const { canvasStyle, compactChrome, contentStyle, scale, surfaceRef, workspaceStyle } =
     usePokerDensityScale();
+
+  if (surface === 'table') {
+    return <PokerTableWindow onExit={() => setSurface('lobby')} />;
+  }
 
   return (
     <AppFrame
