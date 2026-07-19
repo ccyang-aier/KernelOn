@@ -1,28 +1,56 @@
 'use client';
 
 import { Club, Diamond, Heart, Spade, Star } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useState, type ComponentType, type CSSProperties, type SVGProps } from 'react';
 
 import { cn } from '@kernelon/ui';
 
-import { pokerAssetRoot, pokerSeats, type PokerSeat } from './pokerTableData';
+import {
+  cardLabel,
+  getActivePlayer,
+  getPlayer,
+  getPot,
+  type PokerCard,
+  type PokerGameState,
+  type PokerPlayer,
+  type PokerSuit,
+} from './pokerGameEngine';
+import { pokerAssetRoot, pokerSeatProfiles, type PokerSeatProfile } from './pokerTableData';
 
-type Suit = 'club' | 'diamond' | 'heart' | 'spade';
-
-const suitIcons: Record<Suit, ComponentType<SVGProps<SVGSVGElement>>> = {
+const suitIcons: Record<PokerSuit, ComponentType<SVGProps<SVGSVGElement>>> = {
   club: Club,
   diamond: Diamond,
   heart: Heart,
   spade: Spade,
 };
 
-export function PokerTableStage() {
+const dealerPlacements: Record<string, string> = {
+  bear: 'right-[11.2%] top-[31%]',
+  eagle: 'right-[7%] bottom-[23%]',
+  hero: 'bottom-[12.1%] left-[61%]',
+  lion: 'left-[46%] top-[14%]',
+  panther: 'bottom-[21%] left-[12%]',
+  wolf: 'left-[11%] top-[31%]',
+};
+
+export function PokerTableStage({
+  game,
+  heroHint,
+  turnSeconds,
+}: Readonly<{ game: PokerGameState; heroHint: string; turnSeconds: number }>) {
   const [favorite, setFavorite] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const activePlayer = getActivePlayer(game);
+  const hero = getPlayer(game, 'hero')!;
+  const dealer = game.seats[game.dealerIndex];
+  const revealOpponents = game.phase === 'settled';
 
   return (
     <section
       aria-label="德州扑克牌桌"
       className="relative min-h-0 overflow-hidden border-r border-b border-[#303231] bg-[#0d1011]"
+      data-street={game.street}
       data-testid="poker-table-stage"
     >
       <div
@@ -50,7 +78,9 @@ export function PokerTableStage() {
             <p className="text-[14px] font-semibold tracking-[.06em] text-[#ead09a]">
               王冠深筹赛季
             </p>
-            <p className="mt-0.5 text-[10px] tabular-nums text-[#8d8e89]">2024.05.01–2024.06.30</p>
+            <p className="mt-0.5 text-[10px] tabular-nums text-[#8d8e89]">
+              第 {game.handNumber.toLocaleString('zh-CN')} 手 · {streetLabel(game.street)}
+            </p>
           </div>
         </div>
         <button
@@ -66,7 +96,6 @@ export function PokerTableStage() {
           type="button"
         >
           <Star
-            aria-hidden="true"
             className={cn('size-5 transition-transform', favorite ? 'scale-110 fill-current' : '')}
           />
         </button>
@@ -83,143 +112,231 @@ export function PokerTableStage() {
 
       <div className="absolute left-1/2 top-[34.7%] z-20 -translate-x-1/2">
         <p className="mb-2 text-center text-[17px] font-semibold tracking-[.08em] text-[#cfbea0]">
-          底池 <span className="ml-1 text-[25px] tabular-nums text-[#e2b96d]">1,240</span>
+          底池{' '}
+          <motion.span
+            animate={{ scale: [1, 1.06, 1] }}
+            className="ml-1 inline-block text-[25px] tabular-nums text-[#e2b96d]"
+            key={getPot(game)}
+            transition={{ duration: reduceMotion ? 0 : 0.35 }}
+          >
+            {getPot(game).toLocaleString('zh-CN')}
+          </motion.span>
         </p>
-        <div className="flex items-center gap-2">
-          <PlayingCard rank="10" suit="spade" />
-          <PlayingCard rank="J" suit="diamond" />
-          <PlayingCard rank="7" suit="club" />
-          <PlayingCard rank="2" suit="heart" />
-          <PlayingCard back />
+        <div className="flex items-center gap-2" aria-label="公共牌">
+          {Array.from({ length: 5 }).map((_, index) => {
+            const boardCard = game.board[index];
+            if (boardCard)
+              return <PlayingCard card={boardCard} key={`${boardCard.rank}-${boardCard.suit}`} />;
+            if (index === game.board.length && game.board.length > 0 && game.phase === 'playing') {
+              return <PlayingCard back key={`future-${index}`} />;
+            }
+            return <CardPlaceholder key={`empty-${index}`} />;
+          })}
         </div>
         <ChipLegend />
       </div>
 
-      {pokerSeats.map((seat) => (
-        <PlayerSeat key={seat.id} seat={seat} />
-      ))}
+      {pokerSeatProfiles.map((profile) => {
+        const player = getPlayer(game, profile.id);
+        return player ? (
+          <PlayerSeat
+            active={activePlayer?.id === player.id}
+            key={player.id}
+            player={player}
+            profile={profile}
+            revealCards={revealOpponents}
+            timer={player.id === 'hero' ? turnSeconds : 12}
+            winner={Boolean(game.result?.winnerIds.includes(player.id))}
+          />
+        ) : null;
+      })}
 
-      <div className="absolute bottom-[17.2%] left-[44.3%] z-30 flex gap-1.5">
-        <PlayingCard hero rank="A" suit="spade" />
-        <PlayingCard hero rank="K" suit="spade" />
-      </div>
-      <div className="absolute bottom-[12.1%] left-[61%] z-30 grid size-8 place-items-center rounded-full border-2 border-[#171717] bg-[linear-gradient(145deg,#edcd86,#b68b46)] text-[18px] font-black text-[#17130c] shadow-[0_4px_10px_rgba(0,0,0,.5)]">
-        D
+      <AnimatePresence mode="popLayout">
+        {hero.holeCards.length ? (
+          <motion.div
+            animate={{ opacity: hero.status === 'folded' ? 0.35 : 1, y: 0 }}
+            className="absolute bottom-[17.2%] left-[44.3%] z-30 flex gap-1.5"
+            initial={{ opacity: 0, y: 12 }}
+            key={`${game.handNumber}-${hero.holeCards.map(cardLabel).join('')}`}
+            transition={{ duration: reduceMotion ? 0 : 0.35 }}
+          >
+            {hero.holeCards.map((holeCard) => (
+              <PlayingCard card={holeCard} hero key={`${holeCard.rank}-${holeCard.suit}`} />
+            ))}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {dealer ? (
+        <motion.div
+          animate={{ opacity: 1, scale: 1 }}
+          className={cn(
+            'absolute z-30 grid size-8 place-items-center rounded-full border-2 border-[#171717] bg-[linear-gradient(145deg,#edcd86,#b68b46)] text-[18px] font-black text-[#17130c] shadow-[0_4px_10px_rgba(0,0,0,.5)]',
+            dealerPlacements[dealer.id],
+          )}
+          initial={{ opacity: 0, scale: 0.7 }}
+          key={`${game.handNumber}-${dealer.id}`}
+        >
+          D
+        </motion.div>
+      ) : null}
+
+      <div className="absolute bottom-[10.2%] left-[43.1%] z-40 whitespace-nowrap rounded border border-[#8e713f]/55 bg-[#242119]/95 px-2 py-1 text-[11px] text-[#d6bb81] shadow-[0_5px_12px_rgba(0,0,0,.35)]">
+        {hero.status === 'folded' ? '已弃牌 · 自动观战至结算' : heroHint}
       </div>
     </section>
   );
 }
 
-function PlayerSeat({ seat }: Readonly<{ seat: PokerSeat }>) {
-  const isHero = seat.tone === 'hero';
+function PlayerSeat({
+  active,
+  player,
+  profile,
+  revealCards,
+  timer,
+  winner,
+}: Readonly<{
+  active: boolean;
+  player: PokerPlayer;
+  profile: PokerSeatProfile;
+  revealCards: boolean;
+  timer: number;
+  winner: boolean;
+}>) {
+  const isHero = profile.tone === 'hero';
   const betPlacement = {
     bear: 'right-[263px] top-[104px]',
     eagle: 'right-[291px] top-[40px]',
+    hero: 'left-[118px] top-[80px]',
     lion: 'left-[23px] top-[147px]',
     panther: 'left-[235px] top-[48px]',
     wolf: 'left-[186px] top-[104px]',
-  }[seat.id];
+  }[player.id];
   const cardPlacement = {
     bear: 'left-[20px] top-[94px]',
     eagle: 'left-[17px] top-[94px]',
     lion: 'left-[23px] top-[105px]',
+    panther: 'left-[98px] top-[94px]',
     wolf: 'left-[98px] top-[94px]',
-  }[seat.id];
+  }[player.id];
+  const folded = player.status === 'folded';
 
   return (
-    <div
+    <motion.div
+      animate={{ opacity: folded ? 0.48 : 1, scale: active ? 1.025 : 1 }}
       className={cn('absolute z-30 flex items-center gap-2.5', isHero ? 'items-end' : '')}
-      style={seat.layout}
+      data-active={active || undefined}
+      data-player={player.id}
+      style={profile.layout}
+      transition={{ duration: 0.25 }}
     >
       <div className="relative shrink-0">
         <div
           className={cn(
-            'relative size-[94px] overflow-hidden rounded-full border-[3px] bg-[#181b1b] p-[3px] shadow-[0_12px_24px_rgba(0,0,0,.6),inset_0_0_0_1px_rgba(255,255,255,.12)]',
-            isHero
-              ? 'size-[102px] border-[#e6b85e] shadow-[0_0_0_5px_rgba(222,172,77,.16),0_0_28px_rgba(246,190,84,.7),0_18px_30px_rgba(0,0,0,.7)]'
-              : 'border-[#68625a]',
+            'relative size-[94px] overflow-hidden rounded-full border-[3px] bg-[#181b1b] p-[3px] shadow-[0_12px_24px_rgba(0,0,0,.6),inset_0_0_0_1px_rgba(255,255,255,.12)] transition duration-300',
+            isHero ? 'size-[102px] border-[#e6b85e]' : 'border-[#68625a]',
+            active &&
+              'border-[#76d78d] shadow-[0_0_0_5px_rgba(73,196,105,.13),0_0_24px_rgba(73,196,105,.38),0_18px_30px_rgba(0,0,0,.7)]',
+            winner &&
+              'border-[#f2c768] shadow-[0_0_0_6px_rgba(242,199,104,.17),0_0_34px_rgba(242,199,104,.8),0_18px_30px_rgba(0,0,0,.7)]',
           )}
         >
           <img
-            alt={`${seat.name} 玩家头像`}
+            alt={`${player.name} 玩家头像`}
             className={cn(
               'size-full rounded-full object-cover',
               isHero ? 'scale-[1.42] object-[center_66%]' : '',
             )}
-            src={seat.avatar}
+            src={profile.avatar}
           />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 rounded-full bg-[linear-gradient(145deg,rgba(255,255,255,.16),transparent_30%,rgba(0,0,0,.18))]"
-          />
+          <div className="absolute inset-0 rounded-full bg-[linear-gradient(145deg,rgba(255,255,255,.16),transparent_30%,rgba(0,0,0,.18))]" />
         </div>
-        <span className="absolute -bottom-0.5 -right-1 grid size-[31px] place-items-center rounded-full border-2 border-[#54d171] bg-[#0e1511] text-[11px] font-semibold tabular-nums text-[#c7f7d1] shadow-[0_3px_10px_rgba(0,0,0,.7)]">
-          {seat.timer}
+        <span
+          className={cn(
+            'absolute -bottom-0.5 -right-1 grid size-[31px] place-items-center rounded-full border-2 bg-[#0e1511] text-[11px] font-semibold tabular-nums shadow-[0_3px_10px_rgba(0,0,0,.7)]',
+            active ? 'border-[#54d171] text-[#c7f7d1]' : 'border-[#535957] text-[#89908d]',
+          )}
+        >
+          {active ? `${String(timer).padStart(2, '0')}s` : '··'}
         </span>
-        {seat.position ? (
-          <span
-            className={cn(
-              'absolute -bottom-3.5 left-1/2 -translate-x-1/2 rounded-full border border-white/[.12] bg-[#232525] px-2 py-0.5 text-[10px] font-medium text-[#aaa69c]',
-              isHero ? 'border-[#9f7d42]/60 bg-[#312a1e] text-[#d9bd83]' : '',
-            )}
-          >
-            {seat.position}
-          </span>
-        ) : null}
+        <span
+          className={cn(
+            'absolute -bottom-3.5 left-1/2 -translate-x-1/2 rounded-full border border-white/[.12] bg-[#232525] px-2 py-0.5 text-[10px] font-medium text-[#aaa69c]',
+            isHero ? 'border-[#9f7d42]/60 bg-[#312a1e] text-[#d9bd83]' : '',
+          )}
+        >
+          {player.position}
+        </span>
       </div>
 
       <div className={cn('min-w-[118px]', isHero ? 'pb-[18px]' : '')}>
         <p
           className={cn(
             'text-[15px] font-semibold leading-none text-[#d8d4c9]',
-            isHero ? 'text-[15px] text-[#f0d49b]' : '',
+            isHero ? 'text-[#f0d49b]' : '',
           )}
         >
-          {seat.name}
+          {player.name}
         </p>
         <p className="mt-1.5 text-[18px] font-semibold leading-none tabular-nums tracking-[.06em] text-[#ddb978]">
-          {seat.stack}
+          {player.stack.toLocaleString('zh-CN')}
         </p>
+        {player.lastAction ? (
+          <motion.p
+            animate={{ opacity: 1, x: 0 }}
+            className={cn(
+              'mt-2 text-[10px] text-[#9da19d]',
+              active && 'text-[#d6c18e]',
+              winner && 'text-[#f1cb78]',
+            )}
+            initial={{ opacity: 0, x: -4 }}
+            key={player.lastAction}
+          >
+            {player.lastAction}
+          </motion.p>
+        ) : null}
       </div>
 
-      {seat.cardCount ? (
+      {!isHero && player.holeCards.length > 0 && player.status !== 'folded' ? (
         <div className={cn('absolute flex', cardPlacement)}>
-          {Array.from({ length: seat.cardCount }).map((_, index) => (
-            <CardBack key={index} className={index ? '-ml-1' : ''} />
-          ))}
+          {player.holeCards.map((holeCard, index) =>
+            revealCards ? (
+              <MiniPlayingCard
+                card={holeCard}
+                className={index ? '-ml-1' : ''}
+                key={`${holeCard.rank}-${holeCard.suit}`}
+              />
+            ) : (
+              <CardBack className={index ? '-ml-1' : ''} key={index} />
+            ),
+          )}
         </div>
       ) : null}
 
-      {seat.bet ? (
-        <div
+      {player.streetBet > 0 ? (
+        <motion.div
+          animate={{ opacity: 1, scale: 1 }}
           className={cn(
             'absolute flex items-center gap-1 rounded-full bg-black/45 px-2 py-0.5 text-[12px] font-medium tabular-nums text-[#e3e2db]',
             betPlacement,
           )}
+          initial={{ opacity: 0, scale: 0.8 }}
+          key={player.streetBet}
         >
           <span className="relative size-4 rounded-full border-2 border-white bg-[#ca413c] shadow-[inset_0_0_0_2px_#fff,inset_0_0_0_4px_#ca413c]" />
-          {seat.bet}
-        </div>
+          {player.streetBet.toLocaleString('zh-CN')}
+        </motion.div>
       ) : null}
-      {isHero ? (
-        <span className="absolute left-[110px] top-[109px] whitespace-nowrap rounded border border-[#8e713f]/55 bg-[#242119]/95 px-2 py-1 text-[11px] text-[#d6bb81]">
-          同花听牌
-        </span>
-      ) : null}
-    </div>
+    </motion.div>
   );
 }
 
 function PlayingCard({
   back = false,
+  card,
   hero = false,
-  rank,
-  suit = 'spade',
-}: Readonly<{ back?: boolean; hero?: boolean; rank?: string; suit?: Suit }>) {
-  const SuitIcon = suitIcons[suit];
-  const isRed = suit === 'diamond' || suit === 'heart';
-
-  if (back) {
+}: Readonly<{ back?: boolean; card?: PokerCard; hero?: boolean }>) {
+  if (back || !card) {
     return (
       <div className="relative h-[108px] w-[74px] overflow-hidden rounded-[5px] border border-[#777063] bg-[linear-gradient(145deg,#282723,#151818)] p-1 shadow-[0_4px_11px_rgba(0,0,0,.42)]">
         <div className="grid size-full place-items-center rounded-[3px] border border-[#9d7a3c]/55 bg-[radial-gradient(circle_at_center,#25231d,#121516_70%)]">
@@ -232,18 +349,41 @@ function PlayingCard({
       </div>
     );
   }
-
+  const SuitIcon = suitIcons[card.suit];
+  const isRed = card.suit === 'diamond' || card.suit === 'heart';
   return (
-    <div
+    <motion.div
+      animate={{ opacity: 1, rotateY: 0, y: 0 }}
       className={cn(
         'relative h-[108px] w-[74px] rounded-[5px] border border-white bg-[linear-gradient(145deg,#fff,#e8e8e5)] p-1.5 text-[#17191a] shadow-[0_4px_11px_rgba(0,0,0,.42),inset_0_1px_0_#fff]',
         hero ? 'h-[112px] w-[68px]' : '',
         isRed ? 'text-[#a63a38]' : '',
       )}
+      initial={{ opacity: 0, rotateY: 85, y: -8 }}
+      transition={{ duration: 0.35 }}
     >
-      <span className="block font-serif text-[23px] font-semibold leading-none">{rank}</span>
+      <span className="block font-serif text-[23px] font-semibold leading-none">
+        {cardLabel(card)}
+      </span>
       <SuitIcon className="mt-1 size-7 fill-current stroke-[1.2]" />
       <SuitIcon className="absolute bottom-2 right-2 size-8 fill-current stroke-[1.2]" />
+    </motion.div>
+  );
+}
+
+function MiniPlayingCard({ card, className }: Readonly<{ card: PokerCard; className?: string }>) {
+  const SuitIcon = suitIcons[card.suit];
+  const red = card.suit === 'diamond' || card.suit === 'heart';
+  return (
+    <div
+      className={cn(
+        'relative h-[42px] w-[30px] rotate-1 rounded-[2px] border border-white bg-[#f0f0ed] p-1 font-serif text-[11px] font-bold shadow-[0_3px_7px_rgba(0,0,0,.5)]',
+        red ? 'text-[#a63a38]' : 'text-[#17191a]',
+        className,
+      )}
+    >
+      {cardLabel(card)}
+      <SuitIcon className="absolute bottom-1 right-1 size-3 fill-current" />
     </div>
   );
 }
@@ -262,6 +402,15 @@ function CardBack({ className }: Readonly<{ className?: string }>) {
   );
 }
 
+function CardPlaceholder() {
+  return (
+    <div
+      aria-hidden="true"
+      className="h-[108px] w-[74px] rounded-[5px] border border-dashed border-[#b89b63]/15 bg-black/[.08]"
+    />
+  );
+}
+
 function ChipLegend() {
   const chips = [
     ['#b93c36', '5'],
@@ -271,7 +420,6 @@ function ChipLegend() {
     ['#b88c37', '1K'],
     ['#d6b365', '1K'],
   ];
-
   return (
     <div className="mt-2 flex items-start justify-center gap-2.5">
       {chips.map(([color, label]) => (
@@ -280,11 +428,21 @@ function ChipLegend() {
             className="grid size-[22px] place-items-center rounded-full border-[3px] border-white/80 text-[7px] font-bold text-white shadow-[0_3px_5px_rgba(0,0,0,.55),inset_0_0_0_2px_rgba(0,0,0,.15)]"
             style={{ backgroundColor: color } as CSSProperties}
           >
-            <Diamond aria-hidden="true" className="size-2 fill-current" />
+            <Diamond className="size-2 fill-current" />
           </span>
           <span className="text-[9px] tabular-nums text-[#b8a974]">{label}</span>
         </div>
       ))}
     </div>
   );
+}
+
+function streetLabel(street: PokerGameState['street']) {
+  return {
+    flop: '翻牌圈',
+    preflop: '翻牌前',
+    river: '河牌圈',
+    showdown: '摊牌结算',
+    turn: '转牌圈',
+  }[street];
 }

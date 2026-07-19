@@ -15,13 +15,24 @@ import type { ComponentType, SVGProps } from 'react';
 
 import { cn } from '@kernelon/ui';
 
-import { handHistory, pokerAssetRoot, reactionOptions } from './pokerTableData';
+import {
+  getActivePlayer,
+  getPlayer,
+  type PokerGameState,
+  type PokerHandValue,
+} from './pokerGameEngine';
+import { pokerAssetRoot, reactionOptions } from './pokerTableData';
 import type { PokerRailTab } from './usePokerTableController';
 
 type PokerTableRailProps = {
   activeTab: PokerRailTab;
+  callAmount: number;
+  estimatedEquity: number;
+  game: PokerGameState;
+  heroHand: PokerHandValue;
   onReact(index: number, label: string): void;
   onTabChange(tab: PokerRailTab): void;
+  potOdds: string;
   reactionCounts: number[];
 };
 
@@ -35,10 +46,16 @@ const reactionIcons: Array<ComponentType<SVGProps<SVGSVGElement>>> = [
 
 export function PokerTableRail({
   activeTab,
+  callAmount,
+  estimatedEquity,
+  game,
+  heroHand,
   onReact,
   onTabChange,
+  potOdds,
   reactionCounts,
 }: Readonly<PokerTableRailProps>) {
+  const activePlayer = getActivePlayer(game);
   return (
     <aside className="relative z-20 h-[calc(100%+38px)] min-h-0 overflow-hidden border-b border-[#343635] bg-[linear-gradient(180deg,#151818_0%,#101313_100%)] text-[#d7d4ca]">
       <section className="px-[18px] pt-4">
@@ -56,41 +73,62 @@ export function PokerTableRail({
           <span className="text-right">底池</span>
         </div>
         <div>
-          {handHistory.map((entry, rowIndex) => (
+          {game.logs.slice(-6).map((entry) => (
             <div
               className="grid grid-cols-[72px_92px_60px_1fr_48px_50px] items-center border-b border-white/[.035] py-[9px] text-[11px] tabular-nums text-[#888b89]"
-              key={entry[0]}
+              key={entry.id}
             >
-              {entry.map((value, columnIndex) => (
-                <span
-                  className={cn(
-                    'truncate',
-                    rowIndex === 4 && columnIndex >= 3 ? 'font-medium text-[#e26158]' : '',
-                    columnIndex === 5 ? 'text-right' : '',
-                  )}
-                  key={`${entry[0]}-${columnIndex}`}
-                >
-                  {value}
-                </span>
-              ))}
+              <span>{entry.time}</span>
+              <span className="truncate">{entry.player}</span>
+              <span>{entry.position || '–'}</span>
+              <span
+                className={cn(
+                  'truncate',
+                  entry.emphasis === 'raise' && 'font-medium text-[#e26158]',
+                  entry.emphasis === 'hero' && 'font-medium text-[#e1bd76]',
+                  entry.emphasis === 'result' && 'font-semibold text-[#69d283]',
+                  entry.emphasis === 'street' && 'text-[#d0ae68]',
+                )}
+              >
+                {entry.action}
+              </span>
+              <span>{entry.amount === null ? '–' : entry.amount.toLocaleString('zh-CN')}</span>
+              <span className="text-right">{entry.pot.toLocaleString('zh-CN')}</span>
             </div>
           ))}
-          <div className="grid grid-cols-[72px_92px_60px_1fr_48px_50px] items-center py-[10px] text-[11px] tabular-nums text-[#e1bd76]">
-            <span>20:15:43</span>
-            <span className="font-semibold">你</span>
-            <span>CO</span>
-            <span>思考中</span>
+          <div
+            className={cn(
+              'grid grid-cols-[72px_92px_60px_1fr_48px_50px] items-center py-[10px] text-[11px] tabular-nums',
+              activePlayer?.id === 'hero' ? 'text-[#e1bd76]' : 'text-[#8da394]',
+            )}
+          >
+            <span>实时</span>
+            <span className="truncate font-semibold">{activePlayer?.name ?? '本手结束'}</span>
+            <span>{activePlayer?.position ?? '–'}</span>
+            <span>{activePlayer ? '思考中' : '等待下一手'}</span>
             <span>–</span>
-            <span className="text-right">270</span>
+            <span className="text-right">
+              {game.result?.totalPot.toLocaleString('zh-CN') ?? '–'}
+            </span>
           </div>
         </div>
 
         <div className="mt-1 grid grid-cols-2 gap-2.5">
-          <MetricCard label="底池赔率" note="需要跟注 240" value="3.1 : 1" />
-          <MetricCard label="胜率估算" note="基于对手范围" value="42%" />
+          <MetricCard
+            label="底池赔率"
+            note={
+              callAmount > 0 ? `需要跟注 ${callAmount.toLocaleString('zh-CN')}` : '当前可以过牌'
+            }
+            value={potOdds}
+          />
+          <MetricCard
+            label="胜率估算"
+            note={`当前牌力：${heroHand.label}`}
+            value={`${estimatedEquity}%`}
+          />
         </div>
 
-        <OpponentAnalysis />
+        <OpponentAnalysis game={game} />
       </section>
 
       <div className="absolute inset-x-0 bottom-0 border-t border-[#3a3b39] bg-[#111414]/95 backdrop-blur-xl">
@@ -143,7 +181,9 @@ export function PokerTableRail({
           ) : (
             <div className="flex h-full items-center gap-3 rounded border border-white/[.06] bg-white/[.02] px-3 text-[12px] text-[#9a9d9a]">
               <Spade className="size-5 text-[#c99f59]" />
-              本桌牌谱将在本手结束后自动归档。
+              {game.result
+                ? `第 ${game.handNumber.toLocaleString('zh-CN')} 手已归档：${game.result.summary}`
+                : `第 ${game.handNumber.toLocaleString('zh-CN')} 手进行中，结算后将自动归档。`}
             </div>
           )}
         </div>
@@ -168,18 +208,27 @@ function MetricCard({
   );
 }
 
-function OpponentAnalysis() {
+function OpponentAnalysis({ game }: Readonly<{ game: PokerGameState }>) {
+  const focusPlayer =
+    [...game.seats]
+      .reverse()
+      .find((seat) => seat.id !== 'hero' && seat.lastAction.includes('加注')) ??
+    getPlayer(game, 'eagle')!;
+  const profileId =
+    focusPlayer.id === 'bear' ? 'bear' : focusPlayer.id === 'lion' ? 'lion' : 'eagle';
   return (
     <section className="mt-2 rounded-md border border-[#4f493d]/55 bg-[linear-gradient(145deg,#1b1e1e,#141717)] px-3 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,.035)]">
       <h3 className="mb-2 text-[12px] font-semibold tracking-[.08em] text-[#dcc69a]">对手分析</h3>
       <div className="flex items-center gap-2.5">
         <img
-          alt="老鹰之眼头像"
+          alt={`${focusPlayer.name}头像`}
           className="size-12 rounded-full border-2 border-[#827358] object-cover"
-          src={`${pokerAssetRoot}/avatar-eagle.webp`}
+          src={`${pokerAssetRoot}/avatar-${profileId}.webp`}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-medium text-[#d7d1c4]">老鹰之眼（HJ）</p>
+          <p className="text-[11px] font-medium text-[#d7d1c4]">
+            {focusPlayer.name}（{focusPlayer.position}）
+          </p>
           <div className="mt-1 flex flex-wrap gap-1">
             {['激进型', '高频率', '大额下注倾向'].map((tag) => (
               <span
@@ -198,7 +247,8 @@ function OpponentAnalysis() {
         />
       </div>
       <p className="mt-2 text-[10px] leading-[1.65] text-[#858a87]">
-        该玩家近期在类似牌面下的持续下注率为 68%，加注率为 23%，多以强牌或听牌施压。
+        该玩家本手投入 {focusPlayer.totalCommitted.toLocaleString('zh-CN')}{' '}
+        筹码，系统会根据牌面、下注压力与剩余筹码动态选择跟注、加注或弃牌。
       </p>
     </section>
   );

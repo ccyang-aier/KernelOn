@@ -52,7 +52,7 @@ export function PokerTableWindow({ onExit }: Readonly<{ onExit(): void }>) {
       <div className="flex h-9 items-center divide-x divide-white/[.09] text-[12px] text-[#a8aaa6]">
         <span className="flex items-center gap-1.5 px-4 tabular-nums">
           <Hash className="size-3.5" />
-          08421
+          {controller.game.handNumber.toString().padStart(5, '0')}
         </span>
         <span className="flex items-center gap-1.5 px-4">
           <Users className="size-4" />
@@ -87,7 +87,9 @@ export function PokerTableWindow({ onExit }: Readonly<{ onExit(): void }>) {
     ),
     'poker-table-title': (
       <div className="flex items-center gap-3 whitespace-nowrap text-[18px] font-semibold tracking-[.06em] text-[#eadfc8]">
-        <span>王冠深筹 · 10/20</span>
+        <span>
+          王冠深筹 · {controller.game.smallBlind}/{controller.game.bigBlind}
+        </span>
         <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[.08em] text-[#ef5a54]">
           <i className="size-2 rounded-full bg-[#ef5a54] shadow-[0_0_8px_rgba(239,90,84,.7)]" />
           LIVE
@@ -109,23 +111,47 @@ export function PokerTableWindow({ onExit }: Readonly<{ onExit(): void }>) {
         className="relative h-full min-h-0 overflow-hidden bg-[#0b0e0f] text-[#ded9cd]"
         data-testid="poker-table-window"
       >
-        <div className="grid h-full min-h-[760px] min-w-[1320px] grid-cols-[72.3%_27.7%] grid-rows-[minmax(0,1fr)_206px]">
-          <PokerTableStage />
+        <div className="grid h-full min-h-0 min-w-[1320px] grid-cols-[72.3%_27.7%] grid-rows-[minmax(0,1fr)_clamp(160px,21%,206px)]">
+          <PokerTableStage
+            game={controller.game}
+            heroHint={controller.heroHand.label}
+            turnSeconds={controller.turnSeconds}
+          />
           <PokerTableRail
             activeTab={controller.railTab}
+            callAmount={controller.callAmount}
+            estimatedEquity={controller.estimatedEquity}
+            game={controller.game}
+            heroHand={controller.heroHand}
             onReact={controller.react}
             onTabChange={controller.setRailTab}
+            potOdds={controller.potOdds}
             reactionCounts={controller.reactionCounts}
           />
           <PokerTableActions
             betAmount={controller.betAmount}
             betPercent={controller.betPercent}
+            callAmount={controller.callAmount}
+            canRaise={controller.canRaise}
             chatValue={controller.chatValue}
+            heroStack={controller.hero.stack}
+            isHeroTurn={controller.isHeroTurn}
+            maximumRaiseTo={controller.maximumRaiseTo}
+            minimumRaiseTo={controller.minimumRaiseTo}
             onAction={controller.act}
             onBetChange={controller.setBetAmount}
             onChatChange={controller.setChatValue}
             onChoosePreset={controller.choosePreset}
+            onNextHand={controller.nextHand}
             onSendChat={controller.sendChat}
+            resultSummary={controller.game.result?.summary}
+            statusLabel={
+              controller.game.phase === 'settled'
+                ? `底池 ${controller.game.result?.totalPot.toLocaleString('zh-CN')} 已结算`
+                : controller.isHeroTurn
+                  ? `轮到你行动 · ${controller.turnSeconds}s`
+                  : `等待 ${controller.activePlayer?.name ?? '牌局'} 行动`
+            }
           />
         </div>
 
