@@ -15,12 +15,19 @@ import { pokerTables } from './data';
 export type PokerToolbarMenu = 'notifications' | 'wallet' | null;
 export type PokerNotice = { id: number; message: string } | null;
 
+interface PokerLobbyControllerOptions {
+  onNavigate?(surface: 'lobby' | 'rooms'): void;
+  onOpenRooms?(target?: string): void;
+}
+
 const POKER_REFERENCE_CONTENT_HEIGHT = 908;
 const MINIMUM_DENSITY_SCALE = 0.84;
 
-export function usePokerLobbyController(onEnterTable?: (target?: string) => void) {
+export function usePokerLobbyController({
+  onNavigate,
+  onOpenRooms,
+}: PokerLobbyControllerOptions = {}) {
   const [friendMessage, setFriendMessage] = useState<string | null>(null);
-  const [joinTarget, setJoinTarget] = useState<string | null>(null);
   const [menu, setMenu] = useState<PokerToolbarMenu>(null);
   const [notice, setNotice] = useState<PokerNotice>(null);
   const [query, setQuery] = useState('');
@@ -69,14 +76,20 @@ export function usePokerLobbyController(onEnterTable?: (target?: string) => void
   const selectNavigation = useCallback(
     (id: string, label: string) => {
       if (id === 'tables') {
-        announce('正在进入王冠深筹实战牌桌');
-        onEnterTable?.('王冠深筹 · 10 / 20');
+        announce('已打开牌桌大厅，可加入房间或开始智能匹配');
+        onOpenRooms?.();
         return;
       }
 
-      announce(id === 'lobby' ? '当前已在大厅' : `${label}将在后续界面继续实现`);
+      if (id === 'lobby') {
+        onNavigate?.('lobby');
+        announce('已返回大厅');
+        return;
+      }
+
+      announce(`${label}将在后续界面继续实现`);
     },
-    [announce, onEnterTable],
+    [announce, onNavigate, onOpenRooms],
   );
 
   const inviteFriend = useCallback(
@@ -102,32 +115,26 @@ export function usePokerLobbyController(onEnterTable?: (target?: string) => void
     announce('已为你更新一批牌桌');
   }, [announce]);
 
-  const confirmJoin = useCallback(() => {
-    if (!joinTarget) {
-      return;
-    }
-
-    announce(`正在进入 ${joinTarget}`);
-    setJoinTarget(null);
-    onEnterTable?.(joinTarget);
-  }, [announce, joinTarget, onEnterTable]);
+  const openRooms = useCallback(
+    (target?: string) => {
+      announce(target ? `正在牌桌大厅中定位 ${target}` : '已打开牌桌大厅');
+      onOpenRooms?.(target);
+    },
+    [announce, onOpenRooms],
+  );
 
   return {
-    activeNav: 'lobby',
     announce,
     claimTask,
-    confirmJoin,
     filteredTables,
     friendMessage,
     inviteFriend,
-    joinTarget,
     menu,
     notice,
-    openJoin: setJoinTarget,
+    openJoin: openRooms,
     query,
     rotateTables,
     selectNavigation,
-    setJoinTarget,
     setMenu,
     setQuery,
     taskProgress,

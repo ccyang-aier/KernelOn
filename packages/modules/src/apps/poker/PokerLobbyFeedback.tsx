@@ -84,7 +84,7 @@ function JoinDialog({
   return (
     <motion.div
       animate={{ opacity: 1 }}
-      aria-label="确认入座"
+      aria-label="确认加入房间"
       aria-modal="true"
       className="absolute inset-0 z-[80] flex items-center justify-center bg-black/64 backdrop-blur-[4px]"
       exit={{ opacity: 0 }}
@@ -107,7 +107,7 @@ function JoinDialog({
         }}
       >
         <button
-          aria-label="关闭确认入座"
+          aria-label="关闭确认加入房间"
           autoFocus
           className="absolute right-4 top-4 text-[#8f8c82] transition hover:rotate-90 hover:text-[#e7dcc4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d5b369]/65"
           onClick={onCancel}
@@ -123,9 +123,9 @@ function JoinDialog({
           />
           <div>
             <p className="text-[11px] font-semibold tracking-[0.16em] text-[#ad8d4d]">
-              SEAT RESERVED
+              ROOM RESERVED
             </p>
-            <h2 className="mt-1 text-[22px] font-bold">确认入座</h2>
+            <h2 className="mt-1 text-[22px] font-bold">确认加入房间</h2>
           </div>
         </div>
         <div className="mt-5 rounded-[10px] border border-[#3e382d] bg-black/20 p-4">
@@ -146,7 +146,7 @@ function JoinDialog({
             type="button"
             whileTap={{ scale: 0.97 }}
           >
-            稍后再说
+            取消
           </motion.button>
           <motion.button
             className="h-11 flex-1 rounded-[8px] border border-[#e0bf77] bg-[linear-gradient(180deg,#e8ce91,#c59b4f)] text-sm font-bold text-[#16120b] transition hover:brightness-105"
@@ -154,7 +154,7 @@ function JoinDialog({
             type="button"
             whileTap={{ scale: 0.97 }}
           >
-            进入牌桌
+            加入房间
           </motion.button>
         </div>
       </motion.div>

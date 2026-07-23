@@ -40,7 +40,7 @@ describe('PokerLobbyWindow', () => {
     expect(screen.getAllByRole('button', { name: /邀请 .* 同桌/ })).toHaveLength(5);
   });
 
-  it('supports search, table rotation, rewards and entering a live table', () => {
+  it('supports search, table rotation, rewards and opening the room browser', () => {
     render(<PokerLobbyWindow {...({} as AppWindowSurfaceProps)} />);
 
     fireEvent.change(screen.getByRole('searchbox', { name: '搜索玩家、俱乐部或赛事' }), {
@@ -58,14 +58,20 @@ describe('PokerLobbyWindow', () => {
     expect(screen.getByRole('button', { name: '已领取 完成 3 场牌局' })).toBeDisabled();
 
     fireEvent.click(screen.getByRole('button', { name: /深筹常规桌/ }));
-    const dialog = screen.getByRole('dialog', { name: '确认入座' });
-    expect(within(dialog).getByText(/深筹常规桌/)).toBeInTheDocument();
-    fireEvent.click(within(dialog).getByRole('button', { name: '进入牌桌' }));
-    expect(screen.getByTestId('poker-table-window')).toBeInTheDocument();
-    expect(screen.getByText('王冠深筹 · 10/20')).toBeInTheDocument();
+    expect(screen.getByTestId('poker-room-browser')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '牌桌大厅' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '正在牌桌大厅中定位 深筹常规桌 · 10 / 20',
+    );
+
+    fireEvent.change(screen.getByRole('searchbox', { name: '搜索房间名称或房主' }), {
+      target: { value: 'PandaPro' },
+    });
+    expect(screen.getByText('翡翠常规桌')).toBeInTheDocument();
+    expect(screen.queryByText('王冠深筹')).not.toBeInTheDocument();
   });
 
-  it('closes lobby feedback loops and exposes complete table interactions', () => {
+  it('closes room-browser feedback loops and exposes complete table interactions', async () => {
     render(<PokerLobbyWindow {...({} as AppWindowSurfaceProps)} />);
 
     fireEvent.click(screen.getByRole('button', { name: /黑桃会员/ }));
@@ -81,6 +87,16 @@ describe('PokerLobbyWindow', () => {
     expect(screen.getByRole('status')).toHaveTextContent('邀请已发送给 PandaPro');
 
     fireEvent.click(screen.getByRole('button', { name: '牌桌' }));
+    expect(screen.getByTestId('poker-room-browser')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '加入 翡翠常规桌' }));
+    const dialog = screen.getByRole('dialog', { name: '确认加入房间' });
+    expect(within(dialog).getByText('翡翠常规桌')).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole('button', { name: '加入房间' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: '进入牌桌' }, { timeout: 4_000 }),
+    );
+
     expect(screen.getByTestId('poker-table-stage')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '底池' }));
@@ -91,6 +107,8 @@ describe('PokerLobbyWindow', () => {
     fireEvent.click(screen.getByRole('button', { name: '聊天' }));
     expect(screen.getByText(/观战聊天已同步/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '返回大厅' }));
+    expect(screen.getByRole('heading', { name: '牌桌大厅' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '大厅' }));
     expect(screen.getByRole('heading', { name: '今晚主桌' })).toBeInTheDocument();
   });
 });

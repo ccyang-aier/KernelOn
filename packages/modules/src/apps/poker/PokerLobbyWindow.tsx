@@ -7,9 +7,11 @@ import { AppFrame, type AppFrameProps, type AppWindowSurfaceProps } from '@kerne
 import { DailyTasks, FriendsPanel, TournamentPanel } from './PokerLobbyCommunity';
 import { PokerLobbyFeedbackLayer } from './PokerLobbyFeedback';
 import { PokerSidebar, PokerToolbar } from './PokerLobbyChrome';
+import { PokerRoomBrowser } from './PokerRoomBrowser';
 import { HeroPanel, QuickTables, TodayPanel } from './PokerLobbyTables';
 import { PokerTableWindow } from './PokerTableWindow';
 import { usePokerDensityScale, usePokerLobbyController } from './usePokerLobbyController';
+import { usePokerRoomBrowserController } from './usePokerRoomBrowserController';
 
 const pokerHeader: AppFrameProps['header'] = {
   density: 'compact',
@@ -34,15 +36,25 @@ const compactChromeClassName = [
 
 export default function PokerLobbyWindow(props: AppWindowSurfaceProps) {
   void props;
-  const [surface, setSurface] = useState<'lobby' | 'table'>('lobby');
+  const [surface, setSurface] = useState<'lobby' | 'rooms' | 'table'>('lobby');
   const enterTable = useCallback(() => setSurface('table'), []);
-  const controller = usePokerLobbyController(enterTable);
+  const openRooms = useCallback(() => setSurface('rooms'), []);
+  const controller = usePokerLobbyController({
+    onNavigate: setSurface,
+    onOpenRooms: openRooms,
+  });
+  const roomController = usePokerRoomBrowserController({
+    announce: controller.announce,
+    onEnterTable: enterTable,
+  });
   const { canvasStyle, compactChrome, contentStyle, scale, surfaceRef, workspaceStyle } =
     usePokerDensityScale();
 
   if (surface === 'table') {
-    return <PokerTableWindow onExit={() => setSurface('lobby')} />;
+    return <PokerTableWindow onExit={() => setSurface('rooms')} />;
   }
+
+  const showingRooms = surface === 'rooms';
 
   return (
     <AppFrame
@@ -62,7 +74,7 @@ export default function PokerLobbyWindow(props: AppWindowSurfaceProps) {
       >
         <div className="relative grid h-full" style={canvasStyle}>
           <PokerSidebar
-            activeNav={controller.activeNav}
+            activeNav={showingRooms ? 'tables' : 'lobby'}
             onMembership={() => controller.announce('黑桃会员权益面板已准备就绪')}
             onSelect={controller.selectNavigation}
           />
@@ -74,37 +86,45 @@ export default function PokerLobbyWindow(props: AppWindowSurfaceProps) {
               menu={controller.menu}
               onAnnounce={controller.announce}
               onMenuChange={controller.setMenu}
-              onSearch={controller.setQuery}
-              query={controller.query}
+              onSearch={showingRooms ? roomController.setQuery : controller.setQuery}
+              query={showingRooms ? roomController.query : controller.query}
+              searchLabel={showingRooms ? '搜索房间名称或房主' : '搜索玩家、俱乐部或赛事'}
+              searchPlaceholder={showingRooms ? '搜索房间名称 / 房主' : undefined}
             />
-            <main className="min-h-0 overflow-auto p-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="grid h-full gap-2" style={contentStyle}>
-                <div className="grid min-h-0 grid-cols-[minmax(0,1.74fr)_minmax(350px,1fr)] gap-2">
-                  <HeroPanel onJoin={() => controller.openJoin('今晚主桌 · 10 / 20')} />
-                  <TodayPanel onContinue={() => controller.openJoin('深筹常规桌 · 10 / 20')} />
-                </div>
-                <QuickTables
-                  onJoin={controller.openJoin}
-                  onRotate={controller.rotateTables}
-                  tables={controller.filteredTables}
-                />
-                <div className="grid min-h-0 grid-cols-[0.9fr_1.08fr_1.08fr] gap-2">
-                  <TournamentPanel onOpen={() => controller.announce('已打开深夜冠军赛报名详情')} />
-                  <FriendsPanel
-                    message={controller.friendMessage}
-                    onInvite={controller.inviteFriend}
-                    onViewAll={() => controller.announce('已展示全部在线牌友')}
+            {showingRooms ? (
+              <PokerRoomBrowser controller={roomController} />
+            ) : (
+              <main className="min-h-0 overflow-auto p-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="grid h-full gap-2" style={contentStyle}>
+                  <div className="grid min-h-0 grid-cols-[minmax(0,1.74fr)_minmax(350px,1fr)] gap-2">
+                    <HeroPanel onJoin={() => controller.openJoin('今晚主桌 · 10 / 20')} />
+                    <TodayPanel onContinue={() => controller.openJoin('深筹常规桌 · 10 / 20')} />
+                  </div>
+                  <QuickTables
+                    onJoin={controller.openJoin}
+                    onRotate={controller.rotateTables}
+                    tables={controller.filteredTables}
                   />
-                  <DailyTasks onClaim={controller.claimTask} progress={controller.taskProgress} />
+                  <div className="grid min-h-0 grid-cols-[0.9fr_1.08fr_1.08fr] gap-2">
+                    <TournamentPanel
+                      onOpen={() => controller.announce('已打开深夜冠军赛报名详情')}
+                    />
+                    <FriendsPanel
+                      message={controller.friendMessage}
+                      onInvite={controller.inviteFriend}
+                      onViewAll={() => controller.announce('已展示全部在线牌友')}
+                    />
+                    <DailyTasks onClaim={controller.claimTask} progress={controller.taskProgress} />
+                  </div>
                 </div>
-              </div>
-            </main>
+              </main>
+            )}
           </div>
           <PokerLobbyFeedbackLayer
-            joinTarget={controller.joinTarget}
+            joinTarget={showingRooms ? (roomController.joinTarget?.name ?? null) : null}
             notice={controller.notice}
-            onCancelJoin={() => controller.setJoinTarget(null)}
-            onConfirmJoin={controller.confirmJoin}
+            onCancelJoin={() => roomController.setJoinTarget(null)}
+            onConfirmJoin={roomController.confirmJoin}
           />
         </div>
       </div>

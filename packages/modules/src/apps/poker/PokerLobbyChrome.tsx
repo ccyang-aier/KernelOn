@@ -194,6 +194,8 @@ interface PokerToolbarProps {
   onMenuChange(value: PokerToolbarMenu): void;
   onSearch(value: string): void;
   query: string;
+  searchLabel?: string;
+  searchPlaceholder?: string;
 }
 
 export function PokerToolbar({
@@ -202,6 +204,8 @@ export function PokerToolbar({
   onMenuChange,
   onSearch,
   query,
+  searchLabel = '搜索玩家、俱乐部或赛事',
+  searchPlaceholder = '搜索玩家 / 俱乐部 / 赛事',
 }: PokerToolbarProps) {
   return (
     <header className="relative z-40 flex items-center gap-3 border-b border-[#29271f] bg-[linear-gradient(180deg,#101311_0%,#0d100f_100%)] px-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
@@ -218,10 +222,10 @@ export function PokerToolbar({
       <label className="ml-auto flex h-9 w-[286px] items-center gap-2.5 rounded-[10px] border border-[#2e2d28] bg-[#0b0d0c] px-3 text-[#77766f] shadow-[inset_0_1px_0_rgba(255,255,255,0.025)] transition focus-within:border-[#7b6333] focus-within:ring-1 focus-within:ring-[#a3823e]/40">
         <Search className="size-[17px] shrink-0" strokeWidth={1.8} />
         <input
-          aria-label="搜索玩家、俱乐部或赛事"
+          aria-label={searchLabel}
           className="min-w-0 flex-1 bg-transparent text-[13px] text-[#d7d0c1] outline-none placeholder:text-[#74726b]"
           onChange={(event) => onSearch(event.target.value)}
-          placeholder="搜索玩家 / 俱乐部 / 赛事"
+          placeholder={searchPlaceholder}
           type="search"
           value={query}
         />
